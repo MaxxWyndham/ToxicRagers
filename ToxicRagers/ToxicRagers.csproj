@@ -1,0 +1,83 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{9B9C928D-9E64-400E-961E-F134E659146B}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>ToxicRagers</RootNamespace>
+    <AssemblyName>ToxicRagers</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x64</PlatformTarget>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Carmageddon2\Formats\c2Act.cs" />
+    <Compile Include="Carmageddon2\Formats\c2Dat.cs" />
+    <Compile Include="Carmageddon2\Formats\c2MapTXT.cs" />
+    <Compile Include="Carmageddon2\Formats\c2Mat.cs" />
+    <Compile Include="Carmageddon2\Helpers\c2Face.cs" />
+    <Compile Include="Carmageddon2\Helpers\c2Map.cs" />
+    <Compile Include="Carmageddon2\Helpers\c2Mesh.cs" />
+    <Compile Include="Carmageddon2\Helpers\c2Vertex.cs" />
+    <Compile Include="Carmageddon2\Helpers\FunkParser.cs" />
+    <Compile Include="Carmageddon2\Helpers\GrooveParser.cs" />
+    <Compile Include="Carmageddon2\Helpers\OpponentPathParser.cs" />
+    <Compile Include="CarmageddonReincarnation\Formats\crMDL.cs" />
+    <Compile Include="Carmageddon\Formats\c1CarTXT.cs" />
+    <Compile Include="Carmageddon\Helpers\c1Car.cs" />
+    <Compile Include="Helpers\BEBinaryReader.cs" />
+    <Compile Include="Helpers\BEBinaryWriter.cs" />
+    <Compile Include="Helpers\Line.cs" />
+    <Compile Include="Helpers\Matrix2D.cs" />
+    <Compile Include="Helpers\Matrix3D.cs" />
+    <Compile Include="Helpers\Plane.cs" />
+    <Compile Include="Helpers\Structs.cs" />
+    <Compile Include="Helpers\TypeConverters.cs" />
+    <Compile Include="Helpers\Vector2.cs" />
+    <Compile Include="Helpers\Vector3D.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
