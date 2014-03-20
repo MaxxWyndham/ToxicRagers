@@ -62,7 +62,9 @@
     <Compile Include="Helpers\BEBinaryReader.cs" />
     <Compile Include="Helpers\BEBinaryWriter.cs" />
     <Compile Include="Helpers\ExtensionMethods.cs" />
+    <Compile Include="Helpers\IO.cs" />
     <Compile Include="Helpers\Line.cs" />
+    <Compile Include="Helpers\Logger.cs" />
     <Compile Include="Helpers\Matrix2D.cs" />
     <Compile Include="Helpers\Matrix3D.cs" />
     <Compile Include="Helpers\Plane.cs" />

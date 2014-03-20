@@ -9,6 +9,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
     {
         int faceCount;
         int vertexCount;
+        int version;
         List<string> meshNames = new List<string>();
         List<MDLFace> faces = new List<MDLFace>();
         List<MDLVertex> verts = new List<MDLVertex>();
@@ -21,6 +22,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
         public static MDL Load(string Path)
         {
             // All these (int) casts are messy
+            Logger.LogToFile("{0}", Path);
             MDL mdl = new MDL();
 
             using (BinaryReader br = new BinaryReader(new FileStream(Path, FileMode.Open)))
@@ -30,16 +32,21 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                     br.ReadByte() != 2 ||
                     br.ReadByte() != 6)
                 {
-                    Console.WriteLine("{0} isn't a valid MDL file", Path);
+                    Logger.LogToFile("{0} isn't a valid MDL file", Path);
                     return null;
                 }
 
                 br.ReadBytes(4);    // No idea
-                br.ReadBytes(4);    // No idea
+                mdl.version = (int)br.ReadUInt32();
                 br.ReadBytes(4);    // No idea
 
-                mdl.faceCount = (int)br.ReadUInt32();
-                mdl.vertexCount = (int)br.ReadUInt32();
+                Logger.LogToFile("Version {0}", mdl.version);
+
+                int headerFaceCount = (int)br.ReadUInt32();
+                int headerVertCount = (int)br.ReadUInt32();
+
+                Logger.LogToFile("Faces: {0}", headerFaceCount);
+                Logger.LogToFile("Verts: {0}", headerVertCount);
 
                 br.ReadUInt32();    // Bytes remaining
 
@@ -55,23 +62,23 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                 br.ReadBytes(4);    // No idea
 
                 int nameCount = br.ReadInt16();
+                Logger.LogToFile("Name count: {0}", nameCount);
                 for (int i = 0; i < nameCount; i++)
                 {
-                    mdl.meshNames.Add(br.ReadString((int)br.ReadInt32()));
-                    br.ReadByte();  // String terminator
+                    int nameLength = (int)br.ReadInt32();
+                    int padding = (((nameLength / 4) + (nameLength % 4 > 0 ? 1 : 0)) * 4) - nameLength + 4;
+
+                    mdl.meshNames.Add(br.ReadString(nameLength));
+                    br.ReadBytes(padding);
+
+                    Logger.LogToFile("Added name \"{0}\" of length {1}, padding of {2}", mdl.meshNames[mdl.meshNames.Count - 1], nameLength, padding);
                 }
 
-                br.ReadBytes(3);    // Pretty sure this won't be the case for every MDL
+                mdl.faceCount = (int)br.ReadUInt32();
 
-                int faceCount = (int)br.ReadUInt32();
+                Logger.LogToFile("Actual faces: {0}", mdl.faceCount);
 
-                if (faceCount != mdl.faceCount)
-                {
-                    Console.WriteLine("Face count mismatch!  Expected {0}, found {1}", mdl.faceCount, faceCount);
-                    return null;
-                }
-
-                for (int i = 0; i < faceCount; i++)
+                for (int i = 0; i < mdl.faceCount; i++)
                 {
                     mdl.faces.Add(
                         new MDLFace(
@@ -83,14 +90,11 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                     );
                 }
 
-                int vertexCount = (int)br.ReadUInt32();
-                if (vertexCount != mdl.vertexCount)
-                {
-                    Console.WriteLine("Vertex count mismatch!  Expected {0}, found {1}", mdl.vertexCount, vertexCount);
-                    return null;
-                }
+                mdl.vertexCount = (int)br.ReadUInt32();
 
-                for (int i = 0; i < vertexCount; i++)
+                Logger.LogToFile("Actual verts: {0}", mdl.vertexCount);
+
+                for (int i = 0; i < mdl.vertexCount; i++)
                 {
                     mdl.verts.Add(
                         new MDLVertex(
@@ -102,8 +106,8 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                             br.ReadSingle(),        // Y.U?
                             br.ReadSingle(),        // Y.V?
                             br.ReadSingle(),        // Z.U?
-                            (int)br.ReadUInt32(),   // Z.V?
-                            (int)br.ReadUInt32(),   // ?Unk7
+                            br.ReadSingle(),        // Z.V?
+                            br.ReadSingle(),        // ?Unk7
                             br.ReadByte(),          // R
                             br.ReadByte(),          // G
                             br.ReadByte(),          // B
@@ -112,9 +116,8 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                     );
                 }
 
-                Console.WriteLine("This is usually 1: {0}", br.ReadUInt16());
-
-                Console.WriteLine("Position: {0}", br.BaseStream.Position);
+                Logger.LogToFile("This is usually 1: {0}", br.ReadUInt16());
+                Logger.LogToFile("Position: {0}", br.BaseStream.Position.ToString("X"));
             }
 
             return mdl;
@@ -135,6 +138,10 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             return v;
         }
         /*
+            Names are padded to the nearest 8 bytes.  For example:
+            Rims would get 4 bytes of padding
+            ToxicRagers would get 7 bytes of padding
+
             Data_Core\Content\Vehicles\Countslash\driver.MDL
             0   45 23 02 06     Magic Number
             4	92 0F B9 05
@@ -156,8 +163,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             44	01 00		    Number of names
             46	04 00 00 00     Length of first name
             4A	52 69 6D 73     "Rims"
-                00		        string terminator
-                00 00 00        <-- Why three bytes?!
+                00 00 00 00     Padding to 8 bytes
             52	02 00 00 00     Face Count [*A*]
             56	[*A*] x 16 byte blocks - face data
             76	04 00 00 00     Vertex Count [*B*]
@@ -310,16 +316,10 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             set { position = value; }
         }
 
-        public MDLVertex(Single X, Single Y, Single Z, Single Unk1, Single Unk2, Single Unk3, Single Unk4, Single Unk5, int Unk6, int Unk7, byte R, byte G, byte B, byte Alpha)
+        public MDLVertex(Single X, Single Y, Single Z, Single Unk1, Single Unk2, Single Unk3, Single Unk4, Single Unk5, Single Unk6, Single Unk7, byte R, byte G, byte B, byte Alpha)
         {
             position = new Vector3(X, Y, Z);
-
-            // I've assumed ints, they're possibly floats.
-            // For eyeballing purposes:
-            if (Unk6 != 0) { Console.WriteLine("Unknown 6: {0}", Unk6); }
-            if (Unk7 != 0) { Console.WriteLine("Unknown 7: {0}", Unk7); }
-
-            Console.WriteLine("Unknown data: {0} {1} {2} {3} {4} {5} {6}", Unk1, Unk2, Unk3, Unk4, Unk5, Unk6, Unk7);
+            //Logger.LogToFile("Unknown data: {0} {1} {2} {3} {4} {5} {6}", Unk1, Unk2, Unk3, Unk4, Unk5, Unk6, Unk7);
         }
     }
 }
