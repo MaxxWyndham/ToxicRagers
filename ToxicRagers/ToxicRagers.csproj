@@ -38,6 +38,7 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -56,7 +57,11 @@
     <Compile Include="Carmageddon2\Helpers\FunkParser.cs" />
     <Compile Include="Carmageddon2\Helpers\GrooveParser.cs" />
     <Compile Include="Carmageddon2\Helpers\OpponentPathParser.cs" />
+    <Compile Include="CarmageddonReincarnation\Formats\crCNT.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\crMDL.cs" />
+    <Compile Include="CarmageddonReincarnation\Formats\crMT2.cs" />
+    <Compile Include="CarmageddonReincarnation\Formats\crMTL.cs" />
+    <Compile Include="CarmageddonReincarnation\Formats\crTDX.cs" />
     <Compile Include="Carmageddon\Formats\c1CarTXT.cs" />
     <Compile Include="Carmageddon\Helpers\c1Car.cs" />
     <Compile Include="Helpers\BEBinaryReader.cs" />

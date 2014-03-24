@@ -10,22 +10,31 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
         int faceCount;
         int vertexCount;
         int version;
-        List<string> meshNames = new List<string>();
+        string name;
+        List<string> materials = new List<string>();
         List<MDLFace> faces = new List<MDLFace>();
         List<MDLVertex> verts = new List<MDLVertex>();
 
         public string Name
         {
-            get { return (meshNames.Count > 0 ? meshNames[0] : "Unknown Mesh"); }
+            get { return (name != null ? name : "Unknown Mesh"); }
+        }
+
+        public List<string> Materials
+        {
+            get { return materials; }
         }
 
         public static MDL Load(string Path)
         {
             // All these (int) casts are messy
+            FileInfo fi = new FileInfo(Path);
             Logger.LogToFile("{0}", Path);
             MDL mdl = new MDL();
 
-            using (BinaryReader br = new BinaryReader(new FileStream(Path, FileMode.Open)))
+            mdl.name = fi.Name.Replace(fi.Extension, "");
+
+            using (BinaryReader br = new BinaryReader(fi.OpenRead()))
             {
                 if (br.ReadByte() != 69 ||
                     br.ReadByte() != 35 ||
@@ -68,10 +77,10 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                     int nameLength = (int)br.ReadInt32();
                     int padding = (((nameLength / 4) + (nameLength % 4 > 0 ? 1 : 0)) * 4) - nameLength + 4;
 
-                    mdl.meshNames.Add(br.ReadString(nameLength));
+                    mdl.materials.Add(br.ReadString(nameLength));
                     br.ReadBytes(padding);
 
-                    Logger.LogToFile("Added name \"{0}\" of length {1}, padding of {2}", mdl.meshNames[mdl.meshNames.Count - 1], nameLength, padding);
+                    Logger.LogToFile("Added name \"{0}\" of length {1}, padding of {2}", mdl.materials[mdl.materials.Count - 1], nameLength, padding);
                 }
 
                 mdl.faceCount = (int)br.ReadUInt32();
@@ -101,12 +110,12 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                             br.ReadSingle(),        // X
                             br.ReadSingle(),        // Y
                             br.ReadSingle(),        // Z
-                            br.ReadSingle(),        // X.U?
-                            br.ReadSingle(),        // X.V?
-                            br.ReadSingle(),        // Y.U?
-                            br.ReadSingle(),        // Y.V?
-                            br.ReadSingle(),        // Z.U?
-                            br.ReadSingle(),        // Z.V?
+                            br.ReadSingle(),        // N.X?
+                            br.ReadSingle(),        // N.Y?
+                            br.ReadSingle(),        // N.Z?
+                            br.ReadSingle(),        // U?
+                            br.ReadSingle(),        // V?
+                            br.ReadSingle(),        // ?Unk6
                             br.ReadSingle(),        // ?Unk7
                             br.ReadByte(),          // R
                             br.ReadByte(),          // G
@@ -118,6 +127,12 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
                 Logger.LogToFile("This is usually 1: {0}", br.ReadUInt16());
                 Logger.LogToFile("Position: {0}", br.BaseStream.Position.ToString("X"));
+
+                //while (br.BaseStream.Position < br.BaseStream.Length)
+                //{
+                //    var bytes = br.ReadBytes(4);
+                //    Logger.LogToFile("{0}\t{1}\t{2}", br.BaseStream.Position.ToString("X"), BitConverter.ToString(bytes).Replace("-", " "), BitConverter.ToSingle(bytes, 0));
+                //}
             }
 
             return mdl;
@@ -137,18 +152,32 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
             return v;
         }
+
+        public Vector2[] GetUVList()
+        {
+            Vector2[] uv = new Vector2[faces.Count * 3];
+
+            for (int i = 0; i < faces.Count; i++)
+            {
+                uv[i * 3] = verts[faces[i].V1].UV;
+                uv[(i * 3) + 1] = verts[faces[i].V2].UV;
+                uv[(i * 3) + 2] = verts[faces[i].V3].UV;
+            }
+
+            return uv;
+        }
         /*
-            Names are padded to the nearest 8 bytes.  For example:
+            Names are padded to the nearest 4 bytes with a 4 byte spacer.  For example:
             Rims would get 4 bytes of padding
-            ToxicRagers would get 7 bytes of padding
+            ToxicRagers would get 5 bytes of padding
 
             Data_Core\Content\Vehicles\Countslash\driver.MDL
             0   45 23 02 06     Magic Number
             4	92 0F B9 05
             8	81 00 00 00
             C	00 00 00 00
-            10	02 00 00 00     Face Count [*A*]
-            14	04 00 00 00     Vertex Count [*B*]
+            10	02 00 00 00     Sometimes Face Count
+            14	04 00 00 00     Sometimes Vertex Count
             18	D2 02 00 00     Bytes remaining
                 C2 9C D2 3C     0.025709514
                 98 B2 9E BC     -0.01937227
@@ -160,7 +189,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                 70 12 03 BA     ?? -5.000001E-4 ??
                 00 00 00 00
                 70 12 03 BA     ?? -5.000001E-4 ??
-            44	01 00		    Number of names
+            44	01 00		    Number of names [*C*]
             46	04 00 00 00     Length of first name
             4A	52 69 6D 73     "Rims"
                 00 00 00 00     Padding to 8 bytes
@@ -168,7 +197,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             56	[*A*] x 16 byte blocks - face data
             76	04 00 00 00     Vertex Count [*B*]
             7A	[*B*] x 44 byte blocks - vertex data
-            12A	01 00           From this point down I have no idea, straight data dump follows
+            12A	01 00           Same as [*C*]
             12C	00 00 00 00     0
                 00 00 00 00     0
                 00 00 00 00     0
@@ -309,6 +338,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
     public class MDLVertex
     {
         Vector3 position;
+        Vector2 uv;
 
         public Vector3 Position
         {
@@ -316,10 +346,18 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             set { position = value; }
         }
 
-        public MDLVertex(Single X, Single Y, Single Z, Single Unk1, Single Unk2, Single Unk3, Single Unk4, Single Unk5, Single Unk6, Single Unk7, byte R, byte G, byte B, byte Alpha)
+        public Vector2 UV
+        {
+            get { return uv; }
+            set { uv = value; }
+        }
+
+        public MDLVertex(Single X, Single Y, Single Z, Single Unk1, Single Unk2, Single Unk3, Single U, Single V, Single Unk6, Single Unk7, byte R, byte G, byte B, byte Alpha)
         {
             position = new Vector3(X, Y, Z);
-            //Logger.LogToFile("Unknown data: {0} {1} {2} {3} {4} {5} {6}", Unk1, Unk2, Unk3, Unk4, Unk5, Unk6, Unk7);
+            uv = new Vector2(U, V);
+
+            //Logger.LogToFile("Unknown data: {0} {1} {2} {3} {4}", Unk1, Unk2, Unk3, Unk6, Unk7);
         }
     }
 }
