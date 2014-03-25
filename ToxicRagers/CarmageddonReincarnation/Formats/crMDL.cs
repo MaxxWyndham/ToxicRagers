@@ -11,7 +11,8 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
         int vertexCount;
         int version;
         string name;
-        List<string> materials = new List<string>();
+
+        List<MDLMaterial> materials = new List<MDLMaterial>();
         List<MDLFace> faces = new List<MDLFace>();
         List<MDLVertex> verts = new List<MDLVertex>();
 
@@ -20,7 +21,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             get { return (name != null ? name : "Unknown Mesh"); }
         }
 
-        public List<string> Materials
+        public List<MDLMaterial> Materials
         {
             get { return materials; }
         }
@@ -77,10 +78,10 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                     int nameLength = (int)br.ReadInt32();
                     int padding = (((nameLength / 4) + (nameLength % 4 > 0 ? 1 : 0)) * 4) - nameLength + 4;
 
-                    mdl.materials.Add(br.ReadString(nameLength));
+                    mdl.materials.Add(new MDLMaterial(br.ReadString(nameLength)));
                     br.ReadBytes(padding);
 
-                    Logger.LogToFile("Added name \"{0}\" of length {1}, padding of {2}", mdl.materials[mdl.materials.Count - 1], nameLength, padding);
+                    Logger.LogToFile("Added name \"{0}\" of length {1}, padding of {2}", mdl.materials[mdl.materials.Count - 1].Name, nameLength, padding);
                 }
 
                 mdl.faceCount = (int)br.ReadUInt32();
@@ -110,11 +111,11 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                             br.ReadSingle(),        // X
                             br.ReadSingle(),        // Y
                             br.ReadSingle(),        // Z
-                            br.ReadSingle(),        // N.X?
-                            br.ReadSingle(),        // N.Y?
-                            br.ReadSingle(),        // N.Z?
-                            br.ReadSingle(),        // U?
-                            br.ReadSingle(),        // V?
+                            br.ReadSingle(),        // N.X
+                            br.ReadSingle(),        // N.Y
+                            br.ReadSingle(),        // N.Z
+                            br.ReadSingle(),        // U
+                            br.ReadSingle(),        // V
                             br.ReadSingle(),        // ?Unk6
                             br.ReadSingle(),        // ?Unk7
                             br.ReadByte(),          // R
@@ -125,47 +126,43 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                     );
                 }
 
-                Logger.LogToFile("This is usually 1: {0}", br.ReadUInt16());
-                Logger.LogToFile("Position: {0}", br.BaseStream.Position.ToString("X"));
+                Logger.LogToFile("This is usually {0}: {1}", nameCount, br.ReadUInt16());
 
-                //while (br.BaseStream.Position < br.BaseStream.Length)
-                //{
-                //    var bytes = br.ReadBytes(4);
-                //    Logger.LogToFile("{0}\t{1}\t{2}", br.BaseStream.Position.ToString("X"), BitConverter.ToString(bytes).Replace("-", " "), BitConverter.ToSingle(bytes, 0));
-                //}
+                // TODO: Work out how to process subsequent material lists
+                for (int i = 0; i < 1; i++) // for (int i = 0; i < nameCount; i++)
+                {
+                    Logger.LogToFile("Block {0} of {1}", i, nameCount);
+                    var material = mdl.materials[i];
+
+                    for (int j = 0; j < 10; j++)
+                    {
+                        var bytes = br.ReadBytes(4);
+                        Logger.LogToFile("{0}\t{1}\t{2}", br.BaseStream.Position.ToString("X"), BitConverter.ToString(bytes).Replace("-", " "), BitConverter.ToSingle(bytes, 0));
+                    }
+
+                    Logger.LogToFile("Always 0: {0}", br.ReadUInt32());
+                    int a = (int)br.ReadUInt32();
+                    int b = (int)br.ReadUInt32();
+                    Logger.LogToFile("{0} is less than {1}: {2}", a, b, a < b);
+
+                    for (int j = 0; j < b; j++)
+                    {
+                        material.VertexList.Add(mdl.verts[br.ReadUInt16()]);
+                        br.ReadUInt16(); // is degenerate?
+                    }
+                }
+
+                Logger.LogToFile("Position: {0}", br.BaseStream.Position.ToString("X"));
             }
 
             return mdl;
         }
 
-        public Vector3[] GetVertexList()
+        public List<MDLVertex> GetTriangleStrip(int index)
         {
-            // Non-optimised vertex list for fast prototyping
-            Vector3[] v = new Vector3[faces.Count * 3];
-
-            for (int i = 0; i < faces.Count; i++)
-            {
-                v[i * 3] = verts[faces[i].V1].Position;
-                v[(i * 3) + 1] = verts[faces[i].V2].Position;
-                v[(i * 3) + 2] = verts[faces[i].V3].Position;
-            }
-
-            return v;
+            return materials[index].VertexList;
         }
 
-        public Vector2[] GetUVList()
-        {
-            Vector2[] uv = new Vector2[faces.Count * 3];
-
-            for (int i = 0; i < faces.Count; i++)
-            {
-                uv[i * 3] = verts[faces[i].V1].UV;
-                uv[(i * 3) + 1] = verts[faces[i].V2].UV;
-                uv[(i * 3) + 2] = verts[faces[i].V3].UV;
-            }
-
-            return uv;
-        }
         /*
             Names are padded to the nearest 4 bytes with a 4 byte spacer.  For example:
             Rims would get 4 bytes of padding
@@ -338,6 +335,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
     public class MDLVertex
     {
         Vector3 position;
+        Vector3 normal;
         Vector2 uv;
 
         public Vector3 Position
@@ -346,18 +344,40 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             set { position = value; }
         }
 
+        public Vector3 Normal
+        {
+            get { return normal; }
+            set { normal = value; }
+        }
+
         public Vector2 UV
         {
             get { return uv; }
             set { uv = value; }
         }
 
-        public MDLVertex(Single X, Single Y, Single Z, Single Unk1, Single Unk2, Single Unk3, Single U, Single V, Single Unk6, Single Unk7, byte R, byte G, byte B, byte Alpha)
+        public MDLVertex(Single X, Single Y, Single Z, Single NX, Single NY, Single NZ, Single U, Single V, Single Unk6, Single Unk7, byte R, byte G, byte B, byte Alpha)
         {
             position = new Vector3(X, Y, Z);
+            normal = new Vector3(NX, NY, NZ);
             uv = new Vector2(U, V);
 
-            //Logger.LogToFile("Unknown data: {0} {1} {2} {3} {4}", Unk1, Unk2, Unk3, Unk6, Unk7);
+            //Logger.LogToFile("Unknown data: {0} {1}", Unk6, Unk7);
+        }
+    }
+
+    public class MDLMaterial
+    {
+        string name;
+        List<MDLVertex> vertexList;
+
+        public string Name { get { return name; } }
+        public List<MDLVertex> VertexList { get { return vertexList; } }
+
+        public MDLMaterial(string Name)
+        {
+            name = Name;
+            vertexList = new List<MDLVertex>();
         }
     }
 }

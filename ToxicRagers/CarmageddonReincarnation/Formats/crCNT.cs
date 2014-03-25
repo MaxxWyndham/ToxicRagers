@@ -8,11 +8,14 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
     public class CNT
     {
         string name;
+        string nodeName;
         string modelName;
         List<CNT> childNodes = new List<CNT>();
 
         public string Name { get { return name; } }
+        public string NodeName { get { return (nodeName == null ? modelName : nodeName); } }
         public string Model { get { return modelName; } }
+        public List<CNT> Children { get { return childNodes; } }
 
         public static CNT Load(string Path)
         {
@@ -71,20 +74,24 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             Logger.LogToFile("{0}", br.ReadSingle());   //Z
 
             string section = br.ReadString(4);
-            if (section == "MODL")
+            switch (section)
             {
-                nameLength = (int)br.ReadUInt32();
-                padding = (((nameLength / 4) + (nameLength % 4 > 0 ? 1 : 0)) * 4) - nameLength;
+                case "MODL":
+                    nameLength = (int)br.ReadUInt32();
+                    padding = (((nameLength / 4) + (nameLength % 4 > 0 ? 1 : 0)) * 4) - nameLength;
 
-                cnt.modelName = br.ReadString(nameLength);
-                br.ReadBytes(padding);
+                    cnt.modelName = br.ReadString(nameLength);
+                    br.ReadBytes(padding);
 
-                Logger.LogToFile("Name: \"{0}\" of length {1}, padding of {2}", cnt.modelName, nameLength, padding);
-            }
-            else
-            {
-                Logger.LogToFile("Unknown section \"{0}\"; Aborting", section);
-                return null;
+                    Logger.LogToFile("MDL: \"{0}\" of length {1}, padding of {2}", cnt.modelName, nameLength, padding);
+                    break;
+
+                case "NULL":
+                    break;
+
+                default:
+                    Logger.LogToFile("Unknown section \"{0}\"; Aborting", section);
+                    return null;
             }
 
             int childNodes = (int)br.ReadUInt32();
