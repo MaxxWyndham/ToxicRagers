@@ -15,7 +15,6 @@ namespace ToxicRagers.Carmageddon2.Formats
             if (pathToFile.ToLower().EndsWith("nuke.txt")) { return; }
             StreamReader sr = new StreamReader(pathToFile);
             CultureInfo culture = new CultureInfo("en-GB");
-            string[] s;
 
             while (!sr.EndOfStream)
             {

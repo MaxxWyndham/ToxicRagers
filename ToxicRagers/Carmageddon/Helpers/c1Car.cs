@@ -128,30 +128,30 @@ namespace ToxicRagers.Carmageddon.Helpers
 
             // save crush data
             bool bSwapped = false;
-            //for (int i = 0; i < Crushes.Length; i++)
-            //{
-            //    if (Crushes[i] != null && Crushes[i].ChunkCount > 0)
-            //    {
-            //        // this is a cobble-mess because the crush data is in order of loaded actor, not loaded model
-            //        int modelindex = i;
-            //        if (Crushes[i].MaxRootVertex > models[i].DatMeshes[0].Mesh.Verts.Count) { modelindex++; bSwapped = true; } else if (bSwapped) { modelindex--; }
+            for (int i = 0; i < Crushes.Length; i++)
+            {
+                if (Crushes[i] != null && Crushes[i].ChunkCount > 0)
+                {
+                    // this is a cobble-mess because the crush data is in order of loaded actor, not loaded model
+                    int modelindex = i;
+                    if (Crushes[i].MaxRootVertex > models[i].DatMeshes[0].Mesh.Verts.Count) { modelindex++; bSwapped = true; } else if (bSwapped) { modelindex--; }
 
 
-            //        c2Act crushpoints = new c2Act();
-            //        crushpoints.AddRootNode("crushpoints");
+                    c2Act crushpoints = new c2Act();
+                    crushpoints.AddRootNode("crushpoints");
 
-            //        //Console.WriteLine("Processing " + models[modelindex].DatMeshes[0].Name + " (V: " + models[modelindex].DatMeshes[0].Mesh.Verts.Count + ", MV: " + Crushes[i].MaxRootVertex + ")");
-            //        for (int j = 0; j < Crushes[i].ChunkCount; j++)
-            //        {
-            //            Matrix3D m = Matrix3D.Identity;
-            //            m.Scale = 0.05f;
-            //            m.Position = models[modelindex].DatMeshes[0].Mesh.Verts[Crushes[i].Chunks[j].RootVertex];
-            //            crushpoints.AddActor("p" + j, "Sphere_48", m, false);
-            //        }
+                    //Console.WriteLine("Processing " + models[modelindex].DatMeshes[0].Name + " (V: " + models[modelindex].DatMeshes[0].Mesh.Verts.Count + ", MV: " + Crushes[i].MaxRootVertex + ")");
+                    for (int j = 0; j < Crushes[i].ChunkCount; j++)
+                    {
+                        Matrix3D m = Matrix3D.Identity;
+                        m.Scale = 0.05f;
+                        m.Position = models[modelindex].DatMeshes[0].Mesh.Verts[Crushes[i].Chunks[j].RootVertex];
+                        crushpoints.AddActor("p" + j, "Sphere_48", m, false);
+                    }
 
-            //        //crushpoints.Save("D:\\CrushDebug\\" + name + "_" + i + "_Points.act");
-            //    }
-            //}
+                    //crushpoints.Save("D:\\CrushDebug\\" + name + "_" + i + "_Points.act");
+                }
+            }
         }
 
         public void LoadModel(int modelnum, string modelname)

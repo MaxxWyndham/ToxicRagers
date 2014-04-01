@@ -62,6 +62,7 @@
     <Compile Include="CarmageddonReincarnation\Formats\crMT2.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\crMTL.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\crTDX.cs" />
+    <Compile Include="CarmageddonReincarnation\Helpers\Material.cs" />
     <Compile Include="Carmageddon\Formats\c1CarTXT.cs" />
     <Compile Include="Carmageddon\Helpers\c1Car.cs" />
     <Compile Include="Helpers\BEBinaryReader.cs" />
