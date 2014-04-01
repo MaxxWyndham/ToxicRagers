@@ -72,6 +72,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                 br.ReadBytes(4);    // No idea
 
                 int nameCount = br.ReadInt16();
+
                 Logger.LogToFile("Name count: {0}", nameCount);
                 for (int i = 0; i < nameCount; i++)
                 {
@@ -144,7 +145,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                     }
 
                     Logger.LogToFile("Always 0: {0}", br.ReadUInt32());
-                    int a = (int)br.ReadUInt32();
+                    int a = (int)br.ReadUInt32();   // a == Actual Verts where Name count == 1.
                     int b = (int)br.ReadUInt32();
                     Logger.LogToFile("{0} is less than {1}: {2}", a, b, a < b);
 
@@ -166,20 +167,38 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                     {
                         br.ReadUInt32();
                     }
-
-                    //b = (int)br.ReadUInt32();
-                    //Logger.LogToFile("new b: {0}", b);
-
-                    //material.VertexList.Clear();
-
-                    //for (int j = 0; j < b; j++)
-                    //{
-                    //    material.VertexList.Add(mdl.verts[br.ReadUInt16()]);
-                    //    br.ReadUInt16(); // is degenerate?
-                    //}
                 }
 
                 Logger.LogToFile("Position: {0}", br.BaseStream.Position.ToString("X"));
+
+                Logger.LogToFile("Always 0: {0}", br.ReadUInt32());
+
+                for (int i = 0; i < headerVertCount; i++)
+                {
+                    br.ReadBytes(16);
+                    //Logger.LogToFile("{0}, {1}, {2} : {3}", br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadUInt32());
+                }
+
+                for (int i = 0; i < Math.Max(headerFaceCount, mdl.faceCount); i++)
+                {
+                    br.ReadBytes(137);
+                }
+
+                for (int i = 0; i < mdl.faceCount; i++)
+                {
+                    br.ReadUInt32();
+                    //Logger.LogToFile("{0}", br.ReadUInt32());
+                }
+
+                Logger.LogToFile("{0} == {1}", mdl.vertexCount, br.ReadUInt32());
+
+                for (int i = 0; i < mdl.vertexCount; i++)
+                {
+                    br.ReadUInt32();
+                    //Logger.LogToFile("{0}", br.ReadUInt32());
+                }
+
+                Logger.LogToFile("{0} :: {1}", br.BaseStream.Position.ToString("X"), br.BaseStream.Length.ToString("X"));
             }
 
             return mdl;
