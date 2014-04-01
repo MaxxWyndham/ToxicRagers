@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Linq;
 using System.Xml.Linq;
+using ToxicRagers.CarmageddonReincarnation.Helpers;
 
 namespace ToxicRagers.CarmageddonReincarnation.Formats
 {
-    public class MT2
+    public class MT2: Material
     {
         // We'll cheat for now and just expose the XML;
         // Eventually we should probably parse it into useful objects

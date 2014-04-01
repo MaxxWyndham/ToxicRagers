@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using System.IO;
 using ToxicRagers.Helpers;
+using ToxicRagers.CarmageddonReincarnation.Helpers;
 
 namespace ToxicRagers.CarmageddonReincarnation.Formats
 {
-    public class MTL
+    public class MTL : Material
     {
         string name;
         string textureName;
