@@ -129,9 +129,12 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                 Logger.LogToFile("This is usually {0}: {1}", nameCount, br.ReadUInt16());
 
                 // TODO: Work out how to process subsequent material lists
-                for (int i = 0; i < 1; i++) // for (int i = 0; i < nameCount; i++)
+                //for (int i = 0; i < 1; i++)
+                for (int i = 0; i < nameCount; i++)
                 {
                     Logger.LogToFile("Block {0} of {1}", i, nameCount);
+                    Logger.LogToFile("Position: {0}", br.BaseStream.Position.ToString("X"));
+
                     var material = mdl.materials[i];
 
                     for (int j = 0; j < 10; j++)
@@ -150,6 +153,30 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                         material.VertexList.Add(mdl.verts[br.ReadUInt16()]);
                         br.ReadUInt16(); // is degenerate?
                     }
+
+                    int uA = (int)br.ReadUInt32();
+                    int uB = (int)br.ReadUInt32();
+                    int uC = (int)br.ReadUInt32();
+
+                    Logger.LogToFile("Unknown A: {0}", uA);
+                    Logger.LogToFile("Unknown B: {0}", uB);
+                    Logger.LogToFile("Unknown C: {0}", uC);
+
+                    for (int j = 0; j < uC; j++)
+                    {
+                        br.ReadUInt32();
+                    }
+
+                    //b = (int)br.ReadUInt32();
+                    //Logger.LogToFile("new b: {0}", b);
+
+                    //material.VertexList.Clear();
+
+                    //for (int j = 0; j < b; j++)
+                    //{
+                    //    material.VertexList.Add(mdl.verts[br.ReadUInt16()]);
+                    //    br.ReadUInt16(); // is degenerate?
+                    //}
                 }
 
                 Logger.LogToFile("Position: {0}", br.BaseStream.Position.ToString("X"));
