@@ -10,6 +10,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
         string name;
         string nodeName;
         string modelName;
+        Matrix3D transform;
         List<CNT> childNodes = new List<CNT>();
 
         public string Name { get { return name; } }
@@ -60,18 +61,12 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             }
 
             Logger.LogToFile("This is usually 0: {0}", br.ReadSingle());
-            Logger.LogToFile("{0}", br.ReadSingle());   //M00
-            Logger.LogToFile("{0}", br.ReadSingle());   //M01
-            Logger.LogToFile("{0}", br.ReadSingle());   //M02
-            Logger.LogToFile("{0}", br.ReadSingle());   //M10
-            Logger.LogToFile("{0}", br.ReadSingle());   //M11
-            Logger.LogToFile("{0}", br.ReadSingle());   //M12
-            Logger.LogToFile("{0}", br.ReadSingle());   //M20
-            Logger.LogToFile("{0}", br.ReadSingle());   //M21
-            Logger.LogToFile("{0}", br.ReadSingle());   //M22
-            Logger.LogToFile("{0}", br.ReadSingle());   //X
-            Logger.LogToFile("{0}", br.ReadSingle());   //Y
-            Logger.LogToFile("{0}", br.ReadSingle());   //Z
+            cnt.transform = new Matrix3D(
+                                br.ReadSingle(), br.ReadSingle(), br.ReadSingle(),
+                                br.ReadSingle(), br.ReadSingle(), br.ReadSingle(),
+                                br.ReadSingle(), br.ReadSingle(), br.ReadSingle(),
+                                br.ReadSingle(), br.ReadSingle(), br.ReadSingle()
+                            );
 
             string section = br.ReadString(4);
             switch (section)
