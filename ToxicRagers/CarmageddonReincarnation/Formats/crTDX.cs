@@ -14,6 +14,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
         public List<MipMap> mipMaps = new List<MipMap>();
 
         public string Name { get { return name; } }
+        public string Format { get { return format; } }
 
         public static TDX Load(string Path)
         {
@@ -43,7 +44,21 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                     var mip = new MipMap();
                     mip.Width = tdx.width >> i;
                     mip.Height = tdx.height >> i;
-                    mip.Data = br.ReadBytes((((mip.Width + 3) / 4) * ((mip.Height + 3) / 4)) * 16);
+
+                    switch (tdx.format)
+                    {
+                        case "DXT1":
+                            mip.Data = br.ReadBytes((((mip.Width + 3) / 4) * ((mip.Height + 3) / 4)) * 8);
+                            break;
+
+                        case "DXT5":
+                            mip.Data = br.ReadBytes((((mip.Width + 3) / 4) * ((mip.Height + 3) / 4)) * 16);
+                            break;
+
+                        default:
+                            Logger.LogToFile("Unknown format: {0}", tdx.format);
+                            return null;
+                    }
 
                     if (tdx.format == "DXT5") { mip.Decompress(); }
                     tdx.mipMaps.Add(mip);
