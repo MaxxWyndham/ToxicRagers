@@ -72,13 +72,14 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             switch (section)
             {
                 case "MODL":
+                case "SKIN":
                     nameLength = (int)br.ReadUInt32();
                     padding = (((nameLength / 4) + (nameLength % 4 > 0 ? 1 : 0)) * 4) - nameLength;
 
                     cnt.modelName = br.ReadString(nameLength);
                     br.ReadBytes(padding);
 
-                    Logger.LogToFile("MDL: \"{0}\" of length {1}, padding of {2}", cnt.modelName, nameLength, padding);
+                    Logger.LogToFile("{0}: \"{1}\" of length {2}, padding of {3}", section, cnt.modelName, nameLength, padding);
                     break;
 
                 case "NULL":
