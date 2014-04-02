@@ -129,8 +129,6 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
                 Logger.LogToFile("This is usually {0}: {1}", nameCount, br.ReadUInt16());
 
-                // TODO: Work out how to process subsequent material lists
-                //for (int i = 0; i < 1; i++)
                 for (int i = 0; i < nameCount; i++)
                 {
                     Logger.LogToFile("Block {0} of {1}", i, nameCount);
@@ -149,11 +147,21 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                     int b = (int)br.ReadUInt32();
                     Logger.LogToFile("{0} is less than {1}: {2}", a, b, a < b);
 
+                    int degenerateTriangles = 0;
+
                     for (int j = 0; j < b; j++)
                     {
-                        material.VertexList.Add(mdl.verts[br.ReadUInt16()]);
-                        br.ReadUInt16(); // is degenerate?
+                        int index = br.ReadUInt16();
+                        bool bDegenerate = (br.ReadUInt16() != 0);
+
+                        material.VertexList.Add(mdl.verts[index]);
+                        material.DegenerateList.Add(bDegenerate);
+
+                        Logger.LogToFile("{0}] {1} {2} ({3})", j, index, mdl.verts[index].ToString(), bDegenerate);
+                        if (bDegenerate) { degenerateTriangles++; }
                     }
+
+                    Logger.LogToFile("Total degenerates {0}", degenerateTriangles);
 
                     int uA = (int)br.ReadUInt32();
                     int uB = (int)br.ReadUInt32();
@@ -163,8 +171,16 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                     Logger.LogToFile("Unknown B: {0}", uB);
                     Logger.LogToFile("Unknown C: {0}", uC);
 
+                    //if (uA != 0)
+                    //{
+                    //    mdl.materials.Add(new MDLMaterial("OMGHAX"));
+                    //    material = mdl.materials[i + 1];
+                    //    material.Mode = "triangles";
+                    //}
+
                     for (int j = 0; j < uC; j++)
                     {
+                        //material.VertexList.Add(mdl.verts[(int)br.ReadUInt32()]);
                         br.ReadUInt32();
                     }
                 }
@@ -207,6 +223,11 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
         public List<MDLVertex> GetTriangleStrip(int index)
         {
             return materials[index].VertexList;
+        }
+
+        public string GetVertexMode(int index)
+        {
+            return materials[index].Mode;
         }
 
         /*
@@ -408,7 +429,12 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             normal = new Vector3(NX, NY, NZ);
             uv = new Vector2(U, V);
 
-            //Logger.LogToFile("Unknown data: {0} {1}", Unk6, Unk7);
+            Logger.LogToFile("Unknown data: {0} {1}", Unk6, Unk7);
+        }
+
+        public override string ToString()
+        {
+            return "{ Position: {X:" + Position.X + " Y:" + Position.Y + " Z:" + Position.Z + "} Normal: {X:" + Normal.X + " Y:" + Normal.Y + " Z:" + Normal.Z + "} UV: {U:" + UV.X + " V:" + UV.Y + "} }";
         }
     }
 
@@ -416,14 +442,19 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
     {
         string name;
         List<MDLVertex> vertexList;
+        List<bool> degenerateList;
+        string mode = "trianglestrip";
 
         public string Name { get { return name; } }
         public List<MDLVertex> VertexList { get { return vertexList; } }
+        public List<bool> DegenerateList { get { return degenerateList; } }
+        public string Mode { get { return mode; } set { mode = value; } }
 
         public MDLMaterial(string Name)
         {
             name = Name;
             vertexList = new List<MDLVertex>();
+            degenerateList = new List<bool>();
         }
     }
 }
