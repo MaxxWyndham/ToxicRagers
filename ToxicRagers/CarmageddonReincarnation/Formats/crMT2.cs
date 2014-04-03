@@ -15,11 +15,34 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
         {
             get
             {
+                // OMGHAX
                 var file = from el in XML.Descendants("Texture")
-                where (string)el.Attribute("Alias") == "DiffuseColour"
-                select el.Attribute("FileName").Value;
+                           where (string)el.Attribute("Alias") == "DiffuseColour"
+                           select el.Attribute("FileName").Value;
 
-                return file.First();
+                if (file.Any())
+                {
+                    return file.First();
+                }
+                else
+                {
+                    if (XML.Descendants("DoubleSided").Where(e => e.Attribute("Value").Value == "TRUE").Any())
+                    {
+                        file = from el in XML.Descendants("Texture")
+                               where (string)el.Attribute("Alias") == "Side1_DiffuseColour2"
+                               select el.Attribute("FileName").Value;
+
+                        return file.First();
+                    }
+
+                    file = from el in XML.Descendants("Texture")
+                            where (string)el.Attribute("Alias") == "Decals"
+                            select el.Attribute("FileName").Value;
+
+                    if (file.Any()) { return file.First(); }
+                }
+
+                return null;
             }
         }
 
