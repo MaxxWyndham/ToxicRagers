@@ -16,15 +16,10 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
         List<MDLFace> faces = new List<MDLFace>();
         List<MDLVertex> verts = new List<MDLVertex>();
 
-        public string Name
-        {
-            get { return (name != null ? name : "Unknown Mesh"); }
-        }
-
-        public List<MDLMaterial> Materials
-        {
-            get { return materials; }
-        }
+        public string Name { get { return (name != null ? name : "Unknown Mesh"); } }
+        public List<MDLMaterial> Materials { get { return materials; } }
+        public int FaceCount { get { return faceCount; } }
+        public int VertexCount { get { return vertexCount; } }
 
         public static MDL Load(string Path)
         {
@@ -157,7 +152,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                         material.VertexList.Add(mdl.verts[index]);
                         material.DegenerateList.Add(bDegenerate);
 
-                        Logger.LogToFile("{0}] {1} {2} ({3})", j, index, mdl.verts[index].ToString(), bDegenerate);
+                        //Logger.LogToFile("{0}] {1} {2} ({3})", j, index, mdl.verts[index].ToString(), bDegenerate);
                         if (bDegenerate) { degenerateTriangles++; }
                     }
 
@@ -429,7 +424,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             normal = new Vector3(NX, NY, NZ);
             uv = new Vector2(U, V);
 
-            Logger.LogToFile("Unknown data: {0} {1}", Unk6, Unk7);
+            //Logger.LogToFile("Unknown data: {0} {1}", Unk6, Unk7);
         }
 
         public override string ToString()
