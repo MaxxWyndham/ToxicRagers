@@ -51,6 +51,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                             mip.Data = br.ReadBytes((((mip.Width + 3) / 4) * ((mip.Height + 3) / 4)) * 8);
                             break;
 
+                        case "ATI2":
                         case "DXT5":
                             mip.Data = br.ReadBytes((((mip.Width + 3) / 4) * ((mip.Height + 3) / 4)) * 16);
                             break;
