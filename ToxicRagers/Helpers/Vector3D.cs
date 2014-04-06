@@ -143,16 +143,17 @@ namespace ToxicRagers.Helpers
             return new Vector3(x._x / y, x._y / y, x._z / y);
         }
 
-        //Public Shared Operator *(ByVal x As Vector3, ByVal y As Matrix3D) As Vector3
-        //    Dim r As New Vector3(0, 0, 0)
+        public static Vector3 operator *(Vector3 x, Matrix3D y)
+        {
+            Vector3 r = new Vector3(0, 0, 0);
 
-        //    r.X = (x.X * y.M11) + (x.Y * y.M21) + (x.Z * y.M31)
-        //    r.Y = (x.X * y.M12) + (x.Y * y.M22) + (x.Z * y.M32)
-        //    r.Z = (x.X * y.M13) + (x.Y * y.M23) + (x.Z * y.M33)
-        //    r += y.Position
+            r.X = (x.X * y.M11) + (x.Y * y.M21) + (x.Z * y.M31);
+            r.Y = (x.X * y.M12) + (x.Y * y.M22) + (x.Z * y.M32);
+            r.Z = (x.X * y.M13) + (x.Y * y.M23) + (x.Z * y.M33);
+            r += y.Position;
 
-        //    Return r
-        //End Operator
+            return r;
+        }
 
         public static bool operator ==(Vector3 x, Vector3 y)
         {
