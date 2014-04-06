@@ -7,6 +7,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 {
     public class CNT
     {
+        CNT parent;
         string name;
         string nodeName;
         string modelName;
@@ -16,7 +17,26 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
         public string Name { get { return name; } }
         public string NodeName { get { return (nodeName == null ? modelName : nodeName); } }
         public string Model { get { return modelName; } }
+        public Matrix3D Transform { get { return transform; } }
         public List<CNT> Children { get { return childNodes; } }
+
+        public Matrix3D CombinedTransform
+        {
+            get
+            {
+                var m = transform;
+                var cnt = this;
+
+                while (cnt.parent != null)
+                {
+                    cnt = cnt.parent;
+
+                    m *= cnt.transform;
+                }
+
+                return m;
+            }
+        }
 
         public static CNT Load(string Path)
         {
@@ -44,10 +64,11 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             return cnt;
         }
 
-        private static CNT Load(BinaryReader br)
+        private static CNT Load(BinaryReader br, CNT parent = null)
         {
             // The Load(BinaryReader) version skips the header check and is used for recursive loading
             CNT cnt = new CNT();
+            if (parent != null) { cnt.parent = parent; }
 
             Logger.LogToFile("{0}", br.BaseStream.Position.ToString("X"));
 
@@ -147,7 +168,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             for (int i = 0; i < childNodes; i++)
             {
                 Logger.LogToFile("Loading child {0} of {1}", (i + 1), childNodes);
-                cnt.childNodes.Add(Load(br));
+                cnt.childNodes.Add(Load(br, cnt));
             }
 
             br.ReadUInt32();    // Terminator
