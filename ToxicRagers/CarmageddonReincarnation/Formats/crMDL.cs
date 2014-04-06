@@ -7,6 +7,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 {
     public class MDL
     {
+        static bool bDebug = false;
         int faceCount;
         int vertexCount;
         int version;
@@ -86,14 +87,16 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
                 for (int i = 0; i < mdl.faceCount; i++)
                 {
-                    mdl.faces.Add(
-                        new MDLFace(
-                            (int)br.ReadUInt32(),   // ???, possibly material index
-                            (int)br.ReadUInt32(),   // Vert index A
-                            (int)br.ReadUInt32(),   // Vert index B
-                            (int)br.ReadUInt32()    // Vert index C
-                        )
+                    var face = new MDLFace(
+                        (int)br.ReadUInt32(),   // ???, possibly material index
+                        (int)br.ReadUInt32(),   // Vert index A
+                        (int)br.ReadUInt32(),   // Vert index B
+                        (int)br.ReadUInt32()    // Vert index C
                     );
+
+                    mdl.faces.Add(face);
+
+                    if (bDebug) { Logger.LogToFile("{0}) {1}", i, face.ToString()); }
                 }
 
                 mdl.vertexCount = (int)br.ReadUInt32();
@@ -102,24 +105,26 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
                 for (int i = 0; i < mdl.vertexCount; i++)
                 {
-                    mdl.verts.Add(
-                        new MDLVertex(
-                            br.ReadSingle(),        // X
-                            br.ReadSingle(),        // Y
-                            br.ReadSingle(),        // Z
-                            br.ReadSingle(),        // N.X
-                            br.ReadSingle(),        // N.Y
-                            br.ReadSingle(),        // N.Z
-                            br.ReadSingle(),        // U
-                            br.ReadSingle(),        // V
-                            br.ReadSingle(),        // ?Unk6
-                            br.ReadSingle(),        // ?Unk7
-                            br.ReadByte(),          // R
-                            br.ReadByte(),          // G
-                            br.ReadByte(),          // B
-                            br.ReadByte()           // A
-                        )
+                    var vert = new MDLVertex(
+                        br.ReadSingle(),        // X
+                        br.ReadSingle(),        // Y
+                        br.ReadSingle(),        // Z
+                        br.ReadSingle(),        // N.X
+                        br.ReadSingle(),        // N.Y
+                        br.ReadSingle(),        // N.Z
+                        br.ReadSingle(),        // U
+                        br.ReadSingle(),        // V
+                        br.ReadSingle(),        // ?Unk6
+                        br.ReadSingle(),        // ?Unk7
+                        br.ReadByte(),          // R
+                        br.ReadByte(),          // G
+                        br.ReadByte(),          // B
+                        br.ReadByte()           // A
                     );
+
+                    mdl.verts.Add(vert);
+
+                    if (bDebug) { Logger.LogToFile("{0}) {1}", i, vert.ToString()); }
                 }
 
                 Logger.LogToFile("This is usually {0}: {1}", nameCount, br.ReadUInt16());
@@ -137,9 +142,10 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                         Logger.LogToFile("{0}\t{1}\t{2}", br.BaseStream.Position.ToString("X"), BitConverter.ToString(bytes).Replace("-", " "), BitConverter.ToSingle(bytes, 0));
                     }
 
-                    Logger.LogToFile("Always 0: {0}", br.ReadUInt32());
+                    int offset = (int)br.ReadUInt32();
                     int a = (int)br.ReadUInt32();   // a == Actual Verts where Name count == 1.
                     int b = (int)br.ReadUInt32();
+                    Logger.LogToFile("Offset: {0}", offset);
                     Logger.LogToFile("{0} is less than {1}: {2}", a, b, a < b);
 
                     int degenerateTriangles = 0;
@@ -149,10 +155,10 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                         int index = br.ReadUInt16();
                         bool bDegenerate = (br.ReadUInt16() != 0);
 
-                        material.VertexList.Add(mdl.verts[index]);
+                        material.VertexList.Add(mdl.verts[index + offset]);
                         material.DegenerateList.Add(bDegenerate);
 
-                        //Logger.LogToFile("{0}] {1} {2} ({3})", j, index, mdl.verts[index].ToString(), bDegenerate);
+                        if (bDebug) { Logger.LogToFile("{0}] {1} {2} ({3})", j, index + offset, mdl.verts[index + offset].ToString(), bDegenerate); }
                         if (bDegenerate) { degenerateTriangles++; }
                     }
 
@@ -166,17 +172,25 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                     Logger.LogToFile("Unknown B: {0}", uB);
                     Logger.LogToFile("Unknown C: {0}", uC);
 
-                    //if (uA != 0)
-                    //{
-                    //    mdl.materials.Add(new MDLMaterial("OMGHAX"));
-                    //    material = mdl.materials[i + 1];
-                    //    material.Mode = "triangles";
-                    //}
+                    //Console.WriteLine("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\t{8}", Path, nameCount, headerFaceCount, headerVertCount, mdl.faceCount, mdl.vertexCount, uA, uB, uC);
+
+                    if (uA > 0) 
+                    {
+                        if (material.VertexList.Count > 0)
+                        {
+                            mdl.materials.Add(new MDLMaterial(material.Name));
+                            material = mdl.materials[mdl.materials.Count - 1];
+                        }
+
+                        material.Mode = "triangles";
+                    }
 
                     for (int j = 0; j < uC; j++)
                     {
-                        //material.VertexList.Add(mdl.verts[(int)br.ReadUInt32()]);
-                        br.ReadUInt32();
+                        
+                        int index = (int)br.ReadUInt32();
+                        //Logger.LogToFile("{0}] {1}", j, index);
+                        material.VertexList.Add(mdl.verts[uA + index]);
                     }
                 }
 
@@ -186,8 +200,15 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
                 for (int i = 0; i < headerVertCount; i++)
                 {
-                    br.ReadBytes(16);
-                    //Logger.LogToFile("{0}, {1}, {2} : {3}", br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadUInt32());
+                    
+                    if (bDebug)
+                    {
+                        Logger.LogToFile("{0}, {1}, {2} : {3}", br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadUInt32());
+                    }
+                    else
+                    {
+                        br.ReadBytes(16);
+                    }
                 }
 
                 for (int i = 0; i < Math.Max(headerFaceCount, mdl.faceCount); i++)
@@ -197,16 +218,29 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
                 for (int i = 0; i < mdl.faceCount; i++)
                 {
-                    br.ReadUInt32();
-                    //Logger.LogToFile("{0}", br.ReadUInt32());
+                    
+                    if (bDebug)
+                    {
+                        Logger.LogToFile("{0}", br.ReadUInt32());
+                    }
+                    else
+                    {
+                        br.ReadUInt32();
+                    }
                 }
 
                 Logger.LogToFile("{0} == {1}", mdl.vertexCount, br.ReadUInt32());
 
                 for (int i = 0; i < mdl.vertexCount; i++)
                 {
-                    br.ReadUInt32();
-                    //Logger.LogToFile("{0}", br.ReadUInt32());
+                    if (bDebug)
+                    {
+                        Logger.LogToFile("{0}", br.ReadUInt32());
+                    }
+                    else
+                    {
+                        br.ReadUInt32();
+                    }
                 }
 
                 Logger.LogToFile("{0} :: {1}", br.BaseStream.Position.ToString("X"), br.BaseStream.Length.ToString("X"));
@@ -220,158 +254,10 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             return materials[index].VertexList;
         }
 
-        public string GetVertexMode(int index)
+        public string GetMaterialMode(int index)
         {
             return materials[index].Mode;
         }
-
-        /*
-            Names are padded to the nearest 4 bytes with a 4 byte spacer.  For example:
-            Rims would get 4 bytes of padding
-            ToxicRagers would get 5 bytes of padding
-
-            Data_Core\Content\Vehicles\Countslash\driver.MDL
-            0   45 23 02 06     Magic Number
-            4	92 0F B9 05
-            8	81 00 00 00
-            C	00 00 00 00
-            10	02 00 00 00     Sometimes Face Count
-            14	04 00 00 00     Sometimes Vertex Count
-            18	D2 02 00 00     Bytes remaining
-                C2 9C D2 3C     0.025709514
-                98 B2 9E BC     -0.01937227
-                6F 12 83 BA     -0.001
-                BF 1E 93 BC     -0.017958997
-                71 81 96 3C     0.01837227
-                6F 12 83 3A     0.001
-                98 ED 8A 3C     0.016958997
-                70 12 03 BA     ?? -5.000001E-4 ??
-                00 00 00 00
-                70 12 03 BA     ?? -5.000001E-4 ??
-            44	01 00		    Number of names [*C*]
-            46	04 00 00 00     Length of first name
-            4A	52 69 6D 73     "Rims"
-                00 00 00 00     Padding to 8 bytes
-            52	02 00 00 00     Face Count [*A*]
-            56	[*A*] x 16 byte blocks - face data
-            76	04 00 00 00     Vertex Count [*B*]
-            7A	[*B*] x 44 byte blocks - vertex data
-            12A	01 00           Same as [*C*]
-            12C	00 00 00 00     0
-                00 00 00 00     0
-                00 00 00 00     0
-                00 D3 CC 3C     0.025002956
-                71 81 96 BC     -0.01837227
-                00 00 00 00     0
-                98 ED 8A BC     -0.016958997
-                71 81 96 3C     0.01837227
-                00 00 00 00     0
-                98 ED 8A 3C     0.016958997
-                00 00 00 00     0
-                04 00 00 00     4
-                04 00 00 00     4
-                00 00 00 00     0
-                01 00 00 00     1
-                02 00 00 00     2
-                03 00 00 00     3
-                00 00 00 00     0
-                00 00 00 00     0
-                00 00 00 00     0
-                00 00 00 00     0
-                71 81 96 BC     -0.01837227
-                00 00 00 00     0
-                98 ED 8A BC     -0.016958997
-                01 00 00 00     1
-                71 81 96 3C     0.01837227
-                00 00 00 00     0
-                98 ED 8A BC     -0.016958997
-                01 00 00 00     1
-                71 81 96 BC     -0.01837227
-                00 00 00 00     0
-                98 ED 8A 3C     0.016958997
-                01 00 00 00     1
-                71 81 96 3C     0.01837227
-                00 00 00 00     0
-                98 ED 8A 3C     0.016958997
-                01 00 00 00     1
-                00 00 00 00     0
-                00 00 00 00     0
-                00 00 80 3F     1
-                00 00 00 80     -0
-                00 00 00 00     0
-                00 00 80 3F     1
-                00 00 00 80     -0
-                00 00 00 00     0
-                00 00 80 3F     1
-                00 00 00 00     0
-                00 00 00 00     0
-                00 00 80 3F     1
-                00 00 00 00     0
-                00 00 00 00     0
-                01 00 00 00     1
-                02 00 00 00     2
-                03 00 00 00     3
-                00 00 00 00     0
-                80 80 80 FF     Vertex colour
-                80 80 80 FF     Vertex colour
-                80 80 80 FF     Vertex colour
-                00 00 00 00     0
-                00 00 00 00     0
-                00 00 00 00     0
-                00 00 00 00     0
-                00 00 80 3F     1
-                00 00 00 00     0
-                00 00 00 00     0
-                00 00 00 00     0
-                00 00 00 00     0
-                00 00 80 3F     1
-                00 00 00 00     0
-                00 00 00 00     0
-                00 00 00 00     0
-                00 00 00 00     0
-	            00              Terminator?
-	            00 00 00 80     -0
-	            00 00 80 3F     1
-	            00 00 00 00     0
-	            00 00 00 80     -0
-	            00 00 80 3F     1
-	            00 00 00 00     0
-	            00 00 00 00     0
-	            00 00 80 3F     1
-	            00 00 00 00     0
-	            00 00 00 00     0
-	            00 00 80 3F     1
-	            00 00 00 00     0
-	            00 00 00 00     0
-	            01 00 00 00     1
-	            01 00 00 00     1
-	            00 00 00 00     0
-	            03 00 00 00     3
-	            80 80 80 FF     Vertex colour
-	            80 80 80 FF     Vertex colour
-	            80 80 80 FF     Vertex colour
-	            00 00 80 3F     1
-	            00 00 80 3F     1
-	            00 00 00 00     0
-	            00 00 00 00     0
-	            00 00 00 00     0
-	            00 00 80 3F     1
-	            00 00 00 00     0
-	            00 00 00 00     0
-	            00 00 80 3F     1
-	            00 00 00 00     0
-	            00 00 00 00     0
-	            00 00 00 00     0
-	            00 00 00 00     0
-	            00 00 00 00     0
-	            00              Terminator?
-	            01 00 00 00     1
-	            04 00 00 00     4
-	            02 00 00 00     2
-	            03 00 00 00     3
-	            00 00 00 00     0
-	            01 00 00 00     1
-         */
     }
 
     public class MDLFace
@@ -391,6 +277,11 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             this.vertexA = A;
             this.vertexB = B;
             this.vertexC = C;
+        }
+
+        public override string ToString()
+        {
+            return "{ Face: {A:" + vertexA + " B:" + vertexB + " C:" + vertexC + "} Material: " + unknown + " }";
         }
     }
 
@@ -441,7 +332,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
         string mode = "trianglestrip";
 
         public string Name { get { return name; } }
-        public List<MDLVertex> VertexList { get { return vertexList; } }
+        public List<MDLVertex> VertexList { get { return vertexList; } set { vertexList = value; } }
         public List<bool> DegenerateList { get { return degenerateList; } }
         public string Mode { get { return mode; } set { mode = value; } }
 
