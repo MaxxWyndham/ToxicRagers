@@ -11,13 +11,18 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
         string name;
         string nodeName;
         string modelName;
+        string section;
         Matrix3D transform;
         List<CNT> childNodes = new List<CNT>();
+        CNTLight light;
 
         public string Name { get { return name; } }
-        public string NodeName { get { return (nodeName == null ? modelName : nodeName); } }
         public string Model { get { return modelName; } }
+        public string Section { get { return section; } }
         public Matrix3D Transform { get { return transform; } }
+        public CNTLight Light { get { return light; } }
+
+        public CNT Parent { get { return parent; } }
         public List<CNT> Children { get { return childNodes; } }
 
         public Matrix3D CombinedTransform
@@ -95,16 +100,16 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                                 br.ReadSingle(), br.ReadSingle(), br.ReadSingle()
                             );
 
-            string section = br.ReadString(4);
-            switch (section)
+            cnt.section = br.ReadString(4);
+            switch (cnt.section)
             {
                 case "LITg":
-                    int lightType = (int)br.ReadUInt32();
+                    cnt.light = new CNTLight((int)br.ReadUInt32());
 
-                    switch (lightType)
+                    switch (cnt.light.LightType)
                     {
                         case 2: // Bounding box?
-                            Logger.LogToFile("Light type: {0}", lightType);
+                            Logger.LogToFile("Light type: {0}", cnt.light.LightType);
 
                             for (int i = 0; i < 26; i++)
                             {
@@ -114,21 +119,21 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                             break;
 
                         case 3:
-                            Logger.LogToFile("Light type: {0}", lightType);
+                            Logger.LogToFile("Light type: {0}", cnt.light.LightType);
                             break;
 
                         default:
-                            Logger.LogToFile("Unknown light type!  I've never seen a light like {0} before", lightType);
+                            Logger.LogToFile("Unknown light type!  I've never seen a light like {0} before", cnt.light.LightType);
                             break;
                     }
 
                     nameLength = (int)br.ReadUInt32();
                     padding = (((nameLength / 4) + (nameLength % 4 > 0 ? 1 : 0)) * 4) - nameLength;
 
-                    string lightName = br.ReadString(nameLength);
+                    cnt.light.Name = br.ReadString(nameLength);
                     br.ReadBytes(padding);
 
-                    Logger.LogToFile("LITg: \"{0}\" of length {1}, padding of {2}", lightName, nameLength, padding);
+                    Logger.LogToFile("LITg: \"{0}\" of length {1}, padding of {2}", cnt.light.Name, nameLength, padding);
                     break;
 
                 case "EMT2":
@@ -144,7 +149,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                     cnt.modelName = br.ReadString(nameLength);
                     br.ReadBytes(padding);
 
-                    Logger.LogToFile("{0}: \"{1}\" of length {2}, padding of {3}", section, cnt.modelName, nameLength, padding);
+                    Logger.LogToFile("{0}: \"{1}\" of length {2}, padding of {3}", cnt.section, cnt.modelName, nameLength, padding);
                     break;
 
                 case "VFXI":
@@ -159,7 +164,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                     break;
 
                 default:
-                    Logger.LogToFile("Unknown section \"{0}\"; Aborting", section);
+                    Logger.LogToFile("Unknown section \"{0}\"; Aborting", cnt.section);
                     return null;
             }
 
@@ -174,6 +179,119 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             br.ReadUInt32();    // Terminator
 
             return cnt;
+        }
+
+        public void Save(string Path)
+        {
+            using (BinaryWriter bw = new BinaryWriter(new FileStream(Path, FileMode.Create)))
+            {
+                bw.Write(new byte[] { 69, 35, 0, 4 });
+
+                Save(bw, this);
+            }
+        }
+
+        private static void Save(BinaryWriter bw, CNT cnt)
+        {
+            int nameLength = cnt.Name.Length;
+            int padding = (((nameLength / 4) + (nameLength % 4 > 0 ? 1 : 0)) * 4) - nameLength;
+
+            bw.Write(nameLength);
+            bw.WriteString(cnt.Name);
+            bw.Write(new byte[padding]);
+
+            bw.Write((byte)0);
+
+            bw.Write((int)0);
+
+            bw.Write(cnt.Transform.M11);
+            bw.Write(cnt.Transform.M12);
+            bw.Write(cnt.Transform.M13);
+            bw.Write(cnt.Transform.M21);
+            bw.Write(cnt.Transform.M22);
+            bw.Write(cnt.Transform.M23);
+            bw.Write(cnt.Transform.M31);
+            bw.Write(cnt.Transform.M32);
+            bw.Write(cnt.Transform.M33);
+            bw.Write(cnt.Transform.M41);
+            bw.Write(cnt.Transform.M42);
+            bw.Write(cnt.Transform.M43);
+
+            bw.WriteString(cnt.Section);
+
+            switch (cnt.Section)
+            {
+                case "LITg":
+                    bw.Write(cnt.Light.LightType);
+
+                    switch (cnt.light.LightType)
+                    {
+                        case 2:
+                            // TODO
+                            break;
+                    }
+
+                    nameLength = cnt.Light.Name.Length;
+                    padding = (((nameLength / 4) + (nameLength % 4 > 0 ? 1 : 0)) * 4) - nameLength;
+
+                    bw.Write(nameLength);
+                    bw.WriteString(cnt.Light.Name);
+                    bw.Write(new byte[padding]);
+                    break;
+
+                case "MODL":
+                case "SKIN":
+                    nameLength = cnt.Model.Length;
+                    padding = (((nameLength / 4) + (nameLength % 4 > 0 ? 1 : 0)) * 4) - nameLength;
+
+                    bw.Write(nameLength);
+                    bw.WriteString(cnt.Name);
+                    bw.Write(new byte[padding]);
+                    break;
+
+                default:
+                    // DO NOTHING!
+                    break;
+            }
+
+            bw.Write(cnt.Children.Count);
+            foreach (CNT c in cnt.Children) { Save(bw, c); }
+            bw.Write((int)0);
+        }
+
+        // This seems wrong.  I am very tired.
+        public CNT FindByName(string name)
+        {
+            CNT match = null;
+
+            if (this.name == name)
+            {
+                match = this;
+            }
+            else
+            {
+                foreach (CNT c in this.childNodes)
+                {
+                    match = c.FindByName(name);
+                    if (match != null) { break; }
+                }
+            }
+
+            return match;
+        }
+    }
+
+    public class CNTLight
+    {
+        string name;
+        int type;
+
+        public int LightType { get { return type; } }
+        public string Name { get { return name; } set { name = value; } }
+
+        public CNTLight(int lightType)
+        {
+            type = lightType;
         }
     }
 }

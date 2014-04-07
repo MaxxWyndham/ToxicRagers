@@ -9,5 +9,10 @@ namespace ToxicRagers.Helpers
         {
             return new string(br.ReadChars(length));
         }
+
+        public static void WriteString(this BinaryWriter bw, string s)
+        {
+            bw.Write(s.ToCharArray());
+        }
     }
 }
