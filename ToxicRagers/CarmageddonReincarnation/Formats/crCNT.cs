@@ -227,8 +227,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                     switch (cnt.light.LightType)
                     {
                         case 2:
-                            // TODO
-                            break;
+                            throw new NotImplementedException("Save code for LightType 2 does not exist!");
                     }
 
                     nameLength = cnt.Light.Name.Length;
@@ -249,9 +248,11 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                     bw.Write(new byte[padding]);
                     break;
 
-                default:
-                    // DO NOTHING!
+                case "NULL":
                     break;
+
+                default:
+                    throw new NotImplementedException(string.Format("Save code for CNT section {0} does not exist!", cnt.Section));
             }
 
             bw.Write(cnt.Children.Count);
