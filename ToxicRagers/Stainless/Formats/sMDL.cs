@@ -3,15 +3,16 @@ using System.Collections.Generic;
 using System.IO;
 using ToxicRagers.Helpers;
 
-namespace ToxicRagers.CarmageddonReincarnation.Formats
+namespace ToxicRagers.Stainless.Formats
 {
     public class MDL
     {
         static bool bDebug = false;
         int faceCount;
         int vertexCount;
-        int version;
+        Version version;
         string name;
+        int flags;
 
         List<MDLMaterial> materials = new List<MDLMaterial>();
         List<MDLFace> faces = new List<MDLFace>();
@@ -34,19 +35,24 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             using (BinaryReader br = new BinaryReader(fi.OpenRead()))
             {
                 if (br.ReadByte() != 69 ||
-                    br.ReadByte() != 35 ||
-                    br.ReadByte() != 2 ||
-                    br.ReadByte() != 6)
+                    br.ReadByte() != 35)
                 {
                     Logger.LogToFile("{0} isn't a valid MDL file", Path);
                     return null;
                 }
 
+                byte minor = br.ReadByte();
+                byte major = br.ReadByte();
+
+                mdl.version = new Version(major, minor);
+
+                Logger.LogToFile("MDL v{0}", mdl.version.ToString());
+
                 br.ReadBytes(4);    // No idea
-                mdl.version = (int)br.ReadUInt32();
+                mdl.flags = (int)br.ReadUInt32();
                 br.ReadBytes(4);    // No idea
 
-                Logger.LogToFile("Version {0}", mdl.version);
+                Logger.LogToFile("Flags {0}", mdl.flags);
 
                 int headerFaceCount = (int)br.ReadUInt32();
                 int headerVertCount = (int)br.ReadUInt32();
@@ -73,7 +79,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                 for (int i = 0; i < nameCount; i++)
                 {
                     int nameLength = (int)br.ReadInt32();
-                    int padding = (((nameLength / 4) + (nameLength % 4 > 0 ? 1 : 0)) * 4) - nameLength + 4;
+                    int padding = (((nameLength / 4) + (nameLength % 4 > 0 ? 1 : 0)) * 4) - nameLength + (mdl.version.Major == 6 && mdl.version.Minor > 0 ? 4 : 0);
 
                     mdl.materials.Add(new MDLMaterial(br.ReadString(nameLength)));
                     br.ReadBytes(padding);
@@ -174,7 +180,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
                     //Console.WriteLine("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\t{8}", Path, nameCount, headerFaceCount, headerVertCount, mdl.faceCount, mdl.vertexCount, uA, uB, uC);
 
-                    if (uA > 0) 
+                    if (uA > 0)
                     {
                         if (material.VertexList.Count > 0)
                         {
@@ -187,7 +193,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
                     for (int j = 0; j < uC; j++)
                     {
-                        
+
                         int index = (int)br.ReadUInt32();
                         //Logger.LogToFile("{0}] {1}", j, index);
                         material.VertexList.Add(mdl.verts[uA + index]);
@@ -200,7 +206,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
                 for (int i = 0; i < headerVertCount; i++)
                 {
-                    
+
                     if (bDebug)
                     {
                         Logger.LogToFile("{0}, {1}, {2} : {3}", br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadUInt32());
@@ -218,7 +224,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
                 for (int i = 0; i < mdl.faceCount; i++)
                 {
-                    
+
                     if (bDebug)
                     {
                         Logger.LogToFile("{0}", br.ReadUInt32());

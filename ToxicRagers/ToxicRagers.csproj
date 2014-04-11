@@ -59,7 +59,6 @@
     <Compile Include="Carmageddon2\Helpers\OpponentPathParser.cs" />
     <Compile Include="CarmageddoniOS\Formats\iTDX.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\crCNT.cs" />
-    <Compile Include="CarmageddonReincarnation\Formats\crMDL.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\crMT2.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\crMTL.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\crTDX.cs" />
@@ -79,6 +78,7 @@
     <Compile Include="Helpers\TypeConverters.cs" />
     <Compile Include="Helpers\Vector2.cs" />
     <Compile Include="Helpers\Vector3D.cs" />
+    <Compile Include="Stainless\Formats\sMDL.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup />
