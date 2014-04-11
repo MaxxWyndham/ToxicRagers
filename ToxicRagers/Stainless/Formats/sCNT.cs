@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using ToxicRagers.Helpers;
 
-namespace ToxicRagers.CarmageddonReincarnation.Formats
+namespace ToxicRagers.Stainless.Formats
 {
     public class CNT
     {
@@ -14,6 +14,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
         string section;
         Matrix3D transform;
         List<CNT> childNodes = new List<CNT>();
+        Version version;
         CNTLight light;
 
         public string Name { get { return name; } }
@@ -52,15 +53,18 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             using (BinaryReader br = new BinaryReader(fi.OpenRead()))
             {
                 if (br.ReadByte() != 69 ||
-                    br.ReadByte() != 35 ||
-                    br.ReadByte() != 0 ||
-                    br.ReadByte() != 4)
+                    br.ReadByte() != 35)
                 {
                     Logger.LogToFile("{0} isn't a valid CNT file", Path);
                     return null;
                 }
 
-                cnt = Load(br);
+                byte minor = br.ReadByte();
+                byte major = br.ReadByte();
+
+                Logger.LogToFile("CNT v{0}.{1}", major, minor);
+
+                cnt = Load(br, new Version(major, minor));
 
                 Logger.LogToFile("{0} :: {1}", br.BaseStream.Position.ToString("X"), br.BaseStream.Length.ToString("X"));
                 if (br.BaseStream.Position != br.BaseStream.Length) { Logger.LogToFile("Still has data remaining"); }
@@ -69,11 +73,13 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             return cnt;
         }
 
-        private static CNT Load(BinaryReader br, CNT parent = null)
+        private static CNT Load(BinaryReader br, Version version, CNT parent = null)
         {
             // The Load(BinaryReader) version skips the header check and is used for recursive loading
             CNT cnt = new CNT();
             if (parent != null) { cnt.parent = parent; }
+
+            cnt.version = version;
 
             Logger.LogToFile("{0}", br.BaseStream.Position.ToString("X"));
 
@@ -136,6 +142,11 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                     Logger.LogToFile("LITg: \"{0}\" of length {1}, padding of {2}", cnt.light.Name, nameLength, padding);
                     break;
 
+                case "EMIT":    // v4.0
+                    Logger.LogToFile("EMIT, skipping 177 bytes");
+                    br.ReadBytes(177);
+                    break;
+
                 case "EMT2":
                     Logger.LogToFile("EMT2, skipping 650 bytes");
                     br.ReadBytes(650);
@@ -173,7 +184,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             for (int i = 0; i < childNodes; i++)
             {
                 Logger.LogToFile("Loading child {0} of {1}", (i + 1), childNodes);
-                cnt.childNodes.Add(Load(br, cnt));
+                cnt.childNodes.Add(Load(br, version, cnt));
             }
 
             br.ReadUInt32();    // Terminator
