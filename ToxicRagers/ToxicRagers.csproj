@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -59,7 +59,6 @@
     <Compile Include="Carmageddon2\Helpers\OpponentPathParser.cs" />
     <Compile Include="CarmageddoniOS\Formats\iTDX.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\crMT2.cs" />
-    <Compile Include="CarmageddonReincarnation\Formats\crMTL.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\crTDX.cs" />
     <Compile Include="CarmageddonReincarnation\Helpers\Material.cs" />
     <Compile Include="Carmageddon\Formats\c1CarTXT.cs" />
@@ -79,11 +78,11 @@
     <Compile Include="Helpers\TypeConverters.cs" />
     <Compile Include="Helpers\Vector2.cs" />
     <Compile Include="Helpers\Vector3D.cs" />
-    <Compile Include="Novadrome\Formats\nMTL.cs" />
     <Compile Include="Novadrome\Formats\nXT2.cs" />
     <Compile Include="Stainless\Formats\sCNT.cs" />
     <Compile Include="Stainless\Formats\sMDL.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Stainless\Formats\sMTL.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
