@@ -91,9 +91,10 @@ namespace ToxicRagers.Stainless.Formats
 
             Logger.LogToFile("Name: \"{0}\" of length {1}, padding of {2}", cnt.Name, nameLength, padding);
 
-            if (br.ReadByte() == 12)
+            byte flags = br.ReadByte();
+            if (flags != 0)
             {
-                Logger.LogToFile("This is a \"12\" file");
+                Logger.LogToFile("Flags: {0}", flags);
                 br.ReadByte();
             }
 
