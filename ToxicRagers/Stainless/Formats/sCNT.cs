@@ -144,8 +144,16 @@ namespace ToxicRagers.Stainless.Formats
                     break;
 
                 case "EMIT":    // v4.0
-                    Logger.LogToFile("EMIT, skipping 177 bytes");
-                    br.ReadBytes(177);
+                    Logger.LogToFile("EMIT, skipping 26 bytes, reading a name and then skipping 136 bytes");
+                    br.ReadBytes(26);
+
+                    nameLength = (int)br.ReadUInt32();
+                    padding = (((nameLength / 4) + (nameLength % 4 > 0 ? 1 : 0)) * 4) - nameLength;
+
+                    br.ReadString(nameLength);
+                    br.ReadBytes(padding);
+
+                    br.ReadBytes(136);
                     break;
 
                 case "EMT2":
