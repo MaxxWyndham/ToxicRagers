@@ -14,5 +14,18 @@ namespace ToxicRagers.Helpers
         {
             bw.Write(s.ToCharArray());
         }
+
+        public static string ToName(this byte[] b)
+        {
+            string s = "";
+
+            for (int i = 0; i < b.Length; i++)
+            {
+                if (b[i] == 0) { break; }
+                s += (char)b[i];
+            }
+
+            return s;
+        }
     }
 }

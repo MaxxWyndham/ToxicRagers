@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using ToxicRagers.Helpers;
 
 namespace ToxicRagers.Stainless.Formats
@@ -73,23 +74,33 @@ namespace ToxicRagers.Stainless.Formats
             return cnt;
         }
 
+        // The Load(BinaryReader) version skips the header check and is used for recursive loading
         private static CNT Load(BinaryReader br, Version version, CNT parent = null)
         {
-            // The Load(BinaryReader) version skips the header check and is used for recursive loading
             CNT cnt = new CNT();
+            int nameLength, padding;
             if (parent != null) { cnt.parent = parent; }
 
             cnt.version = version;
 
             Logger.LogToFile("{0}", br.BaseStream.Position.ToString("X"));
 
-            int nameLength = (int)br.ReadUInt32();
-            int padding = (((nameLength / 4) + (nameLength % 4 > 0 ? 1 : 0)) * 4) - nameLength;
+            if (version.Major == 3)
+            {
+                cnt.name = br.ReadBytes(16).ToName();
 
-            cnt.name = br.ReadString(nameLength);
-            br.ReadBytes(padding);
+                Logger.LogToFile("Name: \"{0}\"", cnt.Name);
+            }
+            else
+            {
+                nameLength = (int)br.ReadUInt32();
+                padding = (((nameLength / 4) + (nameLength % 4 > 0 ? 1 : 0)) * 4) - nameLength;
 
-            Logger.LogToFile("Name: \"{0}\" of length {1}, padding of {2}", cnt.Name, nameLength, padding);
+                cnt.name = br.ReadString(nameLength);
+                br.ReadBytes(padding);
+
+                Logger.LogToFile("Name: \"{0}\" of length {1}, padding of {2}", cnt.Name, nameLength, padding);
+            }
 
             byte flags = br.ReadByte();
             if (flags != 0)
@@ -163,13 +174,24 @@ namespace ToxicRagers.Stainless.Formats
 
                 case "MODL":
                 case "SKIN":
-                    nameLength = (int)br.ReadUInt32();
-                    padding = (((nameLength / 4) + (nameLength % 4 > 0 ? 1 : 0)) * 4) - nameLength;
+                    if (version.Major == 3)
+                    {
+                        cnt.modelName = br.ReadBytes(16).ToName();
 
-                    cnt.modelName = br.ReadString(nameLength);
-                    br.ReadBytes(padding);
+                        Logger.LogToFile("MODL: \"{0}\"", cnt.Name);
+                        br.ReadBytes(16);
+                    }
+                    else
+                    {
+                        nameLength = (int)br.ReadUInt32();
+                        padding = (((nameLength / 4) + (nameLength % 4 > 0 ? 1 : 0)) * 4) - nameLength;
 
-                    Logger.LogToFile("{0}: \"{1}\" of length {2}, padding of {3}", cnt.section, cnt.modelName, nameLength, padding);
+                        cnt.modelName = br.ReadString(nameLength);
+                        br.ReadBytes(padding);
+
+                        Logger.LogToFile("{0}: \"{1}\" of length {2}, padding of {3}", cnt.section, cnt.modelName, nameLength, padding);
+                    }
+
                     break;
 
                 case "VFXI":
