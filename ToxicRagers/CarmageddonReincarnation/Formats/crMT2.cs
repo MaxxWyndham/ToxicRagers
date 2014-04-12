@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Xml.Linq;
-using ToxicRagers.CarmageddonReincarnation.Helpers;
+using ToxicRagers.Helpers;
 
 namespace ToxicRagers.CarmageddonReincarnation.Formats
 {
