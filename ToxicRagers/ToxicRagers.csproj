@@ -68,6 +68,7 @@
     <Compile Include="Helpers\D3DBaseTexture.cs" />
     <Compile Include="Helpers\D3DFormat.cs" />
     <Compile Include="Helpers\ExtensionMethods.cs" />
+    <Compile Include="Helpers\Generics\Texture.cs" />
     <Compile Include="Helpers\IO.cs" />
     <Compile Include="Helpers\Line.cs" />
     <Compile Include="Helpers\Logger.cs" />

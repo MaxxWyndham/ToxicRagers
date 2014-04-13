@@ -5,21 +5,17 @@ using ToxicRagers.Helpers;
 
 namespace ToxicRagers.Novadrome.Formats
 {
-    public class XT2
+    public class XT2 : Texture
     {
-        string name;
-        bool bIndexed;
         int dataSize;
         int width;
         int height;
         D3DBaseTexture header;
         string textureName;
-        public List<MipMap> mipMaps = new List<MipMap>();
 
-        public string Name { get { return name; } }
         public string Texture { get { return textureName; } }
 
-        public string Format
+        public override string Format
         {
             get
             {
@@ -45,7 +41,7 @@ namespace ToxicRagers.Novadrome.Formats
             Console.WriteLine("{0}", Path);
             XT2 xt2 = new XT2();
 
-            xt2.name = fi.Name.Replace(fi.Extension, "");
+            xt2.Name = fi.Name.Replace(fi.Extension, "");
 
             using (BEBinaryReader br = new BEBinaryReader(fi.OpenRead()))
             {
@@ -143,7 +139,7 @@ namespace ToxicRagers.Novadrome.Formats
                 mip.Width = xt2.width;
                 mip.Height = xt2.height;
                 mip.Data = data;
-                xt2.mipMaps.Add(mip);
+                xt2.MipMaps.Add(mip);
             }
 
             return xt2;
@@ -163,35 +159,6 @@ namespace ToxicRagers.Novadrome.Formats
             Micro = (((x & 7) + ((y & 6) << 2)) << logBpp);
             Offset = Macro + ((Micro &~ 15) << 1) + (Micro & 15) + ((y & 8) << (3 + logBpp)) + ((y & 1) << 4);
             return (((Offset &~ 511) << 3) + ((Offset & 448) << 2) + (Offset & 63) + ((y & 16) << 7) + (((((y & 8) >> 2) + (x >> 3)) & 3) << 6)) >> logBpp;
-        }
-    }
-
-    public class MipMap
-    {
-        int width;
-        int height;
-        byte[] data;
-
-        public int Width
-        {
-            get { return width; }
-            set { width = value; }
-        }
-
-        public int Height
-        {
-            get { return height; }
-            set { height = value; }
-        }
-
-        public byte[] Data
-        {
-            get { return data; }
-            set { data = value; }
-        }
-
-        public void Decompress()
-        {
         }
     }
 }
