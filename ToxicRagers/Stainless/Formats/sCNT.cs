@@ -121,6 +121,11 @@ namespace ToxicRagers.Stainless.Formats
             cnt.section = br.ReadString(4);
             switch (cnt.section)
             {
+                case "LITd":
+                    Logger.LogToFile("LITd, skipping 16 bytes");
+                    br.ReadBytes(16);
+                    break;
+
                 case "LITg":
                     cnt.light = new CNTLight((int)br.ReadUInt32());
 
@@ -154,17 +159,13 @@ namespace ToxicRagers.Stainless.Formats
                     Logger.LogToFile("LITg: \"{0}\" of length {1}, padding of {2}", cnt.light.Name, nameLength, padding);
                     break;
 
-                case "EMIT":    // v4.0
-                    Logger.LogToFile("EMIT, skipping 26 bytes, reading a name and then skipping 136 bytes");
-                    br.ReadBytes(26);
+                case "EMIT":    // <= v4.0
+                    int emitVersion = br.ReadByte();
+                    int toSkip = (emitVersion == 6 ? 128 : 136);
 
-                    nameLength = (int)br.ReadUInt32();
-                    padding = (((nameLength / 4) + (nameLength % 4 > 0 ? 1 : 0)) * 4) - nameLength;
-
-                    br.ReadString(nameLength);
-                    br.ReadBytes(padding);
-
-                    br.ReadBytes(136);
+                    br.ReadBytes(25);
+                    Logger.LogToFile("EMIT v{0}, skipping 26 bytes, reading a name (\"{1}\") and then skipping {2} bytes", emitVersion, br.ReadString((int)br.ReadUInt32()), toSkip);
+                    br.ReadBytes(toSkip);
                     break;
 
                 case "EMT2":
