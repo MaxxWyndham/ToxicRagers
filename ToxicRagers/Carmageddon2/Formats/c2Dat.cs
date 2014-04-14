@@ -6,136 +6,137 @@ using ToxicRagers.Carmageddon2.Helpers;
 
 namespace ToxicRagers.Carmageddon2.Formats
 {
-    public class c2Dat
+    public class DAT
     {
         public List<DatMesh> DatMeshes;
 
-        public c2Dat()
+        public DAT()
         {
             DatMeshes = new List<DatMesh>();
         }
 
-        public c2Dat(DatMesh dm)
+        public DAT(DatMesh dm)
         {
             DatMeshes = new List<DatMesh>();
             DatMeshes.Add(dm);
         }
 
-        public bool Load(string Path)
+        public static DAT Load(string Path)
         {
             int Length, Count;
+            DAT dat = new DAT();
             DatMesh D = new DatMesh();
-            bool bSuccess = true;
 
-            BEBinaryReader br = new BEBinaryReader(new FileStream(Path, FileMode.Open));
-            br.ReadBytes(16); // Header
-
-            while (br.BaseStream.Position < br.BaseStream.Length)
+            using (BEBinaryReader br = new BEBinaryReader(new FileStream(Path, FileMode.Open)))
             {
-                int Tag = (int)br.ReadUInt32();
+                br.ReadBytes(16); // Header
 
-                switch (Tag)
+                while (br.BaseStream.Position < br.BaseStream.Length)
                 {
-                    case 54: // 00 00 00 36
-                        D = new DatMesh();
-                        // Name
-                        Length = (int)br.ReadUInt32() - 2;
-                        D.UnknownAttribute = br.ReadUInt16();
-                        D.Name = br.ReadStringOfLength(Length);
-                        Console.WriteLine("{0}", D.Name);
-                        break;
+                    int Tag = (int)br.ReadUInt32();
 
-                    case 23: // 00 00 00 17
-                        // vertex data
-                        Length = (int)br.ReadUInt32();
-                        Count = (int)br.ReadUInt32();
-                        Console.WriteLine("V: {0}", Count);
-                        for (int i = 0; i < Count; i++)
-                        {
-                            Single x, y, z;
-                            x = br.ReadSingle(); y = br.ReadSingle(); z = br.ReadSingle();
-                            D.Mesh.AddListVertex(x, y, z);
-                            Console.WriteLine("x :\t{0:R}\ty :\t{1:R}\tz :\t{2:R}", x, y, z);
-                        }
-                        break;
+                    switch (Tag)
+                    {
+                        case 54: // 00 00 00 36
+                            D = new DatMesh();
+                            // Name
+                            Length = (int)br.ReadUInt32() - 2;
+                            D.UnknownAttribute = br.ReadUInt16();
+                            D.Name = br.ReadStringOfLength(Length);
+                            Console.WriteLine("{0}", D.Name);
+                            break;
 
-                    case 24: // 00 00 00 18
-                        // UV co-ordinates
-                        Length = (int)br.ReadUInt32();
-                        Count = (int)br.ReadUInt32();
-                        Console.WriteLine("UV: {0}", Count);
-                        for (int i = 0; i < Count; i++)
-                        {
-                            Single u, v;
-                            u = br.ReadSingle(); v = br.ReadSingle();
-                            D.Mesh.AddListUV(u, v);
-                            //Console.WriteLine("u :\t{0:R}\tv :\t{1:R}", u, v);
-                        }
-                        break;
+                        case 23: // 00 00 00 17
+                            // vertex data
+                            Length = (int)br.ReadUInt32();
+                            Count = (int)br.ReadUInt32();
+                            Console.WriteLine("V: {0}", Count);
+                            for (int i = 0; i < Count; i++)
+                            {
+                                Single x, y, z;
+                                x = br.ReadSingle(); y = br.ReadSingle(); z = br.ReadSingle();
+                                D.Mesh.AddListVertex(x, y, z);
+                                //Console.WriteLine("x :\t{0:R}\ty :\t{1:R}\tz :\t{2:R}", x, y, z);
+                            }
+                            break;
 
-                    case 53:    // 00 00 00 35
-                        // Faces
-                        Length = (int)br.ReadUInt32();
-                        Count = (int)br.ReadUInt32();
-                        Console.WriteLine("F: {0}", Count);
+                        case 24: // 00 00 00 18
+                            // UV co-ordinates
+                            Length = (int)br.ReadUInt32();
+                            Count = (int)br.ReadUInt32();
+                            Console.WriteLine("UV: {0}", Count);
+                            for (int i = 0; i < Count; i++)
+                            {
+                                Single u, v;
+                                u = br.ReadSingle(); v = br.ReadSingle();
+                                D.Mesh.AddListUV(u, v);
+                                //Console.WriteLine("u :\t{0:R}\tv :\t{1:R}", u, v);
+                            }
+                            break;
 
-                        for (int i = 0; i < Count; i++)
-                        {
-                            UInt16 a, b, c;
-                            a = br.ReadUInt16(); b = br.ReadUInt16(); c = br.ReadUInt16();
-                            D.Mesh.AddFace(a, b, c);
-                            br.ReadByte(); // smoothing groups 9 - 16
-                            br.ReadByte(); // smoothing groups 1 - 8
-                            br.ReadByte(); // number of edges, 0 and 3 = tri.  4 = quad.
-                            //Console.WriteLine("a :\t{0}\tb :\t{1}\tc :\t{2}", a, b, c);
-                            Console.WriteLine("model->faces[{0}].vertices[0] = {1};", i, a);
-                            Console.WriteLine("model->faces[{0}].vertices[1] = {1};", i, b);
-                            Console.WriteLine("model->faces[{0}].vertices[2] = {1};", i, c);
-                        }
+                        case 53:    // 00 00 00 35
+                            // Faces
+                            Length = (int)br.ReadUInt32();
+                            Count = (int)br.ReadUInt32();
+                            Console.WriteLine("F: {0}", Count);
 
-                        break;
+                            for (int i = 0; i < Count; i++)
+                            {
+                                UInt16 a, b, c;
+                                a = br.ReadUInt16(); b = br.ReadUInt16(); c = br.ReadUInt16();
+                                D.Mesh.AddFace(a, b, c);
+                                br.ReadByte(); // smoothing groups 9 - 16
+                                br.ReadByte(); // smoothing groups 1 - 8
+                                br.ReadByte(); // number of edges, 0 and 3 = tri.  4 = quad.
+                                //Console.WriteLine("a :\t{0}\tb :\t{1}\tc :\t{2}", a, b, c);
 
-                    case 22: // 00 00 00 16
-                        // material list
-                        Length = (int)br.ReadUInt32();
-                        Count = (int)br.ReadUInt32();
-                        Console.WriteLine("M: {0}", Count);
+                                //Console.WriteLine("model->faces[{0}].vertices[0] = {1};", i, a);
+                                //Console.WriteLine("model->faces[{0}].vertices[1] = {1};", i, b);
+                                //Console.WriteLine("model->faces[{0}].vertices[2] = {1};", i, c);
+                            }
 
-                        string[] Materials = br.ReadStrings(Count);
-                        for (int i = 0; i < Count; i++)
-                        {
-                            D.Mesh.Materials.Add(Materials[i]);
-                        }
-                        break;
+                            break;
 
-                    case 26:
-                        // face textures
-                        Length = (int)br.ReadUInt32();
-                        Count = (int)br.ReadUInt32();
-                        br.ReadBytes(4); // fuck knows what this is
-                        for (int i = 0; i < Count; i++)
-                        {
-                            D.Mesh.SetMaterialForFace(i, br.ReadUInt16() - 1);
-                        }
-                        break;
+                        case 22: // 00 00 00 16
+                            // material list
+                            Length = (int)br.ReadUInt32();
+                            Count = (int)br.ReadUInt32();
+                            Console.WriteLine("M: {0}", Count);
 
-                    case 0:
-                        // EndOfFile
-                        D.Mesh.ProcessMesh();
-                        DatMeshes.Add(D);
-                        br.ReadUInt32();
-                        break;
+                            string[] Materials = br.ReadStrings(Count);
+                            for (int i = 0; i < Count; i++)
+                            {
+                                D.Mesh.Materials.Add(Materials[i]);
+                            }
+                            break;
 
-                    default:
-                        Console.WriteLine("Unknown DAT tag: " + Tag + " (" + br.BaseStream.Position + " :: " + br.BaseStream.Length + ")");
-                        br.BaseStream.Position = br.BaseStream.Length;
-                        bSuccess = false;
-                        break;
+                        case 26:
+                            // face textures
+                            Length = (int)br.ReadUInt32();
+                            Count = (int)br.ReadUInt32();
+                            br.ReadBytes(4); // fuck knows what this is
+                            for (int i = 0; i < Count; i++)
+                            {
+                                D.Mesh.SetMaterialForFace(i, br.ReadUInt16() - 1);
+                            }
+                            break;
+
+                        case 0:
+                            // EndOfFile
+                            D.Mesh.ProcessMesh();
+                            dat.DatMeshes.Add(D);
+                            br.ReadUInt32();
+                            break;
+
+                        default:
+                            Console.WriteLine("Unknown DAT tag: " + Tag + " (" + br.BaseStream.Position + " :: " + br.BaseStream.Length + ")");
+                            br.BaseStream.Position = br.BaseStream.Length;
+                            return null;
+                    }
                 }
             }
 
-            br.Close();
-            return bSuccess;
+            return dat;
         }
 
         public void Save(string Path)

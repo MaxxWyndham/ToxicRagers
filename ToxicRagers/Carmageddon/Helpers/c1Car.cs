@@ -19,7 +19,7 @@ namespace ToxicRagers.Carmageddon.Helpers
         string[] pratcamborders = new string[4];
         bool stealworthy = false;
         int modelcount = 0;
-        c2Dat[] models;
+        DAT[] models;
         public CrushData[] Crushes;
         int actorcount = 0;
         c2Act[] actors;
@@ -79,13 +79,13 @@ namespace ToxicRagers.Carmageddon.Helpers
             set
             {
                 modelcount = value;
-                models = new c2Dat[modelcount];
+                models = new DAT[modelcount];
                 Crushes = new CrushData[modelcount];
             }
         }
 
         [BrowsableAttribute(false)]
-        public c2Dat[] Models
+        public DAT[] Models
         {
             get { return models; }
         }
@@ -156,8 +156,7 @@ namespace ToxicRagers.Carmageddon.Helpers
 
         public void LoadModel(int modelnum, string modelname)
         {
-            if (models[modelnum] == null) { models[modelnum] = new c2Dat(); }
-            models[modelnum].Load(RootPath + "\\MODELS\\" + modelname);
+            if (models[modelnum] == null) { models[modelnum] = DAT.Load(RootPath + "\\MODELS\\" + modelname); }
         }
 
         public void LoadActor(int actornum, string actorname)
