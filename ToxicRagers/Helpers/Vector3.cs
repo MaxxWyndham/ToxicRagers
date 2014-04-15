@@ -93,6 +93,11 @@ namespace ToxicRagers.Helpers
             return (Single)Math.Sqrt(Dot(v, v));
         }
 
+        public static Single LengthSquared(Vector3 v)
+        {
+            return Dot(v, v);
+        }
+
         public static Vector3 Min(Vector3 v1, Vector3 v2)
         {
             return new Vector3(
