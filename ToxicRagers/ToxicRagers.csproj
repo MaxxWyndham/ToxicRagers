@@ -78,7 +78,7 @@
     <Compile Include="Helpers\Structs.cs" />
     <Compile Include="Helpers\TypeConverters.cs" />
     <Compile Include="Helpers\Vector2.cs" />
-    <Compile Include="Helpers\Vector3D.cs" />
+    <Compile Include="Helpers\Vector3.cs" />
     <Compile Include="Novadrome\Formats\nXT2.cs" />
     <Compile Include="Stainless\Formats\sCNT.cs" />
     <Compile Include="Stainless\Formats\sMDL.cs" />

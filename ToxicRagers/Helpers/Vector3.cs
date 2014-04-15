@@ -11,6 +11,13 @@ namespace ToxicRagers.Helpers
         private Single _y;
         private Single _z;
 
+        public Vector3(Single n)
+        {
+            _x = n;
+            _y = n;
+            _z = n;
+        }
+
         public Vector3(Single x, Single y, Single z)
         {
             _x = x;
@@ -84,6 +91,33 @@ namespace ToxicRagers.Helpers
         public static Single Magnitude(Vector3 v)
         {
             return (Single)Math.Sqrt(Dot(v, v));
+        }
+
+        public static Vector3 Min(Vector3 v1, Vector3 v2)
+        {
+            return new Vector3(
+                Math.Min(v1.X, v2.X), 
+                Math.Min(v1.Y, v2.Y), 
+                Math.Min(v1.Z, v2.Z)
+                );
+        }
+
+        public static Vector3 Max(Vector3 v1, Vector3 v2)
+        {
+            return new Vector3(
+                Math.Max(v1.X, v2.X), 
+                Math.Max(v1.Y, v2.Y), 
+                Math.Max(v1.Z, v2.Z)
+                );
+        }
+
+        public static Vector3 Truncate(Vector3 v)
+        {
+            return new Vector3(
+                (float)(v.X > 0.0f ? Math.Floor(v.X) : Math.Ceiling(v.X)),
+                (float)(v.Y > 0.0f ? Math.Floor(v.Y) : Math.Ceiling(v.Y)),
+                (float)(v.Z > 0.0f ? Math.Floor(v.Z) : Math.Ceiling(v.Z))
+            );
         }
 
         public Single Length
