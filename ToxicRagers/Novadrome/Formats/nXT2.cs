@@ -15,25 +15,6 @@ namespace ToxicRagers.Novadrome.Formats
 
         public string Texture { get { return textureName; } }
 
-        public override string Format
-        {
-            get
-            {
-                switch (header.DataFormat)
-                {
-                    case D3DFormat.A8R8G8B8:
-                        return "8888";
-
-                    case D3DFormat.DXT1:
-                        return "DXT1";
-
-                    case D3DFormat.DXT2:
-                        return "DXT3";
-                }
-
-                return null;
-            }
-        }
 
         public static XT2 Load(string Path)
         {
@@ -70,21 +51,21 @@ namespace ToxicRagers.Novadrome.Formats
 
                 switch (xt2.header.DataFormat)
                 {
-                    case D3DFormat.A8R8G8B8:
+                    case D3DFormat.X360_A8R8G8B8:
                         W = w;
                         H = h;
                         TexelPitch = 4;
                         DataSize = w * h * 4;
                         break;
 
-                    case D3DFormat.DXT1:
+                    case D3DFormat.X360_DXT1:
                         W = w / 4;
                         H = h / 4;
                         TexelPitch = 8;
                         DataSize = w * h / 2;
                         break;
 
-                    case D3DFormat.DXT2:
+                    case D3DFormat.X360_DXT2:
                         W = w / 4;
                         H = h / 4;
                         TexelPitch = 16;
@@ -96,15 +77,15 @@ namespace ToxicRagers.Novadrome.Formats
 
                 switch (xt2.header.DataFormat)
                 {
-                    case D3DFormat.A8R8G8B8:
+                    case D3DFormat.X360_A8R8G8B8:
                         OutSize = W * H * TexelPitch;
                         break;
 
-                    case D3DFormat.DXT1: 
+                    case D3DFormat.X360_DXT1: 
                         OutSize = W * H * TexelPitch;
                         break;
 
-                    case D3DFormat.DXT2:
+                    case D3DFormat.X360_DXT2:
                         DataSize = w * H * 2;
                         OutSize = W * H * TexelPitch;
                         break;

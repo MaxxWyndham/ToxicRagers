@@ -6,7 +6,7 @@ namespace ToxicRagers.Helpers
     public abstract class Texture
     {
         string name;
-        string format;
+        D3DFormat format;
         List<MipMap> mipMaps = new List<MipMap>();
 
         public string Name
@@ -15,7 +15,7 @@ namespace ToxicRagers.Helpers
             set { name = value; }
         }
 
-        public virtual string Format
+        public virtual D3DFormat Format
         {
             get { return format; }
             set { format = value; }

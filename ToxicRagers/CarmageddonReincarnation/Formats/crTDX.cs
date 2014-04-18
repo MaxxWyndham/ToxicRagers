@@ -31,7 +31,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                 tdx.height = (int)br.ReadUInt16();
                 int mipCount = (int)br.ReadUInt16();
                 int flags = (int)br.ReadUInt32();
-                tdx.Format = br.ReadString(4);
+                tdx.Format = (D3DFormat)br.ReadUInt32();
 
                 for (int i = 0; i < mipCount; i++)
                 {
@@ -41,12 +41,16 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
                     switch (tdx.Format)
                     {
-                        case "DXT1":
+                        case D3DFormat.A8R8G8B8:
+                            br.ReadBytes(mip.Width * mip.Height * 4);
+                            break;
+
+                        case D3DFormat.DXT1:
                             mip.Data = br.ReadBytes((((mip.Width + 3) / 4) * ((mip.Height + 3) / 4)) * 8);
                             break;
 
-                        case "ATI2":
-                        case "DXT5":
+                        case D3DFormat.ATI2:
+                        case D3DFormat.DXT5:
                             mip.Data = br.ReadBytes((((mip.Width + 3) / 4) * ((mip.Height + 3) / 4)) * 16);
                             break;
 
