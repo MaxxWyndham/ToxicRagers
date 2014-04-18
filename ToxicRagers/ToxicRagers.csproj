@@ -75,6 +75,15 @@
     <Compile Include="Helpers\Matrix2D.cs" />
     <Compile Include="Helpers\Matrix3D.cs" />
     <Compile Include="Helpers\Plane.cs" />
+    <Compile Include="Helpers\Squish\ClusterFit.cs" />
+    <Compile Include="Helpers\Squish\ColourBlock.cs" />
+    <Compile Include="Helpers\Squish\ColourFit.cs" />
+    <Compile Include="Helpers\Squish\ColourSet.cs" />
+    <Compile Include="Helpers\Squish\Maths.cs" />
+    <Compile Include="Helpers\Squish\RangeFit.cs" />
+    <Compile Include="Helpers\Squish\SingleColourFit.cs" />
+    <Compile Include="Helpers\Squish\SingleColourLookup.cs" />
+    <Compile Include="Helpers\Squish\Squish.cs" />
     <Compile Include="Helpers\Structs.cs" />
     <Compile Include="Helpers\TypeConverters.cs" />
     <Compile Include="Helpers\Vector2.cs" />
