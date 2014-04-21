@@ -7,8 +7,28 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 {
     public class TDX : Texture
     {
+        [Flags]
+        public enum Flags
+        {
+            Unknown4 = 4,
+            Unknown8 = 8,
+            Unknown64 = 64,
+            Unknown128 = 128,
+            Unknown256 = 256,
+            ExtraData = 512,
+            Unknown1024 = 1024,
+            Unknown16384 = 16384
+        }
+
         int width;
         int height;
+        Flags flags;
+
+        public TDX()
+            : base()
+        {
+            this.extension = "TDX";
+        }
 
         public static TDX Load(string Path)
         {
@@ -30,8 +50,14 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                 tdx.width = (int)br.ReadUInt16();
                 tdx.height = (int)br.ReadUInt16();
                 int mipCount = (int)br.ReadUInt16();
-                int flags = (int)br.ReadUInt32();
+                tdx.flags = (Flags)br.ReadUInt32();
                 tdx.Format = (D3DFormat)br.ReadUInt32();
+
+                if ((tdx.flags & Flags.ExtraData) == Flags.ExtraData)
+                {
+                    // Frames list usually
+                    br.ReadBytes((int)br.ReadUInt32());
+                }
 
                 for (int i = 0; i < mipCount; i++)
                 {
@@ -42,7 +68,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                     switch (tdx.Format)
                     {
                         case D3DFormat.A8R8G8B8:
-                            br.ReadBytes(mip.Width * mip.Height * 4);
+                            mip.Data = br.ReadBytes(mip.Width * mip.Height * 4);
                             break;
 
                         case D3DFormat.DXT1:
@@ -64,6 +90,22 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             }
 
             return tdx;
+        }
+
+        public void Save(string Path)
+        {
+            using (BinaryWriter bw = new BinaryWriter(new FileStream(Path, FileMode.Create)))
+            {
+                bw.Write(new byte[] { 0, 2 });
+
+                bw.Write((short)this.MipMaps[0].Width);
+                bw.Write((short)this.MipMaps[0].Height);
+                bw.Write((short)this.MipMaps.Count);
+                bw.Write((int)this.flags);
+                bw.Write(this.ShortFormat);
+
+                for (int i = 0; i < this.MipMaps.Count; i++) { bw.Write(this.MipMaps[i].Data); }
+            }
         }
     }
 }
