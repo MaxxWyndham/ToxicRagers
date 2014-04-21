@@ -15,6 +15,11 @@ namespace ToxicRagers.Novadrome.Formats
 
         public string Texture { get { return textureName; } }
 
+        public XT2()
+            : base()
+        {
+            this.extension = "XT2";
+        }
 
         public static XT2 Load(string Path)
         {
