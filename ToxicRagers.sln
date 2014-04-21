@@ -1,7 +1,9 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ToxicRagers", "ToxicRagers\ToxicRagers.csproj", "{9B9C928D-9E64-400E-961E-F134E659146B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibSquishNet", "..\LibSquishNet\LibSquishNet\LibSquishNet.csproj", "{8B187D46-BC8E-4B5A-AE68-326958BC9AAA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -13,6 +15,10 @@ Global
 		{9B9C928D-9E64-400E-961E-F134E659146B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9B9C928D-9E64-400E-961E-F134E659146B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9B9C928D-9E64-400E-961E-F134E659146B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8B187D46-BC8E-4B5A-AE68-326958BC9AAA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8B187D46-BC8E-4B5A-AE68-326958BC9AAA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8B187D46-BC8E-4B5A-AE68-326958BC9AAA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8B187D46-BC8E-4B5A-AE68-326958BC9AAA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

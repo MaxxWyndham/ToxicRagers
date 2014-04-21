@@ -1,0 +1,3 @@
+[submodule "LibSquishNet"]
+	path = LibSquishNet
+	url = https://github.com/ErrolErrolson/LibSquishNet.git

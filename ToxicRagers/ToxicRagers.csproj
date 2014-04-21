@@ -75,15 +75,6 @@
     <Compile Include="Helpers\Matrix2D.cs" />
     <Compile Include="Helpers\Matrix3D.cs" />
     <Compile Include="Helpers\Plane.cs" />
-    <Compile Include="Helpers\Squish\ClusterFit.cs" />
-    <Compile Include="Helpers\Squish\ColourBlock.cs" />
-    <Compile Include="Helpers\Squish\ColourFit.cs" />
-    <Compile Include="Helpers\Squish\ColourSet.cs" />
-    <Compile Include="Helpers\Squish\Maths.cs" />
-    <Compile Include="Helpers\Squish\RangeFit.cs" />
-    <Compile Include="Helpers\Squish\SingleColourFit.cs" />
-    <Compile Include="Helpers\Squish\SingleColourLookup.cs" />
-    <Compile Include="Helpers\Squish\Squish.cs" />
     <Compile Include="Helpers\Structs.cs" />
     <Compile Include="Helpers\TypeConverters.cs" />
     <Compile Include="Helpers\Vector2.cs" />
@@ -95,7 +86,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Stainless\Formats\sMTL.cs" />
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
