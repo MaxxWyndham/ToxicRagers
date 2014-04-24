@@ -27,24 +27,6 @@ namespace ToxicRagers.Stainless.Formats
         public CNT Parent { get { return parent; } }
         public List<CNT> Children { get { return childNodes; } }
 
-        public Matrix3D CombinedTransform
-        {
-            get
-            {
-                var m = transform;
-                var cnt = this;
-
-                while (cnt.parent != null)
-                {
-                    cnt = cnt.parent;
-
-                    m *= cnt.transform;
-                }
-
-                return m;
-            }
-        }
-
         public static CNT Load(string Path)
         {
             FileInfo fi = new FileInfo(Path);
