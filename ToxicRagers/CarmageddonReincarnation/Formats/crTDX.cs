@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using ToxicRagers.Helpers;
+using Squish;
 
 namespace ToxicRagers.CarmageddonReincarnation.Formats
 {
@@ -90,6 +93,40 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             }
 
             return tdx;
+        }
+
+        public Bitmap Decompress()
+        {
+            Bitmap b = new Bitmap(this.MipMaps[0].Width, this.MipMaps[0].Height, PixelFormat.Format32bppArgb);
+            Squish.SquishFlags flags = SquishFlags.kDxt1;
+
+            switch (this.Format)
+            {
+                case D3DFormat.DXT5:
+                    flags = SquishFlags.kDxt5;
+                    break;
+            }
+
+            byte[] dest = new byte[this.MipMaps[0].Width * this.MipMaps[0].Height * 4];
+            byte[] data = this.MipMaps[0].Data;
+
+            Squish.Squish.DecompressImage(dest, this.MipMaps[0].Width, this.MipMaps[0].Height, ref data, flags);
+
+            int x = 0;
+            int y = 0;
+
+            for (int i = 0; i < dest.Length; i += 4)
+            {
+                b.SetPixel(x, y, Color.FromArgb(dest[i + 3], dest[i + 0], dest[i + 1], dest[i + 2]));
+
+                if (++x == this.MipMaps[0].Width)
+                {
+                    x = 0;
+                    y++;
+                }
+            }
+
+            return b;
         }
 
         public void Save(string Path)
