@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using ToxicRagers.Helpers;
 using ToxicRagers.Carmageddon2.Helpers;
 
@@ -27,7 +28,7 @@ namespace ToxicRagers.Carmageddon2.Formats
             DAT dat = new DAT();
             DatMesh D = new DatMesh();
 
-            using (BEBinaryReader br = new BEBinaryReader(new FileStream(Path, FileMode.Open)))
+            using (BEBinaryReader br = new BEBinaryReader(new FileStream(Path, FileMode.Open), Encoding.Default))
             {
                 br.ReadBytes(16); // Header
 
@@ -43,14 +44,14 @@ namespace ToxicRagers.Carmageddon2.Formats
                             Length = (int)br.ReadUInt32() - 2;
                             D.UnknownAttribute = br.ReadUInt16();
                             D.Name = br.ReadStringOfLength(Length);
-                            Console.WriteLine("{0}", D.Name);
+                            //Console.WriteLine("{0}", D.Name);
                             break;
 
                         case 23: // 00 00 00 17
                             // vertex data
                             Length = (int)br.ReadUInt32();
                             Count = (int)br.ReadUInt32();
-                            Console.WriteLine("V: {0}", Count);
+                            //Console.WriteLine("V: {0}", Count);
                             for (int i = 0; i < Count; i++)
                             {
                                 Single x, y, z;
@@ -64,7 +65,7 @@ namespace ToxicRagers.Carmageddon2.Formats
                             // UV co-ordinates
                             Length = (int)br.ReadUInt32();
                             Count = (int)br.ReadUInt32();
-                            Console.WriteLine("UV: {0}", Count);
+                            //Console.WriteLine("UV: {0}", Count);
                             for (int i = 0; i < Count; i++)
                             {
                                 Single u, v;
@@ -78,7 +79,7 @@ namespace ToxicRagers.Carmageddon2.Formats
                             // Faces
                             Length = (int)br.ReadUInt32();
                             Count = (int)br.ReadUInt32();
-                            Console.WriteLine("F: {0}", Count);
+                            //Console.WriteLine("F: {0}", Count);
 
                             for (int i = 0; i < Count; i++)
                             {
@@ -101,7 +102,7 @@ namespace ToxicRagers.Carmageddon2.Formats
                             // material list
                             Length = (int)br.ReadUInt32();
                             Count = (int)br.ReadUInt32();
-                            Console.WriteLine("M: {0}", Count);
+                            //Console.WriteLine("M: {0}", Count);
 
                             string[] Materials = br.ReadStrings(Count);
                             for (int i = 0; i < Count; i++)
@@ -129,8 +130,7 @@ namespace ToxicRagers.Carmageddon2.Formats
                             break;
 
                         default:
-                            Console.WriteLine("Unknown DAT tag: " + Tag + " (" + br.BaseStream.Position + " :: " + br.BaseStream.Length + ")");
-                            br.BaseStream.Position = br.BaseStream.Length;
+                            Logger.LogToFile("Unknown DAT tag: {0} ({1} of {2})", Tag, br.BaseStream.Position, br.BaseStream.Length);
                             return null;
                     }
                 }
