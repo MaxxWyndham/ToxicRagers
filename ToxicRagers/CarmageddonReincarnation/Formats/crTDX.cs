@@ -95,9 +95,24 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             return tdx;
         }
 
-        public Bitmap Decompress()
+        public int GetMipLevelForSize(int maxDimension)
         {
-            Bitmap b = new Bitmap(this.MipMaps[0].Width, this.MipMaps[0].Height, PixelFormat.Format32bppArgb);
+            for (int i = 0; i < this.MipMaps.Count; i++)
+            {
+                if (this.MipMaps[i].Width <= maxDimension || this.MipMaps[i].Height <= maxDimension)
+                {
+                    return i;
+                }
+            }
+
+            return 0;
+        }
+
+        public Bitmap Decompress(int mipLevel = 0)
+        {
+            var mip = this.MipMaps[mipLevel];
+
+            Bitmap b = new Bitmap(mip.Width, mip.Height, PixelFormat.Format32bppArgb);
             Squish.SquishFlags flags = SquishFlags.kDxt1;
 
             switch (this.Format)
@@ -107,10 +122,10 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                     break;
             }
 
-            byte[] dest = new byte[this.MipMaps[0].Width * this.MipMaps[0].Height * 4];
-            byte[] data = this.MipMaps[0].Data;
+            byte[] dest = new byte[mip.Width * mip.Height * 4];
+            byte[] data = mip.Data;
 
-            Squish.Squish.DecompressImage(dest, this.MipMaps[0].Width, this.MipMaps[0].Height, ref data, flags);
+            Squish.Squish.DecompressImage(dest, mip.Width, mip.Height, ref data, flags);
 
             int x = 0;
             int y = 0;
@@ -119,7 +134,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             {
                 b.SetPixel(x, y, Color.FromArgb(dest[i + 3], dest[i + 0], dest[i + 1], dest[i + 2]));
 
-                if (++x == this.MipMaps[0].Width)
+                if (++x == mip.Width)
                 {
                     x = 0;
                     y++;
@@ -139,7 +154,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                 bw.Write((short)this.MipMaps[0].Height);
                 bw.Write((short)this.MipMaps.Count);
                 bw.Write((int)this.flags);
-                bw.Write(this.ShortFormat);
+                bw.WriteString(this.ShortFormat);
 
                 for (int i = 0; i < this.MipMaps.Count; i++) { bw.Write(this.MipMaps[i].Data); }
             }
