@@ -11,6 +11,7 @@ namespace ToxicRagers.Carmageddon2.Helpers
     {
         public List<string> Materials;
         public List<Vector3> Verts;
+        public List<Vector3> Normals;
         public List<Vector2> UVs;
         public List<c2Face> Faces;
         public MeshExtents Extents;
@@ -202,6 +203,41 @@ namespace ToxicRagers.Carmageddon2.Helpers
             }
 
             return uv;
+        }
+
+        public void GenerateNormals()
+        {
+            Normals = new List<Vector3>();
+
+            for (int i = 0; i < Verts.Count; i++) { Normals.Add(Vector3.Zero); }
+
+            for (int i = 0; i < Faces.Count; i += 3)
+            {
+                Vector3 v0 = Verts[Faces[i].V1];
+                Vector3 v1 = Verts[Faces[i].V2];
+                Vector3 v2 = Verts[Faces[i].V3];
+
+                Vector3 normal = Vector3.Cross(v2 - v0, v1 - v0).Normalise;
+
+                Normals[Faces[i].V1] += normal;
+                Normals[Faces[i].V2] += normal;
+                Normals[Faces[i].V3] += normal;
+            }
+
+            for (int i = 0; i < Normals.Count; i++)
+            {
+                Normals[i] = Normals[i].Normalise;
+            }
+        }
+
+        public void AssignUVs()
+        {
+            foreach (var face in Faces)
+            {
+                face.UVs[0] = face.V1;
+                face.UVs[1] = face.V2;
+                face.UVs[2] = face.V3;
+            }
         }
 
         public Vector3 Centre
