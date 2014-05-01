@@ -211,13 +211,16 @@ namespace ToxicRagers.Carmageddon2.Helpers
 
             for (int i = 0; i < Verts.Count; i++) { Normals.Add(Vector3.Zero); }
 
-            for (int i = 0; i < Faces.Count; i += 3)
+            for (int i = 0; i < Faces.Count; i++)
             {
                 Vector3 v0 = Verts[Faces[i].V1];
                 Vector3 v1 = Verts[Faces[i].V2];
                 Vector3 v2 = Verts[Faces[i].V3];
 
-                Vector3 normal = Vector3.Cross(v2 - v0, v1 - v0).Normalise;
+                Vector3 normal = Vector3.Cross(v2 - v0, v1 - v0);
+
+                float sin_alpha = normal.Length / ((v2 - v0).Length * (v1 - v0).Length);
+                normal = normal.Normalise * (float)Math.Asin(sin_alpha);
 
                 Normals[Faces[i].V1] += normal;
                 Normals[Faces[i].V2] += normal;
