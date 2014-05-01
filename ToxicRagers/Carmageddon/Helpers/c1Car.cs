@@ -22,7 +22,7 @@ namespace ToxicRagers.Carmageddon.Helpers
         DAT[] models;
         public CrushData[] Crushes;
         int actorcount = 0;
-        c2Act[] actors;
+        ACT[] actors;
 
         public string RootPath;
 
@@ -97,12 +97,12 @@ namespace ToxicRagers.Carmageddon.Helpers
             set
             {
                 actorcount = value;
-                actors = new c2Act[actorcount];
+                actors = new ACT[actorcount];
             }
         }
 
         [BrowsableAttribute(false)]
-        public c2Act[] Actors
+        public ACT[] Actors
         {
             get { return actors; }
         }
@@ -137,8 +137,8 @@ namespace ToxicRagers.Carmageddon.Helpers
                     if (Crushes[i].MaxRootVertex > models[i].DatMeshes[0].Mesh.Verts.Count) { modelindex++; bSwapped = true; } else if (bSwapped) { modelindex--; }
 
 
-                    c2Act crushpoints = new c2Act();
-                    crushpoints.AddRootNode("crushpoints");
+                    ACT crushpoints = new ACT();
+                    //crushpoints.AddRootNode("crushpoints");
 
                     //Console.WriteLine("Processing " + models[modelindex].DatMeshes[0].Name + " (V: " + models[modelindex].DatMeshes[0].Mesh.Verts.Count + ", MV: " + Crushes[i].MaxRootVertex + ")");
                     for (int j = 0; j < Crushes[i].ChunkCount; j++)
@@ -146,7 +146,7 @@ namespace ToxicRagers.Carmageddon.Helpers
                         Matrix3D m = Matrix3D.Identity;
                         m.Scale = 0.05f;
                         m.Position = models[modelindex].DatMeshes[0].Mesh.Verts[Crushes[i].Chunks[j].RootVertex];
-                        crushpoints.AddActor("p" + j, "Sphere_48", m, false);
+                        //crushpoints.AddActor("p" + j, "Sphere_48", m, false);
                     }
 
                     //crushpoints.Save("D:\\CrushDebug\\" + name + "_" + i + "_Points.act");
@@ -161,8 +161,7 @@ namespace ToxicRagers.Carmageddon.Helpers
 
         public void LoadActor(int actornum, string actorname)
         {
-            if (actors[actornum] == null) { actors[actornum] = new c2Act(); }
-            actors[actornum].Load(RootPath + "\\ACTORS\\" + actorname);
+            if (actors[actornum] == null) { actors[actornum] = ACT.Load(RootPath + "\\ACTORS\\" + actorname); }
         }
     }
 
