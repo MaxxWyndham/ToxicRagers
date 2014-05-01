@@ -34,6 +34,10 @@ namespace ToxicRagers.Carmageddon2.Helpers
         public int V2 { get { return Verts[1]; } }
         public int V3 { get { return Verts[2]; } }
 
+        public int UV1 { get { return UVs[0]; } }
+        public int UV2 { get { return UVs[1]; } }
+        public int UV3 { get { return UVs[2]; } }
+
         public void SetMaterialID(int MaterialID)
         {
             this.MaterialID = MaterialID;
