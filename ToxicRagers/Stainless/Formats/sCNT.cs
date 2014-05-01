@@ -18,10 +18,26 @@ namespace ToxicRagers.Stainless.Formats
         Version version;
         CNTLight light;
 
-        public string Name { get { return name; } }
-        public string Model { get { return modelName; } }
-        public string Section { get { return section; } }
-        public Matrix3D Transform { get { return transform; } }
+        public string Name { 
+            get { return name; }
+            set { name = value; }
+        }
+
+        public Matrix3D Transform {
+            get { return transform; } 
+            set { transform = value; } 
+        }
+
+        public string Section {
+            get { return section; } 
+            set { section = value; } 
+        }
+
+        public string Model {
+            get { return modelName; } 
+            set { modelName = value; } 
+        }
+
         public CNTLight Light { get { return light; } }
 
         public CNT Parent { get { return parent; } }
@@ -33,7 +49,7 @@ namespace ToxicRagers.Stainless.Formats
             Logger.LogToFile("{0}", Path);
             CNT cnt;
 
-            using (BinaryReader br = new BinaryReader(fi.OpenRead()))
+            using (BinaryReader br = new BinaryReader(fi.OpenRead(), Encoding.Default))
             {
                 if (br.ReadByte() != 69 ||
                     br.ReadByte() != 35)
@@ -99,6 +115,8 @@ namespace ToxicRagers.Stainless.Formats
                                 br.ReadSingle(), br.ReadSingle(), br.ReadSingle(),
                                 br.ReadSingle(), br.ReadSingle(), br.ReadSingle()
                             );
+
+            Logger.LogToFile("Transform {0}", cnt.transform);
 
             cnt.section = br.ReadString(4);
             switch (cnt.section)
@@ -208,7 +226,7 @@ namespace ToxicRagers.Stainless.Formats
 
         public void Save(string Path)
         {
-            using (BinaryWriter bw = new BinaryWriter(new FileStream(Path, FileMode.Create)))
+            using (BinaryWriter bw = new BinaryWriter(new FileStream(Path, FileMode.Create), Encoding.Default))
             {
                 bw.Write(new byte[] { 69, 35, 0, 4 });
 
@@ -269,7 +287,7 @@ namespace ToxicRagers.Stainless.Formats
                     padding = (((nameLength / 4) + (nameLength % 4 > 0 ? 1 : 0)) * 4) - nameLength;
 
                     bw.Write(nameLength);
-                    bw.WriteString(cnt.Name);
+                    bw.WriteString(cnt.Model);
                     bw.Write(new byte[padding]);
                     break;
 
