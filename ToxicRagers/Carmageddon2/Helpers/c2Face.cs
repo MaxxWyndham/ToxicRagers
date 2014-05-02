@@ -7,7 +7,7 @@ namespace ToxicRagers.Carmageddon2.Helpers
     {
         public int[] Verts = new int[3];
         public int[] UVs = new int[3];
-        public int MaterialID;
+        public int MaterialID = -1;
 
         public c2Face(int V1, int V2, int V3, int MaterialID)
             : this(V1, V2, V3, 0, 0, 0, MaterialID)
@@ -15,7 +15,7 @@ namespace ToxicRagers.Carmageddon2.Helpers
         }
 
         public c2Face(int V1, int V2, int V3, int UV1, int UV2, int UV3)
-            : this(V1, V2, V3, UV1, UV2, UV3, 0)
+            : this(V1, V2, V3, UV1, UV2, UV3, -1)
         {
         }
 

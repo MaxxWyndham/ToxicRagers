@@ -52,7 +52,7 @@ namespace ToxicRagers.Carmageddon2.Helpers
 
         public void AddFace(int v1, int v2, int v3)
         {
-            Faces.Add(new c2Face(v1, v2, v3, 0));
+            Faces.Add(new c2Face(v1, v2, v3, -1));
         }
 
         public void AddFace(int v1, int v2, int v3, int MatID)
