@@ -1,200 +1,199 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using ToxicRagers.Helpers;
 using ToxicRagers.Carmageddon2.Helpers;
 
 namespace ToxicRagers.Carmageddon2.Formats
 {
-    public class c2Mat
+    public class MAT
     {
-        public List<Material> Materials;
+        List<Material> materials;
 
-        public c2Mat()
+        public List<Material> Materials { get { return materials; } }
+
+        public MAT()
         {
-            Materials = new List<Material>();
+            materials = new List<Material>();
         }
 
-        public bool Load(string Path)
+        public static MAT Load(string Path)
         {
+            FileInfo fi = new FileInfo(Path);
+            Logger.LogToFile("{0}", Path);
+            MAT mat = new MAT();
+
             int Length;
             Material M = new Material();
-            bool bSuccess = true;
             bool bDebug = false;
 
-            BEBinaryReader br = new BEBinaryReader(new FileStream(Path, FileMode.Open));
-            br.ReadBytes(16); // Header
-
-            while (br.BaseStream.Position < br.BaseStream.Length)
+            using (BEBinaryReader br = new BEBinaryReader(fi.OpenRead(), Encoding.Default))
             {
-                int Tag = (int)br.ReadUInt32();
+                br.ReadBytes(16); // Header
 
-                switch (Tag)
+                while (br.BaseStream.Position < br.BaseStream.Length)
                 {
-                    case 4:
-                        // C1 mat file
-                        M = new Material();
+                    int Tag = (int)br.ReadUInt32();
 
-                        Length = (int)br.ReadUInt32();
+                    switch (Tag)
+                    {
+                        case 4:
+                            // C1 mat file
+                            M = new Material();
 
-                        br.ReadByte(); // R
-                        br.ReadByte(); // G
-                        br.ReadByte(); // B
-                        br.ReadByte(); // A
-                        br.ReadSingle(); // Emissive Colour
-                        br.ReadSingle(); // Directional
-                        br.ReadSingle(); // Specular Colour
-                        br.ReadSingle(); // Specular Power
-                        M.SetFlags((int)br.ReadUInt16()); // Flags
-                        if (M.GetFlag(Material.Settings.UnknownSetting) || M.GetFlag(Material.Settings.IFromV) || M.GetFlag(Material.Settings.UFromI) || M.GetFlag(Material.Settings.VFromI)) { bDebug = true; }
-                        M.UVMatrix = new Matrix2D(br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
-                        byte x1 = br.ReadByte(); // ??
-                        byte x2= br.ReadByte(); // ??
-                        M.Name = br.ReadString();
-                        //Console.WriteLine(Path + "\t" + M.Name + "\t" + x1 + "\t" + x2);
+                            Length = (int)br.ReadUInt32();
 
-                        if (bDebug) { Console.WriteLine(Path + " :: " + M.Name); bDebug = false; }
-                        break;
+                            br.ReadByte(); // R
+                            br.ReadByte(); // G
+                            br.ReadByte(); // B
+                            br.ReadByte(); // A
+                            br.ReadSingle(); // Emissive Colour
+                            br.ReadSingle(); // Directional
+                            br.ReadSingle(); // Specular Colour
+                            br.ReadSingle(); // Specular Power
+                            M.SetFlags((int)br.ReadUInt16()); // Flags
+                            if (M.GetFlag(Material.Settings.UnknownSetting) || M.GetFlag(Material.Settings.IFromV) || M.GetFlag(Material.Settings.UFromI) || M.GetFlag(Material.Settings.VFromI)) { bDebug = true; }
+                            M.UVMatrix = new Matrix2D(br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
+                            byte x1 = br.ReadByte(); // ??
+                            byte x2 = br.ReadByte(); // ??
+                            M.Name = br.ReadString();
+                            //Console.WriteLine(Path + "\t" + M.Name + "\t" + x1 + "\t" + x2);
 
-                    case 60:
-                        M = new Material();
+                            if (bDebug) { Console.WriteLine(Path + " :: " + M.Name); bDebug = false; }
+                            break;
 
-                        Length = (int)br.ReadUInt32() - 67;
-                        br.ReadByte(); // R
-                        br.ReadByte(); // G
-                        br.ReadByte(); // B
-                        br.ReadByte(); // A
-                        br.ReadSingle(); // Emissive Colour
-                        br.ReadSingle(); // Directional
-                        br.ReadSingle(); // Specular Colour
-                        br.ReadSingle(); // Specular Power
-                        M.SetFlags((int)br.ReadUInt32()); // Flags
-                        M.UVMatrix = new Matrix2D(br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
-                        if (br.ReadUInt32()!= 169803776) { Console.WriteLine("Weird Beard! ("+Path+")"); }
-                        byte a = br.ReadByte();
-                        byte b = br.ReadByte();
-                        byte c = br.ReadByte();
-                        byte d = br.ReadByte();
-                        br.ReadBytes(13); // 13 bytes of nothing
-                        M.Name = br.ReadStringOfLength(Length);
+                        case 60:
+                            M = new Material();
 
-                        break;
+                            Length = (int)br.ReadUInt32() - 67;
+                            br.ReadByte(); // R
+                            br.ReadByte(); // G
+                            br.ReadByte(); // B
+                            br.ReadByte(); // A
+                            br.ReadSingle(); // Emissive Colour
+                            br.ReadSingle(); // Directional
+                            br.ReadSingle(); // Specular Colour
+                            br.ReadSingle(); // Specular Power
+                            M.SetFlags((int)br.ReadUInt32()); // Flags
+                            M.UVMatrix = new Matrix2D(br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
+                            if (br.ReadUInt32() != 169803776) { Console.WriteLine("Weird Beard! (" + Path + ")"); }
+                             br.ReadBytes(13); // 13 bytes of nothing
+                            M.Name = br.ReadStringOfLength(Length);
+                            break;
 
-                    case 28:
-                        Length = (int)br.ReadUInt32();
-                        M.Texture = br.ReadString();
-                        //Tif t = new Tif(Path.Substring(0, Path.LastIndexOf("\\")) + "\\tiffrgb\\" + M.Texture + ".tif");
-                        //M.TextureData = t.GetPixelData();
-                        //M.Width = t.ImageWidth;
-                        //M.Height = t.ImageHeight;
-                        break;
+                        case 28:
+                            Length = (int)br.ReadUInt32();
+                            M.Texture = br.ReadString();
+                            //Tif t = new Tif(Path.Substring(0, Path.LastIndexOf("\\")) + "\\tiffrgb\\" + M.Texture + ".tif");
+                            //M.TextureData = t.GetPixelData();
+                            //M.Width = t.ImageWidth;
+                            //M.Height = t.ImageHeight;
+                            break;
 
-                    case 31:
-                        Length = (int)br.ReadUInt32();
-                        string s = br.ReadString(); // shadetable
-                        break;
+                        case 31:
+                            Length = (int)br.ReadUInt32();
+                            string s = br.ReadString(); // shadetable
+                            break;
 
-                    case 0:
-                        Materials.Add(M);
-                        br.ReadUInt32();
-                        break;
+                        case 0:
+                            mat.materials.Add(M);
+                            br.ReadUInt32();
+                            break;
 
-                    default:
-                        Console.WriteLine("Unknown tag: " + Tag + " (" + br.BaseStream.Position + " :: " + br.BaseStream.Length + ")");
-                        br.BaseStream.Position = br.BaseStream.Length;
-                        bSuccess = false;
-                        break;
+                        default:
+                            Logger.LogToFile("Unknown MAT tag: {0} ({1} of {2})", Tag, br.BaseStream.Position, br.BaseStream.Length);
+                            return null;
+                    }
+                    //if (ReadUInt32(br) != 60) { break; }
+                    //int Length = (int)ReadUInt32(br) - 67; // Length of material name
+
+                    //materialContent = new BasicMaterialContent();
+
+                    //materialContent.DiffuseColor = new Vector3(br.ReadByte(), br.ReadByte(), br.ReadByte()); materialContent.DiffuseColor = null;
+                    //materialContent.Alpha = br.ReadByte();
+                    //materialContent.EmissiveColor = Color.White.ToVector3() * ReadSingle(br);
+                    //ReadSingle(br); // Directional
+                    //materialContent.SpecularColor = Color.White.ToVector3() * ReadSingle(br);
+                    //materialContent.SpecularPower = ReadSingle(br);
+                    //ReadUInt32(br); // Flags, don't know what to do with these yet
+                    //ReadSingle(br); // Xx
+                    //ReadSingle(br); // Yx
+                    //ReadSingle(br); // Xy - 2d transformation matrix, again, no idea how this is useful
+                    //ReadSingle(br); // Yy
+                    //ReadSingle(br); // Px
+                    //ReadSingle(br); // Py
+                    //ReadUInt32(br);
+                    //br.ReadBytes(13); // 13 pointless bytes of nothing
+                    //materialContent.Name = ToString(br.ReadChars(Length));
+                    //if (ReadUInt32(br) != 28) { break; }
+                    //Length = (int)ReadUInt32(br);
+                    //materialContent.Texture = new ExternalReference<TextureContent>("tiffrgb\\" + ToString(br.ReadChars(Length)) + ".tif", rootNode.Identity);
+
+                    //if (ReadUInt32(br) == 0 && ReadUInt32(br) == 0)
+                    //{
+                    //    if (!materials.ContainsKey(materialContent.Name)) { materials.Add(materialContent.Name, materialContent); }
+                    //}
+                    //else
+                    //{
+                    //    Log("Something has gone horribly wrong");
+                    //    br.BaseStream.Position = br.BaseStream.Length;
+                    //}
                 }
-                //if (ReadUInt32(br) != 60) { break; }
-                //int Length = (int)ReadUInt32(br) - 67; // Length of material name
-
-                //materialContent = new BasicMaterialContent();
-
-                //materialContent.DiffuseColor = new Vector3(br.ReadByte(), br.ReadByte(), br.ReadByte()); materialContent.DiffuseColor = null;
-                //materialContent.Alpha = br.ReadByte();
-                //materialContent.EmissiveColor = Color.White.ToVector3() * ReadSingle(br);
-                //ReadSingle(br); // Directional
-                //materialContent.SpecularColor = Color.White.ToVector3() * ReadSingle(br);
-                //materialContent.SpecularPower = ReadSingle(br);
-                //ReadUInt32(br); // Flags, don't know what to do with these yet
-                //ReadSingle(br); // Xx
-                //ReadSingle(br); // Yx
-                //ReadSingle(br); // Xy - 2d transformation matrix, again, no idea how this is useful
-                //ReadSingle(br); // Yy
-                //ReadSingle(br); // Px
-                //ReadSingle(br); // Py
-                //ReadUInt32(br);
-                //br.ReadBytes(13); // 13 pointless bytes of nothing
-                //materialContent.Name = ToString(br.ReadChars(Length));
-                //if (ReadUInt32(br) != 28) { break; }
-                //Length = (int)ReadUInt32(br);
-                //materialContent.Texture = new ExternalReference<TextureContent>("tiffrgb\\" + ToString(br.ReadChars(Length)) + ".tif", rootNode.Identity);
-
-                //if (ReadUInt32(br) == 0 && ReadUInt32(br) == 0)
-                //{
-                //    if (!materials.ContainsKey(materialContent.Name)) { materials.Add(materialContent.Name, materialContent); }
-                //}
-                //else
-                //{
-                //    Log("Something has gone horribly wrong");
-                //    br.BaseStream.Position = br.BaseStream.Length;
-                //}
             }
 
-            br.Close();
-            return bSuccess;
+            return mat;
         }
 
         public void Save(string Path)
         {
-            if (Materials.Count == 0) { return; }
+            if (this.materials.Count == 0) { return; }
 
-            BEBinaryWriter bw = new BEBinaryWriter(new FileStream(Path, FileMode.Create));
-
-            bw.WriteInt32(18);
-            bw.WriteInt32(8);
-            bw.WriteInt32(5);
-            bw.WriteInt32(2);
-
-            foreach (Material M in Materials)
+            using (BEBinaryWriter bw = new BEBinaryWriter(new FileStream(Path, FileMode.Create)))
             {
-                bw.Write(new byte[] { 0, 0, 0, 60 });
-                bw.WriteInt32(68 + M.Name.Length);
+                bw.WriteInt32(18);
+                bw.WriteInt32(8);
+                bw.WriteInt32(5);
+                bw.WriteInt32(2);
 
-                bw.Write(M.DiffuseColour);
-                bw.WriteSingle(M.AmbientLighting);
-                bw.WriteSingle(M.DirectionalLighting);
-                bw.WriteSingle(M.SpecularLighting);
-                bw.WriteSingle(M.SpecularPower);
-
-                bw.WriteInt32(M.Flags);
-
-                bw.WriteSingle(M.UVMatrix.M11);
-                bw.WriteSingle(M.UVMatrix.M12);
-                bw.WriteSingle(M.UVMatrix.M21);
-                bw.WriteSingle(M.UVMatrix.M22);
-                bw.WriteSingle(M.UVMatrix.M31);
-                bw.WriteSingle(M.UVMatrix.M32);
-
-                bw.Write(new byte[] { 10, 31, 0, 0 });                          //Unknown, seems to be a constant
-                bw.Write(new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }); //13 bytes of nothing please!
-
-                bw.Write(M.Name.ToCharArray());
-                bw.WriteByte(0);
-
-                if (M.HasTexture)
+                foreach (Material M in this.materials)
                 {
-                    bw.Write(new byte[] { 0, 0, 0, 28 });
-                    bw.WriteInt32(M.Texture.Length + 1);
-                    bw.Write(M.Texture.ToCharArray());
+                    bw.Write(new byte[] { 0, 0, 0, 60 });
+                    bw.WriteInt32(68 + M.Name.Length);
+
+                    bw.Write(M.DiffuseColour);
+                    bw.WriteSingle(M.AmbientLighting);
+                    bw.WriteSingle(M.DirectionalLighting);
+                    bw.WriteSingle(M.SpecularLighting);
+                    bw.WriteSingle(M.SpecularPower);
+
+                    bw.WriteInt32(M.Flags);
+
+                    bw.WriteSingle(M.UVMatrix.M11);
+                    bw.WriteSingle(M.UVMatrix.M12);
+                    bw.WriteSingle(M.UVMatrix.M21);
+                    bw.WriteSingle(M.UVMatrix.M22);
+                    bw.WriteSingle(M.UVMatrix.M31);
+                    bw.WriteSingle(M.UVMatrix.M32);
+
+                    bw.Write(new byte[] { 10, 31, 0, 0 });                          //Unknown, seems to be a constant
+                    bw.Write(new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }); //13 bytes of nothing please!
+
+                    bw.Write(M.Name.ToCharArray());
                     bw.WriteByte(0);
+
+                    if (M.HasTexture)
+                    {
+                        bw.Write(new byte[] { 0, 0, 0, 28 });
+                        bw.WriteInt32(M.Texture.Length + 1);
+                        bw.Write(M.Texture.ToCharArray());
+                        bw.WriteByte(0);
+                    }
+
+                    bw.Write(0);
+                    bw.Write(0);
                 }
-
-                bw.Write(0);
-                bw.Write(0);
             }
-
-            bw.Close();
         }
     }
 
