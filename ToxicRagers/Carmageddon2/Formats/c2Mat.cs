@@ -24,7 +24,6 @@ namespace ToxicRagers.Carmageddon2.Formats
             Logger.LogToFile("{0}", Path);
             MAT mat = new MAT();
 
-            int Length;
             Material M = new Material();
             bool bDebug = false;
 
@@ -34,15 +33,14 @@ namespace ToxicRagers.Carmageddon2.Formats
 
                 while (br.BaseStream.Position < br.BaseStream.Length)
                 {
-                    int Tag = (int)br.ReadUInt32();
+                    int tag = (int)br.ReadUInt32();
+                    int length = (int)br.ReadUInt32();
 
-                    switch (Tag)
+                    switch (tag)
                     {
                         case 4:
                             // C1 mat file
                             M = new Material();
-
-                            Length = (int)br.ReadUInt32();
 
                             br.ReadByte(); // R
                             br.ReadByte(); // G
@@ -66,7 +64,6 @@ namespace ToxicRagers.Carmageddon2.Formats
                         case 60:
                             M = new Material();
 
-                            Length = (int)br.ReadUInt32() - 67;
                             br.ReadByte(); // R
                             br.ReadByte(); // G
                             br.ReadByte(); // B
@@ -79,11 +76,10 @@ namespace ToxicRagers.Carmageddon2.Formats
                             M.UVMatrix = new Matrix2D(br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
                             if (br.ReadUInt32() != 169803776) { Console.WriteLine("Weird Beard! (" + Path + ")"); }
                              br.ReadBytes(13); // 13 bytes of nothing
-                            M.Name = br.ReadStringOfLength(Length);
+                            M.Name = br.ReadString();
                             break;
 
                         case 28:
-                            Length = (int)br.ReadUInt32();
                             M.Texture = br.ReadString();
                             //Tif t = new Tif(Path.Substring(0, Path.LastIndexOf("\\")) + "\\tiffrgb\\" + M.Texture + ".tif");
                             //M.TextureData = t.GetPixelData();
@@ -92,17 +88,15 @@ namespace ToxicRagers.Carmageddon2.Formats
                             break;
 
                         case 31:
-                            Length = (int)br.ReadUInt32();
                             string s = br.ReadString(); // shadetable
                             break;
 
                         case 0:
                             mat.materials.Add(M);
-                            br.ReadUInt32();
                             break;
 
                         default:
-                            Logger.LogToFile("Unknown MAT tag: {0} ({1} of {2})", Tag, br.BaseStream.Position, br.BaseStream.Length);
+                            Logger.LogToFile("Unknown MAT tag: {0} ({1})", tag, br.BaseStream.Position.ToString("X"));
                             return null;
                     }
                     //if (ReadUInt32(br) != 60) { break; }
