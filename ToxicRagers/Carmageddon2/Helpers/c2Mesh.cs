@@ -50,14 +50,9 @@ namespace ToxicRagers.Carmageddon2.Helpers
             Materials.Add(Name);
         }
 
-        public void AddFace(int v1, int v2, int v3)
+        public void AddFace(int v1, int v2, int v3, int MaterialID = -1)
         {
-            Faces.Add(new c2Face(v1, v2, v3, -1));
-        }
-
-        public void AddFace(int v1, int v2, int v3, int MatID)
-        {
-            Faces.Add(new c2Face(v1, v2, v3, MatID));
+            Faces.Add(new c2Face(v1, v2, v3, MaterialID));
         }
 
         public void AddFace(int v1, int v2, int v3, int uv1, int uv2, int uv3, int MaterialID)

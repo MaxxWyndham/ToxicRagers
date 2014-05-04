@@ -9,8 +9,10 @@ namespace ToxicRagers.Carmageddon2.Helpers
         public int[] UVs = new int[3];
         public int MaterialID = -1;
 
+        public bool HasUVs { get { return (UVs[0] + UVs[1] + UVs[2] > -1); } }
+
         public c2Face(int V1, int V2, int V3, int MaterialID)
-            : this(V1, V2, V3, 0, 0, 0, MaterialID)
+            : this(V1, V2, V3, -1, -1, -1, MaterialID)
         {
         }
 
@@ -24,9 +26,11 @@ namespace ToxicRagers.Carmageddon2.Helpers
             Verts[0] = V1;
             Verts[1] = V2;
             Verts[2] = V3;
+
             UVs[0] = UV1;
             UVs[1] = UV2;
             UVs[2] = UV3;
+
             this.MaterialID = MaterialID;
         }
 

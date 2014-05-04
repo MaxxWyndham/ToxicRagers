@@ -24,13 +24,23 @@ namespace ToxicRagers.Carmageddon2.Formats
 
         public static DAT Load(string Path)
         {
-            int Count;
+            FileInfo fi = new FileInfo(Path);
+            Logger.LogToFile("{0}", Path);
             DAT dat = new DAT();
-            DatMesh D = new DatMesh();
 
-            using (BEBinaryReader br = new BEBinaryReader(new FileStream(Path, FileMode.Open), Encoding.Default))
+            DatMesh D = new DatMesh();
+            int count;
+
+            using (BEBinaryReader br = new BEBinaryReader(fi.OpenRead(), Encoding.Default))
             {
-                br.ReadBytes(16); // Header
+                if (br.ReadUInt32() != 18 ||
+                    br.ReadUInt32() != 8 ||
+                    br.ReadUInt32() != 64206 ||
+                    br.ReadUInt32() != 2)
+                {
+                    Logger.LogToFile("{0} isn't a valid DAT file", Path);
+                    return null;
+                }
 
                 while (br.BaseStream.Position < br.BaseStream.Length)
                 {
@@ -41,77 +51,50 @@ namespace ToxicRagers.Carmageddon2.Formats
                     {
                         case 54: // 00 00 00 36
                             D = new DatMesh();
-                            // Name
-                            D.UnknownAttribute = br.ReadUInt16();
+                            D.UnknownAttribute = br.ReadUInt16();   // I think this is actually two byte values
                             D.Name = br.ReadString();
-                            //Console.WriteLine("{0}", D.Name);
                             break;
 
-                        case 23: // 00 00 00 17
-                            // vertex data
-                            Count = (int)br.ReadUInt32();
-                            //Console.WriteLine("V: {0}", Count);
-                            for (int i = 0; i < Count; i++)
+                        case 23: // 00 00 00 17 : vertex data
+                            count = (int)br.ReadUInt32();
+
+                            for (int i = 0; i < count; i++)
                             {
-                                Single x, y, z;
-                                x = br.ReadSingle(); y = br.ReadSingle(); z = br.ReadSingle();
-                                D.Mesh.AddListVertex(x, y, z);
-                                //Console.WriteLine("x :\t{0:R}\ty :\t{1:R}\tz :\t{2:R}", x, y, z);
+                                D.Mesh.AddListVertex(br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
                             }
                             break;
 
-                        case 24: // 00 00 00 18
-                            // UV co-ordinates
-                            Count = (int)br.ReadUInt32();
-                            //Console.WriteLine("UV: {0}", Count);
-                            for (int i = 0; i < Count; i++)
+                        case 24: // 00 00 00 18 : UV co-ordinates
+                            count = (int)br.ReadUInt32();
+
+                            for (int i = 0; i < count; i++)
                             {
-                                Single u, v;
-                                u = br.ReadSingle(); v = br.ReadSingle();
-                                D.Mesh.AddListUV(u, v);
-                                //Console.WriteLine("u :\t{0:R}\tv :\t{1:R}", u, v);
+                                D.Mesh.AddListUV(br.ReadSingle(), br.ReadSingle());
                             }
+
+                            D.Mesh.AssignUVs();
                             break;
 
-                        case 53:    // 00 00 00 35
-                            // Faces
-                            Count = (int)br.ReadUInt32();
-                            //Console.WriteLine("F: {0}", Count);
+                        case 53:    // 00 00 00 35 : faces
+                            count = (int)br.ReadUInt32();
 
-                            for (int i = 0; i < Count; i++)
+                            for (int i = 0; i < count; i++)
                             {
-                                UInt16 a, b, c;
-                                a = br.ReadUInt16(); b = br.ReadUInt16(); c = br.ReadUInt16();
-                                D.Mesh.AddFace(a, b, c);
+                                D.Mesh.AddFace(br.ReadUInt16(), br.ReadUInt16(), br.ReadUInt16());
                                 br.ReadByte(); // smoothing groups 9 - 16
                                 br.ReadByte(); // smoothing groups 1 - 8
                                 br.ReadByte(); // number of edges, 0 and 3 = tri.  4 = quad.
-                                //Console.WriteLine("a :\t{0}\tb :\t{1}\tc :\t{2}", a, b, c);
-
-                                //Console.WriteLine("model->faces[{0}].vertices[0] = {1};", i, a);
-                                //Console.WriteLine("model->faces[{0}].vertices[1] = {1};", i, b);
-                                //Console.WriteLine("model->faces[{0}].vertices[2] = {1};", i, c);
-                            }
-
-                            break;
-
-                        case 22: // 00 00 00 16
-                            // material list
-                            Count = (int)br.ReadUInt32();
-                            //Console.WriteLine("M: {0}", Count);
-
-                            string[] Materials = br.ReadStrings(Count);
-                            for (int i = 0; i < Count; i++)
-                            {
-                                D.Mesh.Materials.Add(Materials[i]);
                             }
                             break;
 
-                        case 26:
-                            // face textures
-                            Count = (int)br.ReadUInt32();
+                        case 22: // 00 00 00 16 : material list
+                            D.Mesh.Materials.AddRange(br.ReadStrings((int)br.ReadUInt32()));
+                            break;
+
+                        case 26: // 00 00 00 1A : face textures
+                            count = (int)br.ReadUInt32();
                             br.ReadBytes(4); // fuck knows what this is
-                            for (int i = 0; i < Count; i++)
+                            for (int i = 0; i < count; i++)
                             {
                                 D.Mesh.SetMaterialForFace(i, br.ReadUInt16() - 1);
                             }
