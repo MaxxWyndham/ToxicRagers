@@ -71,8 +71,6 @@ namespace ToxicRagers.Carmageddon2.Formats
                             {
                                 D.Mesh.AddListUV(br.ReadSingle(), br.ReadSingle());
                             }
-
-                            D.Mesh.AssignUVs();
                             break;
 
                         case 53:    // 00 00 00 35 : faces

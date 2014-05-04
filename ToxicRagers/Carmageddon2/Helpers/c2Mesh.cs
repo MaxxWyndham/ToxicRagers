@@ -16,6 +16,8 @@ namespace ToxicRagers.Carmageddon2.Helpers
         public List<c2Face> Faces;
         public MeshExtents Extents;
 
+        public bool HasUVs { get { return (UVs.Count > 0); } }
+
         public c2Mesh()
         {
             Verts = new List<Vector3>();
@@ -158,6 +160,8 @@ namespace ToxicRagers.Carmageddon2.Helpers
             }
 
             Extents = new MeshExtents(min, max);
+
+            AssignUVs();
         }
 
         public Vector3[] GetVertexList()
@@ -204,32 +208,34 @@ namespace ToxicRagers.Carmageddon2.Helpers
         {
             Normals = new List<Vector3>();
 
-            for (int i = 0; i < Verts.Count; i++) { Normals.Add(Vector3.Zero); }
+            for (int i = 0; i < Verts.Count; i++) { Normals.Add(Vector3.Up); }
 
-            for (int i = 0; i < Faces.Count; i++)
-            {
-                Vector3 v0 = Verts[Faces[i].V1];
-                Vector3 v1 = Verts[Faces[i].V2];
-                Vector3 v2 = Verts[Faces[i].V3];
+            //for (int i = 0; i < Faces.Count; i++)
+            //{
+            //    Vector3 v0 = Verts[Faces[i].V1];
+            //    Vector3 v1 = Verts[Faces[i].V2];
+            //    Vector3 v2 = Verts[Faces[i].V3];
 
-                Vector3 normal = Vector3.Cross(v2 - v0, v1 - v0);
+            //    Vector3 normal = Vector3.Cross(v2 - v0, v1 - v0);
 
-                float sin_alpha = normal.Length / ((v2 - v0).Length * (v1 - v0).Length);
-                normal = normal.Normalise * (float)Math.Asin(sin_alpha);
+            //    float sin_alpha = normal.Length / ((v2 - v0).Length * (v1 - v0).Length);
+            //    normal = normal.Normalise * (float)Math.Asin(sin_alpha);
 
-                Normals[Faces[i].V1] += normal;
-                Normals[Faces[i].V2] += normal;
-                Normals[Faces[i].V3] += normal;
-            }
+            //    Normals[Faces[i].V1] += normal;
+            //    Normals[Faces[i].V2] += normal;
+            //    Normals[Faces[i].V3] += normal;
+            //}
 
-            for (int i = 0; i < Normals.Count; i++)
-            {
-                Normals[i] = Normals[i].Normalise;
-            }
+            //for (int i = 0; i < Normals.Count; i++)
+            //{
+            //    Normals[i] = new Vector3(0, 1, 0);// Normals[i].Normalise;
+            //}
         }
 
         public void AssignUVs()
         {
+            if (!HasUVs) { return; }
+
             foreach (var face in Faces)
             {
                 face.UVs[0] = face.V1;
