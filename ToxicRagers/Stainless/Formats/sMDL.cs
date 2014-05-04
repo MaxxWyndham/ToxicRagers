@@ -182,9 +182,10 @@ namespace ToxicRagers.Stainless.Formats
                     if (bDebug) { Logger.LogToFile("{0}) {1}", i, vert.ToString()); }
                 }
 
-                Logger.LogToFile("This is usually {0}: {1}", nameCount, br.ReadUInt16());
+                int meshCount = br.ReadUInt16();
+                Logger.LogToFile("This is usually {0}: {1}", nameCount, meshCount);
 
-                for (int i = 0; i < nameCount; i++)
+                for (int i = 0; i < meshCount; i++)
                 {
                     Logger.LogToFile("Block {0} of {1}", i, nameCount);
                     Logger.LogToFile("Position: {0}", br.BaseStream.Position.ToString("X"));
@@ -368,20 +369,7 @@ namespace ToxicRagers.Stainless.Formats
         }
 
         public Vector3 Centre { get { return max - min; } }
-
-        public Single HalfLongestAxis
-        {
-            get
-            {
-                float f = float.MinValue;
-
-                f = Math.Max(f, (max.X - min.X) / 2.0f);
-                f = Math.Max(f, (max.Y - min.Y) / 2.0f);
-                f = Math.Max(f, (max.Z - min.Z) / 2.0f);
-
-                return f;
-            }
-        }
+        public Single HalfLongestAxis { get { return (min + max).Length; } }
     }
 
     public class MDLVertex
@@ -389,6 +377,8 @@ namespace ToxicRagers.Stainless.Formats
         Vector3 position;
         Vector3 normal;
         Vector2 uv;
+        float ua;
+        float ub;
 
         public Vector3 Position
         {
@@ -414,12 +404,14 @@ namespace ToxicRagers.Stainless.Formats
             normal = new Vector3(NX, NY, NZ);
             uv = new Vector2(U, V);
 
+            ua = Unk6;
+            ub = Unk7;
             //Logger.LogToFile("Unknown data: {0} {1}", Unk6, Unk7);
         }
 
         public override string ToString()
         {
-            return "{ Position: {X:" + Position.X + " Y:" + Position.Y + " Z:" + Position.Z + "} Normal: {X:" + Normal.X + " Y:" + Normal.Y + " Z:" + Normal.Z + "} UV: {U:" + UV.X + " V:" + UV.Y + "} }";
+            return "{ Position: {X:" + Position.X + " Y:" + Position.Y + " Z:" + Position.Z + "} Normal: {X:" + Normal.X + " Y:" + Normal.Y + " Z:" + Normal.Z + "} UV: {U:" + UV.X + " V:" + UV.Y + "} Unknown: {A:" + ua + " B:" + ub + "} }";
         }
     }
 
