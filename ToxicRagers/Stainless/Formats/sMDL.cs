@@ -106,7 +106,6 @@ namespace ToxicRagers.Stainless.Formats
                 Logger.LogToFile("Remaining B: {0} ({1})", br.ReadUInt32(), br.BaseStream.Length - br.BaseStream.Position); // Bytes remaining
 
                 if (bDebug) { Logger.LogToFile("{0}", br.ReadSingle()); } else { br.ReadSingle(); }
-
                 mdl.extents.Min = new Vector3(br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
                 mdl.extents.Max = new Vector3(br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
                 br.ReadBytes(12); // Centre v3*3
@@ -302,6 +301,169 @@ namespace ToxicRagers.Stainless.Formats
             int nameLength, padding;
             this.CalculateExtents();
 
+            using (BinaryWriter bw = new BinaryWriter(new FileStream(Path, FileMode.Create)))
+            {
+                bw.Write(new byte[] { 69, 35, 2, 6 });
+
+                bw.Write(new byte[] { 0, 0, 0, 0 });    // No idea
+                bw.Write(this.flags);
+                bw.Write(new byte[] { 0, 0, 0, 0 });    // No idea
+
+                bw.Write(this.faces.Count);
+                bw.Write(this.verts.Count);
+
+                bw.Write(0);    // Back filled post save
+
+                bw.Write(this.extents.HalfLongestAxis);
+                bw.Write(this.extents.Min.X);
+                bw.Write(this.extents.Min.Y);
+                bw.Write(this.extents.Min.Z);
+                bw.Write(this.extents.Max.X);
+                bw.Write(this.extents.Max.Y);
+                bw.Write(this.extents.Max.Z);
+                bw.Write(this.extents.Centre.X);
+                bw.Write(this.extents.Centre.Y);
+                bw.Write(this.extents.Centre.Z);
+
+                bw.Write((short)this.Meshes.Count);
+
+                for (int i = 0; i < this.Meshes.Count; i++)
+                {
+                    nameLength = this.Meshes[i].Name.Length;
+                    padding = (((nameLength / 4) + (nameLength % 4 > 0 ? 1 : 0)) * 4) - nameLength + 4;
+
+                    bw.Write(nameLength);
+                    bw.WriteString(this.Meshes[i].Name);
+                    bw.Write(new byte[padding]);
+                }
+
+                bw.Write(this.faces.Count);
+
+                for (int i = 0; i < this.faces.Count; i++)
+                {
+                    bw.Write(this.faces[i].MaterialID);
+                    bw.Write(this.faces[i].V1);
+                    bw.Write(this.faces[i].V2);
+                    bw.Write(this.faces[i].V3);
+                }
+
+                bw.Write(this.verts.Count);
+
+                for (int i = 0; i < this.verts.Count; i++)
+                {
+                    bw.Write(this.verts[i].Position.X);
+                    bw.Write(this.verts[i].Position.Y);
+                    bw.Write(this.verts[i].Position.Z);
+
+                    bw.Write(this.verts[i].Normal.X);
+                    bw.Write(this.verts[i].Normal.Y);
+                    bw.Write(this.verts[i].Normal.Z);
+
+                    bw.Write(this.verts[i].UV.X);
+                    bw.Write(this.verts[i].UV.Y);
+
+                    bw.Write(this.verts[i].UV.X);
+                    bw.Write(this.verts[i].UV.Y);
+
+                    bw.Write((byte)255); // R
+                    bw.Write((byte)255); // G
+                    bw.Write((byte)255); // B
+                    bw.Write((byte)255); // A
+                }
+
+                bw.Write((short)this.meshes.Count);
+
+                for (int i = 0; i < this.meshes.Count; i++)
+                {
+                    var mesh = this.meshes[i];
+
+                    for (int j = 0; j < 10; j++)
+                    {
+                        bw.Write(new byte[] { 0, 0, 0, 0 });    // No idea
+                    }
+
+                    // TriangleStrips - TO DO
+                    bw.Write(0);    // offset
+                    bw.Write(0);
+                    bw.Write(0);
+
+                    bw.Write(mesh.PatchOffset);
+                    bw.Write(mesh.PatchList.Count);
+                    bw.Write(mesh.PatchList.Count);
+
+                    for (int j = 0; j < mesh.PatchList.Count; j++)
+                    {
+                        bw.Write(mesh.PatchList[j].Index);
+                    }
+                }
+
+                bw.Write(0);
+
+                for (int i = 0; i < this.verts.Count; i++)
+                {
+                    bw.Write(this.verts[i].Position.X);
+                    bw.Write(this.verts[i].Position.Y);
+                    bw.Write(this.verts[i].Position.Z);
+                    bw.Write(1);
+                }
+
+                for (int i = 0; i < this.faces.Count; i++)
+                {
+                    bw.Write(0);
+                    bw.Write(this.verts[this.faces[i].V1].Normal.X);
+                    bw.Write(this.verts[this.faces[i].V1].Normal.Y);
+                    bw.Write(this.verts[this.faces[i].V1].Normal.Z);
+                    bw.Write(this.verts[this.faces[i].V2].Normal.X);
+                    bw.Write(this.verts[this.faces[i].V2].Normal.Y);
+                    bw.Write(this.verts[this.faces[i].V2].Normal.Z);
+                    bw.Write(this.verts[this.faces[i].V3].Normal.X);
+                    bw.Write(this.verts[this.faces[i].V3].Normal.Y);
+                    bw.Write(this.verts[this.faces[i].V3].Normal.Z);
+                    bw.Write(this.verts[this.faces[i].V3].Normal.X);
+                    bw.Write(this.verts[this.faces[i].V3].Normal.Y);
+                    bw.Write(this.verts[this.faces[i].V3].Normal.Z);
+                    bw.Write(0);
+                    bw.Write(0);
+                    bw.Write(3);
+                    bw.Write(1);
+                    bw.Write(0);
+                    bw.Write((byte)128); bw.Write((byte)128); bw.Write((byte)128); bw.Write((byte)255);
+                    bw.Write((byte)128); bw.Write((byte)128); bw.Write((byte)128); bw.Write((byte)255);
+                    bw.Write((byte)128); bw.Write((byte)128); bw.Write((byte)128); bw.Write((byte)255);
+                    bw.Write(this.verts[this.faces[i].V1].UV.X);
+                    bw.Write(this.verts[this.faces[i].V1].UV.Y);
+                    bw.Write(0);
+                    bw.Write(0);
+                    bw.Write(this.verts[this.faces[i].V3].UV.X);
+                    bw.Write(this.verts[this.faces[i].V3].UV.Y);
+                    bw.Write(0);
+                    bw.Write(0);
+                    bw.Write(this.verts[this.faces[i].V2].UV.X);
+                    bw.Write(this.verts[this.faces[i].V2].UV.Y);
+                    bw.Write(0);
+                    bw.Write(0);
+                    bw.Write(0);
+                    bw.Write((byte)0);
+                }
+
+                for (int i = 0; i < this.faces.Count; i++)
+                {
+                    bw.Write(i);
+                }
+
+                bw.Write(this.verts.Count);
+
+                for (int i = 0; i < this.verts.Count; i++)
+                {
+                    bw.Write(i);
+                }
+            }
+
+            using (BinaryWriter bw = new BinaryWriter(new FileStream(Path, FileMode.Open)))
+            {
+                bw.Seek(24, SeekOrigin.Begin);
+                bw.Write((int)(bw.BaseStream.Length - 28));
+            }
         }
 
         public void CalculateExtents()
