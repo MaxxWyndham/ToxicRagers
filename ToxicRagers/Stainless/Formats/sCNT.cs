@@ -116,8 +116,6 @@ namespace ToxicRagers.Stainless.Formats
                                 br.ReadSingle(), br.ReadSingle(), br.ReadSingle()
                             );
 
-            Logger.LogToFile("Transform {0}", cnt.transform);
-
             cnt.section = br.ReadString(4);
             switch (cnt.section)
             {
