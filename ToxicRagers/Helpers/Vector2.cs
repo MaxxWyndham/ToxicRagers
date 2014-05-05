@@ -77,6 +77,14 @@ namespace ToxicRagers.Helpers
             if (obj == null || GetType() != obj.GetType()) { return false; }
             return Equals(obj as Vector2);
         }
+
+        public Single Length { get { return (Single)Math.Sqrt(Dot(this, this)); } }
+        public Vector2 Normalised { get { return new Vector2(this.X / this.Length, this.Y / this.Length); } }
+
+        public static Single Dot(Vector2 v1, Vector2 v2)
+        {
+            return v1.X * v2.X + v1.Y * v2.Y;
+        }
     }
 
     public class Vector2Converter : ExpandableObjectConverter
