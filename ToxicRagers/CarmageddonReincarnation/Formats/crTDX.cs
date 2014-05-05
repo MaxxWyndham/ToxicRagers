@@ -108,18 +108,25 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             return 0;
         }
 
-        public Bitmap Decompress(int mipLevel = 0)
+        public Bitmap Decompress(int mipLevel = 0, bool bSuppressAlpha = false)
         {
             var mip = this.MipMaps[mipLevel];
 
             Bitmap b = new Bitmap(mip.Width, mip.Height, PixelFormat.Format32bppArgb);
-            Squish.SquishFlags flags = SquishFlags.kDxt1;
+            Squish.SquishFlags flags = 0;
 
             switch (this.Format)
             {
+                case D3DFormat.DXT1:
+                    flags = SquishFlags.kDxt1;
+                    break;
+
                 case D3DFormat.DXT5:
                     flags = SquishFlags.kDxt5;
                     break;
+
+                default:
+                    throw new NotImplementedException(string.Format("Can't decompress: {0}", this.Format));
             }
 
             byte[] dest = new byte[mip.Width * mip.Height * 4];
@@ -132,7 +139,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
             for (int i = 0; i < dest.Length; i += 4)
             {
-                b.SetPixel(x, y, Color.FromArgb(dest[i + 3], dest[i + 0], dest[i + 1], dest[i + 2]));
+                b.SetPixel(x, y, Color.FromArgb((bSuppressAlpha ? 255 : dest[i + 3]), dest[i + 0], dest[i + 1], dest[i + 2]));
 
                 if (++x == mip.Width)
                 {
