@@ -229,6 +229,7 @@ namespace ToxicRagers.Carmageddon2.Helpers
             for (int i = 0; i < Normals.Count; i++)
             {
                 Normals[i] = Normals[i].Normalise;
+                Normals[i].Y = -Normals[i].Y;
             }
         }
 
