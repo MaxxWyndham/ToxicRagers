@@ -58,6 +58,7 @@
     <Compile Include="Carmageddon2\Helpers\GrooveParser.cs" />
     <Compile Include="Carmageddon2\Helpers\OpponentPathParser.cs" />
     <Compile Include="CarmageddoniOS\Formats\iTDX.cs" />
+    <Compile Include="CarmageddonReincarnation\Formats\crAccessoryTXT.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\crLIGHT.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\crMT2.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\crTDX.cs" />

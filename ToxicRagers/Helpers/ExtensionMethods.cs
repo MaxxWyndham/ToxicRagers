@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace ToxicRagers.Helpers
@@ -13,6 +14,29 @@ namespace ToxicRagers.Helpers
         public static void WriteString(this BinaryWriter bw, string s)
         {
             bw.Write(s.ToCharArray());
+        }
+
+        public static string ReadNextLine(this StreamReader sr)
+        {
+            if (sr.EndOfStream) { return null; }
+
+            string s = sr.ReadLine();
+
+            if (s.IndexOf("/") > -1) { s = s.Substring(0, s.IndexOf("/")).Trim(); } else { s = s.Trim(); }
+
+            if (s.Length == 0)
+            {
+                return sr.ReadNextLine();
+            }
+            else
+            {
+                return s;
+            }
+        }
+
+        public static void Add(this Dictionary<string, string> d, string[] kvp)
+        {
+            d[kvp[0]] = string.Join(" ", kvp, 1, kvp.Length - 1);
         }
 
         public static string ToName(this byte[] b)
