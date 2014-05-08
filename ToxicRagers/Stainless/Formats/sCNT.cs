@@ -167,8 +167,9 @@ namespace ToxicRagers.Stainless.Formats
                     break;
 
                 case "EMT2":
-                    Logger.LogToFile("EMT2, skipping 650 bytes");
-                    br.ReadBytes(650);
+                    br.ReadBytes(34);
+                    Logger.LogToFile("EMT2, skipping 34 bytes, reading a name (\"{0}\") and then skipping 612 bytes", br.ReadString((int)br.ReadUInt32()));
+                    br.ReadBytes(612);
                     break;
 
                 case "MODL":
