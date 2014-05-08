@@ -58,6 +58,7 @@
     <Compile Include="Carmageddon2\Helpers\GrooveParser.cs" />
     <Compile Include="Carmageddon2\Helpers\OpponentPathParser.cs" />
     <Compile Include="CarmageddoniOS\Formats\iTDX.cs" />
+    <Compile Include="CarmageddonReincarnation\Helpers\DocumentParser.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\crAccessoryTXT.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\crLIGHT.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\crMT2.cs" />
@@ -94,6 +95,7 @@
       <Name>LibSquishNet</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

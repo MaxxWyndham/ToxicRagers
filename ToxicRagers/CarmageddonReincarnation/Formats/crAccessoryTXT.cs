@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
 using ToxicRagers.Helpers;
+using ToxicRagers.CarmageddonReincarnation.Helpers;
 
 namespace ToxicRagers.CarmageddonReincarnation.Formats
 {
     public enum CustomAccessoryType
     {
+        None,
         AngularDampedAccessory,
         Checkpoint,
         ConveyorAccessory,
@@ -200,77 +201,100 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
         public static Accessory Load(string pathToFile)
         {
-            Console.WriteLine(pathToFile);
             Accessory accessory = new Accessory();
 
-            using (StreamReader sr = new StreamReader(pathToFile))
+            using (var doc = new DocumentParser(pathToFile))
             {
-                string line = sr.ReadNextLine();
-                bool bReadLine = true;
+                string line = doc.ReadNextLine();
 
-                while (!sr.EndOfStream && line != null)
+                while (line != null)
                 {
                     switch (line)
                     {
                         case "[APP_DATA]":
-                            if (TestLine("<CustomAccessoryType>", sr.ReadNextLine(), out line))
+                            if (TestLine("<CustomAccessoryType>", doc.ReadNextLine(), out line))
                             {
-                                bReadLine = true;
                                 CustomAccessoryType accessoryType;
-                                line = sr.ReadNextLine();
+                                line = doc.ReadNextLine();
 
                                 if (!Enum.TryParse<CustomAccessoryType>(line, out accessoryType)) { throw new NotImplementedException("Unknown CustomAccessoryType: " + line); }
                                 accessory.CustomAccessoryType = accessoryType;
 
                                 switch (accessoryType)
                                 {
+                                    case CustomAccessoryType.ConveyorAccessory:
+                                    case CustomAccessoryType.CopSpawn:
+                                    case CustomAccessoryType.ExplodingAccessory:
+                                    case CustomAccessoryType.GibletAccessoryType:
+                                    case CustomAccessoryType.MultiplayerSpawn:
+                                    case CustomAccessoryType.StandardAccessory:
+                                    case CustomAccessoryType.StartingGrid:
+                                        // Do nothing
+                                        break;
+
                                     case CustomAccessoryType.AngularDampedAccessory:
-                                        accessory.CustomAccessoryProperties.Add(sr.ReadNextLine().Split(' '));  // damper
+                                        accessory.CustomAccessoryProperties.Add(doc.ReadNextLine().Split(' '));  // damper
                                         break;
 
                                     case CustomAccessoryType.Checkpoint:
-                                        accessory.CustomAccessoryProperties.Add(sr.ReadNextLine().Split(' '));  // bottom
-                                        accessory.CustomAccessoryProperties.Add(sr.ReadNextLine().Split(' '));  // adjust_left
-                                        accessory.CustomAccessoryProperties.Add(sr.ReadNextLine().Split(' '));  // adjust_right
-                                        accessory.CustomAccessoryProperties.Add(sr.ReadNextLine().Split(' '));  // current
-                                        accessory.CustomAccessoryProperties.Add(sr.ReadNextLine().Split(' '));  // next
+                                        accessory.CustomAccessoryProperties.Add(doc.ReadNextLine().Split(' '));  // bottom
+                                        accessory.CustomAccessoryProperties.Add(doc.ReadNextLine().Split(' '));  // adjust_left
+                                        accessory.CustomAccessoryProperties.Add(doc.ReadNextLine().Split(' '));  // adjust_right
+                                        accessory.CustomAccessoryProperties.Add(doc.ReadNextLine().Split(' '));  // current
+                                        accessory.CustomAccessoryProperties.Add(doc.ReadNextLine().Split(' '));  // next
                                         break;
 
                                     case CustomAccessoryType.Powerup:
-                                        accessory.CustomAccessoryProperties.Add(sr.ReadNextLine().Split(' '));  // powerup name
+                                        accessory.CustomAccessoryProperties.Add(doc.ReadNextLine().Split(' '));  // powerup name
                                         break;
 
                                     case CustomAccessoryType.ManagedAccessory:
-                                        accessory.CustomAccessoryProperties.Add(sr.ReadNextLine().Split(' '));  // break_fuse
+                                        accessory.CustomAccessoryProperties.Add(doc.ReadNextLine().Split(' '));  // break_fuse
                                         break;
 
                                     case CustomAccessoryType.RigidBodyAnimation:
                                     case CustomAccessoryType.RockingAccessory:
-                                        accessory.CustomAccessoryProperties.Add(sr.ReadNextLine().Split(' '));  // anim
-                                        accessory.CustomAccessoryProperties.Add(sr.ReadNextLine().Split(' '));  // looping or message_triggered
+                                        accessory.CustomAccessoryProperties.Add(doc.ReadNextLine().Split(' '));  // anim
+                                        accessory.CustomAccessoryProperties.Add(doc.ReadNextLine().Split(' '));  // looping or message_triggered
 
                                         if (accessory.CustomAccessoryProperties.ContainsKey("looping"))
                                         {
-                                            while (!TestLine("[DYNAMICS]", sr.ReadNextLine(), out line))
+                                            while (true)
                                             {
-                                                accessory.CustomAccessoryProperties.Add(line.Split(' '));
-                                            }
+                                                if (!TestLine("[DYNAMICS]", doc.ReadNextLine(), out line))
+                                                {
+                                                    if (line.ToLower().StartsWith("accessoryaudio"))
+                                                    {
+                                                        doc.Rewind();
+                                                        break;
+                                                    }
 
-                                            bReadLine = false;
+                                                    accessory.CustomAccessoryProperties.Add(line.Split(' '));
+                                                }
+                                                else
+                                                {
+                                                    doc.Rewind();
+                                                    break;
+                                                }
+                                            }
                                         }
                                         break;
 
                                     case CustomAccessoryType.RotatingAccessory:
-                                        accessory.CustomAccessoryProperties.Add(sr.ReadNextLine().Split(' '));  //  speed
+                                        accessory.CustomAccessoryProperties.Add(doc.ReadNextLine().Split(' '));  //  speed
+                                        break;
+
+                                    default:
+                                        Console.WriteLine("Unhandled accessory");
                                         break;
                                 }
 
-                                if (bReadLine) { line = sr.ReadNextLine(); }
+                                line = doc.ReadNextLine();
 
                                 if (line != null && line.ToLower().StartsWith("accessoryaudio"))
                                 {
                                     accessory.CustomAccessoryAudio = line.Replace("accessoryaudio ", "", StringComparison.OrdinalIgnoreCase);
-                                    line = sr.ReadNextLine();
+                                    line = doc.ReadNextLine();
                                 }
                             }
                             break;
@@ -281,7 +305,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
                             while (bAcolyte)
                             {
-                                line = sr.ReadNextLine();
+                                line = doc.ReadNextLine();
 
                                 switch (line)
                                 {
@@ -302,11 +326,11 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                             break;
 
                         case "[ANIMATION]":
-                            accessory.AnimationType = sr.ReadNextLine();
-                            accessory.AnimationFile = sr.ReadNextLine();
-                            accessory.AnimationSpeed = Convert.ToSingle(sr.ReadNextLine(), Culture);
-                            accessory.AnimationPhase = Convert.ToSingle(sr.ReadNextLine(), Culture);
-                            line = sr.ReadNextLine();
+                            accessory.AnimationType = doc.ReadNextLine();
+                            accessory.AnimationFile = doc.ReadNextLine();
+                            accessory.AnimationSpeed = Convert.ToSingle(doc.ReadNextLine(), Culture);
+                            accessory.AnimationPhase = Convert.ToSingle(doc.ReadNextLine(), Culture);
+                            line = doc.ReadNextLine();
                             break;
 
                         case "[DYNAMICS]":
@@ -314,17 +338,16 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
                             while (bDynamics)
                             {
-                                if (bReadLine) { line = sr.ReadNextLine(); }
-                                bReadLine = true;
+                                line = doc.ReadNextLine();
 
                                 switch (line)
                                 {
                                     case "<lump_name>":
-                                        accessory.Lump = sr.ReadNextLine();
+                                        accessory.Lump = doc.ReadNextLine();
                                         break;
 
                                     case "<mass>":
-                                        accessory.Mass = Convert.ToSingle(sr.ReadNextLine(), Culture);
+                                        accessory.Mass = Convert.ToSingle(doc.ReadNextLine(), Culture);
                                         break;
 
                                     case "<drivable_on>":
@@ -357,24 +380,24 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
                                     case "<buoyant>":
                                         accessory.Buoyant = true;
-                                        accessory.BuoyancyCount = Convert.ToSingle(sr.ReadNextLine(), Culture);
-                                        accessory.BuoyancyVector = Vector3.Parse(sr.ReadNextLine());
+                                        accessory.BuoyancyCount = Convert.ToSingle(doc.ReadNextLine(), Culture);
+                                        accessory.BuoyancyVector = Vector3.Parse(doc.ReadNextLine());
                                         break;
 
                                     case "<substance>":
-                                        accessory.Substance = Convert.ToInt32(sr.ReadNextLine(), Culture);
+                                        accessory.Substance = Convert.ToInt32(doc.ReadNextLine(), Culture);
                                         break;
 
                                     case "<group>":
-                                        accessory.Group = Convert.ToInt32(sr.ReadNextLine(), Culture);
+                                        accessory.Group = Convert.ToInt32(doc.ReadNextLine(), Culture);
                                         break;
 
                                     case "<ignore_group>":
-                                        accessory.IgnoreGroup = Convert.ToInt32(sr.ReadNextLine(), Culture);
+                                        accessory.IgnoreGroup = Convert.ToInt32(doc.ReadNextLine(), Culture);
                                         break;
 
                                     case "<moments>":
-                                        accessory.Moments = Vector3.Parse(sr.ReadNextLine());
+                                        accessory.Moments = Vector3.Parse(doc.ReadNextLine());
                                         break;
 
                                     case "<buoyancy_relative_to_com>":
@@ -382,24 +405,23 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                                         break;
 
                                     case "<centre_of_mass>":
-                                        accessory.CentreOfMass = Vector3.Parse(sr.ReadNextLine());
+                                        accessory.CentreOfMass = Vector3.Parse(doc.ReadNextLine());
                                         break;
 
                                     case "<shape>":
-                                        accessory.Shape = new AccessoryShape(sr);
+                                        accessory.Shape = new AccessoryShape(doc);
                                         break;
 
                                     case "<breakable>":
-                                        accessory.Break = new AccessoryBreak(sr, out line);
-                                        bReadLine = false;
+                                        accessory.Break = new AccessoryBreak(doc);
                                         break;
 
                                     case "<world_joint>":
-                                        accessory.WorldJoint = new AccessoryJoint(sr);
+                                        accessory.WorldJoint = new AccessoryJoint(doc);
                                         break;
 
                                     case "<child_joint>":
-                                        accessory.ChildJoint = new AccessoryJoint(sr);
+                                        accessory.ChildJoint = new AccessoryJoint(doc);
                                         break;
 
                                     default:
@@ -410,7 +432,26 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                             }
                             break;
 
+                        case "[LUMP]":
+                            doc.ReadNextLine();  // level
+                            line = doc.ReadNextLine();
+                            break;
+
+                        case "[VERSION]":
+                            doc.ReadNextLine();  // 2.500000
+                            line = doc.ReadNextLine();
+                            break;
+
+                        case "[RACE_LAYERS]":
+                            line = doc.SkipToNextSection();
+                            break;
+
+                        case "[LUA_SCRIPTS]":
+                            line = doc.SkipToNextSection();
+                            break;
+
                         default:
+                            Console.WriteLine(pathToFile);
                             throw new NotImplementedException("Unexpected [SECTION]: " + line);
                     }
                 }
@@ -445,7 +486,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             set { boxCount = value; }
         }
 
-        public AccessoryShape(StreamReader sr)
+        public AccessoryShape(DocumentParser sr)
         {
             name = sr.ReadNextLine();
 
@@ -495,7 +536,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             set { radius = value; }
         }
 
-        public AccessoryShapeComponent(StreamReader sr)
+        public AccessoryShapeComponent(DocumentParser sr)
         {
             points = new List<Vector3>();
 
@@ -538,7 +579,14 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                     throw new NotImplementedException("Unknown ComponentType: " + s);
             }
 
-            if (sr.ReadNextLine() == "form_collision_groups") { group = Convert.ToInt32(sr.ReadNextLine(), Accessory.Culture); }
+            if (sr.ReadNextLine() == "form_collision_groups")
+            {
+                group = Convert.ToInt32(sr.ReadNextLine(), Accessory.Culture);
+            }
+            else
+            {
+                sr.Rewind();
+            }
         }
     }
 
@@ -565,14 +613,15 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             set { replacements = value; }
         }
 
-        public AccessoryBreak(StreamReader sr, out string line)
+        public AccessoryBreak(DocumentParser sr)
         {
             bool bBreak = true;
             string[] settings;
+            string line;
 
             if (!Accessory.TestLine("Breakable", sr.ReadNextLine(), out line)) { Console.WriteLine("Unexpected value: {0}", line); }
 
-            while (bBreak && !sr.EndOfStream)
+            while (bBreak)
             {
                 line = sr.ReadNextLine();
                 if (line == null) { break; }
@@ -636,15 +685,18 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
                     default:
                         bBreak = false;
+
                         if (!settings[0].StartsWith("[") && !settings[0].StartsWith("<"))
                         {
                             Console.WriteLine("Unexpected setting: {0}", settings[0]);
                         }
+                        else
+                        {
+                            sr.Rewind();
+                        }
                         break;
                 }
             }
-
-            if (sr.EndOfStream) { line = null; }
         }
     }
 
@@ -666,7 +718,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
     {
         int vertexNum;
 
-        public AccessoryJoint(StreamReader sr)
+        public AccessoryJoint(DocumentParser sr)
         {
             string line;
             if (!Accessory.TestLine("joint", sr.ReadNextLine(), out line)) { Console.WriteLine("Unexpected value: {0}", line); }
