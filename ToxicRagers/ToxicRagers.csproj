@@ -50,10 +50,12 @@
     <Compile Include="Carmageddon2\Formats\c2Dat.cs" />
     <Compile Include="Carmageddon2\Formats\c2MapTXT.cs" />
     <Compile Include="Carmageddon2\Formats\c2Mat.cs" />
+    <Compile Include="Carmageddon2\Formats\c2NoncarTXT.cs" />
     <Compile Include="Carmageddon2\Helpers\c2Face.cs" />
     <Compile Include="Carmageddon2\Helpers\c2Map.cs" />
     <Compile Include="Carmageddon2\Helpers\c2Mesh.cs" />
     <Compile Include="Carmageddon2\Helpers\c2Vertex.cs" />
+    <Compile Include="Carmageddon2\Helpers\DocumentParser.cs" />
     <Compile Include="Carmageddon2\Helpers\FunkParser.cs" />
     <Compile Include="Carmageddon2\Helpers\GrooveParser.cs" />
     <Compile Include="Carmageddon2\Helpers\OpponentPathParser.cs" />
