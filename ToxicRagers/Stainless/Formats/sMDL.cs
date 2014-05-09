@@ -105,10 +105,11 @@ namespace ToxicRagers.Stainless.Formats
 
                 Logger.LogToFile("Remaining B: {0} ({1})", br.ReadUInt32(), br.BaseStream.Length - br.BaseStream.Position); // Bytes remaining
 
-                if (bDebug) { Logger.LogToFile("{0}", br.ReadSingle()); } else { br.ReadSingle(); }
+                if (bDebug) { Logger.LogToFile("{0}", br.ReadSingle()); } else { br.ReadSingle(); } // Distance / 2 
                 mdl.extents.Min = new Vector3(br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
                 mdl.extents.Max = new Vector3(br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
-                br.ReadBytes(12); // Centre v3*3
+                if (bDebug) { Logger.LogToFile("{0}", mdl.extents); }
+                if (bDebug) { Logger.LogToFile("{0}, {1}, {2}", br.ReadSingle(), br.ReadSingle(), br.ReadSingle()); } else { br.ReadBytes(12); }  // max+min / 2
 
                 int nameCount = br.ReadInt16();
 
@@ -191,11 +192,11 @@ namespace ToxicRagers.Stainless.Formats
 
                     var mesh = mdl.meshes[i];
 
-                    for (int j = 0; j < 10; j++)
-                    {
-                        var bytes = br.ReadBytes(4);
-                        Logger.LogToFile("{0}\t{1}\t{2}", br.BaseStream.Position.ToString("X"), BitConverter.ToString(bytes).Replace("-", " "), BitConverter.ToSingle(bytes, 0));
-                    }
+                    if (bDebug) { Logger.LogToFile("{0}, {1}, {2}", br.ReadSingle(), br.ReadSingle(), br.ReadSingle()); } else { br.ReadBytes(12); }  // max+min / 2
+                    if (bDebug) { Logger.LogToFile("{0}", br.ReadSingle()); } else { br.ReadSingle(); } // Distance / 2 
+                    mesh.Extents.Min = new Vector3(br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
+                    mesh.Extents.Max = new Vector3(br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
+                    if (bDebug) { Logger.LogToFile("{0}", mesh.Extents); }
 
                     mesh.StripOffset = (int)br.ReadUInt32();
                     int a = (int)br.ReadUInt32();   // a == Actual Verts where Name count == 1.
@@ -314,7 +315,7 @@ namespace ToxicRagers.Stainless.Formats
 
                 bw.Write(0);    // Back filled post save
 
-                bw.Write(this.extents.HalfLongestAxis);
+                bw.Write(this.extents.HalfDistance);
                 bw.Write(this.extents.Min.X);
                 bw.Write(this.extents.Min.Y);
                 bw.Write(this.extents.Min.Z);
@@ -362,8 +363,8 @@ namespace ToxicRagers.Stainless.Formats
                     bw.Write(this.verts[i].UV.X);
                     bw.Write(this.verts[i].UV.Y);
 
-                    bw.Write(this.verts[i].UV.X);
-                    bw.Write(this.verts[i].UV.Y);
+                    bw.Write(0);        // Unknown
+                    bw.Write(0);        // Unknown
 
                     bw.Write((byte)255); // R
                     bw.Write((byte)255); // G
@@ -377,10 +378,16 @@ namespace ToxicRagers.Stainless.Formats
                 {
                     var mesh = this.meshes[i];
 
-                    for (int j = 0; j < 10; j++)
-                    {
-                        bw.Write(new byte[] { 0, 0, 0, 0 });    // No idea
-                    }
+                    bw.Write(mesh.Extents.Centre.X);
+                    bw.Write(mesh.Extents.Centre.Y);
+                    bw.Write(mesh.Extents.Centre.Z);
+                    bw.Write(mesh.Extents.HalfDistance);
+                    bw.Write(mesh.Extents.Min.X);
+                    bw.Write(mesh.Extents.Min.Y);
+                    bw.Write(mesh.Extents.Min.Z);
+                    bw.Write(mesh.Extents.Max.X);
+                    bw.Write(mesh.Extents.Max.Y);
+                    bw.Write(mesh.Extents.Max.Z);
 
                     // TriangleStrips - TO DO
                     bw.Write(0);    // offset
@@ -530,8 +537,13 @@ namespace ToxicRagers.Stainless.Formats
             set { max = value; }
         }
 
-        public Vector3 Centre { get { return max - min; } }
-        public Single HalfLongestAxis { get { return (min + max).Length; } }
+        public Vector3 Centre { get { return (min + max) / 2.0f; } }
+        public Single HalfDistance { get { return Vector3.Distance(max, min) / 2.0f; } }
+
+        public override string ToString()
+        {
+            return "{ Min: " + min.ToString() + ", Max: " + max.ToString() + ", Centre: " + Centre.ToString() + ", Length: " + HalfDistance + " }";
+        }
     }
 
     public class MDLVertex
@@ -598,18 +610,52 @@ namespace ToxicRagers.Stainless.Formats
         int patchOffset;
         List<MDLPoint> stripList;
         List<MDLPoint> patchList;
+        MDLExtents extents;
 
         public string Name { get { return name; } }
         public int StripOffset { get { return stripOffset; } set { stripOffset = value; } }
         public int PatchOffset { get { return patchOffset; } set { patchOffset = value; } }
         public List<MDLPoint> StripList { get { return stripList; } set { stripList = value; } }
         public List<MDLPoint> PatchList { get { return patchList; } set { patchList = value; } }
+        public MDLExtents Extents { get { return extents; } set { extents = value; } }
 
         public MDLMesh(string Name)
         {
             name = Name;
             stripList = new List<MDLPoint>();
             patchList = new List<MDLPoint>();
+            extents = new MDLExtents();
+        }
+
+        public void CalculateExtents(List<MDLVertex> Vertices)
+        {
+            var min = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
+            var max = new Vector3(float.MinValue, float.MinValue, float.MinValue);
+
+            foreach (var point in stripList)
+            {
+                min.X = Math.Min(Vertices[point.Index + stripOffset].Position.X, min.X);
+                min.Y = Math.Min(Vertices[point.Index + stripOffset].Position.Y, min.Y);
+                min.Z = Math.Min(Vertices[point.Index + stripOffset].Position.Z, min.Z);
+
+                max.X = Math.Max(Vertices[point.Index + stripOffset].Position.X, max.X);
+                max.Y = Math.Max(Vertices[point.Index + stripOffset].Position.Y, max.Y);
+                max.Z = Math.Max(Vertices[point.Index + stripOffset].Position.Z, max.Z);
+            }
+
+            foreach (var point in patchList)
+            {
+                min.X = Math.Min(Vertices[point.Index + patchOffset].Position.X, min.X);
+                min.Y = Math.Min(Vertices[point.Index + patchOffset].Position.Y, min.Y);
+                min.Z = Math.Min(Vertices[point.Index + patchOffset].Position.Z, min.Z);
+
+                max.X = Math.Max(Vertices[point.Index + patchOffset].Position.X, max.X);
+                max.Y = Math.Max(Vertices[point.Index + patchOffset].Position.Y, max.Y);
+                max.Z = Math.Max(Vertices[point.Index + patchOffset].Position.Z, max.Z);
+            }
+
+            this.extents.Min = min;
+            this.extents.Max = max;
         }
     }
 }
