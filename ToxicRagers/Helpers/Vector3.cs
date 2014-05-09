@@ -83,6 +83,11 @@ namespace ToxicRagers.Helpers
             return new Vector3((v1.Y * v2.Z) - (v1.Z * v2.Y), (v1.Z * v2.X) - (v1.X * v2.Z), (v1.X * v2.Y) - (v1.Y * v2.X));
         }
 
+        public static Single Distance(Vector3 v1, Vector3 v2)
+        {
+            return (Single)Math.Sqrt(Math.Pow(v2.X - v1.X, 2) + Math.Pow(v2.Y - v1.Y, 2) + Math.Pow(v2.Z - v1.Z, 2));
+        }
+
         public static Single Dot(Vector3 v1, Vector3 v2)
         {
             return v1.X * v2.X + v1.Y * v2.Y + v1.Z * v2.Z;
