@@ -211,6 +211,24 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                 {
                     switch (line)
                     {
+                        case "[LUMP]":
+                            doc.ReadNextLine();  // level
+                            line = doc.ReadNextLine();
+                            break;
+
+                        case "[VERSION]":
+                            doc.ReadNextLine();  // 2.500000
+                            line = doc.ReadNextLine();
+                            break;
+
+                        case "[RACE_LAYERS]":
+                            line = doc.SkipToNextSection();
+                            break;
+
+                        case "[LUA_SCRIPTS]":
+                            line = doc.SkipToNextSection();
+                            break;
+
                         case "[APP_DATA]":
                             if (TestLine("<CustomAccessoryType>", doc.ReadNextLine(), out line))
                             {
@@ -430,24 +448,6 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                                         break;
                                 }
                             }
-                            break;
-
-                        case "[LUMP]":
-                            doc.ReadNextLine();  // level
-                            line = doc.ReadNextLine();
-                            break;
-
-                        case "[VERSION]":
-                            doc.ReadNextLine();  // 2.500000
-                            line = doc.ReadNextLine();
-                            break;
-
-                        case "[RACE_LAYERS]":
-                            line = doc.SkipToNextSection();
-                            break;
-
-                        case "[LUA_SCRIPTS]":
-                            line = doc.SkipToNextSection();
                             break;
 
                         default:

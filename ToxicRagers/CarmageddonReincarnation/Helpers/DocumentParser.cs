@@ -1,35 +1,52 @@
 ﻿using System;
+using System.Globalization;
 using System.IO;
 using System.Text;
+using ToxicRagers.Helpers;
 
 namespace ToxicRagers.CarmageddonReincarnation.Helpers
 {
-    public class DocumentParser : BinaryReader
+    public class DocumentParser : IDisposable
     {
+        public static CultureInfo Culture = new CultureInfo("en-GB");
+        BinaryReader br;
         long position;
 
-        public DocumentParser(string path) : base(new FileStream(path, FileMode.Open), Encoding.ASCII) { }
+        public DocumentParser(string path)
+        {
+            br = new BinaryReader(new FileStream(path, FileMode.Open), Encoding.ASCII);
+        }
+
+        public bool NextLineIsASection()
+        {
+            string s = ReadNextLine();
+            bool bIsSection = (s!= null && s.StartsWith("["));
+            Rewind();
+
+            return bIsSection;
+        }
 
         public string SkipToNextSection()
         {
-            string s = ReadNextLine();
+            string s = null;
 
-            while (s != null && !s.StartsWith("[")) { s = ReadNextLine(); }
+            while (!NextLineIsASection()) { s = ReadNextLine(); }
+            s = ReadNextLine();
 
             return s;
         }
 
         public string ReadNextLine()
         {
-            this.position = this.BaseStream.Position;
+            this.position = this.br.BaseStream.Position;
             string s = "";
             bool bRead = true;
 
             while (bRead)
             {
-                if (this.BaseStream.Position == this.BaseStream.Length) { break; }
+                if (this.br.BaseStream.Position == this.br.BaseStream.Length) { break; }
 
-                int c = this.PeekChar();
+                int c = this.br.PeekChar();
 
                 switch (c)
                 {
@@ -40,7 +57,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Helpers
 
                     case '>':
                     case ']':
-                        s += this.ReadChar();
+                        s += this.br.ReadChar();
                         bRead = false;
                         break;
 
@@ -50,7 +67,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Helpers
                         break;
                 }
 
-                if (bRead) { s += this.ReadChar(); }
+                if (bRead) { s += this.br.ReadChar(); }
             }
 
             if (s.IndexOf("/") > -1) { s = s.Substring(0, s.IndexOf("/")).Trim(); } else { s = s.Trim(); }
@@ -58,9 +75,37 @@ namespace ToxicRagers.CarmageddonReincarnation.Helpers
             return (s.Length > 0 ? s : null);
         }
 
+        public int ReadInt()
+        {
+            int i;
+            string s = ReadNextLine();
+
+            if (int.TryParse(s, out i))
+            {
+                return i;
+            }
+
+            throw new ArithmeticException(string.Format("Expected an int, received {0}", s));
+        }
+
+        public float ReadFloat()
+        {
+            return Convert.ToSingle(ReadNextLine(), Culture);
+        }
+
+        public Vector3 ReadVector3()
+        {
+            return Vector3.Parse(ReadNextLine());
+        }
+
         public void Rewind()
         {
-            this.BaseStream.Seek(position, SeekOrigin.Begin);
+            this.br.BaseStream.Seek(position, SeekOrigin.Begin);
+        }
+
+        public void Dispose()
+        {
+            br.Close();
         }
     }
 }
