@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using ToxicRagers.Helpers;
@@ -403,13 +404,13 @@ namespace ToxicRagers.Stainless.Formats
                     bw.Write(this.verts[i].UV.X);
                     bw.Write(this.verts[i].UV.Y);
 
-                    bw.Write(0);        // Unknown
-                    bw.Write(0);        // Unknown
+                    bw.Write(this.verts[i].Unknown.X);
+                    bw.Write(this.verts[i].Unknown.Y);
 
-                    bw.Write((byte)255); // R
-                    bw.Write((byte)255); // G
-                    bw.Write((byte)255); // B
-                    bw.Write((byte)255); // A
+                    bw.Write(this.verts[i].Colour.R);
+                    bw.Write(this.verts[i].Colour.G);
+                    bw.Write(this.verts[i].Colour.B);
+                    bw.Write(this.verts[i].Colour.A);
                 }
 
                 bw.Write((short)this.meshes.Count);
@@ -452,16 +453,24 @@ namespace ToxicRagers.Stainless.Formats
 
                 bw.Write(0);
 
-                var saveData = this.generateConsolidata();
+                //var saveData = this.generateConsolidata();
 
-                for (int i = 0; i < saveData.Count; i++)
+                //for (int i = 0; i < saveData.Count; i++)
+                //{
+                //    var v = saveData.ElementAt(i);
+
+                //    bw.Write(v.Key.X);
+                //    bw.Write(v.Key.Y);
+                //    bw.Write(v.Key.Z);
+                //    bw.Write(v.Value.Count);
+                //}
+
+                for (int i = 0; i < this.verts.Count; i++)
                 {
-                    var v = saveData.ElementAt(i);
-
-                    bw.Write(v.Key.X);
-                    bw.Write(v.Key.Y);
-                    bw.Write(v.Key.Z);
-                    bw.Write(v.Value.Count);
+                    bw.Write(this.verts[i].Position.X);
+                    bw.Write(this.verts[i].Position.Y);
+                    bw.Write(this.verts[i].Position.Z);
+                    bw.Write(1);
                 }
 
                 for (int i = 0; i < this.faces.Count; i++)
@@ -510,15 +519,17 @@ namespace ToxicRagers.Stainless.Formats
 
                 bw.Write(this.verts.Count);
 
-                for (int i = 0; i < saveData.Count; i++)
-                {
-                    var v = saveData.ElementAt(i);
+                for (int i = 0; i < this.verts.Count; i++) { bw.Write(i); }
 
-                    foreach (int j in v.Value)
-                    {
-                        bw.Write(j);
-                    }
-                }
+                //for (int i = 0; i < saveData.Count; i++)
+                //{
+                //    var v = saveData.ElementAt(i);
+
+                //    foreach (int j in v.Value)
+                //    {
+                //        bw.Write(j);
+                //    }
+                //}
             }
 
             using (BinaryWriter bw = new BinaryWriter(new FileStream(Path, FileMode.Open)))
@@ -627,8 +638,8 @@ namespace ToxicRagers.Stainless.Formats
         Vector3 position;
         Vector3 normal;
         Vector2 uv;
-        float ua;
-        float ub;
+        Vector2 unknown;
+        Color colour;
 
         public Vector3 Position
         {
@@ -648,20 +659,30 @@ namespace ToxicRagers.Stainless.Formats
             set { uv = value; }
         }
 
+        public Vector2 Unknown
+        {
+            get { return unknown; }
+            set { unknown = value; }
+        }
+
+        public Color Colour
+        {
+            get { return colour; }
+            set { colour = value; }
+        }
+
         public MDLVertex(Single X, Single Y, Single Z, Single NX, Single NY, Single NZ, Single U, Single V, Single Unk6, Single Unk7, byte R, byte G, byte B, byte Alpha)
         {
             position = new Vector3(X, Y, Z);
             normal = new Vector3(NX, NY, NZ);
             uv = new Vector2(U, V);
-
-            ua = Unk6;
-            ub = Unk7;
-            //Logger.LogToFile("Unknown data: {0} {1}", Unk6, Unk7);
+            unknown = new Vector2(Unk6, Unk7);
+            colour = Color.FromArgb(Alpha, R, G, B);
         }
 
         public override string ToString()
         {
-            return "{ Position: {X:" + Position.X + " Y:" + Position.Y + " Z:" + Position.Z + "} Normal: {X:" + Normal.X + " Y:" + Normal.Y + " Z:" + Normal.Z + "} UV: {U:" + UV.X + " V:" + UV.Y + "} Unknown: {A:" + ua + " B:" + ub + "} }";
+            return "{ Position: {X:" + Position.X + " Y:" + Position.Y + " Z:" + Position.Z + "} Normal: {X:" + Normal.X + " Y:" + Normal.Y + " Z:" + Normal.Z + "} UV: {U:" + UV.X + " V:" + UV.Y + "} Unknown: {A:" + unknown.X + " B:" + unknown.Y + "} { UV Length:" + UV.Length + " } }";
         }
     }
 
