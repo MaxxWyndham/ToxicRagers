@@ -206,30 +206,31 @@ namespace ToxicRagers.Carmageddon2.Helpers
 
         public void GenerateNormals()
         {
-            Normals = new List<Vector3>();
+            foreach (var face in Faces)
+            {
+                Vector3 v0 = Verts[face.V1];
+                Vector3 v1 = Verts[face.V2];
+                Vector3 v2 = Verts[face.V3];
 
+                Vector3 v21 = v2 - v1;
+                Vector3 v01 = v0 - v1;
+
+                face.Normal = Vector3.Cross(v21, v01).Normalised;
+            }
+
+            Normals = new List<Vector3>();
             for (int i = 0; i < Verts.Count; i++) { Normals.Add(Vector3.Zero); }
 
             for (int i = 0; i < Faces.Count; i++)
             {
-                Vector3 v0 = Verts[Faces[i].V1];
-                Vector3 v1 = Verts[Faces[i].V2];
-                Vector3 v2 = Verts[Faces[i].V3];
-
-                Vector3 normal = Vector3.Cross(v2 - v0, v1 - v0);
-
-                float sin_alpha = normal.Length / ((v2 - v0).Length * (v1 - v0).Length);
-                normal = normal.Normalise * (float)Math.Asin(sin_alpha);
-
-                Normals[Faces[i].V1] += normal;
-                Normals[Faces[i].V2] += normal;
-                Normals[Faces[i].V3] += normal;
+                Normals[Faces[i].V1] += Faces[i].Normal;
+                Normals[Faces[i].V2] += Faces[i].Normal;
+                Normals[Faces[i].V3] += Faces[i].Normal;
             }
 
             for (int i = 0; i < Normals.Count; i++)
             {
-                Normals[i] = Normals[i].Normalise;
-                Normals[i].Y = -Normals[i].Y;
+                Normals[i] = Normals[i].Normalised;
             }
         }
 

@@ -11,36 +11,15 @@ namespace ToxicRagers.Helpers
         private Single _y;
         private Single _z;
 
-        public Vector3(Single n)
-        {
-            _x = n;
-            _y = n;
-            _z = n;
-        }
+        public Single X { get { return _x; } set { _x = value; } }
+        public Single Y { get { return _y; } set { _y = value; } }
+        public Single Z { get { return _z; } set { _z = value; } }
 
         public Vector3(Single x, Single y, Single z)
         {
             _x = x;
             _y = y;
             _z = z;
-        }
-
-        public Single X
-        {
-            get { return _x; }
-            set { _x = value; }
-        }
-
-        public Single Y
-        {
-            get { return _y; }
-            set { _y = value; }
-        }
-
-        public Single Z
-        {
-            get { return _z; }
-            set { _z = value; }
         }
 
         public static Vector3 Up
@@ -53,14 +32,14 @@ namespace ToxicRagers.Helpers
             get { return new Vector3(0, 0, 0); }
         }
 
+        public Vector3 Normalised
+        {
+            get { this.Normalise(); return this; }
+        }
+
         public override string ToString()
         {
             return "{X:" + _x + " Y:" + _y + " Z:" + _z + "}";
-        }
-
-        public string ToBBoxString()
-        {
-            return _x + "," + _y + "," + _z;
         }
 
         public Single Sum()
@@ -79,8 +58,11 @@ namespace ToxicRagers.Helpers
 
         public static Vector3 Cross(Vector3 v1, Vector3 v2)
         {
-            // Cross Product
-            return new Vector3((v1.Y * v2.Z) - (v1.Z * v2.Y), (v1.Z * v2.X) - (v1.X * v2.Z), (v1.X * v2.Y) - (v1.Y * v2.X));
+            return new Vector3(
+		        v1.Y * v2.Z - v1.Z * v2.Y,
+		        v1.Z * v2.X - v1.X * v2.Z,
+		        v1.X * v2.Y - v1.Y * v2.X
+            );
         }
 
         public static Single Distance(Vector3 v1, Vector3 v2)
@@ -93,67 +75,22 @@ namespace ToxicRagers.Helpers
             return v1.X * v2.X + v1.Y * v2.Y + v1.Z * v2.Z;
         }
 
-        public static Single Magnitude(Vector3 v)
-        {
-            return (Single)Math.Sqrt(Dot(v, v));
-        }
-
-        public static Single LengthSquared(Vector3 v)
-        {
-            return Dot(v, v);
-        }
-
-        public static Vector3 Min(Vector3 v1, Vector3 v2)
-        {
-            return new Vector3(
-                Math.Min(v1.X, v2.X), 
-                Math.Min(v1.Y, v2.Y), 
-                Math.Min(v1.Z, v2.Z)
-                );
-        }
-
-        public static Vector3 Max(Vector3 v1, Vector3 v2)
-        {
-            return new Vector3(
-                Math.Max(v1.X, v2.X), 
-                Math.Max(v1.Y, v2.Y), 
-                Math.Max(v1.Z, v2.Z)
-                );
-        }
-
-        public static Vector3 Truncate(Vector3 v)
-        {
-            return new Vector3(
-                (float)(v.X > 0.0f ? Math.Floor(v.X) : Math.Ceiling(v.X)),
-                (float)(v.Y > 0.0f ? Math.Floor(v.Y) : Math.Ceiling(v.Y)),
-                (float)(v.Z > 0.0f ? Math.Floor(v.Z) : Math.Ceiling(v.Z))
-            );
-        }
-
         public Single Length
         {
-            get
-            {
-                return Magnitude(this);
-            }
+            get { return (Single)Math.Sqrt(this.LengthSquared); }
         }
 
-        [BrowsableAttribute(false)]
-        public Vector3 Normalise
+        public Single LengthSquared
         {
-            get
-            {
-                return new Vector3(this.X / this.Length, this.Y / this.Length, this.Z / this.Length);
-            }
+            get { return this._x * this._x + this._y * this._y + this._z * this._z; }
         }
 
-        //Public Function ToNonCarString() As String
-        //    Return Format(_x, "0.000000") & ", " & Format(_y, "0.000000") & ", " & Format(_z, "0.000000")
-        //End Function
-
-        //Public Shared Operator +(ByVal x As Vector3, ByVal y As Vector3) As Vector3
-        //    Return New Vector3(x._x + y._x, x._y + y._y, x._z + y._z)
-        //End Operator
+        public void Normalise()
+        {
+            this._x /= this.Length;
+            this._y /= this.Length;
+            this._z /= this.Length;
+        }
 
         public static Vector3 operator *(Single y, Vector3 x) { return x * y; }
 

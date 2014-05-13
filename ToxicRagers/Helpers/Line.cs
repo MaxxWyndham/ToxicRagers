@@ -21,7 +21,7 @@ namespace ToxicRagers.Helpers
 
         public Vector3 Direction
         {
-            get { return (Point1 - Point0).Normalise; }
+            get { return (Point1 - Point0).Normalised; }
         }
 
         public override string ToString()

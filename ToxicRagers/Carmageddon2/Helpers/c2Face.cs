@@ -8,6 +8,7 @@ namespace ToxicRagers.Carmageddon2.Helpers
         public int[] Verts = new int[3];
         public int[] UVs = new int[3];
         public int MaterialID = -1;
+        public Vector3 Normal = Vector3.Up;
 
         public c2Face(int V1, int V2, int V3, int MaterialID)
             : this(V1, V2, V3, -1, -1, -1, MaterialID)
