@@ -60,6 +60,7 @@
     <Compile Include="Carmageddon2\Helpers\GrooveParser.cs" />
     <Compile Include="Carmageddon2\Helpers\OpponentPathParser.cs" />
     <Compile Include="CarmageddoniOS\Formats\iTDX.cs" />
+    <Compile Include="CarmageddonPSX\OldCodeImport.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\crRoutesTXT.cs" />
     <Compile Include="CarmageddonReincarnation\Helpers\DocumentParser.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\crAccessoryTXT.cs" />
@@ -91,6 +92,7 @@
     <Compile Include="Stainless\Formats\sMDL.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Stainless\Formats\sMTL.cs" />
+    <Compile Include="TDR2000\OldCodeImport.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\LibSquishNet\LibSquishNet\LibSquishNet.csproj">
