@@ -105,115 +105,104 @@ namespace ToxicRagers.Carmageddon2.Formats
             return act;
         }
 
-        //public void Save(string Path)
-        //{
-        //    string sPath, sFile;
-        //    sPath = Path.Substring(0, Path.LastIndexOf("\\") + 1);
-        //    sFile = Path.Substring(Path.LastIndexOf("\\") + 1);
+        public void Save(string Path)
+        {
+            string sPath, sFile;
+            sPath = Path.Substring(0, Path.LastIndexOf("\\") + 1);
+            sFile = Path.Substring(Path.LastIndexOf("\\") + 1);
 
-        //    BEBinaryWriter bw = new BEBinaryWriter(new FileStream(Path, FileMode.Create));
-        //    int iLength;
+            using (BEBinaryWriter bw = new BEBinaryWriter(new FileStream(Path, FileMode.Create), Encoding.Default))
+            {
+                int iLength;
 
-        //    //output header
-        //    bw.WriteInt32(18);
-        //    bw.WriteInt32(8);
-        //    bw.WriteInt32(1);
-        //    bw.WriteInt32(2);
+                //output header
+                bw.WriteInt32(18);
+                bw.WriteInt32(8);
+                bw.WriteInt32(1);
+                bw.WriteInt32(2);
 
-        //    foreach (Actor A in Actors)
-        //    {
-        //        bw.WriteInt32((int)A.Section);
+                foreach (ACTNode A in sections)
+                {
+                    bw.WriteInt32((int)A.Section);
 
-        //        switch ((int)A.Section)
-        //        {
-        //            case 35:
-        //                //Name
-        //                iLength = A.Name.Length + 3;
-        //                if (A.PoundPrefix) { iLength += 2; }
-        //                bw.WriteInt32(iLength);
-        //                bw.WriteByte(A.AttributeA);
-        //                bw.WriteByte(A.AttributeB);
-        //                if (A.PoundPrefix)
-        //                {
-        //                    bw.WriteByte(38);  //&
-        //                    bw.WriteByte(163); //£
-        //                }
-        //                bw.Write(A.Name.ToCharArray());
-        //                bw.WriteByte(0);
-        //                break;
+                    switch ((int)A.Section)
+                    {
+                        case 35: //Name
+                            iLength = A.Identifier.Length + 3;
+                            bw.WriteInt32(iLength);
+                            bw.WriteByte((byte)A.ActorType);
+                            bw.WriteByte((byte)A.RenderStyle);
+                            bw.Write(A.Identifier.ToCharArray());
+                            bw.WriteByte(0);
+                            break;
 
-        //            case 43:
-        //                //Matrix
-        //                bw.WriteInt32(48);
-        //                bw.WriteSingle(A.Matrix.M11);
-        //                bw.WriteSingle(A.Matrix.M12);
-        //                bw.WriteSingle(A.Matrix.M13);
-        //                bw.WriteSingle(A.Matrix.M21);
-        //                bw.WriteSingle(A.Matrix.M22);
-        //                bw.WriteSingle(A.Matrix.M23);
-        //                bw.WriteSingle(A.Matrix.M31);
-        //                bw.WriteSingle(A.Matrix.M32);
-        //                bw.WriteSingle(A.Matrix.M33);
-        //                bw.WriteSingle(A.Matrix.M41);
-        //                bw.WriteSingle(A.Matrix.M42);
-        //                bw.WriteSingle(A.Matrix.M43);
-        //                break;
+                        case 43: //Matrix
+                            bw.WriteInt32(48);
+                            bw.WriteSingle(A.Transform.M11);
+                            bw.WriteSingle(A.Transform.M12);
+                            bw.WriteSingle(A.Transform.M13);
+                            bw.WriteSingle(A.Transform.M21);
+                            bw.WriteSingle(A.Transform.M22);
+                            bw.WriteSingle(A.Transform.M23);
+                            bw.WriteSingle(A.Transform.M31);
+                            bw.WriteSingle(A.Transform.M32);
+                            bw.WriteSingle(A.Transform.M33);
+                            bw.WriteSingle(A.Transform.M41);
+                            bw.WriteSingle(A.Transform.M42);
+                            bw.WriteSingle(A.Transform.M43);
+                            break;
 
-        //            case 37:
-        //                //Section 37
-        //                bw.WriteInt32(0);
-        //                break;
+                        case 37: //Section 37
+                            bw.WriteInt32(0);
+                            break;
 
-        //            case 36:
-        //                //Model
-        //                bw.WriteInt32(A.Model.Length + 1);
-        //                bw.Write(A.Model.ToCharArray());
-        //                bw.WriteByte(0);
-        //                break;
+                        case 36: //Model
+                            bw.WriteInt32(A.Model.Length + 1);
+                            bw.Write(A.Model.ToCharArray());
+                            bw.WriteByte(0);
+                            break;
 
-        //            case 42:
-        //                //Sub-Level End
-        //                bw.WriteInt32(0);
-        //                break;
-        //        }
-        //    }
+                        case 42: //Sub-Level End
+                            bw.WriteInt32(0);
+                            break;
+                    }
+                }
 
-        //    bw.WriteInt32(0);
-        //    bw.WriteInt32(0);
+                bw.WriteInt32(0);
+                bw.WriteInt32(0);
+            }
+        }
 
-        //    bw.Close();
-        //}
+        public void AddRootNode(string Name = "")
+        {
+            sections.Add(new ACTNode(Section.Name, Name));
+            sections.Add(new ACTNode(Section.Matrix));
+            sections.Add(new ACTNode(Section.Section37));
+        }
 
-        //public void AddRootNode(string Name = "")
-        //{
-        //    Actors.Add(new Actor(Actor.Sections.Name, Name));
-        //    Actors.Add(new Actor(Actor.Sections.Matrix));
-        //    Actors.Add(new Actor(Actor.Sections.Section37));
-        //}
+        public void AddActor(string ActorName, string Model, Matrix3D Transform, bool Parent)
+        {
+            sections.Add(new ACTNode(Section.Name, ActorName)); //, false, 1, 4
+            sections.Add(new ACTNode(Transform));
+            sections.Add(new ACTNode(Section.Section37));
+            sections.Add(new ACTNode(Section.Model, Model));
+            if (!Parent) { sections.Add(new ACTNode(Section.SubLevelEnd)); }
+        }
 
-        //public void AddActor(string ActorName, string Model, Matrix3D Transform, bool Parent)
-        //{
-        //    Actors.Add(new Actor(Actor.Sections.Name, ActorName, false, 1, 4));
-        //    Actors.Add(new Actor(Transform));
-        //    Actors.Add(new Actor(Actor.Sections.Section37));
-        //    Actors.Add(new Actor(Actor.Sections.Model, Model));
-        //    if (!Parent) { Actors.Add(new Actor(Actor.Sections.SubLevelEnd)); }
-        //}
+        public void AddPivot(string PivotName, string ActorName, string ActorModel, Matrix3D Transform)
+        {
+            sections.Add(new ACTNode(Section.Name, PivotName)); //, false, 0, 0
+            sections.Add(new ACTNode(Transform));
+            sections.Add(new ACTNode(Section.Section37));
 
-        //public void AddPivot(string PivotName, string ActorName, string ActorModel, Matrix3D Transform)
-        //{
-        //    Actors.Add(new Actor(Actor.Sections.Name, PivotName, false, 0, 0));
-        //    Actors.Add(new Actor(Transform));
-        //    Actors.Add(new Actor(Actor.Sections.Section37));
+            sections.Add(new ACTNode(Section.Name, ActorName)); //, false, 1, 4
+            sections.Add(new ACTNode(Matrix3D.Identity));
+            sections.Add(new ACTNode(Section.Section37));
+            sections.Add(new ACTNode(Section.Model, ActorModel));
+            sections.Add(new ACTNode(Section.SubLevelEnd));
 
-        //    Actors.Add(new Actor(Actor.Sections.Name, ActorName, false, 1, 4));
-        //    Actors.Add(new Actor(Matrix3D.Identity));
-        //    Actors.Add(new Actor(Actor.Sections.Section37));
-        //    Actors.Add(new Actor(Actor.Sections.Model, ActorModel));
-        //    Actors.Add(new Actor(Actor.Sections.SubLevelEnd));
-
-        //    Actors.Add(new Actor(Actor.Sections.SubLevelEnd));
-        //}
+            sections.Add(new ACTNode(Section.SubLevelEnd));
+        }
     }
 
     public class ACTNode
@@ -275,9 +264,30 @@ namespace ToxicRagers.Carmageddon2.Formats
             set { bounds = value; }
         }
 
-        public ACTNode(Section section)
+        public ACTNode(Section section, string name = null)
         {
             this.section = section;
+
+            switch (Section)
+            {
+                case Section.Name:
+                    this.identifier = name;
+                    break;
+
+                case Section.Model:
+                    this.model = name;
+                    break;
+
+                case Section.Material:
+                    this.material = name;
+                    break;
+            }
+        }
+
+        public ACTNode(Matrix3D transform)
+        {
+            this.section = Section.Matrix;
+            this.transform = transform;
         }
     }
 
