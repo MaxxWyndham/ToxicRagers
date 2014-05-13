@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using ToxicRagers.Helpers;
 
 namespace ToxicRagers.Stainless.Formats
@@ -98,10 +100,10 @@ namespace ToxicRagers.Stainless.Formats
                 Logger.LogToFile("Remaining A: {0} ({1})", br.ReadUInt32(), br.BaseStream.Length - br.BaseStream.Position); // Bytes remaining
 
                 int headerFaceCount = (int)br.ReadUInt32();
-                int headerVertCount = (int)br.ReadUInt32();
+                int distinctVertCount = (int)br.ReadUInt32();
 
                 Logger.LogToFile("Faces: {0}", headerFaceCount);
-                Logger.LogToFile("Verts: {0}", headerVertCount);
+                Logger.LogToFile("Distinct Verts: {0}", distinctVertCount);
 
                 Logger.LogToFile("Remaining B: {0} ({1})", br.ReadUInt32(), br.BaseStream.Length - br.BaseStream.Position); // Bytes remaining
 
@@ -199,16 +201,13 @@ namespace ToxicRagers.Stainless.Formats
                     if (bDebug) { Logger.LogToFile("{0}", mesh.Extents); }
 
                     mesh.StripOffset = (int)br.ReadUInt32();
-                    int a = (int)br.ReadUInt32();   // a == Actual Verts where Name count == 1.
-                    int b = (int)br.ReadUInt32();
-                    Logger.LogToFile("Offset: {0}", mesh.StripOffset);
-                    Logger.LogToFile("{0} is less than {1}: {2}", a, b, a < b);
-
-                    //if (a != 0 && b != 0) { return null; }
+                    mesh.StripVertCount = (int)br.ReadUInt32();
+                    int stripPointCount = (int)br.ReadUInt32();
+                    Logger.LogToFile("Strip: {0} offset, {1} verts, {2} entries", mesh.StripOffset, mesh.StripVertCount, stripPointCount);
 
                     int degenerateTriangles = 0;
 
-                    for (int j = 0; j < b; j++)
+                    for (int j = 0; j < stripPointCount; j++)
                     {
                         int index = br.ReadUInt16();
                         bool bDegenerate = (br.ReadUInt16() != 0);
@@ -224,12 +223,15 @@ namespace ToxicRagers.Stainless.Formats
                     // After the mesh has been described with TriangleStrips we have to patch any remaining holes
 
                     mesh.PatchOffset = (int)br.ReadUInt32();
-                    int uB = (int)br.ReadUInt32();
-                    int patchVertCount = (int)br.ReadUInt32();
+                    mesh.PatchVertCount = (int)br.ReadUInt32();
+                    int patchPointCount = (int)br.ReadUInt32();
+                    Logger.LogToFile("Patch: {0} offset, {1} verts, {2} entries", mesh.PatchOffset, mesh.PatchVertCount, patchPointCount);
 
-                    if (uB != patchVertCount) { Logger.LogToFile("Patch Verts mismatch: {0} != {1}", uB, patchVertCount); }
-
-                    for (int j = 0; j < patchVertCount; j++) { mesh.PatchList.Add(new MDLPoint(mesh.PatchOffset + (int)br.ReadUInt32())); }
+                    for (int j = 0; j < patchPointCount; j++)
+                    {
+                        mesh.PatchList.Add(new MDLPoint(mesh.PatchOffset + (int)br.ReadUInt32()));
+                        if (bDebug) { Logger.LogToFile("{0}] {1} {2}", j, j + mesh.PatchOffset, mdl.verts[j + mesh.PatchOffset].ToString()); }
+                    }
                 }
 
                 Logger.LogToFile("Position: {0}", br.BaseStream.Position.ToString("X"));
@@ -238,9 +240,9 @@ namespace ToxicRagers.Stainless.Formats
 
                 // v5.6 successfully parses from this point down
 
-                for (int i = 0; i < headerVertCount; i++)
+                Logger.LogToFile("Distinct verts with occurance count:");
+                for (int i = 0; i < distinctVertCount; i++)
                 {
-
                     if (bDebug)
                     {
                         Logger.LogToFile("{0}, {1}, {2} : {3}", br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadUInt32());
@@ -251,14 +253,52 @@ namespace ToxicRagers.Stainless.Formats
                     }
                 }
 
+                Logger.LogToFile("Face breakdown");
                 for (int i = 0; i < Math.Max(headerFaceCount, mdl.faceCount); i++)
                 {
-                    br.ReadBytes((mdl.version.Major == 5 && mdl.version.Minor == 6 ? 133 : 137));
+                    if (mdl.version.Major == 5 && mdl.version.Minor == 6)
+                    {
+                        br.ReadBytes(133);
+                    }
+                    else
+                    {
+                        if (!bDebug)
+                        {
+                            br.ReadBytes(137);
+                        }
+                        else
+                        {
+                            Logger.LogToFile("{0}", br.ReadByte());
+                            Logger.LogToFile("{0}", br.ReadByte());
+                            Logger.LogToFile("{0}", br.ReadByte());
+                            Logger.LogToFile("{0}", br.ReadByte());
+                            Logger.LogToFile("X: {0} Y: {1} Z: {2}", br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
+                            Logger.LogToFile("X: {0} Y: {1} Z: {2}", br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
+                            Logger.LogToFile("X: {0} Y: {1} Z: {2}", br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
+                            Logger.LogToFile("X: {0} Y: {1} Z: {2}", br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
+                            Logger.LogToFile("{0}", br.ReadUInt32());
+                            Logger.LogToFile("{0}", br.ReadUInt32());
+                            Logger.LogToFile("{0}", br.ReadUInt32());
+                            Logger.LogToFile("{0}", br.ReadUInt32());
+                            Logger.LogToFile("{0}", br.ReadUInt32());
+                            Logger.LogToFile("R{0}G{1}B{2}A{3}", br.ReadByte(), br.ReadByte(), br.ReadByte(), br.ReadByte());
+                            Logger.LogToFile("R{0}G{1}B{2}A{3}", br.ReadByte(), br.ReadByte(), br.ReadByte(), br.ReadByte());
+                            Logger.LogToFile("R{0}G{1}B{2}A{3}", br.ReadByte(), br.ReadByte(), br.ReadByte(), br.ReadByte());
+                            Logger.LogToFile("U: {0} V: {1}", br.ReadSingle(), br.ReadSingle());
+                            Logger.LogToFile("?: {0} ?: {1}", br.ReadSingle(), br.ReadSingle());
+                            Logger.LogToFile("U: {0} V: {1}", br.ReadSingle(), br.ReadSingle());
+                            Logger.LogToFile("?: {0} ?: {1}", br.ReadSingle(), br.ReadSingle());
+                            Logger.LogToFile("U: {0} V: {1}", br.ReadSingle(), br.ReadSingle());
+                            Logger.LogToFile("?: {0} ?: {1}", br.ReadSingle(), br.ReadSingle());
+                            Logger.LogToFile("{0}", br.ReadUInt32());
+                            Logger.LogToFile("{0}", br.ReadByte());
+                        }
+                    }
                 }
 
+                Logger.LogToFile("Face count:");
                 for (int i = 0; i < mdl.faceCount; i++)
                 {
-
                     if (bDebug)
                     {
                         Logger.LogToFile("{0}", br.ReadUInt32());
@@ -389,13 +429,19 @@ namespace ToxicRagers.Stainless.Formats
                     bw.Write(mesh.Extents.Max.Y);
                     bw.Write(mesh.Extents.Max.Z);
 
-                    // TriangleStrips - TO DO
-                    bw.Write(0);    // offset
-                    bw.Write(0);
-                    bw.Write(0);
+                    // TriangleStrips
+                    bw.Write(mesh.StripOffset);
+                    bw.Write(mesh.StripVertCount);
+                    bw.Write(mesh.StripList.Count);
+
+                    for (int j = 0; j < mesh.StripList.Count; j++)
+                    {
+                        bw.Write((short)mesh.StripList[j].Index);
+                        bw.Write((short)(mesh.StripList[j].Degenerate ? 32768 : 0));
+                    }
 
                     bw.Write(mesh.PatchOffset);
-                    bw.Write(mesh.PatchList.Count);
+                    bw.Write(mesh.PatchVertCount);
                     bw.Write(mesh.PatchList.Count);
 
                     for (int j = 0; j < mesh.PatchList.Count; j++)
@@ -406,12 +452,16 @@ namespace ToxicRagers.Stainless.Formats
 
                 bw.Write(0);
 
-                for (int i = 0; i < this.verts.Count; i++)
+                var saveData = this.generateConsolidata();
+
+                for (int i = 0; i < saveData.Count; i++)
                 {
-                    bw.Write(this.verts[i].Position.X);
-                    bw.Write(this.verts[i].Position.Y);
-                    bw.Write(this.verts[i].Position.Z);
-                    bw.Write(1);
+                    var v = saveData.ElementAt(i);
+
+                    bw.Write(v.Key.X);
+                    bw.Write(v.Key.Y);
+                    bw.Write(v.Key.Z);
+                    bw.Write(v.Value.Count);
                 }
 
                 for (int i = 0; i < this.faces.Count; i++)
@@ -460,9 +510,14 @@ namespace ToxicRagers.Stainless.Formats
 
                 bw.Write(this.verts.Count);
 
-                for (int i = 0; i < this.verts.Count; i++)
+                for (int i = 0; i < saveData.Count; i++)
                 {
-                    bw.Write(i);
+                    var v = saveData.ElementAt(i);
+
+                    foreach (int j in v.Value)
+                    {
+                        bw.Write(j);
+                    }
                 }
             }
 
@@ -491,6 +546,27 @@ namespace ToxicRagers.Stainless.Formats
 
             this.extents.Min = min;
             this.extents.Max = max;
+        }
+
+        private Dictionary<Vector3, List<int>> generateConsolidata()
+        {
+            var flattened = new Dictionary<Vector3, List<int>>();
+
+            for (int i = 0; i < this.verts.Count; i++)
+            {
+                var vert = this.verts[i];
+
+                if (!flattened.ContainsKey(vert.Position))
+                {
+                    flattened[vert.Position] = new List<int>() { i };
+                }
+                else
+                {
+                    flattened[vert.Position].Add(i);
+                }
+            }
+
+            return flattened;
         }
     }
 
@@ -589,12 +665,14 @@ namespace ToxicRagers.Stainless.Formats
         }
     }
 
+    [DebuggerDisplay("Index {Index} Degenerate {Degenerate}")]
     public class MDLPoint
     {
         int index;
         bool bDegenerate;
 
         public int Index { get { return index; } }
+        public bool Degenerate { get { return bDegenerate; } }
 
         public MDLPoint(int Index, bool IsDegenerate = false)
         {
@@ -607,14 +685,18 @@ namespace ToxicRagers.Stainless.Formats
     {
         string name;
         int stripOffset;
+        int stripVertCount;
         int patchOffset;
+        int patchVertCount;
         List<MDLPoint> stripList;
         List<MDLPoint> patchList;
         MDLExtents extents;
 
         public string Name { get { return name; } }
         public int StripOffset { get { return stripOffset; } set { stripOffset = value; } }
+        public int StripVertCount { get { return stripVertCount; } set { stripVertCount = value; } }
         public int PatchOffset { get { return patchOffset; } set { patchOffset = value; } }
+        public int PatchVertCount { get { return patchVertCount; } set { patchVertCount = value; } }
         public List<MDLPoint> StripList { get { return stripList; } set { stripList = value; } }
         public List<MDLPoint> PatchList { get { return patchList; } set { patchList = value; } }
         public MDLExtents Extents { get { return extents; } set { extents = value; } }
