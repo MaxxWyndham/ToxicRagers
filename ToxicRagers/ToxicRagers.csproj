@@ -94,6 +94,7 @@
     <Compile Include="Stainless\Formats\sMTL.cs" />
     <Compile Include="TDR2000\Formats\tdrMSHS.cs" />
     <Compile Include="TDR2000\Formats\tdrPAK.cs" />
+    <Compile Include="TDR2000\Formats\tdrTX.cs" />
     <Compile Include="TDR2000\OldCodeImport.cs" />
   </ItemGroup>
   <ItemGroup>

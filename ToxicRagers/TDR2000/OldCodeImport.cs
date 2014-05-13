@@ -1957,29 +1957,6 @@
 //        matFile.Save(sOutPath & sOutName.Replace(".act", "") & ".mat")
 //    End Sub
 
-//    Public Sub ParseTX(ByVal sTX As String, ByRef sName As String, ByRef sFileName As String, ByRef bAlpha As Boolean)
-//        Dim br As New IO.BinaryReader(New IO.FileStream(sTX, IO.FileMode.Open))
-
-//        Dim sHeader As String = ReadString(br, 4)
-//        Dim iVersion As Integer = br.ReadInt32()
-//        Dim iLevels As Integer = br.ReadInt32()
-//        Dim iAlpha = br.ReadInt32() '0 = no alpha, 1 and 2? No idea!
-//        Dim bA As Boolean = br.ReadByte()
-//        Dim bB As Boolean = br.ReadByte()
-//        Dim bC As Boolean = br.ReadByte()
-//        Dim sBumpMap As String = ReadString(br, br.ReadByte() - 1)
-//        If iVersion = 5 Then br.ReadBytes(8) 'Bytes 2 and 3 occasionally have values, not too sure why.
-//        Dim sTexName As String = ReadString(br, br.ReadByte() - 1)
-//        Dim iWidth As Integer = br.ReadInt16()
-//        Dim iHeight As Integer = br.ReadInt16()
-
-//        br.Close()
-
-//        sName = sTexName
-//        sFileName = sTexName & "_" & iWidth & "x" & iHeight & "_32"
-//        bAlpha = (iAlpha > 0)
-//    End Sub
-
 //    Public Sub ParseHieFile(ByVal sFile As String, ByRef Textures As List(Of String), ByRef Meshes As List(Of String), ByRef TextureFlags As List(Of Integer), ByRef MatrixList As List(Of List(Of Matrix3D)), ByRef MeshTexture As List(Of Integer), ByRef CollisionFiles As List(Of String), ByRef Lines As List(Of tdrSpline))
 //        Dim sr As New IO.StreamReader(New IO.FileStream(sFile, IO.FileMode.Open))
 //        Dim sArray() As String = sr.ReadToEnd().Split(vbCrLf.ToCharArray(), StringSplitOptions.RemoveEmptyEntries)
