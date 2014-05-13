@@ -9,13 +9,13 @@ namespace ToxicRagers.Carmageddon2.Formats
 {
     public class MAT
     {
-        List<Material> materials;
+        List<MATMaterial> materials;
 
-        public List<Material> Materials { get { return materials; } }
+        public List<MATMaterial> Materials { get { return materials; } }
 
         public MAT()
         {
-            materials = new List<Material>();
+            materials = new List<MATMaterial>();
         }
 
         public static MAT Load(string Path)
@@ -24,7 +24,7 @@ namespace ToxicRagers.Carmageddon2.Formats
             Logger.LogToFile("{0}", Path);
             MAT mat = new MAT();
 
-            Material M = new Material();
+            MATMaterial M = new MATMaterial();
             bool bDebug = false;
 
             using (BEBinaryReader br = new BEBinaryReader(fi.OpenRead(), Encoding.Default))
@@ -40,7 +40,7 @@ namespace ToxicRagers.Carmageddon2.Formats
                     {
                         case 4:
                             // C1 mat file
-                            M = new Material();
+                            M = new MATMaterial();
 
                             br.ReadByte(); // R
                             br.ReadByte(); // G
@@ -51,7 +51,7 @@ namespace ToxicRagers.Carmageddon2.Formats
                             br.ReadSingle(); // Specular Colour
                             br.ReadSingle(); // Specular Power
                             M.SetFlags((int)br.ReadUInt16()); // Flags
-                            if (M.GetFlag(Material.Settings.UnknownSetting) || M.GetFlag(Material.Settings.IFromV) || M.GetFlag(Material.Settings.UFromI) || M.GetFlag(Material.Settings.VFromI)) { bDebug = true; }
+                            if (M.GetFlag(MATMaterial.Settings.UnknownSetting) || M.GetFlag(MATMaterial.Settings.IFromV) || M.GetFlag(MATMaterial.Settings.UFromI) || M.GetFlag(MATMaterial.Settings.VFromI)) { bDebug = true; }
                             M.UVMatrix = new Matrix2D(br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
                             byte x1 = br.ReadByte(); // ??
                             byte x2 = br.ReadByte(); // ??
@@ -62,7 +62,7 @@ namespace ToxicRagers.Carmageddon2.Formats
                             break;
 
                         case 60:
-                            M = new Material();
+                            M = new MATMaterial();
 
                             br.ReadByte(); // R
                             br.ReadByte(); // G
@@ -150,7 +150,7 @@ namespace ToxicRagers.Carmageddon2.Formats
                 bw.WriteInt32(5);
                 bw.WriteInt32(2);
 
-                foreach (Material M in this.materials)
+                foreach (var M in this.materials)
                 {
                     bw.Write(new byte[] { 0, 0, 0, 60 });
                     bw.WriteInt32(68 + M.Name.Length);
@@ -191,7 +191,7 @@ namespace ToxicRagers.Carmageddon2.Formats
         }
     }
 
-    public class Material
+    public class MATMaterial
     {
         #region Enums
         public enum Settings
@@ -330,17 +330,17 @@ namespace ToxicRagers.Carmageddon2.Formats
         }
 
         #region Constructors
-        public Material()
+        public MATMaterial()
             : this("", "", (Settings.Lit | Settings.CorrectPerspective))
         {
         }
 
-        public Material(string Name, string Texture)
+        public MATMaterial(string Name, string Texture)
             : this(Name, Texture, (Settings.Lit | Settings.CorrectPerspective))
         {
         }
 
-        public Material(string Name, string Texture, Settings Flags)
+        public MATMaterial(string Name, string Texture, Settings Flags)
         {
             _name = Name;
             _texture = Texture;
