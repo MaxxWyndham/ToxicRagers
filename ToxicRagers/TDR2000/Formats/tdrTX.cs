@@ -17,6 +17,7 @@ namespace ToxicRagers.TDR2000.Formats
         int height;
 
         public string Name { get { return name; } }
+        public override string FileName { get { return texture; } }
 
         public static TX Load(string path)
         {
@@ -43,7 +44,7 @@ namespace ToxicRagers.TDR2000.Formats
                 br.ReadByte();
                 br.ReadByte();
                 br.ReadByte();
-                tx.normalMap = br.ReadString(br.ReadByte() - 1);
+                int nmlen = br.ReadByte(); if (nmlen > 0) { tx.normalMap = br.ReadString(nmlen - 1); }
                 if (tx.version == 5) { br.ReadBytes(8); }
                 tx.texture = br.ReadString(br.ReadByte() - 1);
                 tx.width = br.ReadInt16();
