@@ -23,6 +23,9 @@ namespace ToxicRagers.TDR2000.Formats
                 {
                     int faces = br.ReadInt16();
                     int mode = br.ReadInt16();
+                    int vertCount;
+
+                    TDRMesh mshMesh = new TDRMesh();
 
                     switch (mode)
                     {
@@ -57,46 +60,43 @@ namespace ToxicRagers.TDR2000.Formats
                             //                    mshObjects.Add(mshMesh)
                             break;
 
-                        case 256:
-                            //                    'PathFollower
-                            //                    Dim iVertCount As Integer = br.ReadInt32()
-                            //                    br.ReadBytes(16) 'The other two meshes have this 16 byte cluster, ignoring it here for consistency
+                        case 256:   // PathFollower
+                            var verts = new List<Vector3>();
 
-                            //                    Dim mshMesh As New tdrMesh(sOutName)
+                            vertCount = br.ReadInt32();
+                            br.ReadBytes(16);
 
-                            //                    For i As Integer = 0 To iVertCount - 1
-                            //                        mshMesh.AddListVertex(br.ReadSingle(), br.ReadSingle(), br.ReadSingle())
-                            //                    Next
+                            for (int i = 0; i < vertCount; i++)
+                            {
+                                verts.Add(new Vector3(br.ReadSingle(), br.ReadSingle(), br.ReadSingle()));
+                            }
 
-                            //                    Dim uvOffset As Integer = 0
+                            for (int i = 0; i < faces; i++)
+                            {
+                                br.ReadBytes(12);  //Vector3 - 3x float - Probably face normal
+                                var vp0 = verts[br.ReadInt32()];
+                                var vp1 = verts[br.ReadInt32()];
+                                var vp2 = verts[br.ReadInt32()];
+                                br.ReadBytes(16); //4x float - Probably V1 colour
+                                br.ReadBytes(16); //4x float - Probably V1 colour
+                                br.ReadBytes(16); //4x float - Probably V1 colour
+                                var vt0 = new Vector2(br.ReadSingle(), br.ReadSingle());
+                                var vt1 = new Vector2(br.ReadSingle(), br.ReadSingle());
+                                var vt2 = new Vector2(br.ReadSingle(), br.ReadSingle());
+                                var vn0 = new Vector3(br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
+                                var vn1 = new Vector3(br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
+                                var vn2 = new Vector3(br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
 
-                            //                    For i As Integer = 0 To iFaceCount - 1
-                            //                        br.ReadBytes(12) 'Vector3 - 3x float - Probably face normal
-                            //                        Dim v1 As Integer = br.ReadInt32()
-                            //                        Dim v2 As Integer = br.ReadInt32()
-                            //                        Dim v3 As Integer = br.ReadInt32()
-                            //                        br.ReadBytes(16) '4x float - Probably V1 colour
-                            //                        br.ReadBytes(16) '4x float - Probably V1 colour
-                            //                        br.ReadBytes(16) '4x float - Probably V1 colour
-                            //                        mshMesh.AddListUV(br.ReadSingle(), br.ReadSingle())
-                            //                        mshMesh.AddListUV(br.ReadSingle(), br.ReadSingle())
-                            //                        mshMesh.AddListUV(br.ReadSingle(), br.ReadSingle())
-                            //                        br.ReadBytes(12) 'Vector3 - 3x float - Probably V1 normal
-                            //                        br.ReadBytes(12) 'Vector3 - 3x float - Probably V2 normal
-                            //                        br.ReadBytes(12) 'Vector3 - 3x float - Probably V3 normal
-
-                            //                        mshMesh.AddFace(v1, v2, v3, uvOffset, uvOffset + 1, uvOffset + 2)
-                            //                        uvOffset += 3
-                            //                    Next
-
-                            //                    mshObjects.Add(mshMesh)
+                                mshMesh.Vertexes.Add(new TDRVertex(vp0.X, vp0.Y, vp0.Z, vn0.X, vn0.Y, vn0.Z, 0, vt0.X, vt0.Y));
+                                mshMesh.Vertexes.Add(new TDRVertex(vp1.X, vp1.Y, vp1.Z, vn1.X, vn1.Y, vn1.Z, 0, vt1.X, vt1.Y));
+                                mshMesh.Vertexes.Add(new TDRVertex(vp2.X, vp2.Y, vp2.Z, vn2.X, vn2.Y, vn2.Z, 0, vt2.X, vt2.Y));
+                                mshMesh.Faces.Add(new TDRFace(mshMesh.Vertexes.Count - 3, mshMesh.Vertexes.Count - 2, mshMesh.Vertexes.Count - 1));
+                            }
                             break;
 
                         case 512:   // Map
                             br.ReadBytes(16);
-                            int vertCount = br.ReadInt32();
-
-                            TDRMesh mshMesh = new TDRMesh();
+                            vertCount = br.ReadInt32();
 
                             for (int i = 0; i < vertCount; i++)
                             {
@@ -126,6 +126,8 @@ namespace ToxicRagers.TDR2000.Formats
                             Logger.LogToFile("Unknown mode: {0}", mode);
                             return null;
                     }
+
+                    mshs.meshes.Add(mshMesh);
                 }
             }
 
@@ -188,6 +190,8 @@ namespace ToxicRagers.TDR2000.Formats
             uv = new Vector2(U, V);
             unknown = Unknown;
         }
+
+        public TDRVertex(Single X, Single Y, Single Z) : this(X, Y, Z, 0, 0, 0, 0, 0, 0) { }
 
         public override string ToString()
         {
