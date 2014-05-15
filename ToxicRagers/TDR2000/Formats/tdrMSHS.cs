@@ -29,16 +29,12 @@ namespace ToxicRagers.TDR2000.Formats
 
                     switch (mode)
                     {
-                        case 0:
-                            //                    'Standard Mesh
-                            //                    Dim iVertCount As Integer = br.ReadInt32()
-                            //                    'Console.WriteLine(br.ReadSingle() & ", " & br.ReadSingle() & ", " & br.ReadSingle() & ", " & br.ReadSingle())
-                            //                    'Console.WriteLine("=========")
-                            //                    br.ReadBytes(16) 'No clue
+                        case 0:   // PathFollower
+                            vertCount = br.ReadInt32();
+                            br.ReadBytes(16);
 
-                            //                    Dim mshMesh As New tdrMesh(sOutName)
-
-                            //                    For i As Integer = 0 To iFaceCount - 1
+                            for (int i = 0; i < faces; i++)
+                            {
                             //                        iVertCount = br.ReadInt32()
 
                             //                        mshMesh.BeginFace(tdrMesh.FaceMode.VertexList)
@@ -55,12 +51,10 @@ namespace ToxicRagers.TDR2000.Formats
                             //                        Next
 
                             //                        mshMesh.EndFace()
-                            //                    Next
-
-                            //                    mshObjects.Add(mshMesh)
+                            }
                             break;
 
-                        case 256:   // PathFollower
+                        case 256:   // Car
                             var verts = new List<Vector3>();
 
                             vertCount = br.ReadInt32();

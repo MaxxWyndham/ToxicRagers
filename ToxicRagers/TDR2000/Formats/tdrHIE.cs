@@ -46,6 +46,11 @@ namespace ToxicRagers.TDR2000.Formats
             FileInfo fi = new FileInfo(path);
             Logger.LogToFile("{0}", path);
             HIE hie = new HIE();
+            H h = new H(); ;
+
+            var f = fi.Directory.GetFiles(Path.GetFileNameWithoutExtension(path) + ".h");
+            if (f.Length == 0) { f = fi.Directory.Parent.GetFiles(Path.GetFileNameWithoutExtension(path) + ".h"); }
+            if (f.Length > 0) { h = H.Load(f[0].FullName); }
 
             string[] lines;
 
@@ -185,7 +190,7 @@ namespace ToxicRagers.TDR2000.Formats
                         if (lines[i + 1].ToLower() == "// type  index  child  sibling") { i++; }
                         for (int j = 0; j < hie.nodeCount; j++)
                         {
-                            hie.nodes.Add(new TDRNode(lines[++i]));
+                            hie.nodes.Add(new TDRNode((h.Definitions.ContainsKey(j) ? h.Definitions[j] : "DEFAULT"), j, lines[++i]));
                         }
                         break;
 
@@ -211,7 +216,7 @@ namespace ToxicRagers.TDR2000.Formats
             //        Dim tID, mID, matFlags As Integer
 
             hie.root = hie.nodes[0];
-            hie.root.Name = hie.matrixes[hie.root.Index].Name;
+            hie.root.Name = (h.Definitions.ContainsKey(0) ? h.Definitions[0] : "DEFAULT");
             hie.root.Transform = hie.matrixes[hie.root.Index].Matrix;
 
             walkHierarchy(hie.root, 1, hie);
@@ -257,16 +262,17 @@ namespace ToxicRagers.TDR2000.Formats
         {
             TDRNode node = hie.nodes[index];
 
+            Console.WriteLine("{0} > {1} : {2}", parent.ID, node.ID, node.Type);
+
             switch (node.Type)
             {
                 case TDRNode.NodeType.Matrix:
-                    node.Name = hie.matrixes[node.Index].Name;
                     node.Transform = hie.matrixes[node.Index].Matrix;
                     break;
             }
 
             node.Parent = parent;
-            parent.Children.Add(node);
+            parent.Children.Insert(0, node);
 
             if (node.Sibling > -1) { walkHierarchy(parent, node.Sibling, hie); }
             if (node.Child > -1) { walkHierarchy(node, node.Child, hie); }
@@ -289,6 +295,7 @@ namespace ToxicRagers.TDR2000.Formats
         }
 
         NodeType type;
+        int id;
         int index;
         int child;
         int sibling;
@@ -300,6 +307,7 @@ namespace ToxicRagers.TDR2000.Formats
         List<TDRNode> children;
 
         public NodeType Type { get { return type; } }
+        public int ID { get { return id; } }
         public TDRNode Parent { get { return parent; } set { parent = value; } }
         public List<TDRNode> Children { get { return children; } }
 
@@ -319,8 +327,11 @@ namespace ToxicRagers.TDR2000.Formats
         public int Child { get { return child; } set { child = value; } }
         public int Sibling { get { return sibling; } set { sibling = value; } }
 
-        public TDRNode(string line)
+        public TDRNode(string name, int i, string line)
         {
+            this.name = name;
+            this.id = i;
+
             children = new List<TDRNode>();
             var parts = line.Split(" ".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
 

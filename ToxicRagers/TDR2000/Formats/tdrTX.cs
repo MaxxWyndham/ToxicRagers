@@ -45,7 +45,7 @@ namespace ToxicRagers.TDR2000.Formats
                 br.ReadByte();
                 br.ReadByte();
                 int nmlen = br.ReadByte(); if (nmlen > 0) { tx.normalMap = br.ReadString(nmlen - 1); }
-                if (tx.version == 5) { br.ReadBytes(8); }
+                if (tx.version >= 5) { br.ReadBytes(8); }
                 tx.texture = br.ReadString(br.ReadByte() - 1);
                 tx.width = br.ReadInt16();
                 tx.height = br.ReadInt16();
