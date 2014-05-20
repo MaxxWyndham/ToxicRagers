@@ -49,11 +49,11 @@ namespace ToxicRagers.Stainless.Formats
         public List<MDLFace> Faces { get { return faces; } set { faces = value; } }
         public List<MDLVertex> Vertices { get { return verts; } set { verts = value; } }
 
-        public static MDL Load(string Path)
+        public static MDL Load(string path)
         {
             // All these (int) casts are messy
-            FileInfo fi = new FileInfo(Path);
-            Logger.LogToFile("{0}", Path);
+            FileInfo fi = new FileInfo(path);
+            Logger.LogToFile("{0}", path);
             MDL mdl = new MDL();
 
             mdl.name = fi.Name.Replace(fi.Extension, "");
@@ -63,7 +63,7 @@ namespace ToxicRagers.Stainless.Formats
                 if (br.ReadByte() != 69 ||
                     br.ReadByte() != 35)
                 {
-                    Logger.LogToFile("{0} isn't a valid MDL file", Path);
+                    Logger.LogToFile("{0} isn't a valid MDL file", path);
                     return null;
                 }
 
