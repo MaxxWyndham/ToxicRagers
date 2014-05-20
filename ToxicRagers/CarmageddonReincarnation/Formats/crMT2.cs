@@ -26,6 +26,15 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                 }
                 else
                 {
+                    if (XML.Descendants("BasedOffOf").Where(e => e.Attribute("Name").Value == "car_shader_no_normals_base").Any())
+                    {
+                        file = from el in XML.Descendants("Texture")
+                               where (string)el.Attribute("Alias") == "Decals"
+                               select el.Attribute("FileName").Value;
+
+                        return file.First();
+                    }
+
                     if (XML.Descendants("DoubleSided").Where(e => e.Attribute("Value").Value == "TRUE").Any())
                     {
                         file = from el in XML.Descendants("Texture")
