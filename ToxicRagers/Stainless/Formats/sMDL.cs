@@ -345,6 +345,8 @@ namespace ToxicRagers.Stainless.Formats
 
             using (BinaryWriter bw = new BinaryWriter(new FileStream(Path, FileMode.Create)))
             {
+                var saveData = this.generateConsolidata();
+
                 bw.Write(new byte[] { 69, 35, 2, 6 });
 
                 bw.Write(new byte[] { 0, 0, 0, 0 });    // No idea
@@ -352,7 +354,7 @@ namespace ToxicRagers.Stainless.Formats
                 bw.Write(new byte[] { 0, 0, 0, 0 });    // No idea
 
                 bw.Write(this.faces.Count);
-                bw.Write(this.verts.Count);
+                bw.Write(saveData.Count);
 
                 bw.Write(0);    // Back filled post save
 
@@ -453,25 +455,23 @@ namespace ToxicRagers.Stainless.Formats
 
                 bw.Write(0);
 
-                //var saveData = this.generateConsolidata();
-
-                //for (int i = 0; i < saveData.Count; i++)
-                //{
-                //    var v = saveData.ElementAt(i);
-
-                //    bw.Write(v.Key.X);
-                //    bw.Write(v.Key.Y);
-                //    bw.Write(v.Key.Z);
-                //    bw.Write(v.Value.Count);
-                //}
-
-                for (int i = 0; i < this.verts.Count; i++)
+                for (int i = 0; i < saveData.Count; i++)
                 {
-                    bw.Write(this.verts[i].Position.X);
-                    bw.Write(this.verts[i].Position.Y);
-                    bw.Write(this.verts[i].Position.Z);
-                    bw.Write(1);
+                    var v = saveData.ElementAt(i);
+
+                    bw.Write(v.Key.X);
+                    bw.Write(v.Key.Y);
+                    bw.Write(v.Key.Z);
+                    bw.Write(v.Value.Count);
                 }
+
+                //for (int i = 0; i < this.verts.Count; i++)
+                //{
+                //    bw.Write(this.verts[i].Position.X);
+                //    bw.Write(this.verts[i].Position.Y);
+                //    bw.Write(this.verts[i].Position.Z);
+                //    bw.Write(1);
+                //}
 
                 for (int i = 0; i < this.faces.Count; i++)
                 {
