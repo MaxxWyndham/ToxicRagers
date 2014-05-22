@@ -262,7 +262,7 @@ namespace ToxicRagers.TDR2000.Formats
         {
             TDRNode node = hie.nodes[index];
 
-            Console.WriteLine("{0} > {1} : {2}", parent.ID, node.ID, node.Type);
+            //Console.WriteLine("{0} > {1} : {2}", parent.ID, node.ID, node.Type);
 
             switch (node.Type)
             {
@@ -272,10 +272,10 @@ namespace ToxicRagers.TDR2000.Formats
             }
 
             node.Parent = parent;
-            parent.Children.Insert(0, node);
+            parent.Children.Add(node);
 
-            if (node.Sibling > -1) { walkHierarchy(parent, node.Sibling, hie); }
             if (node.Child > -1) { walkHierarchy(node, node.Child, hie); }
+            if (node.Sibling > -1) { walkHierarchy(parent, node.Sibling, hie); }
         }
     }
 

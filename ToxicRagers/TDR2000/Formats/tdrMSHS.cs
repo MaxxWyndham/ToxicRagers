@@ -112,8 +112,6 @@ namespace ToxicRagers.TDR2000.Formats
                                     )
                                 );
                             }
-
-                            mshs.meshes.Add(mshMesh);
                             break;
 
                         default:
