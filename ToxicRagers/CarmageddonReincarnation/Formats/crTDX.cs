@@ -114,6 +114,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
             Bitmap b = new Bitmap(mip.Width, mip.Height, PixelFormat.Format32bppArgb);
             Squish.SquishFlags flags = 0;
+            bool bNotCompressed = false;
 
             switch (this.Format)
             {
@@ -125,26 +126,48 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                     flags = SquishFlags.kDxt5;
                     break;
 
+                case D3DFormat.A8R8G8B8:
+                    bNotCompressed = true;
+                    break;
+
                 default:
                     throw new NotImplementedException(string.Format("Can't decompress: {0}", this.Format));
             }
 
-            byte[] dest = new byte[mip.Width * mip.Height * 4];
-            byte[] data = mip.Data;
-
-            Squish.Squish.DecompressImage(dest, mip.Width, mip.Height, ref data, flags);
-
             int x = 0;
             int y = 0;
 
-            for (int i = 0; i < dest.Length; i += 4)
+            if (bNotCompressed)
             {
-                b.SetPixel(x, y, Color.FromArgb((bSuppressAlpha ? 255 : dest[i + 3]), dest[i + 0], dest[i + 1], dest[i + 2]));
-
-                if (++x == mip.Width)
+                for (int i = 0; i < mip.Data.Length; i += 4)
                 {
-                    x = 0;
-                    y++;
+                    b.SetPixel(x, y, Color.FromArgb((bSuppressAlpha ? 255 : mip.Data[i + 3]), mip.Data[i + 0], mip.Data[i + 1], mip.Data[i + 2]));
+
+                    if (++x == mip.Width)
+                    {
+                        x = 0;
+                        y++;
+                    }
+                }
+            }
+            else
+            {
+                byte[] dest = new byte[mip.Width * mip.Height * 4];    
+                byte[] data = mip.Data;
+
+                Squish.Squish.DecompressImage(dest, mip.Width, mip.Height, ref data, flags);
+
+
+
+                for (int i = 0; i < dest.Length; i += 4)
+                {
+                    b.SetPixel(x, y, Color.FromArgb((bSuppressAlpha ? 255 : dest[i + 3]), dest[i + 0], dest[i + 1], dest[i + 2]));
+
+                    if (++x == mip.Width)
+                    {
+                        x = 0;
+                        y++;
+                    }
                 }
             }
 
