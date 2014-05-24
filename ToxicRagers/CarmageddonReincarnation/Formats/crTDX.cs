@@ -137,39 +137,34 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             int x = 0;
             int y = 0;
 
+            byte[] dest = new byte[mip.Width * mip.Height * 4];
+            byte[] data = mip.Data;
+
             if (bNotCompressed)
             {
-                for (int i = 0; i < mip.Data.Length; i += 4)
+                for (uint i = 0; i < data.Length - 4; i += 4)
                 {
-                    b.SetPixel(x, y, Color.FromArgb((bSuppressAlpha ? 255 : mip.Data[i + 3]), mip.Data[i + 0], mip.Data[i + 1], mip.Data[i + 2]));
-
-                    if (++x == mip.Width)
-                    {
-                        x = 0;
-                        y++;
-                    }
+                    dest[i + 0] = data[i + 2];
+                    dest[i + 1] = data[i + 1];
+                    dest[i + 2] = data[i + 0];
+                    dest[i + 3] = data[i + 3];
                 }
             }
             else
             {
-                byte[] dest = new byte[mip.Width * mip.Height * 4];    
-                byte[] data = mip.Data;
-
                 Squish.Squish.DecompressImage(dest, mip.Width, mip.Height, ref data, flags);
 
-
-
-                for (int i = 0; i < dest.Length; i += 4)
+                for (uint i = 0; i < dest.Length - 4; i += 4)
                 {
-                    b.SetPixel(x, y, Color.FromArgb((bSuppressAlpha ? 255 : dest[i + 3]), dest[i + 0], dest[i + 1], dest[i + 2]));
-
-                    if (++x == mip.Width)
-                    {
-                        x = 0;
-                        y++;
-                    }
+                    byte r = dest[i + 0];
+                    dest[i + 0] = dest[i + 2];
+                    dest[i + 2] = r;
                 }
             }
+
+            var bmpdata = b.LockBits(new Rectangle(0, 0, mip.Width, mip.Height), ImageLockMode.ReadWrite, (bSuppressAlpha ? PixelFormat.Format32bppRgb : b.PixelFormat));
+            System.Runtime.InteropServices.Marshal.Copy(dest, 0, bmpdata.Scan0, dest.Length);
+            b.UnlockBits(bmpdata);
 
             return b;
         }
