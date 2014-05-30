@@ -46,6 +46,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BurnoutParadise\Formats\bpBundle.cs" />
     <Compile Include="Carmageddon2\Formats\c2Act.cs" />
     <Compile Include="Carmageddon2\Formats\c2Dat.cs" />
     <Compile Include="Carmageddon2\Formats\c2MapTXT.cs" />
