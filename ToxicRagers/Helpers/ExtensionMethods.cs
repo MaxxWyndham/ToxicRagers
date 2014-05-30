@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace ToxicRagers.Helpers
 {
@@ -8,7 +9,19 @@ namespace ToxicRagers.Helpers
     {
         public static string ReadString(this BinaryReader br, int length)
         {
-            return new string(br.ReadChars(length));
+            var c = br.ReadChars(length);
+            int l = length;
+
+            for (int i = 0; i < length; i++)
+            {
+                if (c[i] == 0)
+                {
+                    l = i;
+                    break;
+                }
+            }
+
+            return new string(c, 0, l);
         }
 
         public static void WriteString(this BinaryWriter bw, string s)

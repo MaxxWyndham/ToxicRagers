@@ -69,6 +69,7 @@
     <Compile Include="CarmageddonReincarnation\Formats\crMT2.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\crTDX.cs" />
     <Compile Include="Core\Formats\cFBX.cs" />
+    <Compile Include="Core\Formats\cOBJ.cs" />
     <Compile Include="Helpers\Generics\Material.cs" />
     <Compile Include="Carmageddon\Formats\c1CarTXT.cs" />
     <Compile Include="Carmageddon\Helpers\c1Car.cs" />
@@ -89,6 +90,7 @@
     <Compile Include="Helpers\Vector2.cs" />
     <Compile Include="Helpers\Vector3.cs" />
     <Compile Include="Helpers\Vector4.cs" />
+    <Compile Include="Helpers\LSZZDecompress.cs" />
     <Compile Include="Novadrome\Formats\nXT2.cs" />
     <Compile Include="Stainless\Formats\sCNT.cs" />
     <Compile Include="Stainless\Formats\sMDL.cs" />
@@ -100,6 +102,7 @@
     <Compile Include="TDR2000\Formats\tdrPAK.cs" />
     <Compile Include="TDR2000\Formats\tdrTX.cs" />
     <Compile Include="TDR2000\OldCodeImport.cs" />
+    <Compile Include="ToxicRagers.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\LibSquishNet\LibSquishNet\LibSquishNet.csproj">
