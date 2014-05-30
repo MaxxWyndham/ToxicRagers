@@ -70,6 +70,7 @@
     <Compile Include="CarmageddonReincarnation\Formats\crTDX.cs" />
     <Compile Include="Core\Formats\cFBX.cs" />
     <Compile Include="Core\Formats\cOBJ.cs" />
+    <Compile Include="DoubleStealSecondClash\Formats\dsscPk.cs" />
     <Compile Include="Helpers\Generics\Material.cs" />
     <Compile Include="Carmageddon\Formats\c1CarTXT.cs" />
     <Compile Include="Carmageddon\Helpers\c1Car.cs" />
