@@ -69,9 +69,11 @@
     <Compile Include="CarmageddonReincarnation\Formats\crLIGHT.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\crMT2.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\crTDX.cs" />
+    <Compile Include="Core\Formats\cDDS.cs" />
     <Compile Include="Core\Formats\cFBX.cs" />
     <Compile Include="Core\Formats\cOBJ.cs" />
     <Compile Include="DoubleStealSecondClash\Formats\dsscPk.cs" />
+    <Compile Include="DoubleStealSecondClash\Formats\dsscXPR.cs" />
     <Compile Include="Helpers\Generics\Material.cs" />
     <Compile Include="Carmageddon\Formats\c1CarTXT.cs" />
     <Compile Include="Carmageddon\Helpers\c1Car.cs" />
