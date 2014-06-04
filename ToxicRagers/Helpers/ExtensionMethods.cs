@@ -109,5 +109,21 @@ namespace ToxicRagers.Helpers
             for (int i = 0; i < count; i++) { hex.AppendFormat("0x{0:x2}{1}", ba[i], (i + 1 < count ? ", " : "")); }
             return hex.ToString();
         }
+
+        public static string ToFormattedString(this int[] ia)
+        {
+            int count = ia.Length;
+            StringBuilder hex = new StringBuilder();
+            for (int i = 0; i < count; i++) { hex.AppendFormat("{0}{1}", ia[i], (i + 1 < count ? "," : "")); }
+            return hex.ToString();
+        }
+
+        public static string ToFormattedString(this double[] da)
+        {
+            int count = da.Length;
+            StringBuilder hex = new StringBuilder();
+            for (int i = 0; i < count; i++) { hex.AppendFormat("{0}{1}", da[i], (i + 1 < count ? "," : "")); }
+            return hex.ToString();
+        }
     }
 }

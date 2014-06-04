@@ -10,6 +10,7 @@ namespace ToxicRagers.Core.Formats
     public class FBX
     {
         public static int BLOCK_SENTINEL_LENGTH = 13;
+        private static bool bDebug = false;
 
         int version;
         List<FBXElem> elements = new List<FBXElem>();
@@ -46,11 +47,14 @@ namespace ToxicRagers.Core.Formats
                 }
             }
 
-            //int depth = 0;
-            //foreach (var elem in fbx.elements)
-            //{
-            //    debug(elem, ref depth);
-            //}
+            if (bDebug)
+            {
+                int depth = 0;
+                foreach (var elem in fbx.elements)
+                {
+                    debug(elem, ref depth);
+                }
+            }
 
             return fbx;
         }
@@ -69,11 +73,19 @@ namespace ToxicRagers.Core.Formats
                 switch (prop.Type)
                 {
                     case 82:
-                        Console.WriteLine("{0}\"{1}\"", padding, ((byte[])prop.Value).ToFormattedString());
+                        Console.WriteLine("{0}*{1} {2}", padding, ((byte[])prop.Value).Length, ((byte[])prop.Value).ToFormattedString());
                         break;
 
                     case 83:
                         Console.WriteLine("{0}\"{1}\"", padding, prop.Value);
+                        break;
+
+                    case 100:
+                        Console.WriteLine("{0}*{1} {2}", padding, ((double[])prop.Value).Length, ((double[])prop.Value).ToFormattedString());
+                        break;
+
+                    case 105:
+                        Console.WriteLine("{0}*{1} {2}", padding, ((int[])prop.Value).Length, ((int[])prop.Value).ToFormattedString());
                         break;
 
                     default:
@@ -404,6 +416,9 @@ namespace ToxicRagers.Core.Formats
             {
                 switch (propertyType)
                 {
+                    case 67:  // Bool
+                        return 1;
+
                     case 68:  // Double
                         return 8;
 
@@ -419,8 +434,14 @@ namespace ToxicRagers.Core.Formats
                     case 83: // String
                         return 4 + ((string)propertyValue).Length;
 
+                    case 100: // Double array
+                        return 12 + (((double[])propertyValue).Length * 8);
+
+                    case 105: // int array
+                        return 12 + (((int[])propertyValue).Length * 4);
+
                     default:
-                        throw new NotImplementedException(string.Format("Unable to write property type {0}", propertyType));
+                        throw new NotImplementedException(string.Format("Unable to calculate the size of property type {0}", propertyType));
                 }
             }
         }
@@ -431,6 +452,10 @@ namespace ToxicRagers.Core.Formats
 
             switch (propertyType)
             {
+                case 67:  // Bool
+                    bw.Write((bool)propertyValue);
+                    break;
+
                 case 68:  // Double
                     bw.Write((double)propertyValue);
                     break;
@@ -453,6 +478,22 @@ namespace ToxicRagers.Core.Formats
                     var s = (string)propertyValue;
                     bw.Write(s.Length);
                     bw.WritePropertyString(s);
+                    break;
+
+                case 100: // Double array
+                    var d = (double[])propertyValue;
+                    bw.Write(d.Length);
+                    bw.Write(0);
+                    bw.Write(this.Size - 12);
+                    for (int j = 0; j < d.Length; j++) { bw.Write(d[j]); }
+                    break;
+
+                case 105: // int array
+                    var i = (int[])propertyValue;
+                    bw.Write(i.Length);
+                    bw.Write(0);
+                    bw.Write(this.Size - 12);
+                    for (int j = 0; j < i.Length; j++) { bw.Write(i[j]); }
                     break;
 
                 default:
