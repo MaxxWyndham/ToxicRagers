@@ -338,12 +338,12 @@ namespace ToxicRagers.Stainless.Formats
             return meshes[index];
         }
 
-        public void Save(string Path)
+        public void Save(string path)
         {
             int nameLength, padding;
             this.CalculateExtents();
 
-            using (BinaryWriter bw = new BinaryWriter(new FileStream(Path, FileMode.Create)))
+            using (BinaryWriter bw = new BinaryWriter(new FileStream(path, FileMode.Create)))
             {
                 var saveData = this.generateConsolidata();
 
@@ -532,7 +532,7 @@ namespace ToxicRagers.Stainless.Formats
                 //}
             }
 
-            using (BinaryWriter bw = new BinaryWriter(new FileStream(Path, FileMode.Open)))
+            using (BinaryWriter bw = new BinaryWriter(new FileStream(path, FileMode.Open)))
             {
                 bw.Seek(24, SeekOrigin.Begin);
                 bw.Write((int)(bw.BaseStream.Length - 28));
