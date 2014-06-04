@@ -269,7 +269,7 @@ namespace ToxicRagers.Core.Formats
         public void write(BinaryWriter bw, bool isLast)
         {
             bw.Write(endOffset);
-            bw.Write(elemProps.Count);    // sizeof elemProps
+            bw.Write(elemProps.Count);
             bw.Write(propsLength);
 
             bw.Write(id);
@@ -359,8 +359,17 @@ namespace ToxicRagers.Core.Formats
             {
                 switch (propertyType)
                 {
+                    case 68:  // Double
+                        return 8;
+
                     case 73: // 32bit int
                         return 4;
+
+                    case 76: // 64bit int
+                        return 8;
+
+                    case 82: // Byte array
+                        return 4 + ((byte[])propertyValue).Length;
 
                     case 83: // String
                         return 4 + ((string)propertyValue).Length;
@@ -377,8 +386,22 @@ namespace ToxicRagers.Core.Formats
 
             switch (propertyType)
             {
+                case 68:  // Double
+                    bw.Write((double)propertyValue);
+                    break;
+
                 case 73: // 32bit int
                     bw.Write((int)propertyValue);
+                    break;
+
+                case 76: // 64bit int
+                    bw.Write((Int64)propertyValue);
+                    break;
+
+                case 82: // Byte array
+                    var b = (byte[])propertyValue;
+                    bw.Write(b.Length);
+                    bw.Write(b);
                     break;
 
                 case 83: // String
