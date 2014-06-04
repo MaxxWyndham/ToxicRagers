@@ -46,7 +46,52 @@ namespace ToxicRagers.Core.Formats
                 }
             }
 
+            //int depth = 0;
+            //foreach (var elem in fbx.elements)
+            //{
+            //    debug(elem, ref depth);
+            //}
+
             return fbx;
+        }
+
+        private static void debug(FBXElem elem, ref int depth)
+        {
+            Console.WriteLine("{0}{1}", new string('\t', depth), elem.ID);
+
+            depth++;
+            string padding = new string('\t', depth);
+
+            foreach (var prop in elem.Properties)
+            {
+                Console.WriteLine("{0}{1}", padding, prop.Type);
+
+                switch (prop.Type)
+                {
+                    case 82:
+                        Console.WriteLine("{0}\"{1}\"", padding, ((byte[])prop.Value).ToFormattedString());
+                        break;
+
+                    case 83:
+                        Console.WriteLine("{0}\"{1}\"", padding, prop.Value);
+                        break;
+
+                    default:
+                        Console.WriteLine("{0}{1}", padding, prop.Value);
+                        break;
+                }
+            }
+
+            if (elem.Properties.Count > 0) { Console.WriteLine(); }
+
+            foreach (var child in elem.Children)
+            {
+                debug(child, ref depth);
+            }
+
+            if (elem.Children.Count > 0) { Console.WriteLine(); }
+
+            depth--;
         }
 
         private static FBXElem read_elem(BinaryReader br)
@@ -108,7 +153,7 @@ namespace ToxicRagers.Core.Formats
                     break;
 
                 case 76: // 64bit int
-                    property.Value = (int)br.ReadUInt64();
+                    property.Value = (long)br.ReadUInt64();
                     break;
 
                 case 82: // Byte array
@@ -395,7 +440,7 @@ namespace ToxicRagers.Core.Formats
                     break;
 
                 case 76: // 64bit int
-                    bw.Write((Int64)propertyValue);
+                    bw.Write((long)propertyValue);
                     break;
 
                 case 82: // Byte array

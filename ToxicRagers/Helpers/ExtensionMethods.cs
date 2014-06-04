@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 
 namespace ToxicRagers.Helpers
 {
@@ -99,6 +100,14 @@ namespace ToxicRagers.Helpers
             }
 
             return originalString;
+        }
+
+        public static string ToFormattedString(this byte[] ba)
+        {
+            int count = ba.Length;
+            StringBuilder hex = new StringBuilder(ba.Length * 2);
+            for (int i = 0; i < count; i++) { hex.AppendFormat("0x{0:x2}{1}", ba[i], (i + 1 < count ? ", " : "")); }
+            return hex.ToString();
         }
     }
 }
