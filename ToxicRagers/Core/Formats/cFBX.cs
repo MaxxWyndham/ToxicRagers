@@ -2,18 +2,24 @@
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
+using System.Runtime.InteropServices;
 using ToxicRagers.Helpers;
 
 namespace ToxicRagers.Core.Formats
 {
     public class FBX
     {
-        const int BLOCK_SENTINEL_LENGTH = 13;
+        public static int BLOCK_SENTINEL_LENGTH = 13;
 
         int version;
         List<FBXElem> elements = new List<FBXElem>();
 
-        public int Version { get { return version; } }
+        public int Version
+        {
+            get { return version; }
+            set { version = value; }
+        }
+
         public List<FBXElem> Elements { get { return elements; } }
 
         public static FBX Load(string path)
@@ -26,7 +32,7 @@ namespace ToxicRagers.Core.Formats
             {
                 if (br.ReadString(20) != "Kaydara FBX Binary  " || br.ReadByte() != 0 || br.ReadByte() != 26 || br.ReadByte() != 0) 
                 {
-                    Console.WriteLine("Invalid Binary FBX detected, error!");
+                    Logger.LogToFile("Invalid Binary FBX detected, error!");
                     return null;
                 }
 
@@ -110,7 +116,7 @@ namespace ToxicRagers.Core.Formats
                     break;
 
                 case 83: // String
-                    property.Value = br.ReadString((int)br.ReadUInt32());
+                    property.Value = br.ReadPropertyString((int)br.ReadUInt32());
                     break;
 
                 case 100: // Double array
@@ -179,11 +185,66 @@ namespace ToxicRagers.Core.Formats
 
             return property;
         }
+
+        protected int calc_offsets_children_root(int offset, bool isLast)
+        {
+            if (this.elements.Count > 0)
+            {
+                for (int i = 0; i < this.elements.Count; i++)
+                {
+                    offset = this.elements[i].calc_offsets(offset, (i + 1 == this.elements.Count));
+                }
+
+                offset += BLOCK_SENTINEL_LENGTH;
+            }
+
+            return offset;
+        }
+
+        protected void write_children_root(BinaryWriter bw, bool isLast)
+        {
+            if (this.elements.Count > 0)
+            {
+                for (int i = 0; i < this.elements.Count; i++)
+                {
+                    this.elements[i].write(bw, (i + 1 == this.elements.Count));
+                }
+
+                bw.Write(new byte[BLOCK_SENTINEL_LENGTH]);
+            }
+        }
+
+        public void Save(string path)
+        {
+            using (BinaryWriter bw = new BinaryWriter(new FileStream(path, FileMode.Create)))
+            {
+                bw.WriteString("Kaydara FBX Binary");
+                bw.Write(new byte[] { 0x20, 0x20, 0x0, 0x1A, 0x0 });
+                bw.Write(this.version);
+
+                this.calc_offsets_children_root((int)bw.BaseStream.Position, false);
+                this.write_children_root(bw, false);
+
+                bw.Write(new byte[] { 0xfa, 0xbc, 0xab, 0x09, 0xd0, 0xc8, 0xd4, 0x66, 0xb1, 0x76, 0xfb, 0x83, 0x1c, 0xf7, 0x26, 0x7e });
+                bw.Write(new byte[4]);
+
+                int ofs = (int)bw.BaseStream.Position;
+                int pad = ((ofs + 15) & ~15) - ofs;
+                if (pad == 0) { pad = 16; }
+                bw.Write(new byte[pad]);
+
+                bw.Write(this.version);
+                bw.Write(new byte[120]);
+                bw.Write(new byte[] { 0xf8, 0x5a, 0x8c, 0x6a, 0xde, 0xf5, 0xd9, 0x7e, 0xec, 0xe9, 0x0c, 0xe3, 0x75, 0x8f, 0x29, 0x0b });
+            }
+        }
     }
 
     public class FBXElem
     {
         string id;
+        int endOffset = -1;
+        int propsLength = -1;
         List<FBXProperty> elemProps = new List<FBXProperty>();
         List<FBXElem> elemSubtree = new List<FBXElem>();
 
@@ -204,6 +265,75 @@ namespace ToxicRagers.Core.Formats
             get { return elemSubtree; }
             set { elemSubtree = value; }
         }
+
+        public void write(BinaryWriter bw, bool isLast)
+        {
+            bw.Write(endOffset);
+            bw.Write(elemProps.Count);    // sizeof elemProps
+            bw.Write(propsLength);
+
+            bw.Write(id);
+
+            for (int i = 0; i < elemProps.Count; i++) { elemProps[i].Write(bw); }
+
+            write_children(bw, isLast);
+
+            if (bw.BaseStream.Position != endOffset) { throw new DataMisalignedException(); }
+        }
+
+        protected void write_children(BinaryWriter bw, bool isLast)
+        {
+            if (this.elemSubtree.Count > 0)
+            {
+                for (int i = 0; i < this.elemSubtree.Count; i++)
+                {
+                    this.elemSubtree[i].write(bw, (i + 1 == this.elemSubtree.Count));
+                }
+
+                bw.Write(new byte[FBX.BLOCK_SENTINEL_LENGTH]);
+            }
+            else if (this.elemProps.Count == 0 && !isLast)
+            {
+                bw.Write(new byte[FBX.BLOCK_SENTINEL_LENGTH]);
+            }
+        }
+
+        public int calc_offsets(int offset, bool isLast)
+        {
+            offset += 12;
+            offset += 1 + id.Length;
+
+            propsLength = 0;
+            for (int i = 0; i < elemProps.Count; i++)
+            {
+                propsLength += 1 + elemProps[i].Size;
+            }
+            offset += propsLength;
+
+            offset = calc_offsets_children(offset, isLast);
+
+            endOffset = offset;
+            return offset;
+        }
+
+        protected int calc_offsets_children(int offset, bool isLast)
+        {
+            if (this.elemSubtree.Count > 0)
+            {
+                for (int i = 0; i < this.elemSubtree.Count; i++)
+                {
+                    offset = this.elemSubtree[i].calc_offsets(offset, (i + 1 == this.elemSubtree.Count));
+                }
+
+                offset += FBX.BLOCK_SENTINEL_LENGTH;
+            }
+            else if (this.elemProps.Count == 0 && !isLast)
+            {
+                offset += FBX.BLOCK_SENTINEL_LENGTH;
+            }
+
+            return offset;
+        }
     }
 
     public class FBXProperty
@@ -221,6 +351,45 @@ namespace ToxicRagers.Core.Formats
         {
             get { return propertyValue; }
             set { propertyValue = value; }
+        }
+
+        public int Size
+        {
+            get
+            {
+                switch (propertyType)
+                {
+                    case 73: // 32bit int
+                        return 4;
+
+                    case 83: // String
+                        return 4 + ((string)propertyValue).Length;
+
+                    default:
+                        throw new NotImplementedException(string.Format("Unable to write property type {0}", propertyType));
+                }
+            }
+        }
+
+        public void Write(BinaryWriter bw)
+        {
+            bw.Write(propertyType);
+
+            switch (propertyType)
+            {
+                case 73: // 32bit int
+                    bw.Write((int)propertyValue);
+                    break;
+
+                case 83: // String
+                    var s = (string)propertyValue;
+                    bw.Write(s.Length);
+                    bw.WritePropertyString(s);
+                    break;
+
+                default:
+                    throw new NotImplementedException(string.Format("Unable to write property type {0}", propertyType));
+            }
         }
     }
 }

@@ -7,6 +7,43 @@ namespace ToxicRagers.Helpers
 {
     public static class ExtensionMethods
     {
+        // Rather specific versions of Read and WriteString here.  Possibly move inside cFBX.cs
+        public static string ReadPropertyString(this BinaryReader br, int length)
+        {
+            var c = br.ReadChars(length);
+            int l = length;
+
+            for (int i = 0; i < length - 1; i++)
+            {
+                if (c[i+0] == 0 && c[i+1] == 1)
+                {
+                    c[i + 0] = ':';
+                    c[i + 1] = ':';
+                    break;
+                }
+            }
+
+            return new string(c, 0, l);
+        }
+
+        public static void WritePropertyString(this BinaryWriter bw, string s)
+        {
+            var c = s.ToCharArray();
+            int length = c.Length;
+
+            for (int i = 0; i < length - 1; i++)
+            {
+                if (c[i + 0] == ':' && c[i + 1] == ':')
+                {
+                    c[i + 0] = (char)0;
+                    c[i + 1] = (char)1;
+                    break;
+                }
+            }
+
+            bw.Write(c);
+        }
+
         public static string ReadString(this BinaryReader br, int length)
         {
             var c = br.ReadChars(length);
