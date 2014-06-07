@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using ToxicRagers.Core.Formats;
 using ToxicRagers.Helpers;
 using Squish;
 
@@ -134,9 +135,6 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                     throw new NotImplementedException(string.Format("Can't decompress: {0}", this.Format));
             }
 
-            int x = 0;
-            int y = 0;
-
             byte[] dest = new byte[mip.Width * mip.Height * 4];
             byte[] data = mip.Data;
 
@@ -169,9 +167,9 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             return b;
         }
 
-        public void Save(string Path)
+        public void Save(string path)
         {
-            using (BinaryWriter bw = new BinaryWriter(new FileStream(Path, FileMode.Create)))
+            using (BinaryWriter bw = new BinaryWriter(new FileStream(path, FileMode.Create)))
             {
                 bw.Write(new byte[] { 0, 2 });
 
@@ -183,6 +181,16 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
                 for (int i = 0; i < this.MipMaps.Count; i++) { bw.Write(this.MipMaps[i].Data); }
             }
+        }
+
+        public void SaveAsDDS(string path)
+        {
+            DDS dds = new DDS();
+            dds.Width = this.MipMaps[0].Width;
+            dds.Height = this.MipMaps[0].Height;
+            dds.Format = this.Format;
+            dds.Data = this.MipMaps[0].Data;
+            dds.Save(path);
         }
     }
 }
