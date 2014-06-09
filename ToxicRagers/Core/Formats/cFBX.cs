@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
-using System.Runtime.InteropServices;
 using ToxicRagers.Helpers;
 
 namespace ToxicRagers.Core.Formats
@@ -61,47 +60,47 @@ namespace ToxicRagers.Core.Formats
 
         private static void debug(FBXElem elem, ref int depth)
         {
-            Console.WriteLine("{0}{1}", new string('\t', depth), elem.ID);
+            Logger.LogToFile("{0}{1}", new string('\t', depth), elem.ID);
 
             depth++;
             string padding = new string('\t', depth);
 
             foreach (var prop in elem.Properties)
             {
-                Console.WriteLine("{0}{1}", padding, prop.Type);
+                Logger.LogToFile("{0}{1}", padding, prop.Type);
 
                 switch (prop.Type)
                 {
                     case 82:
-                        Console.WriteLine("{0}*{1} {2}", padding, ((byte[])prop.Value).Length, ((byte[])prop.Value).ToFormattedString());
+                        Logger.LogToFile("{0}*{1} {2}", padding, ((byte[])prop.Value).Length, ((byte[])prop.Value).ToFormattedString());
                         break;
 
                     case 83:
-                        Console.WriteLine("{0}\"{1}\"", padding, prop.Value);
+                        Logger.LogToFile("{0}\"{1}\"", padding, prop.Value);
                         break;
 
                     case 100:
-                        Console.WriteLine("{0}*{1} {2}", padding, ((double[])prop.Value).Length, ((double[])prop.Value).ToFormattedString());
+                        Logger.LogToFile("{0}*{1} {2}", padding, ((double[])prop.Value).Length, ((double[])prop.Value).ToFormattedString());
                         break;
 
                     case 105:
-                        Console.WriteLine("{0}*{1} {2}", padding, ((int[])prop.Value).Length, ((int[])prop.Value).ToFormattedString());
+                        Logger.LogToFile("{0}*{1} {2}", padding, ((int[])prop.Value).Length, ((int[])prop.Value).ToFormattedString());
                         break;
 
                     default:
-                        Console.WriteLine("{0}{1}", padding, prop.Value);
+                        Logger.LogToFile("{0}{1}", padding, prop.Value);
                         break;
                 }
             }
 
-            if (elem.Properties.Count > 0) { Console.WriteLine(); }
+            if (elem.Properties.Count > 0) { Logger.LogToFile(""); }
 
             foreach (var child in elem.Children)
             {
                 debug(child, ref depth);
             }
 
-            if (elem.Children.Count > 0) { Console.WriteLine(); }
+            if (elem.Children.Count > 0) { Logger.LogToFile(""); }
 
             depth--;
         }
@@ -398,6 +397,9 @@ namespace ToxicRagers.Core.Formats
         byte propertyType;
         object propertyValue;
 
+        bool compressed;
+        byte[] rawData;
+
         public byte Type
         {
             get { return propertyType; }
@@ -408,6 +410,12 @@ namespace ToxicRagers.Core.Formats
         {
             get { return propertyValue; }
             set { propertyValue = value; }
+        }
+
+        public bool Compressed
+        {
+            get { return compressed; }
+            set { compressed = value; }
         }
 
         public int Size
@@ -432,13 +440,28 @@ namespace ToxicRagers.Core.Formats
                         return 4 + ((byte[])propertyValue).Length;
 
                     case 83: // String
+                        if (propertyValue == null) { propertyValue = ""; }
                         return 4 + ((string)propertyValue).Length;
 
                     case 100: // Double array
-                        return 12 + (((double[])propertyValue).Length * 8);
+                        if (rawData == null)
+                        {
+                            rawData = new byte[((double[])propertyValue).Length * sizeof(double)];
+                            Buffer.BlockCopy((double[])propertyValue, 0, rawData, 0, rawData.Length);
+                            if (compressed) { rawData = Compress(rawData); }
+                        }
+
+                        return 12 + rawData.Length;
 
                     case 105: // int array
-                        return 12 + (((int[])propertyValue).Length * 4);
+                        if (rawData == null)
+                        {
+                            rawData = new byte[((int[])propertyValue).Length * sizeof(int)];
+                            Buffer.BlockCopy((int[])propertyValue, 0, rawData, 0, rawData.Length);
+                            if (compressed) { rawData = Compress(rawData); }
+                        }
+
+                        return 12 + rawData.Length;
 
                     default:
                         throw new NotImplementedException(string.Format("Unable to calculate the size of property type {0}", propertyType));
@@ -483,22 +506,71 @@ namespace ToxicRagers.Core.Formats
                 case 100: // Double array
                     var d = (double[])propertyValue;
                     bw.Write(d.Length);
-                    bw.Write(0);
-                    bw.Write(this.Size - 12);
-                    for (int j = 0; j < d.Length; j++) { bw.Write(d[j]); }
+                    bw.Write((compressed ? 1 : 0));
+                    bw.Write(rawData.Length);
+                    bw.Write(rawData);
                     break;
 
                 case 105: // int array
                     var i = (int[])propertyValue;
                     bw.Write(i.Length);
-                    bw.Write(0);
-                    bw.Write(this.Size - 12);
-                    for (int j = 0; j < i.Length; j++) { bw.Write(i[j]); }
+                    bw.Write((compressed ? 1 : 0));
+                    bw.Write(rawData.Length);
+                    bw.Write(rawData);
                     break;
 
                 default:
                     throw new NotImplementedException(string.Format("Unable to write property type {0}", propertyType));
             }
+        }
+
+        private static byte[] Compress(byte[] input)
+        {
+            using (var compressStream = new MemoryStream())
+            using (var compressor = new DeflateStream(compressStream, CompressionMode.Compress))
+            {
+                compressor.Write(input, 0, input.Length);
+                compressor.Flush();
+                compressor.Close();
+
+                var data = compressStream.ToArray();
+                byte[] compressed = new byte[2 + data.Length + 4];
+                compressed[0] = 0x58;
+                compressed[1] = 0x85;
+                data.CopyTo(compressed, 2);
+                BitConverter.GetBytes(ReverseBytes(AdlerChecksum.Generate(ref input, 0, input.Length))).CopyTo(compressed, compressed.Length - 4);
+
+                return compressed;
+            }
+        }
+
+        public static UInt32 ReverseBytes(UInt32 value)
+        {
+            return (value & 0x000000FFU) << 24 | (value & 0x0000FF00U) << 8 |
+                   (value & 0x00FF0000U) >> 8 | (value & 0xFF000000U) >> 24;
+        }
+    }
+
+    public class AdlerChecksum
+    {
+        public const uint AdlerStart = 0x0001;
+        public const uint AdlerBase = 0xFFF1;
+
+        public static uint Generate(ref byte[] buffer, int index, int length)
+        {
+            if (buffer == null || length - index <= 0)
+                return 0;
+
+            uint unSum1 = AdlerStart & 0xFFFF;
+            uint unSum2 = (AdlerStart >> 16) & 0xFFFF;
+
+            for (int i = index; i < length; i++)
+            {
+                unSum1 = (unSum1 + buffer[i]) % AdlerBase;
+                unSum2 = (unSum1 + unSum2) % AdlerBase;
+            }
+
+            return (unSum2 << 16) + unSum1;
         }
     }
 }
