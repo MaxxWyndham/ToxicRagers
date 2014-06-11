@@ -93,9 +93,9 @@ namespace ToxicRagers.BurnoutParadise.Formats
         {
             if (!Directory.Exists(destination)) { Directory.CreateDirectory(destination); }
 
-            if (file.HeaderSize > 0)
+            using (var msOutput = new MemoryStream())
             {
-                using (var bw = new BinaryWriter(new FileStream(destination + "\\" + file.Type + "-" + file.Name + ".head", FileMode.Create)))
+                if (file.HeaderSize > 0)
                 {
                     using (var br = new BinaryReader(new FileStream(this.location + this.name + this.extension, FileMode.Open)))
                     {
@@ -106,15 +106,12 @@ namespace ToxicRagers.BurnoutParadise.Formats
                         {
                             var data = new byte[file.HeaderSize];
                             ds.Read(data, 0, file.HeaderSize);
-                            bw.Write(data);
+                            msOutput.Write(data, 0, data.Length);
                         }
                     }
                 }
-            }
 
-            if (file.DataSize > 0)
-            {
-                using (var bw = new BinaryWriter(new FileStream(destination + "\\" + file.Type + "-" + file.Name + ".body", FileMode.Create)))
+                if (file.DataSize > 0)
                 {
                     using (var br = new BinaryReader(new FileStream(this.location + this.name + this.extension, FileMode.Open)))
                     {
@@ -125,10 +122,14 @@ namespace ToxicRagers.BurnoutParadise.Formats
                         {
                             var data = new byte[file.DataSize];
                             ds.Read(data, 0, file.DataSize);
-                            bw.Write(data);
+                            msOutput.Write(data, 0, data.Length);
                         }
                     }
                 }
+
+                Console.WriteLine("{0}\t{1}\t{2}\t{3}", file.Type, file.Name, file.HeaderSize, file.DataSize);
+                msOutput.Flush();
+                msOutput.WriteTo(new FileStream(destination + "\\" + file.Type + "-" + file.Name, FileMode.Create));
             }
         }
     }
