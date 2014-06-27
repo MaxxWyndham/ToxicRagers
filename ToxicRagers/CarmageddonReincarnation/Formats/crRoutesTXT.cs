@@ -141,6 +141,10 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                                         link.Value = doc.ReadNextLine();
                                         break;
 
+                                    case "<ONEWAY>":
+                                        link.OneWay = true;
+                                        break;
+
                                     case "<TYPE>":
                                         for (int i = 0; i < routes.races.Count; i++)
                                         {
@@ -220,11 +224,13 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
         int nodeB;
         string name;
         float width;
+        bool oneWay;
         List<int> types;
 
         public AILink()
         {
             types = new List<int>();
+            oneWay = false;
         }
 
         public int NodeA
@@ -255,6 +261,12 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
         {
             get { return types; }
             set { types = value; }
+        }
+
+        public bool OneWay
+        {
+            get { return oneWay; }
+            set { oneWay = value; }
         }
     }
 }
