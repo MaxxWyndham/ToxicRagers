@@ -247,59 +247,17 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                                     case CustomAccessoryType.MultiplayerSpawn:
                                     case CustomAccessoryType.StandardAccessory:
                                     case CustomAccessoryType.StartingGrid:
-                                        // Do nothing
-                                        break;
-
                                     case CustomAccessoryType.AngularDampedAccessory:
-                                        accessory.CustomAccessoryProperties.Add(doc.ReadNextLine().Split(' '));  // damper
-                                        break;
-
                                     case CustomAccessoryType.Checkpoint:
-                                        accessory.CustomAccessoryProperties.Add(doc.ReadNextLine().Split(' '));  // bottom
-                                        accessory.CustomAccessoryProperties.Add(doc.ReadNextLine().Split(' '));  // adjust_left
-                                        accessory.CustomAccessoryProperties.Add(doc.ReadNextLine().Split(' '));  // adjust_right
-                                        accessory.CustomAccessoryProperties.Add(doc.ReadNextLine().Split(' '));  // current
-                                        accessory.CustomAccessoryProperties.Add(doc.ReadNextLine().Split(' '));  // next
-                                        break;
-
                                     case CustomAccessoryType.Powerup:
-                                        accessory.CustomAccessoryProperties.Add(doc.ReadNextLine().Split(' '));  // powerup name
-                                        break;
-
                                     case CustomAccessoryType.ManagedAccessory:
-                                        accessory.CustomAccessoryProperties.Add(doc.ReadNextLine().Split(' '));  // break_fuse
-                                        break;
-
                                     case CustomAccessoryType.RigidBodyAnimation:
                                     case CustomAccessoryType.RockingAccessory:
-                                        accessory.CustomAccessoryProperties.Add(doc.ReadNextLine().Split(' '));  // anim
-                                        accessory.CustomAccessoryProperties.Add(doc.ReadNextLine().Split(' '));  // looping or message_triggered
-
-                                        if (accessory.CustomAccessoryProperties.ContainsKey("looping"))
-                                        {
-                                            while (true)
-                                            {
-                                                if (!TestLine("[DYNAMICS]", doc.ReadNextLine(), out line))
-                                                {
-                                                    if (line.ToLower().StartsWith("accessoryaudio"))
-                                                    {
-                                                        doc.Rewind();
-                                                        break;
-                                                    }
-
-                                                    accessory.CustomAccessoryProperties.Add(line.Split(' '));
-                                                }
-                                                else
-                                                {
-                                                    doc.Rewind();
-                                                    break;
-                                                }
-                                            }
-                                        }
-                                        break;
-
                                     case CustomAccessoryType.RotatingAccessory:
-                                        accessory.CustomAccessoryProperties.Add(doc.ReadNextLine().Split(' '));  //  speed
+                                        while (!doc.NextLineIsASection() && !doc.EOF())
+                                        {
+                                            accessory.customAccessoryProperties.Add(doc.ReadNextLine().Split(' '));
+                                        }
                                         break;
 
                                     default:
