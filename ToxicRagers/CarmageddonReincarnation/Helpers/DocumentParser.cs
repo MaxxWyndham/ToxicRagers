@@ -20,10 +20,19 @@ namespace ToxicRagers.CarmageddonReincarnation.Helpers
         public bool NextLineIsASection()
         {
             string s = ReadNextLine();
-            bool bIsSection = (s!= null && s.StartsWith("["));
+            bool bIsSection = (s != null && s.StartsWith("["));
             Rewind();
 
             return bIsSection;
+        }
+
+        public bool EOF()
+        {
+            string s = ReadNextLine();
+            bool bIsEOF = (s == null);
+            Rewind();
+
+            return bIsEOF;
         }
 
         public string SkipToNextSection()
