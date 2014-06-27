@@ -75,6 +75,10 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                             mip.Data = br.ReadBytes(mip.Width * mip.Height * 4);
                             break;
 
+                        case D3DFormat.A8:
+                            mip.Data = br.ReadBytes(mip.Width * mip.Height);
+                            break;
+
                         case D3DFormat.DXT1:
                             mip.Data = br.ReadBytes((((mip.Width + 3) / 4) * ((mip.Height + 3) / 4)) * 8);
                             break;
