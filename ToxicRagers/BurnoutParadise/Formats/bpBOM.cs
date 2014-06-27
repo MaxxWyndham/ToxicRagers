@@ -1,24 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using ToxicRagers.Helpers;
 
 namespace ToxicRagers.BurnoutParadise.Formats
 {
     public class BOM
     {
-        List<BOMFace> faces;
+        List<int> offsets;
+        List<BOMMesh> meshes;
         List<BOMVertex> verts;
         string name;
-        int faceCount;
 
-        public string Name { get { return name; } }
-        public List<BOMFace> Faces { get { return faces; } }
+        public List<BOMMesh> Meshes { get { return meshes; } }
         public List<BOMVertex> Verts { get { return verts; } }
+        public string Name { get { return name; } }
 
         public BOM()
         {
-            faces = new List<BOMFace>();
+            offsets = new List<int>();
+            meshes = new List<BOMMesh>();
             verts = new List<BOMVertex>();
         }
 
@@ -32,28 +34,60 @@ namespace ToxicRagers.BurnoutParadise.Formats
 
             using (BinaryReader br = new BinaryReader(fi.OpenRead()))
             {
-                br.BaseStream.Seek(0xB4, SeekOrigin.Begin);
-                bom.faceCount = (int)br.ReadInt32();
+                br.ReadBytes(18);   // Unknown
+                int meshCount = br.ReadInt16();
+                br.ReadBytes(28);   // Unknown
 
-                br.BaseStream.Seek(0x200, SeekOrigin.Begin);
-                for (int i = 0; i < bom.faceCount; i++)
+                for (int i = 0; i < meshCount; i++) { bom.offsets.Add(br.ReadInt32()); }
+
+                for (int i = 0; i < meshCount; i++)
                 {
-                    bom.faces.Add(new BOMFace(br.ReadUInt16(), br.ReadUInt16(), br.ReadUInt16()));
+                    br.BaseStream.Seek(bom.offsets[i], SeekOrigin.Begin);
+                    var mesh = new BOMMesh();
+
+                    br.ReadBytes(76);
+                    mesh.VertCount = br.ReadInt32();
+                    br.ReadBytes(4);
+                    mesh.FaceCount = br.ReadInt32();
+                    bom.meshes.Add(mesh);
+
+                    br.ReadBytes(40);
                 }
 
-                br.BaseStream.Seek(0x4500, SeekOrigin.Begin);
-                while (br.BaseStream.Position + 52 < br.BaseStream.Length)
+                br.ReadBytes(32);
+
+                for (int i = 0; i < meshCount; i++)
                 {
-                    bom.verts.Add(
-                        new BOMVertex(
-                            br.ReadSingle(), br.ReadSingle(), br.ReadSingle(),
-                            br.ReadSingle(), br.ReadSingle(), br.ReadSingle()
-                        )
-                    );
-                    //Console.WriteLine("X {0} Y {1} Z {2}", br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
-                    //Console.WriteLine("U {0} V {1}", br.ReadSingle(), br.ReadSingle());
-                    //Console.WriteLine("A {0} B {1}", br.ReadInt32(), br.ReadInt32());
-                    br.ReadBytes(28);
+                    br.ReadBytes(80);
+                }
+
+                for (int i = 0; i < meshCount; i++)
+                {
+                    for (int j = 0; j < bom.meshes[i].FaceCount * 3; j++)
+                    {
+                        bom.meshes[i].IndexBuffer.Add(br.ReadUInt16());
+                    }
+                }
+
+                br.BaseStream.Seek(16 - (br.BaseStream.Position % 16), SeekOrigin.Current);
+
+                for (int i = 0; i < meshCount; i++)
+                {
+                    for (int j = 0; j < bom.meshes[i].VertCount; j++)
+                    {
+                        bom.verts.Add(
+                            new BOMVertex(
+                                br.ReadSingle(), br.ReadSingle(), br.ReadSingle(),
+                                br.ReadSingle(), br.ReadSingle(), br.ReadSingle()
+                            )
+                        );
+                        //Console.WriteLine("X {0} Y {1} Z {2}", br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
+                        //Console.WriteLine("U {0} V {1}", br.ReadSingle(), br.ReadSingle());
+                        //Console.WriteLine("A {0} B {1}", br.ReadInt32(), br.ReadInt32());
+                        br.ReadBytes((i == 0 ? 36 : 28));
+                    }
+
+                    if (i == 0) { br.ReadBytes(12); }
                 }
             }
 
@@ -68,26 +102,29 @@ namespace ToxicRagers.BurnoutParadise.Formats
         }
     }
 
-    public class BOMFace
+    public class BOMMesh
     {
-        int vertexA;
-        int vertexB;
-        int vertexC;
+        List<int> ibo;
+        int faceCount;
+        int vertCount;
 
-        public int V1 { get { return vertexA; } }
-        public int V2 { get { return vertexB; } }
-        public int V3 { get { return vertexC; } }
-
-        public BOMFace(int A, int B, int C)
+        public int FaceCount
         {
-            this.vertexA = A;
-            this.vertexB = B;
-            this.vertexC = C;
+            get { return faceCount; }
+            set { faceCount = value; }
         }
 
-        public override string ToString()
+        public int VertCount
         {
-            return "{ Face: {A:" + vertexA + " B:" + vertexB + " C:" + vertexC + "} }";
+            get { return vertCount; }
+            set { vertCount = value; }
+        }
+
+        public List<int> IndexBuffer { get { return ibo; } }
+
+        public BOMMesh()
+        {
+            ibo = new List<int>();
         }
     }
 
