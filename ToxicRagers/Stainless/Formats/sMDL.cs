@@ -172,8 +172,8 @@ namespace ToxicRagers.Stainless.Formats
                         br.ReadSingle(),        // N.Z
                         br.ReadSingle(),        // U
                         br.ReadSingle(),        // V
-                        br.ReadSingle(),        // ?Unk6
-                        br.ReadSingle(),        // ?Unk7
+                        br.ReadSingle(),        // U2
+                        br.ReadSingle(),        // V2
                         br.ReadByte(),          // R
                         br.ReadByte(),          // G
                         br.ReadByte(),          // B
@@ -406,8 +406,8 @@ namespace ToxicRagers.Stainless.Formats
                     bw.Write(this.verts[i].UV.X);
                     bw.Write(this.verts[i].UV.Y);
 
-                    bw.Write(this.verts[i].Unknown.X);
-                    bw.Write(this.verts[i].Unknown.Y);
+                    bw.Write(this.verts[i].UV2.X);
+                    bw.Write(this.verts[i].UV2.Y);
 
                     bw.Write(this.verts[i].Colour.R);
                     bw.Write(this.verts[i].Colour.G);
@@ -638,7 +638,7 @@ namespace ToxicRagers.Stainless.Formats
         Vector3 position;
         Vector3 normal;
         Vector2 uv;
-        Vector2 unknown;
+        Vector2 uv2;
         Color colour;
 
         public Vector3 Position
@@ -659,10 +659,10 @@ namespace ToxicRagers.Stainless.Formats
             set { uv = value; }
         }
 
-        public Vector2 Unknown
+        public Vector2 UV2
         {
-            get { return unknown; }
-            set { unknown = value; }
+            get { return uv2; }
+            set { uv2 = value; }
         }
 
         public Color Colour
@@ -671,18 +671,18 @@ namespace ToxicRagers.Stainless.Formats
             set { colour = value; }
         }
 
-        public MDLVertex(Single X, Single Y, Single Z, Single NX, Single NY, Single NZ, Single U, Single V, Single Unk6, Single Unk7, byte R, byte G, byte B, byte Alpha)
+        public MDLVertex(Single X, Single Y, Single Z, Single NX, Single NY, Single NZ, Single U, Single V, Single U2, Single V2, byte R, byte G, byte B, byte Alpha)
         {
             position = new Vector3(X, Y, Z);
             normal = new Vector3(NX, NY, NZ);
             uv = new Vector2(U, V);
-            unknown = new Vector2(Unk6, Unk7);
+            uv2 = new Vector2(U2, V2);
             colour = Color.FromArgb(Alpha, R, G, B);
         }
 
         public override string ToString()
         {
-            return "{ Position: {X:" + Position.X + " Y:" + Position.Y + " Z:" + Position.Z + "} Normal: {X:" + Normal.X + " Y:" + Normal.Y + " Z:" + Normal.Z + "} UV: {U:" + UV.X + " V:" + UV.Y + "} Unknown: {A:" + unknown.X + " B:" + unknown.Y + "} { UV Length:" + UV.Length + " } }";
+            return "{ Position: {X:" + Position.X + " Y:" + Position.Y + " Z:" + Position.Z + "} Normal: {X:" + Normal.X + " Y:" + Normal.Y + " Z:" + Normal.Z + "} UV: {U:" + UV.X + " V:" + UV.Y + "} UV2: {A:" + uv2.X + " B:" + uv2.Y + "} { UV Length:" + UV.Length + " } }";
         }
     }
 
