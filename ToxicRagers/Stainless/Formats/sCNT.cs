@@ -101,10 +101,10 @@ namespace ToxicRagers.Stainless.Formats
             }
 
             byte flags = br.ReadByte();
-            if (flags != 0)
+            while (flags != 0)
             {
                 Logger.LogToFile("Flags: {0}", flags);
-                br.ReadByte();
+                flags = br.ReadByte();
             }
 
             Logger.LogToFile("This is usually 0: {0}", br.ReadSingle());
