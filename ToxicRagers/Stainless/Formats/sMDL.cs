@@ -13,10 +13,12 @@ namespace ToxicRagers.Stainless.Formats
         [Flags]
         public enum Flags
         {
-            Model = 1,
-            UnknownA = 8,
-            UnknownB = 32,
-            DoubleSided = 128
+            USERData = 1,
+            PREPAlternative = 2,
+            USERSkinData = 4,
+            Unknown8 = 8,
+            Unknown16 = 16,
+            PREPSkinData = 32
         }
 
         public static Dictionary<string, Version> SupportedVersions = new Dictionary<string, Version>
@@ -28,26 +30,41 @@ namespace ToxicRagers.Stainless.Formats
             { "6.2", new Version(6,2)}  // C:R
         };
 
-        static bool bDebug = false;
-        int faceCount;
-        int vertexCount;
+        int userFaceCount;
+        int prepFaceCount;
+        int userVertexCount;
+        int prepVertexCount;
         Version version;
         string name;
-        int flags = 1;
+        int checkSum;
+        Flags flags;
+        int prepDataSize;
+        int fileSize;
+        int userFlags;
 
-        List<MDLMesh> meshes = new List<MDLMesh>();
+        List<MDLMaterialGroup> meshes = new List<MDLMaterialGroup>();
         List<MDLFace> faces = new List<MDLFace>();
         List<MDLVertex> verts = new List<MDLVertex>();
+        List<MDLUserVertexEntry> userVertexList = new List<MDLUserVertexEntry>();
+        List<MDLUserFaceEntry> userFaceList = new List<MDLUserFaceEntry>();
+        List<int> ptouVertexLookup = new List<int>();
+        List<int> ptouFaceLookup = new List<int>();
 
         MDLExtents extents = new MDLExtents();
 
         public string Name { get { return (name != null ? name : "Unknown Mesh"); } }
-        public List<MDLMesh> Meshes { get { return meshes; } }
-        public int FaceCount { get { return faceCount; } }
-        public int VertexCount { get { return vertexCount; } }
+        public List<MDLMaterialGroup> Meshes { get { return meshes; } }
+        public int PREPFaceCount { get { return prepFaceCount; } }
+        public int USERFaceCount { get { return userFaceCount; } }
+        public int PREPVertexCount { get { return prepVertexCount; } }
+        public int USERVertexCount { get { return userVertexCount; } }
 
         public List<MDLFace> Faces { get { return faces; } set { faces = value; } }
         public List<MDLVertex> Vertices { get { return verts; } set { verts = value; } }
+
+        public int Checksum { get { return checkSum; } set { checkSum = value; } }
+        public Flags ModelFlags { get { return flags; } set { flags = value; } }
+        public int PrepDataSize { get { return prepDataSize; } set { prepDataSize = value; } }
 
         public static MDL Load(string path)
         {
@@ -85,83 +102,73 @@ namespace ToxicRagers.Stainless.Formats
                 // Ref : C:\Users\Maxx\Downloads\Carma_iOS\Carmageddon Mobile\Data_IOS\DATA\CONTENT\SFX\SHRAPNEL.MDL
                 // 01 00 00 00 EE 02 00 00 02 00 00 00 04 00 00 00 01 00 00 00 49 33 35 3F 89 41 00 BF 18 B7 51 BA 89 41 00 BF 00 00 00 3F 52 49 9D 3A 00 00 00 3F 00 12 03 BA 18 B7 51 39 00 12 03 BA 01 00 66 69 72 65 70 6F 6F 6C 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 02 00 00 00 00 00 00 00 00 00 00 00 01 00 00 00 02 00 00 00 17 B7 51 39 17 B7 D1 38 00 00 80 3F 17 B7 D1 B8 00 00 00 00 03 00 00 00 02 00 00 00 01 00 00 00 17 B7 51 39 17 B7 D1 B8 00 00 80 3F 17 B7 D1 38 04 00 00 00 00 00 00 3F 17 B7 D1 38 00 00 00 BF 17 B7 D1 38 00 00 80 3F 17 B7 D1 B8 00 00 80 3F 00 00 80 3F 00 00 00 00 00 00 00 00 80 80 80 FF 00 00 00 BF 17 B7 51 39 00 00 00 BF 00 00 00 00 00 00 80 3F 00 00 00 00 00 00 00 00 00 00 80 3F 00 00 00 00 00 00 00 00 80 80 80 FF 00 00 00 3F 17 B7 51 39 00 00 00 3F 00 00 00 00 00 00 80 3F 00 00 00 00 00 00 80 3F 00 00 00 00 00 00 00 00 00 00 00 00 80 80 80 FF 00 00 00 BF 17 B7 D1 38 00 00 00 3F 17 B7 D1 B8 00 00 80 3F 17 B7 D1 38 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 80 80 80 FF 01 00 00 00 00 00 17 B7 D1 38 00 00 00 00 00 00 00 00 04 00 00 00 04 00 00 00 00 00 00 00 01 00 00 00 02 00 00 00 03 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 FF FF FF FF
 
-                if (bDebug)
-                {
-                    var bytes = br.ReadBytes(4);
-                    Logger.LogToFile("{0}\t{1}", br.BaseStream.Position.ToString("X"), BitConverter.ToString(bytes).Replace("-", " "));
-                }
-                else
-                {
-                    br.ReadBytes(4);    // Some sort of hash/derived value, files with identical verts/faces share the same value here
-                }
-                
-                mdl.flags = (int)br.ReadUInt32();
+                mdl.checkSum = (int)br.ReadUInt32();
+
+                mdl.flags = (Flags)br.ReadUInt32();
                 Logger.LogToFile("Flags {0}", (Flags)mdl.flags);
 
-                Logger.LogToFile("Remaining A: {0} ({1})", br.ReadUInt32(), br.BaseStream.Length - br.BaseStream.Position); // Bytes remaining
+                mdl.prepDataSize = (int)br.ReadUInt32();    // PREP data size
 
-                int headerFaceCount = (int)br.ReadUInt32();
-                int distinctVertCount = (int)br.ReadUInt32();
+                mdl.userFaceCount = (int)br.ReadUInt32();
+                mdl.userVertexCount = (int)br.ReadUInt32();
 
-                Logger.LogToFile("Faces: {0}", headerFaceCount);
-                Logger.LogToFile("Distinct Verts: {0}", distinctVertCount);
+                Logger.LogToFile("USER Faces: {0}", mdl.userFaceCount);
+                Logger.LogToFile("USER Verts: {0}", mdl.userVertexCount);
 
-                Logger.LogToFile("Remaining B: {0} ({1})", br.ReadUInt32(), br.BaseStream.Length - br.BaseStream.Position); // Bytes remaining
+                mdl.fileSize = (int)br.ReadUInt32();
 
-                if (bDebug) { Logger.LogToFile("{0}", br.ReadSingle()); } else { br.ReadSingle(); } // Distance / 2 
+                mdl.extents.Radius = br.ReadSingle();
                 mdl.extents.Min = new Vector3(br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
                 mdl.extents.Max = new Vector3(br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
-                if (bDebug) { Logger.LogToFile("{0}", mdl.extents); }
-                if (bDebug) { Logger.LogToFile("{0}, {1}, {2}", br.ReadSingle(), br.ReadSingle(), br.ReadSingle()); } else { br.ReadBytes(12); }  // max+min / 2
+                br.ReadBytes(12);   //  BoundingBox centre, Flummery auto calculates from min and max
 
-                int nameCount = br.ReadInt16();
+                int materialCount = br.ReadInt16();
 
-                Logger.LogToFile("Name count: {0}", nameCount);
-                for (int i = 0; i < nameCount; i++)
+                Logger.LogToFile("Material count: {0}", materialCount);
+                for (int i = 0; i < materialCount; i++)
                 {
-                    string meshName;        // Is also the name of the material
+                    string materialName;
                     int nameLength = -1;
                     int padding = -1;
 
                     if (mdl.version.Major < 6)
                     {
-                        meshName = br.ReadBytes(32).ToName();
+                        materialName = br.ReadBytes(32).ToName();
                     }
                     else
                     {
                         nameLength = (int)br.ReadInt32();
                         padding = (((nameLength / 4) + (nameLength % 4 > 0 ? 1 : 0)) * 4) - nameLength + (mdl.version.Major == 6 && mdl.version.Minor > 0 ? 4 : 0);
-                        meshName = br.ReadString(nameLength);
+                        materialName = br.ReadString(nameLength);
                         br.ReadBytes(padding);
                     }
 
-                    mdl.meshes.Add(new MDLMesh(meshName));
-                    Logger.LogToFile("Added name \"{0}\" of length {1}, padding of {2}", meshName, nameLength, padding);
+                    mdl.meshes.Add(new MDLMaterialGroup(materialName));
                 }
 
-                mdl.faceCount = (int)br.ReadUInt32();
+                // START PREP DATA
+                mdl.prepFaceCount = (int)br.ReadUInt32();
 
-                Logger.LogToFile("Actual faces: {0}", mdl.faceCount);
+                Logger.LogToFile("PREP Faces: {0}", mdl.prepFaceCount);
 
-                for (int i = 0; i < mdl.faceCount; i++)
+                for (int i = 0; i < mdl.prepFaceCount; i++)
                 {
                     var face = new MDLFace(
-                        (int)br.ReadUInt32(),   // ???, possibly material index
+                        br.ReadUInt16(),        // Material index
+                        br.ReadUInt16(),        // Material Flags
                         (int)br.ReadUInt32(),   // Vert index A
                         (int)br.ReadUInt32(),   // Vert index B
                         (int)br.ReadUInt32()    // Vert index C
                     );
 
                     mdl.faces.Add(face);
-
-                    if (bDebug) { Logger.LogToFile("{0}) {1}", i, face.ToString()); }
                 }
 
-                mdl.vertexCount = (int)br.ReadUInt32();
+                mdl.prepVertexCount = (int)br.ReadUInt32();
 
-                Logger.LogToFile("Actual verts: {0}", mdl.vertexCount);
+                Logger.LogToFile("PREP Verts: {0}", mdl.prepVertexCount);
 
-                for (int i = 0; i < mdl.vertexCount; i++)
+                for (int i = 0; i < mdl.prepVertexCount; i++)
                 {
                     var vert = new MDLVertex(
                         br.ReadSingle(),        // X
@@ -181,159 +188,132 @@ namespace ToxicRagers.Stainless.Formats
                     );
 
                     mdl.verts.Add(vert);
-
-                    if (bDebug) { Logger.LogToFile("{0}) {1}", i, vert.ToString()); }
                 }
 
-                int meshCount = br.ReadUInt16();
-                Logger.LogToFile("This is usually {0}: {1}", nameCount, meshCount);
+                int materialGroups = br.ReadUInt16();
 
-                for (int i = 0; i < meshCount; i++)
+                for (int i = 0; i < materialGroups; i++)
                 {
-                    Logger.LogToFile("Block {0} of {1}", i, nameCount);
-                    Logger.LogToFile("Position: {0}", br.BaseStream.Position.ToString("X"));
-
                     var mesh = mdl.meshes[i];
 
-                    if (bDebug) { Logger.LogToFile("{0}, {1}, {2}", br.ReadSingle(), br.ReadSingle(), br.ReadSingle()); } else { br.ReadBytes(12); }  // max+min / 2
-                    if (bDebug) { Logger.LogToFile("{0}", br.ReadSingle()); } else { br.ReadSingle(); } // Distance / 2 
+                    br.ReadBytes(12);   // BoundingBox Centre, we recalculate it from Min and Max
+                    mesh.Extents.Radius = br.ReadSingle();
                     mesh.Extents.Min = new Vector3(br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
                     mesh.Extents.Max = new Vector3(br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
-                    if (bDebug) { Logger.LogToFile("{0}", mesh.Extents); }
 
                     mesh.StripOffset = (int)br.ReadUInt32();
                     mesh.StripVertCount = (int)br.ReadUInt32();
                     int stripPointCount = (int)br.ReadUInt32();
-                    Logger.LogToFile("Strip: {0} offset, {1} verts, {2} entries", mesh.StripOffset, mesh.StripVertCount, stripPointCount);
-
-                    int degenerateTriangles = 0;
 
                     for (int j = 0; j < stripPointCount; j++)
                     {
-                        int index = br.ReadUInt16();
-                        bool bDegenerate = (br.ReadUInt16() != 0);
+                        uint index = br.ReadUInt32();
+                        bool bDegenerate = ((index & 0x80000000) != 0);
+                        index &= ~0x80000000;
 
-                        mesh.StripList.Add(new MDLPoint(index + mesh.StripOffset, bDegenerate));
-
-                        if (bDebug) { Logger.LogToFile("{0}] {1} {2} ({3})", j, index + mesh.StripOffset, mdl.verts[index + mesh.StripOffset].ToString(), bDegenerate); }
-                        if (bDegenerate) { degenerateTriangles++; }
+                        mesh.StripList.Add(new MDLPoint((int)index + mesh.StripOffset, bDegenerate));
                     }
 
-                    Logger.LogToFile("Total degenerates {0}", degenerateTriangles);
+                    mesh.TriListOffset = (int)br.ReadUInt32();
+                    mesh.TriListVertCount = (int)br.ReadUInt32();
+                    int listPointCount = (int)br.ReadUInt32();
 
-                    // After the mesh has been described with TriangleStrips we have to patch any remaining holes
-
-                    mesh.PatchOffset = (int)br.ReadUInt32();
-                    mesh.PatchVertCount = (int)br.ReadUInt32();
-                    int patchPointCount = (int)br.ReadUInt32();
-                    Logger.LogToFile("Patch: {0} offset, {1} verts, {2} entries", mesh.PatchOffset, mesh.PatchVertCount, patchPointCount);
-
-                    for (int j = 0; j < patchPointCount; j++)
+                    for (int j = 0; j < listPointCount; j++)
                     {
-                        mesh.PatchList.Add(new MDLPoint(mesh.PatchOffset + (int)br.ReadUInt32()));
-                        if (bDebug) { Logger.LogToFile("{0}] {1} {2}", j, j + mesh.PatchOffset, mdl.verts[j + mesh.PatchOffset].ToString()); }
+                        mesh.TriList.Add(new MDLPoint(mesh.TriListOffset + (int)br.ReadUInt32()));
                     }
                 }
 
-                Logger.LogToFile("Position: {0}", br.BaseStream.Position.ToString("X"));
-
-                Logger.LogToFile("Always 0: {0}", br.ReadUInt32());
-
-                // v5.6 successfully parses from this point down
-
-                Logger.LogToFile("Distinct verts with occurance count:");
-                for (int i = 0; i < distinctVertCount; i++)
+                if ((mdl.flags & Flags.PREPSkinData) == Flags.PREPSkinData)
                 {
-                    if (bDebug)
-                    {
-                        Logger.LogToFile("{0}, {1}, {2} : {3}", br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadUInt32());
-                    }
-                    else
-                    {
-                        br.ReadBytes(16);
-                    }
+                    int bodyPartCount = br.ReadUInt16();
+                    int unknownA = br.ReadUInt16();
+                    int unknownB = br.ReadUInt16();
+                    br.ReadStrings(bodyPartCount);
+
+                    Logger.LogToFile("PREP skin data found, aborting");
+                    return mdl;
                 }
 
-                Logger.LogToFile("Face breakdown");
-                for (int i = 0; i < Math.Max(headerFaceCount, mdl.faceCount); i++)
+                // END PREP DATA
+                if ((mdl.flags & Flags.USERData) == Flags.USERData)
                 {
-                    if (mdl.version.Major == 5 && mdl.version.Minor == 6)
+                    // START USER DATA
+                    mdl.userFlags = (int)br.ReadUInt32();
+
+                    // v5.6 successfully parses from this point down
+
+                    Logger.LogToFile("USER vertex list with index count");
+                    for (int i = 0; i < mdl.userVertexCount; i++)
                     {
-                        br.ReadBytes(133);
+                        mdl.userVertexList.Add(new MDLUserVertexEntry(br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), (int)br.ReadUInt32()));
                     }
-                    else
+
+                    Logger.LogToFile("USER face data");
+                    for (int i = 0; i < mdl.userFaceCount; i++)
                     {
-                        if (!bDebug)
+                        if (mdl.version.Major == 5 && mdl.version.Minor == 6)
                         {
-                            br.ReadBytes(137);
+                            br.ReadBytes(133);
                         }
                         else
                         {
-                            Logger.LogToFile("{0}", br.ReadByte());
-                            Logger.LogToFile("{0}", br.ReadByte());
-                            Logger.LogToFile("{0}", br.ReadByte());
-                            Logger.LogToFile("{0}", br.ReadByte());
-                            Logger.LogToFile("X: {0} Y: {1} Z: {2}", br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
-                            Logger.LogToFile("X: {0} Y: {1} Z: {2}", br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
-                            Logger.LogToFile("X: {0} Y: {1} Z: {2}", br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
-                            Logger.LogToFile("X: {0} Y: {1} Z: {2}", br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
-                            Logger.LogToFile("{0}", br.ReadUInt32());
-                            Logger.LogToFile("{0}", br.ReadUInt32());
-                            Logger.LogToFile("{0}", br.ReadUInt32());
-                            Logger.LogToFile("{0}", br.ReadUInt32());
-                            Logger.LogToFile("{0}", br.ReadUInt32());
-                            Logger.LogToFile("R{0}G{1}B{2}A{3}", br.ReadByte(), br.ReadByte(), br.ReadByte(), br.ReadByte());
-                            Logger.LogToFile("R{0}G{1}B{2}A{3}", br.ReadByte(), br.ReadByte(), br.ReadByte(), br.ReadByte());
-                            Logger.LogToFile("R{0}G{1}B{2}A{3}", br.ReadByte(), br.ReadByte(), br.ReadByte(), br.ReadByte());
-                            Logger.LogToFile("U: {0} V: {1}", br.ReadSingle(), br.ReadSingle());
-                            Logger.LogToFile("?: {0} ?: {1}", br.ReadSingle(), br.ReadSingle());
-                            Logger.LogToFile("U: {0} V: {1}", br.ReadSingle(), br.ReadSingle());
-                            Logger.LogToFile("?: {0} ?: {1}", br.ReadSingle(), br.ReadSingle());
-                            Logger.LogToFile("U: {0} V: {1}", br.ReadSingle(), br.ReadSingle());
-                            Logger.LogToFile("?: {0} ?: {1}", br.ReadSingle(), br.ReadSingle());
-                            Logger.LogToFile("{0}", br.ReadUInt32());
-                            Logger.LogToFile("{0}", br.ReadByte());
+                            mdl.userFaceList.Add(
+                                new MDLUserFaceEntry(
+                                        br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), // plane equation
+                                        new Vector3(br.ReadSingle(), br.ReadSingle(), br.ReadSingle()),     // vertex[0] normal
+                                        new Vector3(br.ReadSingle(), br.ReadSingle(), br.ReadSingle()),     // vertex[1] normal
+                                        new Vector3(br.ReadSingle(), br.ReadSingle(), br.ReadSingle()),     // vertex[2] normal
+                                        (int)br.ReadUInt32(),                                               // material index
+                                        (int)br.ReadUInt32(),                                               // smoothing group
+                                        (int)br.ReadUInt32(),                                               // vertex[0]
+                                        (int)br.ReadUInt32(),                                               // vertex[1]
+                                        (int)br.ReadUInt32(),                                               // vertex[2]
+                                        br.ReadByte(), br.ReadByte(), br.ReadByte(), br.ReadByte(),         // colour[0] RGBA
+                                        br.ReadByte(), br.ReadByte(), br.ReadByte(), br.ReadByte(),         // colour[1] RGBA
+                                        br.ReadByte(), br.ReadByte(), br.ReadByte(), br.ReadByte(),         // colour[2] RGBA
+                                        new Vector2(br.ReadSingle(), br.ReadSingle()),                      // uv[0]
+                                        new Vector2(br.ReadSingle(), br.ReadSingle()),                      // uv2[0]
+                                        new Vector2(br.ReadSingle(), br.ReadSingle()),                      // uv[1]
+                                        new Vector2(br.ReadSingle(), br.ReadSingle()),                      // uv2[1]
+                                        new Vector2(br.ReadSingle(), br.ReadSingle()),                      // uv[2]
+                                        new Vector2(br.ReadSingle(), br.ReadSingle()),                      // uv2[2]
+                                        br.ReadByte(),                                                      // flags
+                                        (int)br.ReadUInt32()                                                // application specific flags
+                                )
+                            );
                         }
                     }
-                }
 
-                Logger.LogToFile("Face count:");
-                for (int i = 0; i < mdl.faceCount; i++)
-                {
-                    if (bDebug)
+                    Logger.LogToFile("PREP to USER face lookup");
+                    for (int i = 0; i < mdl.prepFaceCount; i++)
                     {
-                        Logger.LogToFile("{0}", br.ReadUInt32());
+                        mdl.ptouFaceLookup.Add((int)br.ReadUInt32());
                     }
-                    else
-                    {
-                        br.ReadUInt32();
-                    }
-                }
 
-                Logger.LogToFile("{0} == {1}", mdl.vertexCount, br.ReadUInt32());
+                    int prepVertexMapCount = (int)br.ReadUInt32();
+                    Logger.LogToFile("PREP to USER vertex lookup");
 
-                for (int i = 0; i < mdl.vertexCount; i++)
-                {
-                    if (bDebug)
+                    for (int i = 0; i < prepVertexMapCount; i++)
                     {
-                        Logger.LogToFile("{0}", br.ReadUInt32());
-                    }
-                    else
-                    {
-                        br.ReadUInt32();
+                        mdl.ptouVertexLookup.Add((int)br.ReadUInt32());
                     }
                 }
-
-                if (br.BaseStream.Position != br.BaseStream.Length)
+                else
                 {
-                    Logger.LogToFile("Data still to process.  Reached {0}", br.BaseStream.Position.ToString("X"));
+                    Console.WriteLine("no user data");
+                }
+
+                if ((mdl.flags & Flags.USERSkinData) == Flags.USERSkinData)
+                {
+                    Logger.LogToFile("USER skin data remains");
                 }
             }
 
             return mdl;
         }
 
-        public MDLMesh GetMesh(int index)
+        public MDLMaterialGroup GetMesh(int index)
         {
             return meshes[index];
         }
@@ -345,20 +325,33 @@ namespace ToxicRagers.Stainless.Formats
 
             using (BinaryWriter bw = new BinaryWriter(new FileStream(path, FileMode.Create)))
             {
-                var saveData = this.generateConsolidata();
+                bw.Write(new byte[] { 0x45, 0x23 });    // Magic Number
+                bw.Write(new byte[] { 2, 6 });          // Version (6.2)
 
-                bw.Write(new byte[] { 69, 35, 2, 6 });
+                bw.Write(new byte[] { 0, 0, 0, 0 });    // Checksum, to calculate
+                bw.Write((int)this.flags);
 
-                bw.Write(new byte[] { 0, 0, 0, 0 });    // No idea
-                bw.Write(this.flags);
-                bw.Write(new byte[] { 0, 0, 0, 0 });    // No idea
+                int prepDataSize = 4 + (this.faces.Count * 16) + 4 + (this.verts.Count * 44) + 2;
 
-                bw.Write(this.faces.Count);
-                bw.Write(saveData.Count);
+                for (int i = 0; i < this.meshes.Count; i++)
+                {
+                    var mesh = this.meshes[i];
 
-                bw.Write(0);    // Back filled post save
+                    prepDataSize += 52;
+                    prepDataSize += (4 * mesh.StripList.Count);
 
-                bw.Write(this.extents.HalfDistance);
+                    prepDataSize += 12;
+                    prepDataSize += (4 * mesh.TriList.Count);
+                }
+
+                bw.Write(prepDataSize);                 // PREP data size
+
+                bw.Write(this.faces.Count);             // USER face count
+                bw.Write(this.verts.Count);             // USER vert count
+
+                bw.Write(0);                            // Back filled post save
+
+                bw.Write(this.extents.Radius);
                 bw.Write(this.extents.Min.X);
                 bw.Write(this.extents.Min.Y);
                 bw.Write(this.extents.Min.Z);
@@ -385,7 +378,8 @@ namespace ToxicRagers.Stainless.Formats
 
                 for (int i = 0; i < this.faces.Count; i++)
                 {
-                    bw.Write(this.faces[i].MaterialID);
+                    bw.Write((short)this.faces[i].MaterialID);
+                    bw.Write((short)0);
                     bw.Write(this.faces[i].V1);
                     bw.Write(this.faces[i].V2);
                     bw.Write(this.faces[i].V3);
@@ -424,7 +418,7 @@ namespace ToxicRagers.Stainless.Formats
                     bw.Write(mesh.Extents.Centre.X);
                     bw.Write(mesh.Extents.Centre.Y);
                     bw.Write(mesh.Extents.Centre.Z);
-                    bw.Write(mesh.Extents.HalfDistance);
+                    bw.Write(mesh.Extents.Radius);
                     bw.Write(mesh.Extents.Min.X);
                     bw.Write(mesh.Extents.Min.Y);
                     bw.Write(mesh.Extents.Min.Z);
@@ -443,93 +437,81 @@ namespace ToxicRagers.Stainless.Formats
                         bw.Write((short)(mesh.StripList[j].Degenerate ? 32768 : 0));
                     }
 
-                    bw.Write(mesh.PatchOffset);
-                    bw.Write(mesh.PatchVertCount);
-                    bw.Write(mesh.PatchList.Count);
+                    bw.Write(mesh.TriListOffset);
+                    bw.Write(mesh.TriListVertCount);
+                    bw.Write(mesh.TriList.Count);
 
-                    for (int j = 0; j < mesh.PatchList.Count; j++)
+                    for (int j = 0; j < mesh.TriList.Count; j++)
                     {
-                        bw.Write(mesh.PatchList[j].Index);
+                        bw.Write(mesh.TriList[j].Index);
                     }
                 }
 
-                bw.Write(0);
-
-                for (int i = 0; i < saveData.Count; i++)
-                {
-                    var v = saveData.ElementAt(i);
-
-                    bw.Write(v.Key.X);
-                    bw.Write(v.Key.Y);
-                    bw.Write(v.Key.Z);
-                    bw.Write(v.Value.Count);
-                }
-
-                //for (int i = 0; i < this.verts.Count; i++)
-                //{
-                //    bw.Write(this.verts[i].Position.X);
-                //    bw.Write(this.verts[i].Position.Y);
-                //    bw.Write(this.verts[i].Position.Z);
-                //    bw.Write(1);
-                //}
-
-                for (int i = 0; i < this.faces.Count; i++)
+                if ((this.flags & Flags.USERData) == Flags.USERData)
                 {
                     bw.Write(0);
-                    bw.Write(this.verts[this.faces[i].V1].Normal.X);
-                    bw.Write(this.verts[this.faces[i].V1].Normal.Y);
-                    bw.Write(this.verts[this.faces[i].V1].Normal.Z);
-                    bw.Write(this.verts[this.faces[i].V2].Normal.X);
-                    bw.Write(this.verts[this.faces[i].V2].Normal.Y);
-                    bw.Write(this.verts[this.faces[i].V2].Normal.Z);
-                    bw.Write(this.verts[this.faces[i].V3].Normal.X);
-                    bw.Write(this.verts[this.faces[i].V3].Normal.Y);
-                    bw.Write(this.verts[this.faces[i].V3].Normal.Z);
-                    bw.Write(this.verts[this.faces[i].V3].Normal.X);
-                    bw.Write(this.verts[this.faces[i].V3].Normal.Y);
-                    bw.Write(this.verts[this.faces[i].V3].Normal.Z);
-                    bw.Write(0);
-                    bw.Write(0);
-                    bw.Write(3);
-                    bw.Write(1);
-                    bw.Write(0);
-                    bw.Write((byte)128); bw.Write((byte)128); bw.Write((byte)128); bw.Write((byte)255);
-                    bw.Write((byte)128); bw.Write((byte)128); bw.Write((byte)128); bw.Write((byte)255);
-                    bw.Write((byte)128); bw.Write((byte)128); bw.Write((byte)128); bw.Write((byte)255);
-                    bw.Write(this.verts[this.faces[i].V1].UV.X);
-                    bw.Write(this.verts[this.faces[i].V1].UV.Y);
-                    bw.Write(0);
-                    bw.Write(0);
-                    bw.Write(this.verts[this.faces[i].V3].UV.X);
-                    bw.Write(this.verts[this.faces[i].V3].UV.Y);
-                    bw.Write(0);
-                    bw.Write(0);
-                    bw.Write(this.verts[this.faces[i].V2].UV.X);
-                    bw.Write(this.verts[this.faces[i].V2].UV.Y);
-                    bw.Write(0);
-                    bw.Write(0);
-                    bw.Write(0);
-                    bw.Write((byte)0);
+
+                    for (int i = 0; i < this.verts.Count; i++)
+                    {
+                        bw.Write(this.verts[i].Position.X);
+                        bw.Write(this.verts[i].Position.Y);
+                        bw.Write(this.verts[i].Position.Z);
+                        bw.Write(1);
+                    }
+
+                    for (int i = 0; i < this.faces.Count; i++)
+                    {
+                        var v12 = this.verts[this.faces[i].V2].Normal - this.verts[this.faces[i].V1].Normal;
+                        var v13 = this.verts[this.faces[i].V3].Normal - this.verts[this.faces[i].V1].Normal;
+                        var n = Vector3.Cross(v12, v13).Normalised;
+                        var d = Vector3.Dot(n, this.verts[this.faces[i].V1].Normal);
+
+                        bw.Write(d);
+                        bw.Write(n.X);
+                        bw.Write(n.Y);
+                        bw.Write(n.Z);
+                        bw.Write(this.verts[this.faces[i].V1].Normal.X);
+                        bw.Write(this.verts[this.faces[i].V1].Normal.Y);
+                        bw.Write(this.verts[this.faces[i].V1].Normal.Z);
+                        bw.Write(this.verts[this.faces[i].V2].Normal.X);
+                        bw.Write(this.verts[this.faces[i].V2].Normal.Y);
+                        bw.Write(this.verts[this.faces[i].V2].Normal.Z);
+                        bw.Write(this.verts[this.faces[i].V3].Normal.X);
+                        bw.Write(this.verts[this.faces[i].V3].Normal.Y);
+                        bw.Write(this.verts[this.faces[i].V3].Normal.Z);
+                        bw.Write(this.faces[i].MaterialID);
+                        bw.Write(0);
+                        bw.Write(this.faces[i].V1);
+                        bw.Write(this.faces[i].V2);
+                        bw.Write(this.faces[i].V3);
+                        bw.Write(this.verts[this.faces[i].V1].Colour.R); bw.Write(this.verts[this.faces[i].V1].Colour.G); bw.Write(this.verts[this.faces[i].V1].Colour.B); bw.Write(this.verts[this.faces[i].V1].Colour.A);
+                        bw.Write(this.verts[this.faces[i].V2].Colour.R); bw.Write(this.verts[this.faces[i].V2].Colour.G); bw.Write(this.verts[this.faces[i].V2].Colour.B); bw.Write(this.verts[this.faces[i].V2].Colour.A);
+                        bw.Write(this.verts[this.faces[i].V3].Colour.R); bw.Write(this.verts[this.faces[i].V3].Colour.G); bw.Write(this.verts[this.faces[i].V3].Colour.B); bw.Write(this.verts[this.faces[i].V3].Colour.A);
+                        bw.Write(this.verts[this.faces[i].V1].UV.X);
+                        bw.Write(this.verts[this.faces[i].V1].UV.Y);
+                        bw.Write(this.verts[this.faces[i].V1].UV2.X);
+                        bw.Write(this.verts[this.faces[i].V1].UV2.Y);
+                        bw.Write(this.verts[this.faces[i].V2].UV.X);
+                        bw.Write(this.verts[this.faces[i].V2].UV.Y);
+                        bw.Write(this.verts[this.faces[i].V2].UV2.X);
+                        bw.Write(this.verts[this.faces[i].V2].UV2.Y);
+                        bw.Write(this.verts[this.faces[i].V3].UV.X);
+                        bw.Write(this.verts[this.faces[i].V3].UV.Y);
+                        bw.Write(this.verts[this.faces[i].V3].UV2.X);
+                        bw.Write(this.verts[this.faces[i].V3].UV2.Y);
+                        bw.Write((byte)0);
+                        bw.Write(0);
+                    }
+
+                    for (int i = 0; i < this.faces.Count; i++)
+                    {
+                        bw.Write(i);
+                    }
+
+                    bw.Write(this.verts.Count);
+
+                    for (int i = 0; i < this.verts.Count; i++) { bw.Write(i); }
                 }
-
-                for (int i = 0; i < this.faces.Count; i++)
-                {
-                    bw.Write(i);
-                }
-
-                bw.Write(this.verts.Count);
-
-                for (int i = 0; i < this.verts.Count; i++) { bw.Write(i); }
-
-                //for (int i = 0; i < saveData.Count; i++)
-                //{
-                //    var v = saveData.ElementAt(i);
-
-                //    foreach (int j in v.Value)
-                //    {
-                //        bw.Write(j);
-                //    }
-                //}
             }
 
             using (BinaryWriter bw = new BinaryWriter(new FileStream(path, FileMode.Open)))
@@ -557,6 +539,11 @@ namespace ToxicRagers.Stainless.Formats
 
             this.extents.Min = min;
             this.extents.Max = max;
+
+            this.extents.Radius = (Single)Math.Max(
+                        Math.Abs(Math.Sqrt(Math.Pow(min.X, 2) + Math.Pow(min.Y, 2) + Math.Pow(min.Z, 2))),
+                        Math.Abs(Math.Sqrt(Math.Pow(max.X, 2) + Math.Pow(max.Y, 2) + Math.Pow(max.Z, 2)))
+                      );
         }
 
         private Dictionary<Vector3, List<int>> generateConsolidata()
@@ -584,18 +571,21 @@ namespace ToxicRagers.Stainless.Formats
     public class MDLFace
     {
         int materialID;
+        int flags;
         int vertexA;
         int vertexB;
         int vertexC;
 
         public int MaterialID { get { return materialID; } }
+        public int Flags { get { return flags; } }
         public int V1 { get { return vertexA; } }
         public int V2 { get { return vertexB; } }
         public int V3 { get { return vertexC; } }
 
-        public MDLFace(int MaterialID, int A, int B, int C)
+        public MDLFace(int MaterialID, int Flags, int A, int B, int C)
         {
             this.materialID = MaterialID;
+            this.flags = Flags;
             this.vertexA = A;
             this.vertexB = B;
             this.vertexC = C;
@@ -603,12 +593,13 @@ namespace ToxicRagers.Stainless.Formats
 
         public override string ToString()
         {
-            return "{ Face: {A:" + vertexA + " B:" + vertexB + " C:" + vertexC + "} Material: " + materialID + " }";
+            return "{ Face: {A:" + vertexA + " B:" + vertexB + " C:" + vertexC + "} Material: " + materialID + " Flags: " + flags + " }";
         }
     }
 
     public class MDLExtents
     {
+        Single radius;
         Vector3 min;
         Vector3 max;
 
@@ -624,12 +615,17 @@ namespace ToxicRagers.Stainless.Formats
             set { max = value; }
         }
 
+        public Single Radius
+        {
+            get { return radius; }
+            set { radius = value; }
+        }
+
         public Vector3 Centre { get { return (min + max) / 2.0f; } }
-        public Single HalfDistance { get { return Vector3.Distance(max, min) / 2.0f; } }
 
         public override string ToString()
         {
-            return "{ Min: " + min.ToString() + ", Max: " + max.ToString() + ", Centre: " + Centre.ToString() + ", Length: " + HalfDistance + " }";
+            return "{ Min: " + min.ToString() + ", Max: " + max.ToString() + ", Centre: " + Centre.ToString() + ", Radius: " + radius + " }";
         }
     }
 
@@ -702,31 +698,94 @@ namespace ToxicRagers.Stainless.Formats
         }
     }
 
-    public class MDLMesh
+    public class MDLUserVertexEntry
+    {
+        int count;
+        Vector3 position;
+
+        public int Count { get { return count; } }
+        public Vector3 Position { get { return position; } }
+
+        public MDLUserVertexEntry(Single x, Single y, Single z, int n)
+        {
+            position = new Vector3(x, y, z);
+            count = n;
+        }
+    }
+
+    public class MDLUserFaceEntry
+    {
+        Vector4 plane;
+        Vector3 norm1;
+        Vector3 norm2;
+        Vector3 norm3;
+        int materialID;
+        int smoothingGroup;
+        int vertexID1;
+        int vertexID2;
+        int vertexID3;
+        Color colour1;
+        Color colour2;
+        Color colour3;
+        Vector2 uv1;
+        Vector2 uv21;
+        Vector2 uv2;
+        Vector2 uv22;
+        Vector2 uv3;
+        Vector2 uv23;
+        byte flags;
+        int applicationFlags;
+
+        public MDLUserFaceEntry(Single d, Single a, Single b, Single c, Vector3 n1, Vector3 n2, Vector3 n3, int materialID, int smoothingGroup, int v1, int v2, int v3, byte r1, byte g1, byte b1, byte a1, byte r2, byte g2, byte b2, byte a2, byte r3, byte g3, byte b3, byte a3, Vector2 uv1, Vector2 uv21, Vector2 uv2, Vector2 uv22, Vector2 uv3, Vector2 uv23, byte flags, int applicationFlags)
+        {
+            plane = new Vector4(d, a, b, c);
+            norm1 = n1;
+            norm2 = n2;
+            norm3 = n3;
+            this.materialID = materialID;
+            this.smoothingGroup = smoothingGroup;
+            vertexID1 = v1;
+            vertexID2 = v2;
+            vertexID3 = v3;
+            colour1 = Color.FromArgb(a1, r1, g1, b1);
+            colour2 = Color.FromArgb(a2, r2, g2, b2);
+            colour3 = Color.FromArgb(a3, r3, g3, b3);
+            this.uv1 = uv1;
+            this.uv21 = uv21;
+            this.uv2 = uv2;
+            this.uv22 = uv22;
+            this.uv3 = uv3;
+            this.uv23 = uv23;
+            this.flags = flags;
+            this.applicationFlags = applicationFlags;
+        }
+    }
+
+    public class MDLMaterialGroup
     {
         string name;
         int stripOffset;
         int stripVertCount;
-        int patchOffset;
-        int patchVertCount;
+        int triOffset;
+        int triVertCount;
         List<MDLPoint> stripList;
-        List<MDLPoint> patchList;
+        List<MDLPoint> triList;
         MDLExtents extents;
 
         public string Name { get { return name; } }
         public int StripOffset { get { return stripOffset; } set { stripOffset = value; } }
         public int StripVertCount { get { return stripVertCount; } set { stripVertCount = value; } }
-        public int PatchOffset { get { return patchOffset; } set { patchOffset = value; } }
-        public int PatchVertCount { get { return patchVertCount; } set { patchVertCount = value; } }
+        public int TriListOffset { get { return triOffset; } set { triOffset = value; } }
+        public int TriListVertCount { get { return triVertCount; } set { triVertCount = value; } }
         public List<MDLPoint> StripList { get { return stripList; } set { stripList = value; } }
-        public List<MDLPoint> PatchList { get { return patchList; } set { patchList = value; } }
+        public List<MDLPoint> TriList { get { return triList; } set { triList = value; } }
         public MDLExtents Extents { get { return extents; } set { extents = value; } }
 
-        public MDLMesh(string Name)
+        public MDLMaterialGroup(string Name)
         {
             name = Name;
             stripList = new List<MDLPoint>();
-            patchList = new List<MDLPoint>();
+            triList = new List<MDLPoint>();
             extents = new MDLExtents();
         }
 
@@ -746,19 +805,24 @@ namespace ToxicRagers.Stainless.Formats
                 max.Z = Math.Max(Vertices[point.Index + stripOffset].Position.Z, max.Z);
             }
 
-            foreach (var point in patchList)
+            foreach (var point in triList)
             {
-                min.X = Math.Min(Vertices[point.Index + patchOffset].Position.X, min.X);
-                min.Y = Math.Min(Vertices[point.Index + patchOffset].Position.Y, min.Y);
-                min.Z = Math.Min(Vertices[point.Index + patchOffset].Position.Z, min.Z);
+                min.X = Math.Min(Vertices[point.Index + triOffset].Position.X, min.X);
+                min.Y = Math.Min(Vertices[point.Index + triOffset].Position.Y, min.Y);
+                min.Z = Math.Min(Vertices[point.Index + triOffset].Position.Z, min.Z);
 
-                max.X = Math.Max(Vertices[point.Index + patchOffset].Position.X, max.X);
-                max.Y = Math.Max(Vertices[point.Index + patchOffset].Position.Y, max.Y);
-                max.Z = Math.Max(Vertices[point.Index + patchOffset].Position.Z, max.Z);
+                max.X = Math.Max(Vertices[point.Index + triOffset].Position.X, max.X);
+                max.Y = Math.Max(Vertices[point.Index + triOffset].Position.Y, max.Y);
+                max.Z = Math.Max(Vertices[point.Index + triOffset].Position.Z, max.Z);
             }
 
             this.extents.Min = min;
             this.extents.Max = max;
+
+            this.extents.Radius = (Single)Math.Max(
+                                    Math.Abs(Math.Sqrt(Math.Pow(min.X, 2) + Math.Pow(min.Y, 2) + Math.Pow(min.Z, 2))),
+                                    Math.Abs(Math.Sqrt(Math.Pow(max.X, 2) + Math.Pow(max.Y, 2) + Math.Pow(max.Z, 2)))
+                                  );
         }
     }
 }
