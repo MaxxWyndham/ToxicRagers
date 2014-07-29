@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -131,20 +132,10 @@ namespace ToxicRagers.Helpers
             return hex.ToString();
         }
 
-        public static string ToFormattedString(this int[] ia)
+        public static string ToFormattedString<T>(this T a)
+            where T : IEnumerable
         {
-            int count = ia.Length;
-            StringBuilder hex = new StringBuilder();
-            for (int i = 0; i < count; i++) { hex.AppendFormat("{0}{1}", ia[i], (i + 1 < count ? "," : "")); }
-            return hex.ToString();
-        }
-
-        public static string ToFormattedString(this double[] da)
-        {
-            int count = da.Length;
-            StringBuilder hex = new StringBuilder();
-            for (int i = 0; i < count; i++) { hex.AppendFormat("{0}{1}", da[i], (i + 1 < count ? "," : "")); }
-            return hex.ToString();
+            return string.Join(",", a);
         }
     }
 }
