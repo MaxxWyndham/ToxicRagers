@@ -45,6 +45,14 @@ namespace ToxicRagers.CarmageddonReincarnation.Helpers
             return s;
         }
 
+        public string ReadFirstLine()
+        {
+            // keeps reading lines until it reaches a valid one or EOF
+            string s = ReadNextLine();
+            while (s == null) { s = ReadNextLine(); }
+            return s;
+        }
+
         public string ReadNextLine()
         {
             this.position = this.br.BaseStream.Position;
@@ -61,7 +69,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Helpers
                 {
                     case '<':
                     case '[':
-                        bRead = (s.Trim().Length == 0);
+                        bRead = (s.Length == 0);
                         break;
 
                     case '>':
@@ -72,11 +80,20 @@ namespace ToxicRagers.CarmageddonReincarnation.Helpers
 
                     case 10:
                     case 13:
-                        bRead = (s.Trim().Length == 0);
+                        bRead = (s.Length == 0);
+                        break;
+
+                    case '/':
+                        if (s.Length == 1 && s[0] == '/')
+                        {
+                            s = "";
+                            while (this.br.ReadChar() != 10) { }
+                        }
                         break;
                 }
 
                 if (bRead) { s += this.br.ReadChar(); }
+                if (s.Trim().Length == 0) { s = s.Trim(); }
             }
 
             if (s.IndexOf("/") > -1) { s = s.Substring(0, s.IndexOf("/")).Trim(); } else { s = s.Trim(); }
@@ -105,6 +122,27 @@ namespace ToxicRagers.CarmageddonReincarnation.Helpers
         public Vector3 ReadVector3()
         {
             return Vector3.Parse(ReadNextLine());
+        }
+
+        public string[] ReadStringArray(int expectedLength = -1)
+        {
+            var a = ReadNextLine().Split(' ');
+
+            if (expectedLength == -1)
+            {
+                return a;
+            }
+            else
+            {
+                if (a.Length != expectedLength)
+                {
+                    return null;
+                }
+                else
+                {
+                    return a;
+                }
+            }
         }
 
         public void Rewind()
