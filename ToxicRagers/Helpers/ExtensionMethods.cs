@@ -89,6 +89,16 @@ namespace ToxicRagers.Helpers
             bw.Write(s.ToCharArray());
         }
 
+        public static Single ToSingle(this string s)
+        {
+            return Single.Parse(s, ToxicRagers.Culture);
+        }
+
+        public static T ToEnum<T>(this string value, bool ignoreCase = true)
+        {
+            return (T)Enum.Parse(typeof(T), value, ignoreCase);
+        }
+
         public static void Add(this Dictionary<string, string> d, string[] kvp)
         {
             d[kvp[0]] = string.Join(" ", kvp, 1, kvp.Length - 1);
