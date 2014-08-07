@@ -47,6 +47,11 @@ namespace ToxicRagers.Helpers
             return _x + _y + _z;
         }
 
+        public static Vector3 TransformVector(Vector3 v, Matrix3D m)
+        {
+            return v * m;
+        }
+
         public static Vector3 Parse(string v)
         {
             v = v.Replace(" ", "");

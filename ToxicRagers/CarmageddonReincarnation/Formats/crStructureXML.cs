@@ -463,7 +463,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                                     break;
 			
                                 case "Set_PreIK_StrutWishboneMountFL":
-			                    case "Set_PreIK_StrutWishboneMountFR":
+                                case "Set_PreIK_StrutWishboneMountFR":
                                 case "Set_PreIK_StrutWishboneMountRL":
                                 case "Set_PreIK_StrutWishboneMountRR":
                                 case "Set_PreIK_StrutUpperMountFL":

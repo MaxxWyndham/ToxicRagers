@@ -89,6 +89,20 @@ namespace ToxicRagers.Helpers
             return m;
         }
 
+        public static Matrix3D CreateScale(Single scale)
+        {
+            return CreateScale(scale, scale, scale);
+        }
+
+        public static Matrix3D CreateScale(Single x, Single y, Single z)
+        {
+            Matrix3D m = Matrix3D.Identity;
+            m.M11 = x;
+            m.M22 = y;
+            m.M33 = z;
+            return m;
+        }
+
         public Vector3 Position
         {
             get { return new Vector3(M41, M42, M43); }
