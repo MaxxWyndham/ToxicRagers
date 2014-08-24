@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Globalization;
 using System.IO;
 using System.Text;
 using ToxicRagers.Helpers;
@@ -8,7 +7,6 @@ namespace ToxicRagers.CarmageddonReincarnation.Helpers
 {
     public class DocumentParser : IDisposable
     {
-        public static CultureInfo Culture = new CultureInfo("en-GB");
         BinaryReader br;
         long position;
 
@@ -116,7 +114,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Helpers
 
         public float ReadFloat()
         {
-            return Convert.ToSingle(ReadNextLine(), Culture);
+            return Convert.ToSingle(ReadNextLine(), ToxicRagers.Culture);
         }
 
         public Vector3 ReadVector3()
