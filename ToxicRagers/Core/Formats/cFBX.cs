@@ -79,6 +79,10 @@ namespace ToxicRagers.Core.Formats
                         Logger.LogToFile("{0}\"{1}\"", padding, prop.Value);
                         break;
 
+                    case 98:
+                        Logger.LogToFile("{0}*{1} {2}", padding, ((bool[])prop.Value).Length, ((bool[])prop.Value).ToFormattedString());
+                        break;
+
                     case 100:
                         Logger.LogToFile("{0}*{1} {2}", padding, ((double[])prop.Value).Length, ((double[])prop.Value).ToFormattedString());
                         break;
@@ -183,6 +187,36 @@ namespace ToxicRagers.Core.Formats
                     property.Value = br.ReadPropertyString((int)br.ReadUInt32());
                     break;
 
+                case 98: // bool array
+                    {
+                        var array = new bool[(int)br.ReadUInt32()];
+                        encoding = (int)br.ReadUInt32();
+                        comLength = (int)br.ReadUInt32();
+
+                        if (encoding == 0)
+                        {
+                            for (int i = 0; i < array.Length; i++)
+                            {
+                                array[i] = br.ReadBoolean();
+                            }
+                        }
+                        else
+                        {
+                            br.BaseStream.Seek(2, SeekOrigin.Current);
+
+                            using (var ms = new MemoryStream(br.ReadBytes(comLength - 2)))
+                            using (var ds = new DeflateStream(ms, CompressionMode.Decompress))
+                            {
+                                var data = new byte[1 * array.Length];
+                                ds.Read(data, 0, 1 * array.Length);
+                                Buffer.BlockCopy(data, 0, array, 0, array.Length * 1);
+                            }
+                        }
+
+                        property.Value = array;
+                    }
+                    break;
+
                 case 100: // Double array
                     {
                         var array = new double[(int)br.ReadUInt32()];
@@ -213,7 +247,7 @@ namespace ToxicRagers.Core.Formats
                     }
                     break;
 
-                case 102: // floa array
+                case 102: // float array
                     {
                         var array = new float[(int)br.ReadUInt32()];
                         encoding = (int)br.ReadUInt32();
@@ -511,6 +545,16 @@ namespace ToxicRagers.Core.Formats
                         if (propertyValue == null) { propertyValue = ""; }
                         return 4 + ((string)propertyValue).Length;
 
+                    case 98: // bool array
+                        if (rawData == null)
+                        {
+                            rawData = new byte[((bool[])propertyValue).Length * sizeof(bool)];
+                            Buffer.BlockCopy((bool[])propertyValue, 0, rawData, 0, rawData.Length);
+                            if (compressed) { rawData = Compress(rawData); }
+                        }
+
+                        return 12 + rawData.Length;
+
                     case 100: // Double array
                         if (rawData == null)
                         {
@@ -589,6 +633,14 @@ namespace ToxicRagers.Core.Formats
                     var s = (string)propertyValue;
                     bw.Write(s.Length);
                     bw.WritePropertyString(s);
+                    break;
+
+                case 98: // bool array
+                    var bo = (bool[])propertyValue;
+                    bw.Write(bo.Length);
+                    bw.Write((compressed ? 1 : 0));
+                    bw.Write(rawData.Length);
+                    bw.Write(rawData);
                     break;
 
                 case 100: // Double array
