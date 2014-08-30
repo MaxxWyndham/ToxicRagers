@@ -73,6 +73,7 @@
     <Compile Include="CarmageddonReincarnation\Formats\crMT2.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\crTDX.cs" />
     <Compile Include="CarmageddonReincarnation\Helpers\XMLParser.cs" />
+    <Compile Include="CarmageddonReincarnation\Helpers\XMLWriter.cs" />
     <Compile Include="Carmageddon\Helpers\DocumentParser.cs" />
     <Compile Include="Core\Formats\cDDS.cs" />
     <Compile Include="Core\Formats\cFBX.cs" />
