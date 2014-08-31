@@ -377,392 +377,57 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
         }
     }
 
-    public enum StructureCDataCodeMethodType
-    {
-        Add,
-        Set
-    }
-
-    public enum StructureCDataCodeMethodParameterType
-    {
-        String,
-        Float,
-        Int,
-        Boolean
-    }
-
-    public class StructureCDataCodeMethodParameter
-    {
-        StructureCDataCodeMethodParameterType type;
-        string name;
-        string namePretty;
-        string description;
-        object value;
-        bool bForceOutput = false;
-
-        public StructureCDataCodeMethodParameterType Type
-        {
-            get { return type; }
-            set { type = value; }
-        }
-
-        public string Name
-        {
-            get { return name; }
-            set { name = value; }
-        }
-
-        public string PrettyName
-        {
-            get { return namePretty; }
-            set { namePretty = value; }
-        }
-
-        public string Description
-        {
-            get { return description; }
-            set { description = value; }
-        }
-
-        public object Value
-        {
-            get { return value; }
-            set { this.value = value; }
-        }
-
-        public bool ForceOutput
-        {
-            set { bForceOutput = value; }
-        }
-
-        public object FormattedValue
-        {
-            get
-            {
-                switch (type)
-                {
-                    case StructureCDataCodeMethodParameterType.String:
-                        return "\"" + value + "\"";
-
-                    case StructureCDataCodeMethodParameterType.Float:
-                        return (Convert.ToSingle(value) < 0 ? value : string.Format("{0:0.0}", value));
-
-                    case StructureCDataCodeMethodParameterType.Boolean:
-                        return ((bool)value == true ? "true" : "false");
-
-                    default:
-                        return value;
-                }
-            }
-        }
-
-        public bool HasBeenSet
-        {
-            get
-            {
-                switch (type)
-                {
-                    case StructureCDataCodeMethodParameterType.String:
-                        return value != null;
-
-                    case StructureCDataCodeMethodParameterType.Float:
-                        return bForceOutput || (value != null && Convert.ToSingle(value) != default(Single));
-
-                    case StructureCDataCodeMethodParameterType.Boolean:
-                        return (bool)value;
-
-                    default:
-                        return false;
-                }
-            }
-        }
-
-        public T GetValue<T>() where T : class
-        {
-            return value as T;
-        }
-
-        public void SetValue(object value)
-        {
-            switch (type)
-            {
-                case StructureCDataCodeMethodParameterType.String:
-                    this.value = value.ToString().Replace("\"", "");
-                    break;
-
-                case StructureCDataCodeMethodParameterType.Boolean:
-                    this.value = (value.ToString() == "true");
-                    break;
-
-                default:
-                    this.value = value;
-                    break;
-            }
-        }
-
-        public StructureCDataCodeMethodParameter Clone(bool bClearValue = false)
-        {
-            var p = new StructureCDataCodeMethodParameter();
-
-            p.type = this.type;
-            p.name = this.name;
-            p.namePretty = this.namePretty;
-            p.description = this.description;
-            if (!bClearValue) { p.value = this.value; }
-
-            return p;
-        }
-    }
-
-    public class StructureCDataCodeMethod
-    {
-        StructureCDataCodeMethodType methodType;
-        string methodName;
-        List<StructureCDataCodeMethodParameter> parameters;
-
-        public StructureCDataCodeMethodType Type
-        {
-            get { return methodType; }
-            set { methodType = value; }
-        }
-
-        public string Name
-        {
-            get { return methodName; }
-            set { methodName = value; }
-        }
-
-        public List<StructureCDataCodeMethodParameter> Parameters
-        {
-            get { return parameters; }
-            set { parameters = value; }
-        }
-
-        public bool ShouldWrite
-        {
-            get
-            {
-                foreach (var parameter in parameters)
-                {
-                    if (parameter.HasBeenSet) { return true; }
-                }
-
-                return false;
-            }
-        }
-
-        public StructureCDataCodeMethod()
-        {
-            parameters = new List<StructureCDataCodeMethodParameter>();
-        }
-
-        public StructureCDataCodeMethod Clone(bool bResetParameterValues = false)
-        {
-            var m = new StructureCDataCodeMethod();
-
-            m.methodType = this.methodType;
-            m.methodName = this.methodName;
-
-            foreach (var parameter in this.parameters)
-            {
-                m.parameters.Add(parameter.Clone(bResetParameterValues));
-            }
-
-            return m;
-        }
-    }
-
-    public abstract class StructureCDataCode
-    {
-        protected string blockPrefix = "";
-        protected List<StructureCDataCodeMethod> methods;
-
-        public string BlockPrefix
-        {
-            get { return blockPrefix; }
-            set { blockPrefix = value; }
-        }
-
-        public List<StructureCDataCodeMethod> Methods
-        {
-            get { return methods; }
-        }
-
-        public StructureCDataCode()
-        {
-            methods = new List<StructureCDataCodeMethod>();
-        }
-
-        public void AddMethod(StructureCDataCodeMethodType methodType, string[] methodNames, params StructureCDataCodeMethodParameter[] methodParameters)
-        {
-            foreach (string methodName in methodNames)
-            {
-                AddMethod(methodType, methodName, methodParameters);
-            }
-        }
-
-        public void AddMethod(StructureCDataCodeMethodType methodType, string methodName, params StructureCDataCodeMethodParameter[] methodParameters)
-        {
-            var method = new StructureCDataCodeMethod();
-            method.Type = methodType;
-            method.Name = methodName;
-
-            foreach (var parameter in methodParameters)
-            {
-                method.Parameters.Add(parameter);
-            }
-
-            methods.Add(method);
-        }
-
-        public void SetParameterForMethod(string methodName, string parameterName, object parameterValue)
-        {
-            var match = methods.Select((m, index) => new { Index = index, Method = m }).Where(m => m.Method.Name == methodName).Last();
-
-            if (match != null)
-            {
-                var parameter = match.Method.Parameters.Find(p => p.Name == parameterName);
-
-                if (parameter != null)
-                {
-                    if (match.Method.Type == StructureCDataCodeMethodType.Add && parameter.HasBeenSet)
-                    {
-                        methods.Insert(match.Index + 1, match.Method.Clone(true));
-                        this.SetParameterForMethod(methodName, parameterName, parameterValue);
-                    }
-                    else
-                    {
-                        parameter.SetValue(parameterValue);
-                    }
-                }
-                else
-                {
-                    throw new ArgumentException(string.Format("{0} is not a parameter of {1}:{2}", parameterName, blockPrefix, methodName));
-                }
-            }
-            else
-            {
-                throw new ArgumentException(string.Format("{0} is not a method of {1}", methodName, blockPrefix));
-            }
-        }
-
-        public static T Parse<T>(string cdata) where T : StructureCDataCode, new()
-        {
-            var r = new T();
-
-            var lines = cdata.Split('\r', '\n').Select(str => str.Trim())
-                                               .Where(str => str != string.Empty)
-                                               .ToArray();
-
-            for (int i = 0; i < lines.Length; i++)
-            {
-                var line = lines[i].Trim();
-                if (line.Substring(0, 2) == "--") { continue; }
-
-                var c = line.Split(':', '(', ')').Select(str => str.Trim())
-                                                 .Where(str => str != string.Empty)
-                                                 .ToArray();
-
-                if (c[0] != r.blockPrefix) { throw new ArgumentOutOfRangeException(string.Format("{0} was unexpected, expected {1}", c[0], r.blockPrefix)); }
-
-                var method = r.methods.Find(m => m.Name == c[1].Substring(4) && m.Type == c[1].Substring(0, 3).ToEnum<StructureCDataCodeMethodType>());
-
-                if (method != null)
-                {
-                    for (int j = 2; j < c.Length; j++)
-                    {
-                        method.Parameters[j - 2].SetValue(c[j]);
-                    }
-                }
-                else
-                {
-                    throw new NotImplementedException(string.Format("Unknown {0} method: {1}", r.blockPrefix, c[1]));
-                }
-            }
-
-            return r;
-        }
-
-        public override string ToString()
-        {
-            var sb = new StringBuilder();
-
-            var toWrite = methods.Select(m => m).Where(m => m.ShouldWrite == true).ToList();
-            int methodCount = toWrite.Count;
-
-            for (int i = 0; i < methodCount; i++)
-            {
-                var method = toWrite[i];
-
-                sb.AppendFormat("{0}:{1}_{2}( ", blockPrefix, method.Type, method.Name);
-
-                int parameterCount = method.Parameters.Count;
-
-                for (int j = 0; j < parameterCount; j++)
-                {
-                    sb.Append(method.Parameters[j].FormattedValue);
-                    if (j + 1 < parameterCount) { sb.Append(", "); }
-                }
-
-                sb.Append(" )");
-                if (i + 1 < methodCount) { sb.AppendLine(); }
-            }
-
-            return sb.ToString();
-        }
-    }
-
-    public class StructureWeldCode : StructureCDataCode
+    public class StructureWeldCode : LUACodeBlock
     {
         public StructureWeldCode()
         {
             this.blockPrefix = "CWeldParameters";
 
             this.AddMethod(
-                StructureCDataCodeMethodType.Set,
+                LUACodeBlockMethodType.Set,
                 "VertexColour",
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "R", Value = 0 },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "G", Value = 0 },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "B", Value = 0 },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "A", Value = 0 }
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "R", Value = 0 },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "G", Value = 0 },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "B", Value = 0 },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "A", Value = 0 }
             );
 
             this.AddMethod(
-                StructureCDataCodeMethodType.Set,
+                LUACodeBlockMethodType.Set,
                 "Weakness",
-                new StructureCDataCodeMethodParameter() { Type = StructureCDataCodeMethodParameterType.Float, Name = "Value", Value = -3 }
+                new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Float, Name = "Value", Value = -3 }
             );
 
             this.AddMethod(
-                StructureCDataCodeMethodType.Set,
+                LUACodeBlockMethodType.Set,
                 "AbsoluteLimit",
-                new StructureCDataCodeMethodParameter() { Type = StructureCDataCodeMethodParameterType.Float, Name = "Value" }
+                new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Float, Name = "Value" }
             );
 
             this.AddMethod(
-                StructureCDataCodeMethodType.Add,
+                LUACodeBlockMethodType.Add,
                 "PartSpaceVertex",
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "X" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "Y" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "Z" }
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "X" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Y" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Z" }
             );
 
             this.AddMethod(
-                StructureCDataCodeMethodType.Set,
+                LUACodeBlockMethodType.Set,
                 "Break",
-                new StructureCDataCodeMethodParameter() { Type = StructureCDataCodeMethodParameterType.Float, Name = "Value" }
+                new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Float, Name = "Value" }
             );
 
             this.AddMethod(
-                StructureCDataCodeMethodType.Set,
+                LUACodeBlockMethodType.Set,
                 "ChanceOfFailure",
-                new StructureCDataCodeMethodParameter() { Type = StructureCDataCodeMethodParameterType.Int, Name = "Value" }
+                new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Int, Name = "Value" }
             );
 
             this.AddMethod(
-                StructureCDataCodeMethodType.Add,
+                LUACodeBlockMethodType.Add,
                 "GangedBreak",
-                new StructureCDataCodeMethodParameter() { Type = StructureCDataCodeMethodParameterType.String, Name = "Name" }
+                new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.String, Name = "Name" }
             );
         }
 
@@ -772,102 +437,102 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
         }
     }
 
-    public class StructureJointCode : StructureCDataCode
+    public class StructureJointCode : LUACodeBlock
     {
         public StructureJointCode()
         {
             this.blockPrefix = "CWeldJointParameters";
 
             this.AddMethod(
-                StructureCDataCodeMethodType.Set,
+                LUACodeBlockMethodType.Set,
                 "Hinge",
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Boolean, Name = "Value" }
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Boolean, Name = "Value" }
             );
 
             this.AddMethod(
-                StructureCDataCodeMethodType.Set,
+                LUACodeBlockMethodType.Set,
                 "JointAxis",
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "X" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "Y" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "Z" }
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "X" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Y" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Z" }
             );
 
             this.AddMethod(
-                StructureCDataCodeMethodType.Set,
+                LUACodeBlockMethodType.Set,
                 "MaxLimit",
-                new StructureCDataCodeMethodParameter() { Type = StructureCDataCodeMethodParameterType.Float, Name = "Value" }
+                new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Float, Name = "Value" }
             );
 
             // TODO: Find out what the parameters are for Add_FlapSpring
             this.AddMethod(
-                StructureCDataCodeMethodType.Add,
+                LUACodeBlockMethodType.Add,
                 "FlapSpring",
-                new StructureCDataCodeMethodParameter() { Type = StructureCDataCodeMethodParameterType.Float, Name = "A" },
-                new StructureCDataCodeMethodParameter() { Type = StructureCDataCodeMethodParameterType.Float, Name = "B" }
+                new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Float, Name = "A" },
+                new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Float, Name = "B" }
             );
 
             this.AddMethod(
-                StructureCDataCodeMethodType.Set,
+                LUACodeBlockMethodType.Set,
                 "Weakness",
-                new StructureCDataCodeMethodParameter() { Type = StructureCDataCodeMethodParameterType.Float, Name = "Value" }
+                new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Float, Name = "Value" }
             );
 
             this.AddMethod(
-                StructureCDataCodeMethodType.Set,
+                LUACodeBlockMethodType.Set,
                 "JointLocation",
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "X" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "Y" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "Z" }
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "X" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Y" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Z" }
             );
 
             this.AddMethod(
-                StructureCDataCodeMethodType.Set,
+                LUACodeBlockMethodType.Set,
                 "BallJoint",
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Boolean, Name = "Value" }
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Boolean, Name = "Value" }
             );
 
             this.AddMethod(
-                StructureCDataCodeMethodType.Set,
+                LUACodeBlockMethodType.Set,
                 "JointNormal",
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "X" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "Y" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "Z" }
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "X" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Y" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Z" }
             );
 
             this.AddMethod(
-                StructureCDataCodeMethodType.Set,
+                LUACodeBlockMethodType.Set,
                 "MinLimit",
-                new StructureCDataCodeMethodParameter() { Type = StructureCDataCodeMethodParameterType.Float, Name = "Value" }
+                new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Float, Name = "Value" }
             );
 
             this.AddMethod(
-                StructureCDataCodeMethodType.Set,
+                LUACodeBlockMethodType.Set,
                 "MaxLimit",
-                new StructureCDataCodeMethodParameter() { Type = StructureCDataCodeMethodParameterType.Float, Name = "Value" }
+                new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Float, Name = "Value" }
             );
 
             this.AddMethod(
-                StructureCDataCodeMethodType.Set,
+                LUACodeBlockMethodType.Set,
                 "MinLimit2",
-                new StructureCDataCodeMethodParameter() { Type = StructureCDataCodeMethodParameterType.Float, Name = "Value" }
+                new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Float, Name = "Value" }
             );
 
             this.AddMethod(
-                StructureCDataCodeMethodType.Set,
+                LUACodeBlockMethodType.Set,
                 "MaxLimit2",
-                new StructureCDataCodeMethodParameter() { Type = StructureCDataCodeMethodParameterType.Float, Name = "Value" }
+                new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Float, Name = "Value" }
             );
 
             this.AddMethod(
-                StructureCDataCodeMethodType.Set,
+                LUACodeBlockMethodType.Set,
                 "MinTwistLimit",
-                new StructureCDataCodeMethodParameter() { Type = StructureCDataCodeMethodParameterType.Float, Name = "Value" }
+                new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Float, Name = "Value" }
             );
 
             this.AddMethod(
-                StructureCDataCodeMethodType.Set,
+                LUACodeBlockMethodType.Set,
                 "MaxTwistLimit",
-                new StructureCDataCodeMethodParameter() { Type = StructureCDataCodeMethodParameterType.Float, Name = "Value" }
+                new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Float, Name = "Value" }
             );
         }
 
@@ -877,47 +542,47 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
         }
     }
 
-    public class StructureDamageCode : StructureCDataCode
+    public class StructureDamageCode : LUACodeBlock
     {
         public StructureDamageCode()
         {
             this.blockPrefix = "CDamageParameters";
 
             this.AddMethod(
-                StructureCDataCodeMethodType.Set,
+                LUACodeBlockMethodType.Set,
                 "Crushability",
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "Value", ForceOutput = true }
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Value", ForceOutput = true }
             );
 
             this.AddMethod(
-                StructureCDataCodeMethodType.Set,
+                LUACodeBlockMethodType.Set,
                 "Stiffness",
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "Value", Value = 0.3f }
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Value", Value = 0.3f }
             );
 
             this.AddMethod(
-                StructureCDataCodeMethodType.Set,
+                LUACodeBlockMethodType.Set,
                 "DriverBoxVertexColour",
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "R", Value = 0 },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "G", Value = 0 },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "B", Value = 0 },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "A", Value = 0 }
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "R", Value = 0 },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "G", Value = 0 },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "B", Value = 0 },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "A", Value = 0 }
             );
 
             this.AddMethod(
-                StructureCDataCodeMethodType.Add,
+                LUACodeBlockMethodType.Add,
                 "VehicleSimpleWeapon",
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.String, Name = "Name" }
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.String, Name = "Name" }
             );
 
             this.AddMethod(
-                StructureCDataCodeMethodType.Set,
+                LUACodeBlockMethodType.Set,
                 "Resiliance",
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "Value" }
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Value" }
             );
 
             this.AddMethod(
-                StructureCDataCodeMethodType.Set,
+                LUACodeBlockMethodType.Set,
                 new string[] {
                     "PreIK_StrutWishboneMountFL", 
                     "PreIK_StrutWishboneMountFR", 
@@ -936,287 +601,287 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                     "PreIK_WishboneMountUpperRL",
                     "PreIK_WishboneMountUpperRR"
                 },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Int, Name = "PivotAxis", PrettyName = "Pivot Axis" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "X", PrettyName = "Pivot X" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "Y", PrettyName = "Pivot Y" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "Z", PrettyName = "Pivot Z" }
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Int, Name = "PivotAxis", PrettyName = "Pivot Axis" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "X", PrettyName = "Pivot X" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Y", PrettyName = "Pivot Y" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Z", PrettyName = "Pivot Z" }
             );
 
             this.AddMethod(
-                StructureCDataCodeMethodType.Set,
+                LUACodeBlockMethodType.Set,
                 new string[] {
                     "PreIK_StrutWishbone",
                     "PreIK_WishboneLower",
                     "PreIK_WishboneUpper"
                 },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Int, Name = "WheelIndex", PrettyName = "Wheel Index" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Int, Name = "PivotAxis", PrettyName = "Pivot Axis" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "InboardX", PrettyName = "Inboard Pivot X" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "InboardY", PrettyName = "Inboard Pivot Y" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "InboardZ", PrettyName = "Inboard Pivot Z" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "OutboardX", PrettyName = "Outboard Pivot X" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "OutboardY", PrettyName = "Outboard Pivot Y" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "OutboardZ", PrettyName = "Outboard Pivot Z" }
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Int, Name = "WheelIndex", PrettyName = "Wheel Index" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Int, Name = "PivotAxis", PrettyName = "Pivot Axis" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "InboardX", PrettyName = "Inboard Pivot X" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "InboardY", PrettyName = "Inboard Pivot Y" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "InboardZ", PrettyName = "Inboard Pivot Z" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "OutboardX", PrettyName = "Outboard Pivot X" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "OutboardY", PrettyName = "Outboard Pivot Y" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "OutboardZ", PrettyName = "Outboard Pivot Z" }
             );
 
             this.AddMethod(
-                StructureCDataCodeMethodType.Add,
+                LUACodeBlockMethodType.Add,
                 "PhysicsProperty",
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.String, Name = "Name" }
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.String, Name = "Name" }
             );
 
             this.AddMethod(
-                StructureCDataCodeMethodType.Set,
+                LUACodeBlockMethodType.Set,
                 new string[] {
                     "PreIK_StrutHub",
                     "PreIK_WishboneHub"
                 },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Int, Name = "WheelIndex", PrettyName = "Wheel Index" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Int, Name = "PivotAxis", PrettyName = "Pivot Axis" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "UpperX", PrettyName = "Upper Pivot X" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "UpperY", PrettyName = "Upper Pivot Y" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "UpperZ", PrettyName = "Upper Pivot Z" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "LowerX", PrettyName = "Lower Pivot X" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "LowerY", PrettyName = "Lower Pivot Y" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "LowerZ", PrettyName = "Lower Pivot Z" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "PositionX", PrettyName = "Wheel Position X" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "PositionY", PrettyName = "Wheel Position Y" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "PositionZ", PrettyName = "Wheel Position Z" }
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Int, Name = "WheelIndex", PrettyName = "Wheel Index" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Int, Name = "PivotAxis", PrettyName = "Pivot Axis" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "UpperX", PrettyName = "Upper Pivot X" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "UpperY", PrettyName = "Upper Pivot Y" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "UpperZ", PrettyName = "Upper Pivot Z" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "LowerX", PrettyName = "Lower Pivot X" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "LowerY", PrettyName = "Lower Pivot Y" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "LowerZ", PrettyName = "Lower Pivot Z" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "PositionX", PrettyName = "Wheel Position X" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "PositionY", PrettyName = "Wheel Position Y" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "PositionZ", PrettyName = "Wheel Position Z" }
             );
 
             this.AddMethod(
-                StructureCDataCodeMethodType.Set,
+                LUACodeBlockMethodType.Set,
                 "ShapeType",
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.String, Name = "Shape" }
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.String, Name = "Shape" }
             );
 
             this.AddMethod(
-                StructureCDataCodeMethodType.Set,
+                LUACodeBlockMethodType.Set,
                 "Restitution",
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "Value" }
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Value" }
             );
 
             this.AddMethod(
-                StructureCDataCodeMethodType.Set,
+                LUACodeBlockMethodType.Set,
                 "PreIK_StrutHub",
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Int, Name = "WheelIndex", PrettyName = "Wheel Index" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Int, Name = "PivotAxis", PrettyName = "Pivot Axis" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "UpperX", PrettyName = "Upper Pivot X" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "UpperY", PrettyName = "Upper Pivot Y" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "UpperZ", PrettyName = "Upper Pivot Z" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "LowerX", PrettyName = "Lower Pivot X" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "LowerY", PrettyName = "Lower Pivot Y" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "LowerZ", PrettyName = "Lower Pivot Z" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "PositionX", PrettyName = "Wheel Position X" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "PositionY", PrettyName = "Wheel Position Y" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "PositionZ", PrettyName = "Wheel Position Z" }
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Int, Name = "WheelIndex", PrettyName = "Wheel Index" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Int, Name = "PivotAxis", PrettyName = "Pivot Axis" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "UpperX", PrettyName = "Upper Pivot X" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "UpperY", PrettyName = "Upper Pivot Y" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "UpperZ", PrettyName = "Upper Pivot Z" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "LowerX", PrettyName = "Lower Pivot X" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "LowerY", PrettyName = "Lower Pivot Y" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "LowerZ", PrettyName = "Lower Pivot Z" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "PositionX", PrettyName = "Wheel Position X" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "PositionY", PrettyName = "Wheel Position Y" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "PositionZ", PrettyName = "Wheel Position Z" }
             );
 
             this.AddMethod(
-                StructureCDataCodeMethodType.Set,
+                LUACodeBlockMethodType.Set,
                 "PostIK_SnapPointToPointOnOtherPart",
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "ThisX", PrettyName = "This PartSpace X" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "ThisY", PrettyName = "This PartSpace Y" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "ThisZ", PrettyName = "This PartSpace Z" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.String, Name = "Partner" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "ThatX", PrettyName = "That PartSpace X" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "ThatY", PrettyName = "That PartSpace Y" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "ThatZ", PrettyName = "That PartSpace Z" }
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "ThisX", PrettyName = "This PartSpace X" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "ThisY", PrettyName = "This PartSpace Y" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "ThisZ", PrettyName = "This PartSpace Z" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.String, Name = "Partner" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "ThatX", PrettyName = "That PartSpace X" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "ThatY", PrettyName = "That PartSpace Y" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "ThatZ", PrettyName = "That PartSpace Z" }
             );
 
             this.AddMethod(
-                StructureCDataCodeMethodType.Set,
+                LUACodeBlockMethodType.Set,
                 new string[] {
                     "PostIK_RotatePointToPointOnOtherPart",
                     "PostIK_RotatePointToPointOnOtherPartWithScaling"
                 },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "RotateX", PrettyName = "Rotation Axis X" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "RotateY", PrettyName = "Rotation Axis Y" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "RotateZ", PrettyName = "Rotation Axis Z" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.String, Name = "Partner" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "ThatX", PrettyName = "That PartSpace X" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "ThatY", PrettyName = "That PartSpace Y" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "ThatZ", PrettyName = "That PartSpace Z" }
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "RotateX", PrettyName = "Rotation Axis X" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "RotateY", PrettyName = "Rotation Axis Y" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "RotateZ", PrettyName = "Rotation Axis Z" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.String, Name = "Partner" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "ThatX", PrettyName = "That PartSpace X" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "ThatY", PrettyName = "That PartSpace Y" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "ThatZ", PrettyName = "That PartSpace Z" }
             );
 
             this.AddMethod(
-                StructureCDataCodeMethodType.Set,
+                LUACodeBlockMethodType.Set,
                 new string[] {
                     "PreIK_LiveAxle",
                     "PreIK_LiveAxle_Hub",
                     "PreIK_LiveAxle_TrailingArmMount"
                 },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Int, Name = "WheelIndex", PrettyName = "Wheel Index" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "MountX", PrettyName = "Right Trailing Mount Point X" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "MountY", PrettyName = "Right Trailing Mount Point Y" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "MountZ", PrettyName = "Right Trailing Mount Point Z" }
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Int, Name = "WheelIndex", PrettyName = "Wheel Index" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "MountX", PrettyName = "Right Trailing Mount Point X" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "MountY", PrettyName = "Right Trailing Mount Point Y" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "MountZ", PrettyName = "Right Trailing Mount Point Z" }
             );
 
             this.AddMethod(
-                StructureCDataCodeMethodType.Set,
+                LUACodeBlockMethodType.Set,
                 new string[] {
                     "PostIK_RotateInX",
                     "PostIK_RotateInY",
                     "PostIK_RotateInZ",
                     "PostIK_SlideInY"
                 },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.String, Name = "Variable" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "Factor" }
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.String, Name = "Variable" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Factor" }
             );
 
             this.AddMethod(
-                StructureCDataCodeMethodType.Set,
+                LUACodeBlockMethodType.Set,
                 "PreIK_LiveAxle_TrailingArm",
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Int, Name = "WheelIndex", PrettyName = "Wheel Index" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "MountX", PrettyName = "Mount Pivot X" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "MountY", PrettyName = "Mount Pivot Y" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "MountZ", PrettyName = "Mount Pivot Z" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "AxleX", PrettyName = "Axle Pivot X" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "AxleY", PrettyName = "Axle Pivot Y" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "AxleZ", PrettyName = "Axle Pivot Z" }
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Int, Name = "WheelIndex", PrettyName = "Wheel Index" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "MountX", PrettyName = "Mount Pivot X" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "MountY", PrettyName = "Mount Pivot Y" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "MountZ", PrettyName = "Mount Pivot Z" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "AxleX", PrettyName = "Axle Pivot X" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "AxleY", PrettyName = "Axle Pivot Y" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "AxleZ", PrettyName = "Axle Pivot Z" }
             );
 
             this.AddMethod(
-                StructureCDataCodeMethodType.Set,
+                LUACodeBlockMethodType.Set,
                 "PostIK_RotateVibrateZ",
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.String, Name = "Variable" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "MinFreq", PrettyName = "Min frequency in Hz" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "MaxFreq", PrettyName = "Max frequency in Hz" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "RandFreq", PrettyName = "Random frequency perturbation (as a fraction of total frequency)" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "MinAmp", PrettyName = "Min amplitude in degrees" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "MaxAmp", PrettyName = "Max amplitude in degrees" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "RandAmp", PrettyName = "Random amplitude perturbation (as a fraction of total amplitude)" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "PointX", PrettyName = "Vibrate Pivot X" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "PointY", PrettyName = "Vibrate Pivot Y" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "PointZ", PrettyName = "Vibrate Pivot Z" }
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.String, Name = "Variable" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "MinFreq", PrettyName = "Min frequency in Hz" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "MaxFreq", PrettyName = "Max frequency in Hz" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "RandFreq", PrettyName = "Random frequency perturbation (as a fraction of total frequency)" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "MinAmp", PrettyName = "Min amplitude in degrees" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "MaxAmp", PrettyName = "Max amplitude in degrees" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "RandAmp", PrettyName = "Random amplitude perturbation (as a fraction of total amplitude)" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "PointX", PrettyName = "Vibrate Pivot X" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "PointY", PrettyName = "Vibrate Pivot Y" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "PointZ", PrettyName = "Vibrate Pivot Z" }
             );
 
             this.AddMethod(
-                StructureCDataCodeMethodType.Add,
+                LUACodeBlockMethodType.Add,
                 new string[] {
                     "PostIK_NamedRotateInX",
                     "PostIK_NamedRotateInY",
                     "PostIK_NamedRotateInZ"
                 },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.String, Name = "Variable" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "Factor" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.String, Name = "Part" }
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.String, Name = "Variable" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Factor" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.String, Name = "Part" }
             );
 
             this.AddMethod(
-                StructureCDataCodeMethodType.Set,
+                LUACodeBlockMethodType.Set,
                 "Mass",
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "Value" }
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Value" }
             );
 
             this.AddMethod(
-                StructureCDataCodeMethodType.Set,
+                LUACodeBlockMethodType.Set,
                 "CrushDamageSoundSubCat",
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.String, Name = "Category" }
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.String, Name = "Category" }
             );
 
             this.AddMethod(
-                StructureCDataCodeMethodType.Add,
+                LUACodeBlockMethodType.Add,
                 "FunctionalLight",
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.String, Name = "Light" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.String, Name = "Part" }
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.String, Name = "Light" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.String, Name = "Part" }
             );
 
             this.AddMethod(
-                StructureCDataCodeMethodType.Add,
+                LUACodeBlockMethodType.Add,
                 "CrushDamageMaterial",
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Int, Name = "Level" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.String, Name = "Material" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.String, Name = "Texture" }
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Int, Name = "Level" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.String, Name = "Material" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.String, Name = "Texture" }
             );
 
             this.AddMethod(
-                StructureCDataCodeMethodType.Add,
+                LUACodeBlockMethodType.Add,
                 "CrushDamageEmitter",
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Int, Name = "Level" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.String, Name = "EmitterName", PrettyName = "Emitter Name" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "X" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "Y" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "Z" }
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Int, Name = "Level" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.String, Name = "EmitterName", PrettyName = "Emitter Name" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "X" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Y" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Z" }
             );
 
             this.AddMethod(
-                StructureCDataCodeMethodType.Set,
+                LUACodeBlockMethodType.Set,
                 "PostIK_RotatePointToLineOnOtherPart",
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "ThisX", PrettyName = "This PartSpace X" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "ThisY", PrettyName = "This PartSpace Y" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "ThisZ", PrettyName = "This PartSpace Z" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.String, Name = "Partner" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "ThatX", PrettyName = "That PartSpace X" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "ThatY", PrettyName = "That PartSpace Y" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "ThatZ", PrettyName = "That PartSpace Z" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "LineX", PrettyName = "Line X" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "LineY", PrettyName = "Line Y" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "LineZ", PrettyName = "Line Z" }
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "ThisX", PrettyName = "This PartSpace X" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "ThisY", PrettyName = "This PartSpace Y" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "ThisZ", PrettyName = "This PartSpace Z" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.String, Name = "Partner" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "ThatX", PrettyName = "That PartSpace X" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "ThatY", PrettyName = "That PartSpace Y" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "ThatZ", PrettyName = "That PartSpace Z" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "LineX", PrettyName = "Line X" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "LineY", PrettyName = "Line Y" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "LineZ", PrettyName = "Line Z" }
             );
 
             this.AddMethod(
-                StructureCDataCodeMethodType.Set,
+                LUACodeBlockMethodType.Set,
                 "PostIK_RockInX",
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.String, Name = "Variable" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "Speed", PrettyName = "Speed Factor" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "Amplitude", PrettyName = "Amplitude in degrees" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "RockX", PrettyName = "Rock Centre X" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "RockY", PrettyName = "Rock Centre Y" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "RockZ", PrettyName = "Rock Centre Z" }
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.String, Name = "Variable" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Speed", PrettyName = "Speed Factor" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Amplitude", PrettyName = "Amplitude in degrees" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "RockX", PrettyName = "Rock Centre X" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "RockY", PrettyName = "Rock Centre Y" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "RockZ", PrettyName = "Rock Centre Z" }
             );
 
             this.AddMethod(
-                StructureCDataCodeMethodType.Add,
+                LUACodeBlockMethodType.Add,
                 new string[] {
                     "PedWeapon",
                     "VehicleWeapon",
                     "AccessoryWeapon"
                 },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.String, Name = "Weapon" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "Constant" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "X" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "Y" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "Z" }
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.String, Name = "Weapon" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Constant" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "X" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Y" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Z" }
             );
 
             this.AddMethod(
-                StructureCDataCodeMethodType.Set,
+                LUACodeBlockMethodType.Set,
                 "DriverEjectionSmash",
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Boolean, Name = "Value" }
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Boolean, Name = "Value" }
             );
 
             this.AddMethod(
-                StructureCDataCodeMethodType.Set,
+                LUACodeBlockMethodType.Set,
                 "SoundConfigFile",
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.String, Name = "File" }
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.String, Name = "File" }
             );
 
             this.AddMethod(
-                StructureCDataCodeMethodType.Add,
+                LUACodeBlockMethodType.Add,
                 new string[] {
                     "DetachPartEmitter",
                     "DetachParentEmitter"
                 },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.String, Name = "EmitterName", PrettyName = "Emitter Name" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "X" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "Y" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "Z" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "Factor", PrettyName = "Snap-force factor" }
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.String, Name = "EmitterName", PrettyName = "Emitter Name" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "X" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Y" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Z" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Factor", PrettyName = "Snap-force factor" }
             );
 
             this.AddMethod(
-                StructureCDataCodeMethodType.Set,
+                LUACodeBlockMethodType.Set,
                 "AlwaysJointed",
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Boolean, Name = "Value" }
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Boolean, Name = "Value" }
             );
 
             this.AddMethod(
-                StructureCDataCodeMethodType.Set,
+                LUACodeBlockMethodType.Set,
                 "PostIK_OscillateInZ",
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.String, Name = "Variable" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "BackFactor", PrettyName = "Back Factor" },
-                new StructureCDataCodeMethodParameter { Type = StructureCDataCodeMethodParameterType.Float, Name = "ForthFactor", PrettyName = "Forward Factor" }
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.String, Name = "Variable" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "BackFactor", PrettyName = "Back Factor" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "ForthFactor", PrettyName = "Forward Factor" }
             );
         }
 
@@ -1226,46 +891,46 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
         }
     }
 
-    public class StructureCharacteristicsCode : StructureCDataCode
+    public class StructureCharacteristicsCode : LUACodeBlock
     {
         public StructureCharacteristicsCode()
         {
             this.blockPrefix = "CVehicleCharacteristics";
 
             this.AddMethod(
-                StructureCDataCodeMethodType.Set,
+                LUACodeBlockMethodType.Set,
                 "DefenceGeneral",
-                new StructureCDataCodeMethodParameter() { Type = StructureCDataCodeMethodParameterType.Float, Name = "Factor", Value = 1.0f }
+                new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Float, Name = "Factor", Value = 1.0f }
             );
 
             this.AddMethod(
-                StructureCDataCodeMethodType.Set,
+                LUACodeBlockMethodType.Set,
                 "DefenceAgainstCars",
-                new StructureCDataCodeMethodParameter() { Type = StructureCDataCodeMethodParameterType.Float, Name = "Factor", Value = 1.0f }
+                new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Float, Name = "Factor", Value = 1.0f }
             );
 
             this.AddMethod(
-                StructureCDataCodeMethodType.Set,
+                LUACodeBlockMethodType.Set,
                 "Offence",
-                new StructureCDataCodeMethodParameter() { Type = StructureCDataCodeMethodParameterType.Float, Name = "Factor", Value = 1.0f }
+                new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Float, Name = "Factor", Value = 1.0f }
             );
 
             this.AddMethod(
-                StructureCDataCodeMethodType.Set,
+                LUACodeBlockMethodType.Set,
                 "WholeBodyDeformationFactor",
-                new StructureCDataCodeMethodParameter() { Type = StructureCDataCodeMethodParameterType.Float, Name = "Factor" }
+                new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Float, Name = "Factor" }
             );
 
             this.AddMethod(
-                StructureCDataCodeMethodType.Set,
+                LUACodeBlockMethodType.Set,
                 "ValueFactor",
-                new StructureCDataCodeMethodParameter() { Type = StructureCDataCodeMethodParameterType.Float, Name = "Factor" }
+                new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Float, Name = "Factor" }
             );
 
             this.AddMethod(
-                StructureCDataCodeMethodType.Add,
+                LUACodeBlockMethodType.Add,
                 "PermanentPowerup",
-                new StructureCDataCodeMethodParameter() { Type = StructureCDataCodeMethodParameterType.String, Name = "Name" }
+                new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.String, Name = "Name" }
             );
         }
 

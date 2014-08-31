@@ -72,6 +72,7 @@
     <Compile Include="CarmageddonReincarnation\Formats\crLIGHT.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\crMT2.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\crTDX.cs" />
+    <Compile Include="CarmageddonReincarnation\Helpers\LUACodeBlock.cs" />
     <Compile Include="CarmageddonReincarnation\Helpers\XMLParser.cs" />
     <Compile Include="CarmageddonReincarnation\Helpers\XMLWriter.cs" />
     <Compile Include="Carmageddon\Helpers\DocumentParser.cs" />
