@@ -26,6 +26,12 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
     {
         List<SystemsDamageSystemUnit> systemUnits;
 
+        public List<SystemsDamageSystemUnit> Units
+        {
+            get { return systemUnits; }
+            set { systemUnits = value; }
+        }
+
         public SystemsDamage()
         {
             systemUnits = new List<SystemsDamageSystemUnit>();
@@ -47,6 +53,21 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
             return systemsDamage;
         }
+
+        public void Save(string path)
+        {
+            var xml = new XDocument();
+
+            var systems = new XElement("SYSTEMS");
+            foreach (var unit in systemUnits)
+            {
+                systems.Add(unit.Write());
+            }
+
+            xml.Add(new XElement("STRUCTURE", systems));
+
+            XMLWriter.Save(xml, path + "\\SystemsDamage.xml");
+        }
     }
 
     public class SystemsDamageSystemUnit
@@ -58,6 +79,12 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
         {
             get { return unitType; }
             set { unitType = value; }
+        }
+
+        public SystemsDamageUnitCode Settings
+        {
+            get { return unitSettings; }
+            set { unitSettings = value; }
         }
 
         public SystemsDamageSystemUnit() { }
@@ -91,7 +118,6 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                             default:
                                 throw new NotImplementedException("Unknown element of UNIT: " + data.Name);
                         }
-                        break;
                 }
             }
         }
