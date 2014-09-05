@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+
 using ToxicRagers.Helpers;
 using ToxicRagers.CarmageddonReincarnation.Helpers;
+using System.Text;
 
 namespace ToxicRagers.CarmageddonReincarnation.Formats
 {
@@ -131,6 +134,38 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
             return setup;
         }
+
+        public void Save(string path)
+        {
+            using (var sw = new StreamWriter(path + "\\vehicle_setup.cfg"))
+            {
+                if (defaultDriver != null)
+                {
+                    sw.WriteLine("[default_driver]");
+                    sw.WriteLine(defaultDriver);
+                    sw.WriteLine();
+                }
+
+                foreach (var attachment in attachments)
+                {
+                    sw.WriteLine(attachment.Write());
+                }
+
+                foreach (var wheelModule in wheelModules)
+                {
+                    sw.WriteLine(wheelModule.Write());
+                }
+
+                if (suspensionFactors != null) { sw.WriteLine(suspensionFactors.Write()); }
+
+                foreach (var materialMap in materialMaps)
+                {
+                    sw.WriteLine(materialMap.Write());
+                }
+
+                sw.WriteLine(stats.Write());
+            }
+        }
     }
 
     public class VehicleAttachment
@@ -186,6 +221,10 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
         {
             get { return reverseLightSound; }
             set { reverseLightSound = value; }
+        }
+
+        public VehicleAttachment()
+        {
         }
 
         public VehicleAttachment(DocumentParser doc)
@@ -319,6 +358,30 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                     throw new NotImplementedException("Unknown AttachmentType: " + s);
             }
         }
+
+        public string Write()
+        {
+            var sb = new StringBuilder();
+            sb.AppendLine("[attachment]");
+            sb.AppendLine(attachmentType.ToString());
+
+            switch (attachmentType)
+            {
+                case AttachmentType.ComplicatedWheels:
+                    sb.AppendLine(wheels.ToString());
+                    break;
+
+                case AttachmentType.DynamicsFmodEngine:
+                    sb.Append(engine.ToString());
+                    break;
+
+                case AttachmentType.Horn:
+                    sb.AppendLine(string.Format("event {0}", horn));
+                    break;
+            }
+
+            return sb.ToString();
+        }
     }
 
     public class VehicleAttachmentFModEngine
@@ -365,6 +428,16 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             get { return minRevs; }
             set { minRevs = value; }
         }
+
+        public override string ToString()
+        {
+            var sb = new StringBuilder();
+            sb.AppendFormat("engine {0}\r\n", engine);
+            if (rpmSmooth != default(Single)) { sb.AppendFormat("rpmsmooth {0}\r\n", rpmSmooth); }
+            if (onLoadSmooth != default(Single)) { sb.AppendFormat("onloadsmooth {0}\r\n", onLoadSmooth); }
+            if (offLoadSmooth != default(Single)) { sb.AppendFormat("offloadsmooth {0}\r\n", offLoadSmooth); }
+            return sb.ToString();
+        }
     }
 
     public class VehicleAttachmentExhaust
@@ -396,6 +469,18 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
         public string FRWheel { get { return frWheel; } set { frWheel = value; } }
         public string RLWheel { get { return rlWheel; } set { rlWheel = value; } }
         public string RRWheel { get { return rrWheel; } set { rrWheel = value; } }
+
+        public override string ToString()
+        {
+            if (flWheel == frWheel && rlWheel == rrWheel && flWheel == rlWheel)
+            {
+                return "wheel_folder_name " + flWheel;
+            }
+            else
+            {
+                return string.Format("fl_wheel_folder_name {0}\r\nfr_wheel_folder_name {1}\r\nrl_wheel_folder_name {2}\r\nrr_wheel_folder_name {3}", flWheel, frWheel, rlWheel, rrWheel);
+            }
+        }
     }
 
     public class VehicleWheelModule
@@ -436,6 +521,10 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             set { tyreParticleVFX = value; }
         }
 
+        public VehicleWheelModule()
+        {
+        }
+
         public VehicleWheelModule(DocumentParser doc)
         {
             string s = doc.ReadNextLine();
@@ -461,6 +550,30 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                 default:
                     throw new NotImplementedException("Unknown WheelModuleType: " + s);
             }
+        }
+
+        public string Write()
+        {
+            var sb = new StringBuilder();
+            sb.AppendLine("[wheel_module]");
+            sb.AppendLine(wheelModuleType.ToString());
+
+            switch (wheelModuleType)
+            {
+                case WheelModuleType.TyreParticles:
+                    sb.AppendLine(string.Format("vfx {0}", tyreParticleVFX));
+                    break;
+
+                case WheelModuleType.SkidNoise:
+                    sb.AppendLine(string.Format("sounds {0}", skidNoiseSound));
+                    break;
+
+                case WheelModuleType.SkidMarks:
+                    sb.AppendLine(string.Format("image {0}", skidMarkImage));
+                    break;
+            }
+
+            return sb.ToString();
         }
     }
 
@@ -499,6 +612,14 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                         throw new NotImplementedException("Unknown MaterialMap parameter: " + mm[0]);
                 }
             }
+        }
+
+        public string Write()
+        {
+            var sb = new StringBuilder();
+            sb.AppendLine("[material_map]");
+            sb.AppendLine();
+            return sb.ToString();
         }
     }
 
@@ -551,6 +672,14 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                 }
             }
         }
+
+        public string Write()
+        {
+            var sb = new StringBuilder();
+            sb.AppendLine("[suspension_factors]");
+            sb.AppendLine();
+            return sb.ToString();
+        }
     }
 
     public class VehicleStats
@@ -559,7 +688,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
         Single time;
         Single weight;
         Single toughness;
-        int unlockLevel;
+        int unlockLevel = -1;
 
         public int TopSpeed
         {
@@ -589,6 +718,19 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
         {
             get { return unlockLevel; }
             set { unlockLevel = value; }
+        }
+
+        public string Write()
+        {
+            var sb = new StringBuilder();
+            sb.AppendLine("[stats]");
+            sb.AppendLine(string.Format("{0}// top speed; they must be in this order and not have spaces before the comments", topSpeed));
+            sb.AppendLine(string.Format("{0}// time 0 -60", time));
+            sb.AppendLine(string.Format("{0}// weight", weight));
+            sb.AppendLine(string.Format("{0}// toughness", toughness));
+            if (unlockLevel != -1) { sb.AppendLine(string.Format("{0}// unlock level", unlockLevel)); }
+            sb.AppendLine();
+            return sb.ToString();
         }
     }
 }
