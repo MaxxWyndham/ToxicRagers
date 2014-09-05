@@ -24,12 +24,19 @@ namespace ToxicRagers.CarmageddonReincarnation.Helpers
     public abstract class LUACodeBlock
     {
         protected string blockPrefix = "";
+        protected bool underScored = true;
         protected List<LUACodeBlockMethod> methods;
 
         public string BlockPrefix
         {
             get { return blockPrefix; }
             set { blockPrefix = value; }
+        }
+
+        public bool Underscored
+        {
+            get { return underScored; }
+            set { underScored = value; }
         }
 
         public List<LUACodeBlockMethod> Methods
@@ -58,10 +65,39 @@ namespace ToxicRagers.CarmageddonReincarnation.Helpers
 
             foreach (var parameter in methodParameters)
             {
+                if (parameter.Value == null)
+                {
+                    switch (parameter.Type)
+                    {
+                        case LUACodeBlockMethodParameterType.Boolean:
+                            parameter.Value = false;
+                            break;
+
+                        case LUACodeBlockMethodParameterType.Float:
+                            parameter.Value = 0.0f;
+                            break;
+
+                        case LUACodeBlockMethodParameterType.Int:
+                            parameter.Value = 0;
+                            break;
+
+                        case LUACodeBlockMethodParameterType.String:
+                            break;
+                    }
+                }
+
                 method.Parameters.Add(parameter);
             }
 
             methods.Add(method);
+        }
+
+        public void SetParametersForMethod(string methodName, params object[] parameters)
+        {
+            for (int i = 0; i < parameters.Length; i += 2)
+            {
+                SetParameterForMethod(methodName, parameters[i].ToString(), parameters[i + 1]);
+            }
         }
 
         public void SetParameterForMethod(string methodName, string parameterName, object parameterValue)
@@ -82,6 +118,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Helpers
                     else
                     {
                         parameter.SetValue(parameterValue);
+                        match.Method.HasBeenSet = true;
                     }
                 }
                 else
@@ -114,7 +151,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Helpers
 
                 if (c[0] != r.blockPrefix) { throw new ArgumentOutOfRangeException(string.Format("{0} was unexpected, expected {1}", c[0], r.blockPrefix)); }
 
-                var method = r.methods.Find(m => m.Name == c[1].Substring(4) && m.Type == c[1].Substring(0, 3).ToEnum<LUACodeBlockMethodType>());
+                var method = r.methods.Find(m => m.Name == c[1].Substring((r.underScored ? 4 : 3)) && m.Type == c[1].Substring(0, 3).ToEnum<LUACodeBlockMethodType>());
 
                 if (method != null)
                 {
@@ -143,7 +180,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Helpers
             {
                 var method = toWrite[i];
 
-                sb.AppendFormat("{0}:{1}_{2}( ", blockPrefix, method.Type, method.Name);
+                sb.AppendFormat("{0}:{1}{2}{3}( ", blockPrefix, method.Type, (underScored ? "_" : ""), method.Name);
 
                 int parameterCount = method.Parameters.Count;
 
@@ -166,6 +203,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Helpers
         LUACodeBlockMethodType methodType;
         string methodName;
         List<LUACodeBlockMethodParameter> parameters;
+        bool hasBeenSet;
 
         public LUACodeBlockMethodType Type
         {
@@ -189,6 +227,8 @@ namespace ToxicRagers.CarmageddonReincarnation.Helpers
         {
             get
             {
+                if (hasBeenSet) { return true; }
+
                 foreach (var parameter in parameters)
                 {
                     if (parameter.HasBeenSet) { return true; }
@@ -196,6 +236,12 @@ namespace ToxicRagers.CarmageddonReincarnation.Helpers
 
                 return false;
             }
+        }
+
+        public bool HasBeenSet
+        {
+            get { return hasBeenSet; }
+            set { hasBeenSet = value; }
         }
 
         public LUACodeBlockMethod()

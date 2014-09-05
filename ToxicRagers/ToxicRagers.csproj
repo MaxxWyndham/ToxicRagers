@@ -65,6 +65,7 @@
     <Compile Include="CarmageddoniOS\Formats\iTDX.cs" />
     <Compile Include="CarmageddonPSX\OldCodeImport.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\crRoutesTXT.cs" />
+    <Compile Include="CarmageddonReincarnation\Formats\crSetupLOL.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\crStructureXML.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\crSystemsDamageXML.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\crVehicleSetupCFG.cs" />
