@@ -1,6 +1,5 @@
 ﻿using System;
 using System.ComponentModel;
-using System.Globalization;
 
 namespace ToxicRagers.Helpers
 {
@@ -57,8 +56,7 @@ namespace ToxicRagers.Helpers
             v = v.Replace(" ", "");
             string[] s = v.Split(",".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
 
-            CultureInfo culture = new CultureInfo("en-GB");
-            return new Vector3(Convert.ToSingle(s[0], culture), Convert.ToSingle(s[1], culture), Convert.ToSingle(s[2], culture));
+            return new Vector3(s[0].ToSingle(), s[1].ToSingle(), s[2].ToSingle());
         }
 
         public static Vector3 Cross(Vector3 v1, Vector3 v2)

@@ -82,6 +82,7 @@
     <Compile Include="Core\Formats\cFBX.cs" />
     <Compile Include="DoubleStealSecondClash\Formats\dsscPk.cs" />
     <Compile Include="DoubleStealSecondClash\Formats\dsscXPR.cs" />
+    <Compile Include="Helpers\ColourHelper.cs" />
     <Compile Include="Helpers\Generics\Material.cs" />
     <Compile Include="Carmageddon\Formats\c1CarTXT.cs" />
     <Compile Include="Carmageddon\Helpers\c1Car.cs" />

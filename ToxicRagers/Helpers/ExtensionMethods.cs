@@ -89,6 +89,11 @@ namespace ToxicRagers.Helpers
             bw.Write(s.ToCharArray());
         }
 
+        public static int ToInt(this string s)
+        {
+            return int.Parse(s);
+        }
+
         public static Single ToSingle(this string s)
         {
             return Single.Parse(s, ToxicRagers.Culture);
@@ -97,6 +102,20 @@ namespace ToxicRagers.Helpers
         public static T ToEnum<T>(this string value, bool ignoreCase = true)
         {
             return (T)Enum.Parse(typeof(T), value, ignoreCase);
+        }
+
+        public static T ToEnumWithDefault<T>(this string value, T defaultValue, bool ignoreCase = true) where T: struct
+        {
+            T o;
+
+            if (Enum.TryParse<T>(value, ignoreCase, out o))
+            {
+                return o;
+            }
+            else
+            {
+                return defaultValue;
+            }
         }
 
         public static void Add(this Dictionary<string, string> d, string[] kvp)

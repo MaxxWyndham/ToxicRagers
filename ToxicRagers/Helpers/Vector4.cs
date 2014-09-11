@@ -112,5 +112,13 @@ namespace ToxicRagers.Helpers
         {
             return c - a * b;
         }
+
+        public static Vector4 Parse(string v)
+        {
+            v = v.Replace(" ", "");
+            string[] s = v.Split(",".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+
+            return new Vector4(s[0].ToSingle(), s[1].ToSingle(), s[2].ToSingle(), s[3].ToSingle());
+        }
     }
 }
