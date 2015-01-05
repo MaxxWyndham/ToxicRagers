@@ -326,7 +326,7 @@ namespace ToxicRagers.Carmageddon2.Formats
 
         public bool HasTexture
         {
-            get { return (_texture.Length > 0); }
+            get { return (_texture != null && _texture.Length > 0); }
         }
 
         #region Constructors

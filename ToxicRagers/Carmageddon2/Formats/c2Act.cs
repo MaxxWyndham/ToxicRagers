@@ -38,10 +38,10 @@ namespace ToxicRagers.Carmageddon2.Formats
 
             using (BEBinaryReader br = new BEBinaryReader(fi.OpenRead(), Encoding.Default))
             {
-                if (br.ReadUInt32() != 18 ||
-                    br.ReadUInt32() != 8 ||
-                    br.ReadUInt32() != 1 ||
-                    br.ReadUInt32() != 2)
+                if (br.ReadUInt32() != 0x12 ||
+                    br.ReadUInt32() != 0x8 ||
+                    br.ReadUInt32() != 0x1 ||
+                    br.ReadUInt32() != 0x2)
                 {
                     Logger.LogToFile("{0} isn't a valid ACT file", Path);
                     return null;
@@ -58,7 +58,7 @@ namespace ToxicRagers.Carmageddon2.Formats
 
                     switch (tag)
                     {
-                        case Section.Name:
+                        case Section.Name:  // 00 00 00 23
                             a.ActorType = (ActorType)br.ReadByte();
                             a.RenderStyle = (RenderStyle)br.ReadByte();
                             a.Identifier = br.ReadString();
@@ -69,24 +69,24 @@ namespace ToxicRagers.Carmageddon2.Formats
                             a.Model = br.ReadString();
                             break;
 
-                        case Section.Section37:
+                        case Section.Section37: // 00 00 00 25
                             break;
 
                         case Section.Material:
                             a.Material = br.ReadString();
                             break;
 
-                        case Section.SubLevelBegin:
+                        case Section.SubLevelBegin: // 00 00 00 29
                             break;
 
                         case Section.SubLevelEnd:
                             break;
 
-                        case Section.Matrix:
+                        case Section.Matrix: // 00 00 00 2B
                             a.Transform = new Matrix3D(br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
                             break;
 
-                        case Section.BoundingBox:
+                        case Section.BoundingBox: // 00 00 00 32
                             a.Bounds = new MeshExtents(new Vector3(br.ReadSingle(), br.ReadSingle(), br.ReadSingle()), new Vector3(br.ReadSingle(), br.ReadSingle(), br.ReadSingle()));
                             break;
 
@@ -115,19 +115,18 @@ namespace ToxicRagers.Carmageddon2.Formats
             {
                 int iLength;
 
-                //output header
-                bw.WriteInt32(18);
-                bw.WriteInt32(8);
-                bw.WriteInt32(1);
-                bw.WriteInt32(2);
+                bw.Write(new byte[] { 0x0, 0x0, 0x0, 0x12 });   // Magic Number
+                bw.Write(new byte[] { 0x0, 0x0, 0x0, 0x8 });    // 
+                bw.Write(new byte[] { 0x0, 0x0, 0x0, 0x1 });    // 
+                bw.Write(new byte[] { 0x0, 0x0, 0x0, 0x2 });    // 
 
                 foreach (ACTNode A in sections)
                 {
                     bw.WriteInt32((int)A.Section);
 
-                    switch ((int)A.Section)
+                    switch (A.Section)
                     {
-                        case 35: //Name
+                        case Section.Name:
                             iLength = A.Identifier.Length + 3;
                             bw.WriteInt32(iLength);
                             bw.WriteByte((byte)A.ActorType);
@@ -136,7 +135,7 @@ namespace ToxicRagers.Carmageddon2.Formats
                             bw.WriteByte(0);
                             break;
 
-                        case 43: //Matrix
+                        case Section.Matrix:
                             bw.WriteInt32(48);
                             bw.WriteSingle(A.Transform.M11);
                             bw.WriteSingle(A.Transform.M12);
@@ -152,18 +151,16 @@ namespace ToxicRagers.Carmageddon2.Formats
                             bw.WriteSingle(A.Transform.M43);
                             break;
 
-                        case 37: //Section 37
+                        case Section.Section37:
+                        case Section.SubLevelBegin:
+                        case Section.SubLevelEnd:
                             bw.WriteInt32(0);
                             break;
 
-                        case 36: //Model
+                        case Section.Model:
                             bw.WriteInt32(A.Model.Length + 1);
                             bw.Write(A.Model.ToCharArray());
                             bw.WriteByte(0);
-                            break;
-
-                        case 42: //Sub-Level End
-                            bw.WriteInt32(0);
                             break;
                     }
                 }
@@ -182,10 +179,10 @@ namespace ToxicRagers.Carmageddon2.Formats
 
         public void AddActor(string ActorName, string Model, Matrix3D Transform, bool Parent)
         {
-            sections.Add(new ACTNode(Section.Name, ActorName)); //, false, 1, 4
+            sections.Add(new ACTNode(Section.Name, ActorName) { ActorType = (Model != null ? ActorType.BR_ACTOR_MODEL : ActorType.BR_ACTOR_NONE) });
             sections.Add(new ACTNode(Transform));
             sections.Add(new ACTNode(Section.Section37));
-            sections.Add(new ACTNode(Section.Model, Model));
+            if (Model != null) { sections.Add(new ACTNode(Section.Model, Model)); }
             if (!Parent) { sections.Add(new ACTNode(Section.SubLevelEnd)); }
         }
 
@@ -203,13 +200,23 @@ namespace ToxicRagers.Carmageddon2.Formats
 
             sections.Add(new ACTNode(Section.SubLevelEnd));
         }
+
+        public void AddSubLevelBegin()
+        {
+            sections.Add(new ACTNode(Section.SubLevelBegin));
+        }
+
+        public void AddSubLevelEnd()
+        {
+            sections.Add(new ACTNode(Section.SubLevelEnd));
+        }
     }
 
     public class ACTNode
     {
         Section section;
-        ActorType type;
-        RenderStyle renderStyle;
+        ActorType type = ActorType.BR_ACTOR_MODEL;
+        RenderStyle renderStyle = RenderStyle.BR_RSTYLE_FACES;
         string identifier;
         string model;
         string material;
@@ -293,8 +300,8 @@ namespace ToxicRagers.Carmageddon2.Formats
 
     public enum ActorType
     {
-        BR_ACTOR_NONE,
-        BR_ACTOR_MODEL,
+        BR_ACTOR_NONE = 0x0,
+        BR_ACTOR_MODEL = 0x1,
         BR_ACTOR_LIGHT,
         BR_ACTOR_CAMERA,
         BR_ACTOR_BOUNDS,
@@ -308,7 +315,7 @@ namespace ToxicRagers.Carmageddon2.Formats
         BR_RSTYLE_NONE,
         BR_RSTYLE_POINTS,
         BR_RSTYLE_EDGES,
-        BR_RSTYLE_FACES,
+        BR_RSTYLE_FACES = 0x4,
         BR_RSTYLE_BOUNDING_POINTS,
         BR_RSTYLE_BOUNDING_EDGES,
         BR_RSTYLE_BOUNDING_FACES
