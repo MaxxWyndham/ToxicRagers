@@ -271,6 +271,8 @@ namespace ToxicRagers.TDR2000.Formats
                     break;
             }
 
+            if (node.Parent != null) { parent.Children.Remove(node); }
+
             node.Parent = parent;
             parent.Children.Add(node);
 
