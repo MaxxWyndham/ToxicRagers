@@ -81,6 +81,7 @@
     <Compile Include="Carmageddon\Helpers\DocumentParser.cs" />
     <Compile Include="Core\Formats\cDDS.cs" />
     <Compile Include="Core\Formats\cFBX.cs" />
+    <Compile Include="Core\Formats\cOBB.cs" />
     <Compile Include="DoubleStealSecondClash\Formats\dsscPk.cs" />
     <Compile Include="DoubleStealSecondClash\Formats\dsscXPR.cs" />
     <Compile Include="Helpers\BinaryFileStream.cs" />
@@ -113,6 +114,7 @@
     <Compile Include="Stainless\Formats\sMDL.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Stainless\Formats\sMTL.cs" />
+    <Compile Include="Stainless\Formats\sWAD.cs" />
     <Compile Include="Stainless\Formats\sZAD.cs" />
     <Compile Include="TDR2000\Formats\tdrH.cs" />
     <Compile Include="TDR2000\Formats\tdrHIE.cs" />
