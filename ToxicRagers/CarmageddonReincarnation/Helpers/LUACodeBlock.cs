@@ -137,13 +137,21 @@ namespace ToxicRagers.CarmageddonReincarnation.Helpers
             var r = new T();
 
             var lines = cdata.Split('\r', '\n').Select(str => str.Trim())
-                                               .Where(str => str != string.Empty)
-                                               .ToArray();
+                                               .Where(str => str != string.Empty && !str.StartsWith("--"))
+                                               .ToList();
 
-            for (int i = 0; i < lines.Length; i++)
+            for (int i = lines.Count - 1; i >= 0; i--)
             {
-                var line = lines[i].Trim();
-                if (line.Substring(0, 2) == "--") { continue; }
+                if (lines[i] == ")" && !lines[i - 1].EndsWith(")"))
+                {
+                    lines[i - 1] += " )";
+                    lines.RemoveAt(i);
+                }
+            }
+
+            for (int i = 0; i < lines.Count; i++)
+            {
+                var line = lines[i];
 
                 var c = line.Split(':', '(', ')').Select(str => str.Trim())
                                                  .Where(str => str != string.Empty)

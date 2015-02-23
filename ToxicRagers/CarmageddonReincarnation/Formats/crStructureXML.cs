@@ -561,7 +561,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             );
 
             this.AddMethod(
-                LUACodeBlockMethodType.Set,
+                LUACodeBlockMethodType.Add,
                 "DriverBoxVertexColour",
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "R", Value = 0 },
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "G", Value = 0 },
@@ -883,6 +883,27 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "BackFactor", PrettyName = "Back Factor" },
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "ForthFactor", PrettyName = "Forward Factor" }
             );
+
+            this.AddMethod(
+                LUACodeBlockMethodType.Add,
+                "LumpRenderLevel",
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.String, Name = "Name" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Int, Name = "Level" }
+            );
+
+            this.AddMethod(
+                LUACodeBlockMethodType.Set,
+                "RenderLevel",
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Int, Name = "Level" }
+            );
+
+            this.AddMethod(
+                LUACodeBlockMethodType.Set,
+                "CollisionBoundsMultiplier",
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "X" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Y" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Z" }
+            );
         }
 
         public static StructureDamageCode Parse(string cdata)
@@ -931,6 +952,120 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                 LUACodeBlockMethodType.Add,
                 "PermanentPowerup",
                 new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.String, Name = "Name" }
+            );
+
+            this.AddMethod(
+                LUACodeBlockMethodType.Set,
+                "AerofoilOpenSound",
+                new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.String, Name = "Sound" }
+            );
+
+            this.AddMethod(
+                LUACodeBlockMethodType.Set,
+                "AerofoilCloseSound",
+                new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.String, Name = "Sound" }
+            );
+
+            this.AddMethod(
+                LUACodeBlockMethodType.Set,
+                "AerofoilSoundLump",
+                new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.String, Name = "Name" }
+            );
+
+            this.AddMethod(
+                LUACodeBlockMethodType.Set,
+                "AirBrakeMinSpeed",
+                new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Float, Name = "Value" }
+            );
+
+            this.AddMethod(
+                LUACodeBlockMethodType.Set,
+                "AirBrakeMaxSpeed",
+                new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Float, Name = "Value" }
+            );
+
+            this.AddMethod(
+                LUACodeBlockMethodType.Set,
+                "AirBrakeMinParametric",
+                new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Float, Name = "Value" }
+            );
+
+            this.AddMethod(
+                LUACodeBlockMethodType.Set,
+                "AirBrakeMovementUpTime",
+                new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Int, Name = "Value" }
+            );
+
+            this.AddMethod(
+                LUACodeBlockMethodType.Set,
+                "AirBrakeMovementDownTime",
+                new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Int, Name = "Value" }
+            );
+
+            this.AddMethod(
+                LUACodeBlockMethodType.Set,
+                "AirBrakeDropTime",
+                new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Int, Name = "Value" }
+            );
+
+            this.AddMethod(
+                LUACodeBlockMethodType.Set,
+                "AerofoilUpSpeed",
+                new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Float, Name = "Value" }
+            );
+
+            this.AddMethod(
+                LUACodeBlockMethodType.Set,
+                "AerofoilDownSpeed",
+                new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Float, Name = "Value" }
+            );
+
+            this.AddMethod(
+                LUACodeBlockMethodType.Set,
+                "AerofoilMovementUpTime",
+                new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Int, Name = "Value" }
+            );
+
+            this.AddMethod(
+                LUACodeBlockMethodType.Set,
+                "AerofoilMovementDownTime",
+                new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Int, Name = "Value" }
+            );
+
+            this.AddMethod(
+                LUACodeBlockMethodType.Set,
+                "Aerofoil2UpSpeed",
+                new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Float, Name = "Value" }
+            );
+
+            this.AddMethod(
+                LUACodeBlockMethodType.Set,
+                "Aerofoil2DownSpeed",
+                new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Float, Name = "Value" }
+            );
+
+            this.AddMethod(
+                LUACodeBlockMethodType.Set,
+                "Aerofoil2MovementUpTime",
+                new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Int, Name = "Value" }
+            );
+
+            this.AddMethod(
+                LUACodeBlockMethodType.Set,
+                "Aerofoil2MovementDownTime",
+                new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Int, Name = "Value" }
+            );
+
+            this.AddMethod(
+                LUACodeBlockMethodType.Set,
+                "ExtraFallingDamageThreshold",
+                new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Int, Name = "Value" }
+            );
+
+            this.AddMethod(
+                LUACodeBlockMethodType.Set,
+                "ExtraFallingDamageFactor",
+                new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Int, Name = "Value" }
             );
         }
 
