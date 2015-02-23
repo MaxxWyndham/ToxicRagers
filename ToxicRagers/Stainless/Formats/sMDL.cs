@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Text;
 using ToxicRagers.Helpers;
 
 namespace ToxicRagers.Stainless.Formats
@@ -40,13 +41,14 @@ namespace ToxicRagers.Stainless.Formats
         Flags flags;
         int prepDataSize;
         int fileSize;
-        int userFlags;
+        Flags userFlags;
 
         List<MDLMaterialGroup> meshes = new List<MDLMaterialGroup>();
         List<MDLFace> faces = new List<MDLFace>();
         List<MDLVertex> verts = new List<MDLVertex>();
         List<MDLUserVertexEntry> userVertexList = new List<MDLUserVertexEntry>();
         List<MDLUserFaceEntry> userFaceList = new List<MDLUserFaceEntry>();
+        List<MDLBone> prepBoneList = new List<MDLBone>();
         List<int> ptouVertexLookup = new List<int>();
         List<int> ptouFaceLookup = new List<int>();
 
@@ -75,7 +77,7 @@ namespace ToxicRagers.Stainless.Formats
 
             mdl.name = fi.Name.Replace(fi.Extension, "");
 
-            using (BinaryReader br = new BinaryReader(fi.OpenRead()))
+            using (BinaryReader br = new BinaryReader(fi.OpenRead(), Encoding.Default))
             {
                 if (br.ReadByte() != 69 ||
                     br.ReadByte() != 35)
@@ -224,22 +226,69 @@ namespace ToxicRagers.Stainless.Formats
                     }
                 }
 
-                if ((mdl.flags & Flags.PREPSkinData) == Flags.PREPSkinData)
+                if (mdl.flags.HasFlag(Flags.PREPSkinData))
                 {
                     int bodyPartCount = br.ReadUInt16();
                     int unknownA = br.ReadUInt16();
                     int unknownB = br.ReadUInt16();
-                    br.ReadStrings(bodyPartCount);
+                    var boneNames = br.ReadStrings(bodyPartCount);
 
-                    Logger.LogToFile("PREP skin data found, aborting");
-                    return mdl;
+                    for (int i = 0; i < bodyPartCount; i++)
+                    {
+                        var bone = new MDLBone();
+
+                        bone.Name = boneNames[i];
+                        bone.MinExtents = new Vector3(br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
+                        bone.MaxExtents = new Vector3(br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
+                        bone.Offset = new Vector3(br.ReadSingle(), br.ReadSingle(), br.ReadSingle()); // offset from parent in parents rotational space
+
+                        bone.Parent = br.ReadByte();
+                        bone.Child = br.ReadByte();
+                        bone.Sibling = br.ReadByte();
+
+                        mdl.prepBoneList.Add(bone);
+                    }
+
+                    Logger.LogToFile("=====");
+
+                    for (int i = 0; i < bodyPartCount; i++)
+                    {
+                        Vector4 v1 = new Vector4(br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
+                        Vector3 v2 = new Vector3(br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
+                        Single v3 = br.ReadSingle();
+
+                        Logger.LogToFile("{2:x2}] {0,-16}: {1} :: {3} :: {4}", boneNames[i], v1, i, v2, v3);
+                    }
+
+                    Logger.LogToFile("=====");
+
+                    for (int i = 0; i < mdl.prepVertexCount; i++)
+                    {
+                        Logger.LogToFile("{0}\t{1}\t{2}", br.ReadUInt16(), br.ReadUInt16(), br.ReadUInt32());
+                    }
+
+                    Logger.LogToFile("=====");
+
+                    int unknownX = (int)br.ReadUInt32();
+
+                    for (int i = 0; i < unknownX; i++)
+                    {
+                        Logger.LogToFile("{0}] {1}", i, br.ReadUInt16());
+                    }
+
+                    Logger.LogToFile("=====");
+
+                    for (int i = 0; i < unknownX; i++)
+                    {
+                        Logger.LogToFile("{0}] {1}", i, br.ReadSingle());
+                    }
                 }
-
                 // END PREP DATA
-                if ((mdl.flags & Flags.USERData) == Flags.USERData)
+
+                // START USER DATA
+                if (mdl.flags.HasFlag(Flags.USERData))
                 {
-                    // START USER DATA
-                    mdl.userFlags = (int)br.ReadUInt32();
+                    mdl.userFlags = (Flags)br.ReadUInt32();
 
                     // v5.6 successfully parses from this point down
 
@@ -280,7 +329,7 @@ namespace ToxicRagers.Stainless.Formats
                                         new Vector2(br.ReadSingle(), br.ReadSingle()),                      // uv2[2]
                                         br.ReadByte(),                                                      // flags
                                         (int)br.ReadUInt32()                                                // application specific flags
-                                )
+                                ) // 137 bytes
                             );
                         }
                     }
@@ -298,16 +347,45 @@ namespace ToxicRagers.Stainless.Formats
                     {
                         mdl.ptouVertexLookup.Add((int)br.ReadUInt32());
                     }
+
+                    if (mdl.userFlags.HasFlag(Flags.USERSkinData))
+                    {
+                        Logger.LogToFile("Processing USER skin data");
+
+                        int bodyPartCount = br.ReadUInt16();
+
+                        Logger.LogToFile("Bone count: {0}", bodyPartCount);
+                        for (int i = 0; i < bodyPartCount; i++)
+                        {
+                            Logger.LogToFile("{0}) {1}", i, br.ReadString(32));
+                            Logger.LogToFile("{0}", br.ReadUInt16());
+                            Logger.LogToFile("{0}\t{1}\t{2}", br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
+                            Logger.LogToFile("{0}\t{1}\t{2}", br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
+                            Logger.LogToFile("{0}\t{1}\t{2}", br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
+                            Logger.LogToFile("{0}\t{1}\t{2}", br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
+                        }
+
+                        Logger.LogToFile("{0} == {1}", br.ReadUInt32(), mdl.userVertexCount);
+
+                        for (int i = 0; i < mdl.userVertexCount; i++)
+                        {
+                            int entryCount = br.ReadUInt16();
+
+                            for (int j = 0; j < entryCount; j++)
+                            {
+                                var index = br.ReadUInt16();
+                                var pos = br.ReadSingle();
+                                Logger.LogToFile("{5}.{6}] {0} : {1} [{7}]: {2} : {3} : {4}", index, pos, br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), i, j, BitConverter.GetBytes(pos).ToHex());
+                            }
+                        }
+                    }
                 }
                 else
                 {
                     Console.WriteLine("no user data");
                 }
 
-                if ((mdl.flags & Flags.USERSkinData) == Flags.USERSkinData)
-                {
-                    Logger.LogToFile("USER skin data remains");
-                }
+                if (br.BaseStream.Position != br.BaseStream.Length) { Logger.LogToFile("Still has data remaining (processed {0} of {1}", br.BaseStream.Position.ToString("X"), br.BaseStream.Length.ToString("X")); }
             }
 
             return mdl;
@@ -695,6 +773,59 @@ namespace ToxicRagers.Stainless.Formats
         {
             index = Index;
             bDegenerate = IsDegenerate;
+        }
+    }
+
+    public class MDLBone
+    {
+        string name;
+        Vector3 minExtents;
+        Vector3 maxExtents;
+        Vector3 offset;
+        byte parent;
+        byte child;
+        byte sibling;
+
+        public string Name
+        {
+            get { return name; }
+            set { name = value; }
+        }
+
+        public Vector3 MinExtents
+        {
+            get { return minExtents; }
+            set { minExtents = value; }
+        }
+
+        public Vector3 MaxExtents
+        {
+            get { return maxExtents; }
+            set { maxExtents = value; }
+        }
+
+        public Vector3 Offset
+        {
+            get { return offset; }
+            set { offset = value; }
+        }
+
+        public byte Parent
+        {
+            get { return parent; }
+            set { parent = value; }
+        }
+
+        public byte Child
+        {
+            get { return child; }
+            set { child = value; }
+        }
+
+        public byte Sibling
+        {
+            get { return sibling; }
+            set { sibling = value; }
         }
     }
 
