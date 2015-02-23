@@ -120,5 +120,10 @@ namespace ToxicRagers.Helpers
 
             return new Vector4(s[0].ToSingle(), s[1].ToSingle(), s[2].ToSingle(), s[3].ToSingle());
         }
+
+        public override string ToString()
+        {
+            return string.Format("{{X: {0,15:F9} Y: {1,15:F9} Z: {2,15:F9} W: {3,15:F9} }}", _x, _y, _z, _w);
+        }
     }
 }

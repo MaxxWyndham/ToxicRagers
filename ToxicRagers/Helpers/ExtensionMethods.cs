@@ -166,5 +166,13 @@ namespace ToxicRagers.Helpers
         {
             return string.Join(",", a);
         }
+
+        public static string ToHex(this byte[] ba)
+        {
+            int count = ba.Length;
+            StringBuilder hex = new StringBuilder(ba.Length * 2);
+            for (int i = 0; i < count; i++) { hex.AppendFormat("{0:x2}{1}", ba[i], (i + 1 < count ? " " : "")); }
+            return hex.ToString();
+        }
     }
 }

@@ -44,7 +44,7 @@ namespace ToxicRagers.Helpers
 
         public override string ToString()
         {
-            return "{X:" + _x + " Y:" + _y + "}";
+            return string.Format("{{X: {0,15:F9} Y: {1,15:F9} }}", _x, _y);
         }
 
         public static Vector2 operator *(Vector2 x, float y)

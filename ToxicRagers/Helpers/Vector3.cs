@@ -38,7 +38,7 @@ namespace ToxicRagers.Helpers
 
         public override string ToString()
         {
-            return "{X:" + _x + " Y:" + _y + " Z:" + _z + "}";
+            return string.Format("{{X: {0,15:F9} Y: {1,15:F9} Z: {2,15:F9} }}", _x, _y, _z);
         }
 
         public Single Sum()
