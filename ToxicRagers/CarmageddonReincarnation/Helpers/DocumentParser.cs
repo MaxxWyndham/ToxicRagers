@@ -9,6 +9,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Helpers
     {
         BinaryReader br;
         long position;
+        static string lastLine;
 
         public DocumentParser(string path)
         {
@@ -96,7 +97,9 @@ namespace ToxicRagers.CarmageddonReincarnation.Helpers
 
             if (s.IndexOf("/") > -1) { s = s.Substring(0, s.IndexOf("/")).Trim(); } else { s = s.Trim(); }
 
-            return (s.Length > 0 ? s : null);
+            lastLine = (s.Length > 0 ? s : null);
+
+            return lastLine;
         }
 
         public int ReadInt()

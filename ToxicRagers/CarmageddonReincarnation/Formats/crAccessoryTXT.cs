@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
+
 using ToxicRagers.Helpers;
 using ToxicRagers.CarmageddonReincarnation.Helpers;
 
@@ -27,8 +27,6 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
     public class Accessory
     {
-        public static CultureInfo Culture = new CultureInfo("en-GB");
-
         // APP_DATA
         CustomAccessoryType customAccessoryType;
         Dictionary<string, string> customAccessoryProperties = new Dictionary<string, string>();
@@ -86,118 +84,12 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
         }
 
         // DYNAMICS
-        string lump;
-        Single mass;
-        bool bDrivableOn;
-        bool bSolid;
-        bool bStopSinkingIntoGround;
-        bool bPartOfWorld;
-        bool bBuouyant;
-        Single buoyancyCount;
-        Vector3 buoyancyVector;
-        Vector3 moments;
-        bool bBuoyancyRelativeToCOM;
-        Vector3 centreOfMass;
-        AccessoryShape shape;
-        AccessoryBreak breakable;
-        AccessoryJoint worldJoint;
-        AccessoryJoint childJoint;
-        bool bIgnoreWorld;
-        int substance;
-        bool bInfMass;
-        int group;
-        int ignoreGroup;
-        bool bInfMi;
+        List<AccessoryDynamics> dynamics;
 
-        public string Lump
+        public Accessory()
         {
-            get { return lump; }
-            set { lump = value; }
+            dynamics = new List<AccessoryDynamics>();
         }
-
-        public Single Mass
-        {
-            get { return mass; }
-            set { mass = value; }
-        }
-
-        public bool DrivableOn { get { return bDrivableOn; } set { bDrivableOn = value; } }
-        public bool Solid { get { return bSolid; } set { bSolid = value; } }
-        public bool StopSinkingIntoGround { get { return bStopSinkingIntoGround; } set { bStopSinkingIntoGround = value; } }
-        public bool PartOfWorld { get { return bPartOfWorld; } set { bPartOfWorld = value; } }
-        public bool Buoyant { get { return bBuouyant; } set { bBuouyant = value; } }
-        public bool BuoyancyRelativeToCOM { get { return bBuoyancyRelativeToCOM; } set { bBuoyancyRelativeToCOM = value; } }
-
-        public Single BuoyancyCount
-        {
-            get { return buoyancyCount; }
-            set { buoyancyCount = value; }
-        }
-
-        public Vector3 BuoyancyVector
-        {
-            get { return buoyancyVector; }
-            set { buoyancyVector = value; }
-        }
-
-        public Vector3 Moments
-        {
-            get { return moments; }
-            set { moments = value; }
-        }
-
-        public Vector3 CentreOfMass
-        {
-            get { return centreOfMass; }
-            set { centreOfMass = value; }
-        }
-
-        public AccessoryShape Shape
-        {
-            get { return shape; }
-            set { shape = value; }
-        }
-
-        public AccessoryBreak Break
-        {
-            get { return breakable; }
-            set { breakable = value; }
-        }
-
-        public AccessoryJoint WorldJoint
-        {
-            get { return worldJoint; }
-            set { worldJoint = value; }
-        }
-
-        public AccessoryJoint ChildJoint
-        {
-            get { return childJoint; }
-            set { childJoint = value; }
-        }
-
-        public bool IgnoreWorld { get { return bIgnoreWorld; } set { bIgnoreWorld = value; } }
-
-        public int Substance
-        {
-            get { return substance; }
-            set { substance = value; }
-        }
-
-        public int Group
-        {
-            get { return group; }
-            set { group = value; }
-        }
-
-        public int IgnoreGroup
-        {
-            get { return ignoreGroup; }
-            set { ignoreGroup = value; }
-        }
-
-        public bool InfMass { get { return bInfMass; } set { bInfMass = value; } }
-        public bool InfMi { get { return bInfMi; } set { bInfMi = value; } }
 
         public static Accessory Load(string pathToFile)
         {
@@ -304,108 +196,14 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                         case "[ANIMATION]":
                             accessory.AnimationType = doc.ReadNextLine();
                             accessory.AnimationFile = doc.ReadNextLine();
-                            accessory.AnimationSpeed = Convert.ToSingle(doc.ReadNextLine(), Culture);
-                            accessory.AnimationPhase = Convert.ToSingle(doc.ReadNextLine(), Culture);
+                            accessory.AnimationSpeed = doc.ReadFloat();
+                            accessory.AnimationPhase = doc.ReadFloat();
                             line = doc.ReadNextLine();
                             break;
 
                         case "[DYNAMICS]":
-                            bool bDynamics = true;
-
-                            while (bDynamics)
-                            {
-                                line = doc.ReadNextLine();
-
-                                switch (line)
-                                {
-                                    case "<lump_name>":
-                                        accessory.Lump = doc.ReadNextLine();
-                                        break;
-
-                                    case "<mass>":
-                                        accessory.Mass = Convert.ToSingle(doc.ReadNextLine(), Culture);
-                                        break;
-
-                                    case "<drivable_on>":
-                                        accessory.DrivableOn = true;
-                                        break;
-
-                                    case "<solid>":
-                                        accessory.Solid = true;
-                                        break;
-
-                                    case "<stop_sinking_into_ground>":
-                                        accessory.StopSinkingIntoGround = true;
-                                        break;
-
-                                    case "<part_of_world>":
-                                        accessory.PartOfWorld = true;
-                                        break;
-
-                                    case "<ignore_world>":
-                                        accessory.IgnoreWorld = true;
-                                        break;
-
-                                    case "<inf_mass>":
-                                        accessory.InfMass = true;
-                                        break;
-
-                                    case "<inf_mi>":
-                                        accessory.InfMi = true;
-                                        break;
-
-                                    case "<buoyant>":
-                                        accessory.Buoyant = true;
-                                        accessory.BuoyancyCount = Convert.ToSingle(doc.ReadNextLine(), Culture);
-                                        accessory.BuoyancyVector = Vector3.Parse(doc.ReadNextLine());
-                                        break;
-
-                                    case "<substance>":
-                                        accessory.Substance = Convert.ToInt32(doc.ReadNextLine(), Culture);
-                                        break;
-
-                                    case "<group>":
-                                        accessory.Group = Convert.ToInt32(doc.ReadNextLine(), Culture);
-                                        break;
-
-                                    case "<ignore_group>":
-                                        accessory.IgnoreGroup = Convert.ToInt32(doc.ReadNextLine(), Culture);
-                                        break;
-
-                                    case "<moments>":
-                                        accessory.Moments = Vector3.Parse(doc.ReadNextLine());
-                                        break;
-
-                                    case "<buoyancy_relative_to_com>":
-                                        accessory.BuoyancyRelativeToCOM = true;
-                                        break;
-
-                                    case "<centre_of_mass>":
-                                        accessory.CentreOfMass = Vector3.Parse(doc.ReadNextLine());
-                                        break;
-
-                                    case "<shape>":
-                                        accessory.Shape = new AccessoryShape(doc);
-                                        break;
-
-                                    case "<breakable>":
-                                        accessory.Break = new AccessoryBreak(doc);
-                                        break;
-
-                                    case "<world_joint>":
-                                        accessory.WorldJoint = new AccessoryJoint(doc);
-                                        break;
-
-                                    case "<child_joint>":
-                                        accessory.ChildJoint = new AccessoryJoint(doc);
-                                        break;
-
-                                    default:
-                                        bDynamics = false;
-                                        if (line != null && !line.StartsWith("[")) { Console.WriteLine("Unexpected [DYNAMICS] line: " + line); }
-                                        break;
-                                }
-                            }
+                            accessory.dynamics.Add(new AccessoryDynamics(doc));
+                            line = doc.ReadNextLine();
                             break;
 
                         default:
@@ -423,6 +221,257 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             line = received;
             if (expected == received) { return true; }
             return false;
+        }
+    }
+
+    public class AccessoryDynamics
+    {
+        string lump;
+        Single mass;
+        bool bDrivableOn;
+        bool bSolid;
+        bool bStopSinkingIntoGround;
+        bool bPartOfWorld;
+        bool bBuouyant;
+        Single buoyancyCount;
+        Vector3 buoyancyVector;
+        Vector3 moments;
+        bool bBuoyancyRelativeToCOM;
+        Vector3 centreOfMass;
+        AccessoryShape shape;
+        AccessoryBreak breakable;
+        AccessoryJoint worldJoint;
+        AccessoryJoint childJoint;
+        bool bIgnoreWorld;
+        int substance;
+        bool bInfMass;
+        int group;
+        int ignoreGroup;
+        bool bInfMi;
+
+        public string Lump
+        {
+            get { return lump; }
+            set { lump = value; }
+        }
+
+        public Single Mass
+        {
+            get { return mass; }
+            set { mass = value; }
+        }
+
+        public bool DrivableOn
+        {
+            get { return bDrivableOn; }
+            set { bDrivableOn = value; }
+        }
+
+        public bool Solid
+        {
+            get { return bSolid; }
+            set { bSolid = value; }
+        }
+        public bool StopSinkingIntoGround
+        {
+            get { return bStopSinkingIntoGround; }
+            set { bStopSinkingIntoGround = value; }
+        }
+        public bool PartOfWorld
+        {
+            get { return bPartOfWorld; }
+            set { bPartOfWorld = value; }
+        }
+        public bool Buoyant
+        {
+            get { return bBuouyant; }
+            set { bBuouyant = value; }
+        }
+        public bool BuoyancyRelativeToCOM
+        {
+            get { return bBuoyancyRelativeToCOM; }
+            set { bBuoyancyRelativeToCOM = value; }
+        }
+
+        public Single BuoyancyCount
+        {
+            get { return buoyancyCount; }
+            set { buoyancyCount = value; }
+        }
+
+        public Vector3 BuoyancyVector
+        {
+            get { return buoyancyVector; }
+            set { buoyancyVector = value; }
+        }
+
+        public Vector3 Moments
+        {
+            get { return moments; }
+            set { moments = value; }
+        }
+
+        public Vector3 CentreOfMass
+        {
+            get { return centreOfMass; }
+            set { centreOfMass = value; }
+        }
+
+        public AccessoryShape Shape
+        {
+            get { return shape; }
+            set { shape = value; }
+        }
+
+        public AccessoryBreak Break
+        {
+            get { return breakable; }
+            set { breakable = value; }
+        }
+
+        public AccessoryJoint WorldJoint
+        {
+            get { return worldJoint; }
+            set { worldJoint = value; }
+        }
+
+        public AccessoryJoint ChildJoint
+        {
+            get { return childJoint; }
+            set { childJoint = value; }
+        }
+
+        public bool IgnoreWorld
+        {
+            get { return bIgnoreWorld; }
+            set { bIgnoreWorld = value; }
+        }
+
+        public int Substance
+        {
+            get { return substance; }
+            set { substance = value; }
+        }
+
+        public int Group
+        {
+            get { return group; }
+            set { group = value; }
+        }
+
+        public int IgnoreGroup
+        {
+            get { return ignoreGroup; }
+            set { ignoreGroup = value; }
+        }
+
+        public bool InfMass
+        {
+            get { return bInfMass; }
+            set { bInfMass = value; }
+        }
+        public bool InfMi
+        {
+            get { return bInfMi; }
+            set { bInfMi = value; }
+        }
+
+        public AccessoryDynamics(DocumentParser doc)
+        {
+            bool bDynamics = true;
+
+            while (!doc.NextLineIsASection() && !doc.EOF())
+            {
+                string line = doc.ReadNextLine();
+
+                switch (line)
+                {
+                    case "<lump_name>":
+                        lump = doc.ReadNextLine();
+                        break;
+
+                    case "<mass>":
+                        mass = doc.ReadFloat();
+                        break;
+
+                    case "<drivable_on>":
+                        bDrivableOn = true;
+                        break;
+
+                    case "<solid>":
+                        bSolid = true;
+                        break;
+
+                    case "<stop_sinking_into_ground>":
+                        bStopSinkingIntoGround = true;
+                        break;
+
+                    case "<part_of_world>":
+                        bPartOfWorld = true;
+                        break;
+
+                    case "<ignore_world>":
+                        bIgnoreWorld = true;
+                        break;
+
+                    case "<inf_mass>":
+                        bInfMass = true;
+                        break;
+
+                    case "<inf_mi>":
+                        bInfMi = true;
+                        break;
+
+                    case "<buoyant>":
+                        bBuouyant = true;
+                        buoyancyCount = doc.ReadFloat();
+                        buoyancyVector = doc.ReadVector3();
+                        break;
+
+                    case "<substance>":
+                        substance = doc.ReadInt();
+                        break;
+
+                    case "<group>":
+                        group = doc.ReadInt();
+                        break;
+
+                    case "<ignore_group>":
+                        ignoreGroup = doc.ReadInt();
+                        break;
+
+                    case "<moments>":
+                        moments = doc.ReadVector3();
+                        break;
+
+                    case "<buoyancy_relative_to_com>":
+                        bBuoyancyRelativeToCOM = true;
+                        break;
+
+                    case "<centre_of_mass>":
+                        centreOfMass = doc.ReadVector3();
+                        break;
+
+                    case "<shape>":
+                        shape = new AccessoryShape(doc);
+                        break;
+
+                    case "<breakable>":
+                        breakable = new AccessoryBreak(doc);
+                        break;
+
+                    case "<world_joint>":
+                        worldJoint = new AccessoryJoint(doc);
+                        break;
+
+                    case "<child_joint>":
+                        childJoint = new AccessoryJoint(doc);
+                        break;
+
+                    default:
+                        throw new NotImplementedException(string.Format("Unknown [DYNAMICS] setting: {0}", line));
+                }
+            }
         }
     }
 
@@ -450,7 +499,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
             if (name.Replace("_", " ") != "(no shape)")
             {
-                boxCount = Convert.ToInt32(sr.ReadNextLine(), Accessory.Culture);
+                boxCount = sr.ReadInt();
 
                 for (int i = 0; i < boxCount; i++)
                 {
@@ -505,46 +554,44 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             {
                 case "AlignedCuboid":
                     this.componentType = ComponentType.AlignedCuboid;
-                    points.Add(Vector3.Parse(sr.ReadNextLine()));
-                    points.Add(Vector3.Parse(sr.ReadNextLine()));
+                    points.Add(sr.ReadVector3());
+                    points.Add(sr.ReadVector3());
                     break;
 
                 case "Polyhedron":
                     this.componentType = ComponentType.Polyhedron;
-                    pointCount = Convert.ToInt32(sr.ReadNextLine(), Accessory.Culture);
-                    for (int i = 0; i < pointCount; i++) { points.Add(Vector3.Parse(sr.ReadNextLine())); }
+                    pointCount = sr.ReadInt();
+                    for (int i = 0; i < pointCount; i++) { points.Add(sr.ReadVector3()); }
                     break;
 
                 case "RoundedPolyhedron":
                     this.componentType = ComponentType.RoundedPolyhedron;
-                    radius = Convert.ToSingle(sr.ReadNextLine(), Accessory.Culture);
-                    pointCount = Convert.ToInt32(sr.ReadNextLine(), Accessory.Culture);
-                    for (int i = 0; i < pointCount; i++) { points.Add(Vector3.Parse(sr.ReadNextLine())); }
+                    radius = sr.ReadFloat();
+                    pointCount = sr.ReadInt();
+                    for (int i = 0; i < pointCount; i++) { points.Add(sr.ReadVector3()); }
                     break;
 
                 case "Sphere":
-                    points.Add(Vector3.Parse(sr.ReadNextLine()));
-                    radius = Convert.ToSingle(sr.ReadNextLine(), Accessory.Culture);
+                    points.Add(sr.ReadVector3());
+                    radius = sr.ReadFloat();
                     break;
 
                 case "TicTac":
-                    points.Add(Vector3.Parse(sr.ReadNextLine()));
-                    points.Add(Vector3.Parse(sr.ReadNextLine()));
-                    radius = Convert.ToSingle(sr.ReadNextLine(), Accessory.Culture);
+                    points.Add(sr.ReadVector3());
+                    points.Add(sr.ReadVector3());
+                    radius = sr.ReadFloat();
                     break;
 
                 default:
                     throw new NotImplementedException("Unknown ComponentType: " + s);
             }
 
-            if (sr.ReadNextLine() == "form_collision_groups")
+            while (sr.ReadNextLine() == "form_collision_groups")
             {
-                group = Convert.ToInt32(sr.ReadNextLine(), Accessory.Culture);
+                group = sr.ReadInt();
             }
-            else
-            {
-                sr.Rewind();
-            }
+
+            sr.Rewind();
         }
     }
 
@@ -590,7 +637,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                 {
                     case "break":
                     case "break_impulse":
-                        breakImpulse = Convert.ToInt32(settings[settings.Length - 1], Accessory.Culture);
+                        breakImpulse = settings[settings.Length - 1].ToInt();
                         break;
 
                     case "detach_children":
@@ -604,7 +651,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
                     case "explode":
                     case "explode_force":
-                        explodeForce = Convert.ToInt32(settings[settings.Length - 1], Accessory.Culture);
+                        explodeForce = settings[settings.Length - 1].ToInt();
                         break;
 
                     case "random_rotation":
@@ -614,7 +661,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                         }
                         else
                         {
-                            randomRotation = Vector2.Parse(settings[1] + "," + settings[2]);
+                            randomRotation = new Vector2(settings[1].ToSingle(), settings[2].ToSingle());
                         }
                         break;
 
@@ -681,36 +728,36 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             string line;
             if (!Accessory.TestLine("joint", sr.ReadNextLine(), out line)) { Console.WriteLine("Unexpected value: {0}", line); }
 
-            vertexNum = Convert.ToInt32(sr.ReadNextLine(), Accessory.Culture);
-            var f1 = Convert.ToSingle(sr.ReadNextLine(), Accessory.Culture);
-            var v1 = Vector3.Parse(sr.ReadNextLine());
-            var v2 = Vector3.Parse(sr.ReadNextLine());
-            var v3 = Vector3.Parse(sr.ReadNextLine());
-            var v4 = Vector3.Parse(sr.ReadNextLine());
-            var v5 = Vector3.Parse(sr.ReadNextLine());
-            var v6 = Vector3.Parse(sr.ReadNextLine());
-            var v7 = Vector3.Parse(sr.ReadNextLine());
-            var v8 = Vector3.Parse(sr.ReadNextLine());
-            var i1 = Convert.ToInt32(sr.ReadNextLine(), Accessory.Culture);
+            vertexNum = sr.ReadInt();
+            var f1 = sr.ReadFloat();
+            var v1 = sr.ReadVector3();
+            var v2 = sr.ReadVector3();
+            var v3 = sr.ReadVector3();
+            var v4 = sr.ReadVector3();
+            var v5 = sr.ReadVector3();
+            var v6 = sr.ReadVector3();
+            var v7 = sr.ReadVector3();
+            var v8 = sr.ReadVector3();
+            var i1 = sr.ReadInt();
             for (int i = 0; i < i1; i++)
             {
-                var i2 = Convert.ToInt32(sr.ReadNextLine(), Accessory.Culture);
-                var f2 = Convert.ToSingle(sr.ReadNextLine(), Accessory.Culture);
-                var f3 = Convert.ToSingle(sr.ReadNextLine(), Accessory.Culture);
-                var v9 = Vector3.Parse(sr.ReadNextLine());
-                var v10 = Vector3.Parse(sr.ReadNextLine());
-                var f4 = Convert.ToSingle(sr.ReadNextLine(), Accessory.Culture);
+                var i2 = sr.ReadInt();
+                var f2 = sr.ReadFloat();
+                var f3 = sr.ReadFloat();
+                var v9 = sr.ReadVector3();
+                var v10 = sr.ReadVector3();
+                var f4 = sr.ReadFloat();
                 var s1 = sr.ReadNextLine();
-                var v11 = Vector3.Parse(sr.ReadNextLine());
-                var v12 = Vector3.Parse(sr.ReadNextLine());
+                var v11 = sr.ReadVector3();
+                var v12 = sr.ReadVector3();
             }
             if (!Accessory.TestLine("(no_weakness)", sr.ReadNextLine(), out line))
             {
                 var s3 = sr.ReadNextLine();
-                var v13 = Vector3.Parse(sr.ReadNextLine());
-                var f5 = Convert.ToSingle(sr.ReadNextLine(), Accessory.Culture);
+                var v13 = sr.ReadVector3();
+                var f5 = sr.ReadFloat();
                 var s4 = sr.ReadNextLine();
-                var v15 = Vector3.Parse(sr.ReadNextLine());
+                var v15 = sr.ReadVector3();
 
                 var t = sr.ReadNextLine();
                 if (t.Contains(","))
@@ -719,7 +766,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                 }
                 else
                 {
-                    var f6 = Convert.ToSingle(t, Accessory.Culture);
+                    var f6 = t.ToSingle();
                 }
             }
         }
