@@ -10,19 +10,21 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 {
     public class VehicleSetupConfig
     {
-        string defaultDriver;
+        List<string> drivers;
         string aiScript;
         bool bEjectDriver = true;
         List<VehicleAttachment> attachments;
         List<VehicleWheelModule> wheelModules;
         List<VehicleMaterialMap> materialMaps;
+        List<VehicleWheelMap> wheelMaps;
+        List<Vector3> decalPoints;
         VehicleSuspensionFactors suspensionFactors;
         VehicleStats stats;
 
-        public string DefaultDriver
+        public List<string> Drivers
         {
-            get { return defaultDriver; }
-            set { defaultDriver = value; }
+            get { return drivers; }
+            set { drivers = value; }
         }
 
         public string AIScript
@@ -55,6 +57,18 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             set { materialMaps = value; }
         }
 
+        public List<VehicleWheelMap> WheelMaps
+        {
+            get { return wheelMaps; }
+            set { wheelMaps = value; }
+        }
+
+        public List<Vector3> DecalPoints
+        {
+            get { return decalPoints; }
+            set { decalPoints = value; }
+        }
+
         public VehicleSuspensionFactors SuspensionFactors
         {
             get { return suspensionFactors; }
@@ -69,9 +83,12 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
         public VehicleSetupConfig()
         {
+            drivers = new List<string>();
             attachments = new List<VehicleAttachment>();
             wheelModules = new List<VehicleWheelModule>();
             materialMaps = new List<VehicleMaterialMap>();
+            wheelMaps = new List<VehicleWheelMap>();
+            decalPoints = new List<Vector3>();
             stats = new VehicleStats();
         }
 
@@ -88,7 +105,10 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                     switch (line)
                     {
                         case "[default_driver]":
-                            setup.DefaultDriver = doc.ReadNextLine();
+                            while (!doc.NextLineIsASection() && !doc.EOF())
+                            {
+                                setup.Drivers.Add(doc.ReadNextLine());
+                            }
                             break;
 
                         case "[attachment]":
@@ -111,6 +131,10 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                             setup.MaterialMaps.Add(new VehicleMaterialMap(doc));
                             break;
 
+                        case "[wheel_map]":
+                            setup.WheelMaps.Add(new VehicleWheelMap(doc));
+                            break;
+
                         case "[disable_ejection]":
                             setup.EjectDriver = false;
                             break;
@@ -120,7 +144,14 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                             setup.Stats.Time = doc.ReadFloat();
                             setup.Stats.Weight = doc.ReadFloat();
                             setup.Stats.Toughness = doc.ReadFloat();
-                            if (!doc.EOF()) { setup.Stats.UnlockLevel = doc.ReadInt(); }
+                            if (!doc.EOF() && !doc.NextLineIsASection()) { setup.Stats.UnlockLevel = doc.ReadFloat(); }
+                            break;
+
+                        case "[decal_points]":
+                            while (!doc.NextLineIsASection() && !doc.EOF())
+                            {
+                                setup.DecalPoints.Add(doc.ReadVector3());
+                            }
                             break;
 
                         default:
@@ -139,10 +170,10 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
         {
             using (var sw = new StreamWriter(path + "\\vehicle_setup.cfg"))
             {
-                if (defaultDriver != null)
+                if (drivers.Count > 0)
                 {
                     sw.WriteLine("[default_driver]");
-                    sw.WriteLine(defaultDriver);
+                    sw.WriteLine(drivers[0]);
                     sw.WriteLine();
                 }
 
@@ -177,7 +208,8 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             DynamicsWheels,
             ExhaustParticles,
             Horn,
-            ReverseLightSound
+            ReverseLightSound,
+            ContinuousSound
         }
 
         AttachmentType attachmentType;
@@ -186,6 +218,8 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
         VehicleAttachmentExhaust exhaust;
         string horn;
         string reverseLightSound;
+        string continuousSound;
+        string continuousSoundLump;
 
         public AttachmentType Type
         {
@@ -337,6 +371,10 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                                 this.exhaust.VFX = ep[1];
                                 break;
 
+                            case "underwater_vfx":
+                                this.exhaust.UnderwaterVFX = ep[1];
+                                break;
+
                             case "anchor":
                                 this.exhaust.Anchor = ep[1];
                                 break;
@@ -352,6 +390,29 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
                     var rl = doc.ReadStringArray(2);
                     this.reverseLightSound = rl[1];
+                    break;
+
+                case "ContinuousSound":
+                    this.attachmentType = AttachmentType.ContinuousSound;
+
+                    while (!doc.NextLineIsASection())
+                    {
+                        var cs = doc.ReadStringArray(2);
+
+                        switch (cs[0])
+                        {
+                            case "sound":
+                                this.continuousSound = cs[1];
+                                break;
+
+                            case "lump":
+                                this.continuousSoundLump = cs[1];
+                                break;
+
+                            default:
+                                throw new NotImplementedException("Unknown ContinuousSound parameter: " + cs[0]);
+                        }
+                    }
                     break;
 
                 default:
@@ -443,12 +504,19 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
     public class VehicleAttachmentExhaust
     {
         string vfx;
+        string underwaterVFX;
         string anchor;
 
         public string VFX
         {
             get { return vfx; }
             set { vfx = value; }
+        }
+
+        public string UnderwaterVFX
+        {
+            get { return underwaterVFX; }
+            set { underwaterVFX = value; }
         }
 
         public string Anchor
@@ -581,6 +649,8 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
     {
         string name;
         Vector3 shrapnel;
+        string localName;
+        string paint;
 
         public string Name
         {
@@ -594,18 +664,38 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             set { shrapnel = value; }
         }
 
+        public string Localisation
+        {
+            get { return localName; }
+            set { localName = value; }
+        }
+
+        public string Paint
+        {
+            get { return paint; }
+            set { paint = value; }
+        }
+
         public VehicleMaterialMap(DocumentParser doc)
         {
             this.name = doc.ReadNextLine();
 
             while (!doc.NextLineIsASection())
             {
-                var mm = doc.ReadStringArray(2);
+                var mm = doc.ReadStringArray();
 
-                switch (mm[0])
+                switch (mm[0].ToLower())
                 {
                     case "shrapnel":
                         this.shrapnel = Vector3.Parse(mm[1]);
+                        break;
+
+                    case "localise":
+                        this.localName = mm[1];
+                        break;
+
+                    case "paint":
+                        this.paint = mm[2];
                         break;
 
                     default:
@@ -623,11 +713,89 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
         }
     }
 
+    public class VehicleWheelMap
+    {
+        string name;
+        string localName;
+        VehicleAttachmentComplicatedWheels wheels;
+
+        public string Name
+        {
+            get { return name; }
+            set { name = value; }
+        }
+
+        public string Localisation
+        {
+            get { return localName; }
+            set { localName = value; }
+        }
+
+        public VehicleAttachmentComplicatedWheels Wheels
+        {
+            get { return wheels; }
+            set { wheels = value; }
+        }
+
+        public VehicleWheelMap(DocumentParser doc)
+        {
+            this.name = doc.ReadNextLine();
+            this.wheels = new VehicleAttachmentComplicatedWheels();
+
+            while (!doc.NextLineIsASection() && !doc.EOF())
+            {
+                var wm = doc.ReadStringArray(2);
+
+                switch (wm[0])
+                {
+                    case "localise":
+                        this.localName = wm[1];
+                        break;
+
+                    case "fl_wheel_folder_name":
+                        this.wheels.FLWheel = wm[1];
+                        break;
+
+                    case "fr_wheel_folder_name":
+                        this.wheels.FRWheel = wm[1];
+                        break;
+
+                    case "rl_wheel_folder_name":
+                        this.wheels.RLWheel = wm[1];
+                        break;
+
+                    case "rr_wheel_folder_name":
+                        this.wheels.RRWheel = wm[1];
+                        break;
+
+                    case "wheel_folder_name":
+                        this.wheels.FLWheel = wm[1];
+                        this.wheels.FRWheel = wm[1];
+                        this.wheels.RLWheel = wm[1];
+                        this.wheels.RRWheel = wm[1];
+                        break;
+
+                    default:
+                        throw new NotImplementedException("Unknown WheelMap parameter: " + wm[0]);
+                }
+            }
+        }
+
+        public string Write()
+        {
+            var sb = new StringBuilder();
+            sb.AppendLine("[wheel_map]");
+            sb.AppendLine();
+            return sb.ToString();
+        }
+    }
+
     public class VehicleSuspensionFactors
     {
         Single maxCompression;
         Single rideHeight;
         int maxSteeringLock;
+        Single maxExtension;
 
         public Single MaxCompression
         {
@@ -647,6 +815,12 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             set { maxSteeringLock = value; }
         }
 
+        public Single MaxExtension
+        {
+            get { return maxExtension; }
+            set { maxExtension = value; }
+        }
+
         public VehicleSuspensionFactors(DocumentParser doc)
         {
             while (!doc.NextLineIsASection())
@@ -656,15 +830,19 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                 switch (sf[0])
                 {
                     case "max_compression":
-                        this.maxCompression = Single.Parse(sf[1], ToxicRagers.Culture);
+                        this.maxCompression = sf[1].ToSingle();
                         break;
 
                     case "ride_height":
-                        this.rideHeight = Single.Parse(sf[1], ToxicRagers.Culture);
+                        this.rideHeight = sf[1].ToSingle();
                         break;
 
                     case "max_steering_lock":
-                        this.maxSteeringLock = int.Parse(sf[1]);
+                        this.maxSteeringLock = sf[1].ToInt();
+                        break;
+
+                    case "max_extension":
+                        this.maxExtension = sf[1].ToSingle();
                         break;
 
                     default:
@@ -688,7 +866,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
         Single time;
         Single weight;
         Single toughness;
-        int unlockLevel = -1;
+        Single unlockLevel = -1;
 
         public int TopSpeed
         {
@@ -714,7 +892,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             set { toughness = value; }
         }
 
-        public int UnlockLevel
+        public Single UnlockLevel
         {
             get { return unlockLevel; }
             set { unlockLevel = value; }
