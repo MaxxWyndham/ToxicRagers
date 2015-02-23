@@ -34,20 +34,20 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             this.extension = "TDX";
         }
 
-        public static TDX Load(string Path)
+        public static TDX Load(string path)
         {
-            FileInfo fi = new FileInfo(Path);
-            Logger.LogToFile("{0}", Path);
+            FileInfo fi = new FileInfo(path);
+            Logger.LogToFile("{0}", path);
             TDX tdx = new TDX();
 
             tdx.Name = fi.Name.Replace(fi.Extension, "");
 
             using (BinaryReader br = new BinaryReader(fi.OpenRead()))
             {
-                if (br.ReadByte() != 0 ||
-                    br.ReadByte() != 2)
+                if (br.ReadByte() != 0x00 ||
+                    br.ReadByte() != 0x02)
                 {
-                    Logger.LogToFile("{0} isn't a valid TDX file", Path);
+                    Logger.LogToFile("{0} isn't a valid TDX file", path);
                     return null;
                 }
 
@@ -57,10 +57,12 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                 tdx.flags = (Flags)br.ReadUInt32();
                 tdx.Format = (D3DFormat)br.ReadUInt32();
 
-                if ((tdx.flags & Flags.ExtraData) == Flags.ExtraData)
+                if (tdx.flags.HasFlag(Flags.ExtraData))
                 {
-                    // Frames list usually
-                    br.ReadBytes((int)br.ReadUInt32());
+                    int extraDataLength = (int)br.ReadUInt32();
+
+                    Logger.LogToFile("Skipped {0} bytes of extra data", extraDataLength);
+                    br.ReadBytes(extraDataLength);
                 }
 
                 for (int i = 0; i < mipCount; i++)
