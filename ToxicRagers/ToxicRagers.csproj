@@ -83,6 +83,8 @@
     <Compile Include="Core\Formats\cFBX.cs" />
     <Compile Include="DoubleStealSecondClash\Formats\dsscPk.cs" />
     <Compile Include="DoubleStealSecondClash\Formats\dsscXPR.cs" />
+    <Compile Include="Helpers\BinaryFileStream.cs" />
+    <Compile Include="Helpers\BinaryMemoryStream.cs" />
     <Compile Include="Helpers\ColourHelper.cs" />
     <Compile Include="Helpers\Generics\Material.cs" />
     <Compile Include="Carmageddon\Formats\c1CarTXT.cs" />
@@ -95,6 +97,7 @@
     <Compile Include="Helpers\IO.cs" />
     <Compile Include="Helpers\Line.cs" />
     <Compile Include="Helpers\Logger.cs" />
+    <Compile Include="Helpers\LZ4Decompress.cs" />
     <Compile Include="Helpers\Matrix2D.cs" />
     <Compile Include="Helpers\Matrix3D.cs" />
     <Compile Include="Helpers\Plane.cs" />
@@ -110,6 +113,7 @@
     <Compile Include="Stainless\Formats\sMDL.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Stainless\Formats\sMTL.cs" />
+    <Compile Include="Stainless\Formats\sZAD.cs" />
     <Compile Include="TDR2000\Formats\tdrH.cs" />
     <Compile Include="TDR2000\Formats\tdrHIE.cs" />
     <Compile Include="TDR2000\Formats\tdrMSHS.cs" />
