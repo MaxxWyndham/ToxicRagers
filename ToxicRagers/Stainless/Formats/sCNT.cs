@@ -65,8 +65,7 @@ namespace ToxicRagers.Stainless.Formats
 
                 cnt = Load(br, new Version(major, minor));
 
-                Logger.LogToFile("{0} :: {1}", br.BaseStream.Position.ToString("X"), br.BaseStream.Length.ToString("X"));
-                if (br.BaseStream.Position != br.BaseStream.Length) { Logger.LogToFile("Still has data remaining"); }
+                if (br.BaseStream.Position != br.BaseStream.Length) { Logger.LogToFile("Still has data remaining (processed {0} of {1}", br.BaseStream.Position.ToString("X"), br.BaseStream.Length.ToString("X")); }
             }
 
             return cnt;
@@ -80,8 +79,6 @@ namespace ToxicRagers.Stainless.Formats
             if (parent != null) { cnt.parent = parent; }
 
             cnt.version = version;
-
-            Logger.LogToFile("{0}", br.BaseStream.Position.ToString("X"));
 
             if (version.Major == 3)
             {
@@ -107,7 +104,7 @@ namespace ToxicRagers.Stainless.Formats
                 flags = br.ReadByte();
             }
 
-            Logger.LogToFile("This is usually 0: {0}", br.ReadSingle());
+            br.ReadUInt32();    // zero terminator?
 
             cnt.transform = new Matrix3D(
                                 br.ReadSingle(), br.ReadSingle(), br.ReadSingle(),
@@ -203,6 +200,11 @@ namespace ToxicRagers.Stainless.Formats
                     break;
 
                 case "NULL":
+                    break;
+
+                case "SPLN":
+                    Logger.LogToFile("SPLN, skipping 88 bytes");
+                    br.ReadBytes(88);
                     break;
 
                 default:
