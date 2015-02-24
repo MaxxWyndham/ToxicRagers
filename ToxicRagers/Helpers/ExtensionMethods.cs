@@ -84,6 +84,20 @@ namespace ToxicRagers.Helpers
             return r;
         }
 
+        public static string ReadNullTerminatedString(this BinaryReader br)
+        {
+            string r = "";
+            char c = (char)0;
+
+            do
+            {
+                c = br.ReadChar();
+                if (c > 0) { r += c; }
+            } while (c > 0);
+
+            return r;
+        }
+
         public static void WriteString(this BinaryWriter bw, string s)
         {
             bw.Write(s.ToCharArray());
