@@ -199,7 +199,7 @@ namespace ToxicRagers.Stainless.Formats
                 colour[2] = iB[i + 2];
                 colour[3] = iB[i + 3];
 
-                if (!colour.SequenceEqual(lastColour))
+                if (!colour.SequenceEqual(lastColour) || count == 64)
                 {
                     if (i > 0)
                     {
