@@ -166,7 +166,7 @@ namespace ToxicRagers.Stainless.Formats
             {
                 bw.WriteString("IMAGEMAP");
                 bw.Write(new byte[] { 0x0, 0x1, 0x4b, 0x0 });
-                bw.Write(0);
+                bw.Write(1);
                 bw.Write(this.data.Length); // Filesize, we'll update this later
                 bw.Write((short)this.width);
                 bw.Write((short)this.height);
