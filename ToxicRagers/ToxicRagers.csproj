@@ -113,6 +113,7 @@
     <Compile Include="Novadrome\Formats\nXT2.cs" />
     <Compile Include="Powerslide\HistoricCode.cs" />
     <Compile Include="Stainless\Formats\sCNT.cs" />
+    <Compile Include="Stainless\Formats\sIMG.cs" />
     <Compile Include="Stainless\Formats\sMDL.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Stainless\Formats\sMTL.cs" />
