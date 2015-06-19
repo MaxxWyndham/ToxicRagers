@@ -199,7 +199,7 @@ namespace ToxicRagers.Stainless.Formats
                 colour[2] = iB[i + 2];
                 colour[3] = iB[i + 3];
 
-                if (!colour.SequenceEqual(lastColour) || count == 64)
+                if (!colour.SequenceEqual(lastColour) || count == 127)
                 {
                     if (i > 0)
                     {
@@ -216,6 +216,12 @@ namespace ToxicRagers.Stainless.Formats
 
                 count++;
             }
+
+            oB[j++] = count;
+            oB[j++] = lastColour[3];
+            oB[j++] = lastColour[2];
+            oB[j++] = lastColour[1];
+            oB[j++] = lastColour[0];
 
             data = new byte[j];
             Array.Copy(oB, 0, data, 0, data.Length);
