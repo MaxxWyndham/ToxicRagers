@@ -16,7 +16,7 @@ namespace ToxicRagers.Stainless.Formats
     {
         int width;
         int height;
-        byte[] data;
+        List<ColourCount>[] planes = new List<ColourCount>[4];
 
         public IMG()
             : base()
@@ -166,11 +166,21 @@ namespace ToxicRagers.Stainless.Formats
             {
                 bw.WriteString("IMAGEMAP");
                 bw.Write(new byte[] { 0x0, 0x1, 0x4b, 0x0 });
-                bw.Write(1);
-                bw.Write(this.data.Length); // Filesize, we'll update this later
+                bw.Write(6);
+                bw.Write(16 + (this.planes[0].Count * 2) + (this.planes[1].Count * 2) + (this.planes[2].Count * 2) + (this.planes[3].Count * 2));
                 bw.Write((short)this.width);
                 bw.Write((short)this.height);
-                bw.Write(this.data);
+
+                for (int i = 3; i >= 0; i--) { bw.Write(this.planes[i].Count * 2); }
+
+                for (int i = 3; i >= 0; i--)
+                {
+                    for (int j = 0; j < planes[i].Count; j++)
+                    {
+                        bw.Write(planes[i][j].Count);
+                        bw.Write(planes[i][j].Colour);
+                    }
+                }
             }
         }
 
@@ -180,51 +190,40 @@ namespace ToxicRagers.Stainless.Formats
             height = bitmap.Height;
 
             byte[] iB = new byte[width * height * 4];
-            byte[] oB = new byte[iB.Length * 2];
 
             BitmapData bmpdata = bitmap.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
             Marshal.Copy(bmpdata.Scan0, iB, 0, bmpdata.Stride * bmpdata.Height);
             bitmap.UnlockBits(bmpdata);
 
-            byte[] lastColour = new byte[4];
-            byte count = 0;
-            int j = 0;
-
             for (int i = 0; i < iB.Length; i += 4)
             {
-                byte[] colour = new byte[4];
-
-                colour[0] = iB[i + 0];
-                colour[1] = iB[i + 1];
-                colour[2] = iB[i + 2];
-                colour[3] = iB[i + 3];
-
-                if (!colour.SequenceEqual(lastColour) || count == 127)
+                for (int j = 0; j < 4; j++)
                 {
-                    if (i > 0)
+                    if (i == 0)
                     {
-                        oB[j++] = count;
-                        oB[j++] = lastColour[3];
-                        oB[j++] = lastColour[2];
-                        oB[j++] = lastColour[1];
-                        oB[j++] = lastColour[0];
+                        planes[j] = new List<ColourCount> { new ColourCount { Colour = iB[i + j], Count = 1 } };
                     }
+                    else
+                    {
+                        var lastColour = planes[j][planes[j].Count - 1];
 
-                    Array.Copy(colour, lastColour, 4);
-                    count = 0;
+                        if (lastColour.Colour == iB[i + j] && lastColour.Count < 127)
+                        {
+                            planes[j][planes[j].Count - 1].Count++;
+                        }
+                        else
+                        {
+                            planes[j].Add(new ColourCount { Colour = iB[i + j], Count = 1 });
+                        }
+                    }
                 }
-
-                count++;
             }
-
-            oB[j++] = count;
-            oB[j++] = lastColour[3];
-            oB[j++] = lastColour[2];
-            oB[j++] = lastColour[1];
-            oB[j++] = lastColour[0];
-
-            data = new byte[j];
-            Array.Copy(oB, 0, data, 0, data.Length);
         }
+    }
+
+    public class ColourCount
+    {
+        public byte Colour { get; set; }
+        public byte Count { get; set; }
     }
 }
