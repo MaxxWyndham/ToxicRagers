@@ -18,6 +18,30 @@ namespace ToxicRagers.Stainless.Formats
         int height;
         List<ColourCount>[] planes = new List<ColourCount>[4];
 
+        [Flags]
+        public enum BasicFlags : byte
+        {
+            DisableCompressInTextureMemory = 0x01,
+            Compressed = 0x02,
+            OneBitAlpha = 0x04,
+            Disable16bit = 0x08,
+            AttachedDataSize = 0x10,
+            DisableDownSample = 0x20,
+            DisableMipMaps = 0x40,
+            IsCubemap = 0x80
+        }
+
+        [Flags]
+        public enum AdvancedFlags : byte
+        {
+            Huffman = 0x01,
+            LIC = 0x02,
+            UnknownCompression = 0x04,
+            CrushToJPEG = 0x08,
+            DontAutoJPEG = 0x10,
+            SRGB = 0x20
+        }
+
         public IMG()
             : base()
         {
@@ -32,130 +56,7 @@ namespace ToxicRagers.Stainless.Formats
 
             img.Name = fi.Name.Replace(fi.Extension, "");
 
-            //using (BinaryReader br = new BinaryReader(fi.OpenRead()))
-            //{
-            //    if (br.ReadByte() != 0x00 ||
-            //        br.ReadByte() != 0x02)
-            //    {
-            //        Logger.LogToFile("{0} isn't a valid TDX file", path);
-            //        return null;
-            //    }
-
-            //    tdx.width = (int)br.ReadUInt16();
-            //    tdx.height = (int)br.ReadUInt16();
-            //    int mipCount = (int)br.ReadUInt16();
-            //    tdx.flags = (Flags)br.ReadUInt32();
-            //    tdx.Format = (D3DFormat)br.ReadUInt32();
-
-            //    if (tdx.flags.HasFlag(Flags.ExtraData))
-            //    {
-            //        int extraDataLength = (int)br.ReadUInt32();
-
-            //        Logger.LogToFile("Skipped {0} bytes of extra data", extraDataLength);
-            //        br.ReadBytes(extraDataLength);
-
-            //        //Logger.LogToFile("{0}", br.ReadUInt16());
-            //        //Logger.LogToFile("{0}", br.ReadUInt16());
-
-            //        //br.ReadUInt32(); // 0xDEADBEEF
-            //        //Logger.LogToFile("DEADBEEF");
-
-            //        //Logger.LogToFile("{0}", br.ReadUInt32());
-            //        //Logger.LogToFile("{0}", br.ReadUInt32());
-            //        //Logger.LogToFile("{0}", br.ReadUInt32());
-            //        //Logger.LogToFile("{0}", br.ReadUInt32());
-            //        //Logger.LogToFile("{0}", br.ReadUInt32());
-
-            //        //br.ReadUInt32(); // 0xDEADBEEF
-            //        //Logger.LogToFile("DEADBEEF");
-
-            //        //int fileCount = (int)br.ReadUInt32();
-
-            //        //for (int i = 0; i < fileCount; i++)
-            //        //{
-            //        //    int x = (int)br.ReadUInt32();
-            //        //    int y = (int)br.ReadUInt32();
-            //        //    int w = (int)br.ReadUInt32();
-            //        //    int h = (int)br.ReadUInt32();
-
-            //        //    string file = br.ReadNullTerminatedString();
-
-            //        //    byte b = br.ReadByte();
-
-            //        //    Logger.LogToFile("{0}\t{1}\t{2}\t{3}\t{5}\t{4}", x, y, w, h, file, b);
-            //        //}
-
-            //        //br.ReadUInt32(); // 0xDEADBEEF
-            //        //Logger.LogToFile("DEADBEEF");
-
-            //        //int indexCount = (int)br.ReadUInt32();
-
-            //        //for (int i = 0; i < indexCount; i++)
-            //        //{
-            //        //    int x = (int)br.ReadUInt32();
-            //        //    int y = (int)br.ReadUInt32();
-            //        //    int z = (int)br.ReadUInt32();
-            //        //    uint h = br.ReadUInt32();
-
-            //        //    Logger.LogToFile("{0}\t{1}\t{2}\t{3}\t:{3:x2}", x, y, z, h);
-            //        //}
-
-            //        //br.ReadUInt32(); // 0xDEADBEEF
-            //        //Logger.LogToFile("DEADBEEF");
-
-            //        //fileCount = (int)br.ReadUInt32();
-
-            //        //for (int i = 0; i < fileCount; i++)
-            //        //{
-            //        //    string file = br.ReadNullTerminatedString();
-            //        //    int a = (int)br.ReadUInt32();
-            //        //    int b = (int)br.ReadUInt32();
-
-            //        //    Logger.LogToFile("{0}\t{1}\t{2}", a, b, file);
-            //        //}
-
-            //        //br.ReadUInt32(); // 0xDEADBEEF
-            //        //Logger.LogToFile("DEADBEEF");
-
-            //        //Logger.LogToFile("{0}", br.ReadUInt32());
-
-            //        //br.ReadUInt32(); // 0xDEADBEEF
-            //        //Logger.LogToFile("DEADBEEF");
-            //    }
-
-            //    for (int i = 0; i < mipCount; i++)
-            //    {
-            //        var mip = new MipMap();
-            //        mip.Width = tdx.width >> i;
-            //        mip.Height = tdx.height >> i;
-
-            //        switch (tdx.Format)
-            //        {
-            //            case D3DFormat.A8R8G8B8:
-            //                mip.Data = br.ReadBytes(mip.Width * mip.Height * 4);
-            //                break;
-
-            //            case D3DFormat.A8:
-            //                mip.Data = br.ReadBytes(mip.Width * mip.Height);
-            //                break;
-
-            //            case D3DFormat.DXT1:
-            //                mip.Data = br.ReadBytes((((mip.Width + 3) / 4) * ((mip.Height + 3) / 4)) * 8);
-            //                break;
-
-            //            case D3DFormat.ATI2:
-            //            case D3DFormat.DXT5:
-            //                mip.Data = br.ReadBytes((((mip.Width + 3) / 4) * ((mip.Height + 3) / 4)) * 16);
-            //                break;
-
-            //            default:
-            //                Logger.LogToFile("Unknown format: {0}", tdx.Format);
-            //                return null;
-            //        }
-
-            //        tdx.MipMaps.Add(mip);
-            //    }
-            //}
+            // TO DO
 
             return img;
         }
@@ -165,11 +66,14 @@ namespace ToxicRagers.Stainless.Formats
             using (BinaryWriter bw = new BinaryWriter(new FileStream(path, FileMode.Create)))
             {
                 bw.WriteString("IMAGEMAP");
-                bw.Write(new byte[] { 0x0, 0x1, 0x4b, 0x0 });
+                bw.Write(new byte[] { 0x1, 0x1 }); // version 1.1
+                bw.Write((byte)(BasicFlags.Compressed | BasicFlags.DisableDownSample | BasicFlags.DisableMipMaps));
+                bw.Write((byte)AdvancedFlags.DontAutoJPEG);
                 bw.Write(6);
                 bw.Write(16 + (this.planes[0].Count * 2) + (this.planes[1].Count * 2) + (this.planes[2].Count * 2) + (this.planes[3].Count * 2));
                 bw.Write((short)this.width);
                 bw.Write((short)this.height);
+                bw.Write(0x64);
 
                 for (int i = 3; i >= 0; i--) { bw.Write(this.planes[i].Count * 2); }
 
