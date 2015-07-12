@@ -145,7 +145,7 @@ namespace ToxicRagers.Stainless.Formats
                         br.ReadBytes(padding);
                     }
 
-                    mdl.meshes.Add(new MDLMaterialGroup(materialName));
+                    mdl.meshes.Add(new MDLMaterialGroup(i, materialName));
                 }
 
                 // START PREP DATA
@@ -483,9 +483,9 @@ namespace ToxicRagers.Stainless.Formats
                 {
                     bw.Write((short)this.faces[i].MaterialID);
                     bw.Write((short)0);
-                    bw.Write(this.faces[i].V1);
-                    bw.Write(this.faces[i].V2);
-                    bw.Write(this.faces[i].V3);
+                    bw.Write(this.faces[i].Verts[0]);
+                    bw.Write(this.faces[i].Verts[1]);
+                    bw.Write(this.faces[i].Verts[2]);
                 }
 
                 bw.Write(this.verts.Count);
@@ -536,8 +536,7 @@ namespace ToxicRagers.Stainless.Formats
 
                     for (int j = 0; j < mesh.StripList.Count; j++)
                     {
-                        bw.Write((short)mesh.StripList[j].Index);
-                        bw.Write((short)(mesh.StripList[j].Degenerate ? 32768 : 0));
+                        bw.Write((uint)mesh.StripList[j].Index | (mesh.StripList[j].Degenerate ? 0x80000000 : 0x0));
                     }
 
                     bw.Write(mesh.TriListOffset);
@@ -564,44 +563,44 @@ namespace ToxicRagers.Stainless.Formats
 
                     for (int i = 0; i < this.faces.Count; i++)
                     {
-                        var v12 = this.verts[this.faces[i].V2].Normal - this.verts[this.faces[i].V1].Normal;
-                        var v13 = this.verts[this.faces[i].V3].Normal - this.verts[this.faces[i].V1].Normal;
+                        var v12 = this.verts[this.faces[i].Verts[1]].Normal - this.verts[this.faces[i].Verts[0]].Normal;
+                        var v13 = this.verts[this.faces[i].Verts[2]].Normal - this.verts[this.faces[i].Verts[0]].Normal;
                         var n = Vector3.Cross(v12, v13).Normalised;
-                        var d = Vector3.Dot(n, this.verts[this.faces[i].V1].Normal);
+                        var d = Vector3.Dot(n, this.verts[this.faces[i].Verts[0]].Normal);
 
                         bw.Write(d);
                         bw.Write(n.X);
                         bw.Write(n.Y);
                         bw.Write(n.Z);
-                        bw.Write(this.verts[this.faces[i].V1].Normal.X);
-                        bw.Write(this.verts[this.faces[i].V1].Normal.Y);
-                        bw.Write(this.verts[this.faces[i].V1].Normal.Z);
-                        bw.Write(this.verts[this.faces[i].V2].Normal.X);
-                        bw.Write(this.verts[this.faces[i].V2].Normal.Y);
-                        bw.Write(this.verts[this.faces[i].V2].Normal.Z);
-                        bw.Write(this.verts[this.faces[i].V3].Normal.X);
-                        bw.Write(this.verts[this.faces[i].V3].Normal.Y);
-                        bw.Write(this.verts[this.faces[i].V3].Normal.Z);
+                        bw.Write(this.verts[this.faces[i].Verts[0]].Normal.X);
+                        bw.Write(this.verts[this.faces[i].Verts[0]].Normal.Y);
+                        bw.Write(this.verts[this.faces[i].Verts[0]].Normal.Z);
+                        bw.Write(this.verts[this.faces[i].Verts[1]].Normal.X);
+                        bw.Write(this.verts[this.faces[i].Verts[1]].Normal.Y);
+                        bw.Write(this.verts[this.faces[i].Verts[1]].Normal.Z);
+                        bw.Write(this.verts[this.faces[i].Verts[2]].Normal.X);
+                        bw.Write(this.verts[this.faces[i].Verts[2]].Normal.Y);
+                        bw.Write(this.verts[this.faces[i].Verts[2]].Normal.Z);
                         bw.Write(this.faces[i].MaterialID);
                         bw.Write(0);
-                        bw.Write(this.faces[i].V1);
-                        bw.Write(this.faces[i].V2);
-                        bw.Write(this.faces[i].V3);
-                        bw.Write(this.verts[this.faces[i].V1].Colour.R); bw.Write(this.verts[this.faces[i].V1].Colour.G); bw.Write(this.verts[this.faces[i].V1].Colour.B); bw.Write(this.verts[this.faces[i].V1].Colour.A);
-                        bw.Write(this.verts[this.faces[i].V2].Colour.R); bw.Write(this.verts[this.faces[i].V2].Colour.G); bw.Write(this.verts[this.faces[i].V2].Colour.B); bw.Write(this.verts[this.faces[i].V2].Colour.A);
-                        bw.Write(this.verts[this.faces[i].V3].Colour.R); bw.Write(this.verts[this.faces[i].V3].Colour.G); bw.Write(this.verts[this.faces[i].V3].Colour.B); bw.Write(this.verts[this.faces[i].V3].Colour.A);
-                        bw.Write(this.verts[this.faces[i].V1].UV.X);
-                        bw.Write(this.verts[this.faces[i].V1].UV.Y);
-                        bw.Write(this.verts[this.faces[i].V1].UV2.X);
-                        bw.Write(this.verts[this.faces[i].V1].UV2.Y);
-                        bw.Write(this.verts[this.faces[i].V2].UV.X);
-                        bw.Write(this.verts[this.faces[i].V2].UV.Y);
-                        bw.Write(this.verts[this.faces[i].V2].UV2.X);
-                        bw.Write(this.verts[this.faces[i].V2].UV2.Y);
-                        bw.Write(this.verts[this.faces[i].V3].UV.X);
-                        bw.Write(this.verts[this.faces[i].V3].UV.Y);
-                        bw.Write(this.verts[this.faces[i].V3].UV2.X);
-                        bw.Write(this.verts[this.faces[i].V3].UV2.Y);
+                        bw.Write(this.faces[i].Verts[0]);
+                        bw.Write(this.faces[i].Verts[1]);
+                        bw.Write(this.faces[i].Verts[2]);
+                        bw.Write(this.verts[this.faces[i].Verts[0]].Colour.R); bw.Write(this.verts[this.faces[i].Verts[0]].Colour.G); bw.Write(this.verts[this.faces[i].Verts[0]].Colour.B); bw.Write(this.verts[this.faces[i].Verts[0]].Colour.A);
+                        bw.Write(this.verts[this.faces[i].Verts[1]].Colour.R); bw.Write(this.verts[this.faces[i].Verts[1]].Colour.G); bw.Write(this.verts[this.faces[i].Verts[1]].Colour.B); bw.Write(this.verts[this.faces[i].Verts[1]].Colour.A);
+                        bw.Write(this.verts[this.faces[i].Verts[2]].Colour.R); bw.Write(this.verts[this.faces[i].Verts[2]].Colour.G); bw.Write(this.verts[this.faces[i].Verts[2]].Colour.B); bw.Write(this.verts[this.faces[i].Verts[2]].Colour.A);
+                        bw.Write(this.verts[this.faces[i].Verts[0]].UV.X);
+                        bw.Write(this.verts[this.faces[i].Verts[0]].UV.Y);
+                        bw.Write(this.verts[this.faces[i].Verts[0]].UV2.X);
+                        bw.Write(this.verts[this.faces[i].Verts[0]].UV2.Y);
+                        bw.Write(this.verts[this.faces[i].Verts[1]].UV.X);
+                        bw.Write(this.verts[this.faces[i].Verts[1]].UV.Y);
+                        bw.Write(this.verts[this.faces[i].Verts[1]].UV2.X);
+                        bw.Write(this.verts[this.faces[i].Verts[1]].UV2.Y);
+                        bw.Write(this.verts[this.faces[i].Verts[2]].UV.X);
+                        bw.Write(this.verts[this.faces[i].Verts[2]].UV.Y);
+                        bw.Write(this.verts[this.faces[i].Verts[2]].UV2.X);
+                        bw.Write(this.verts[this.faces[i].Verts[2]].UV2.Y);
                         bw.Write((byte)0);
                         bw.Write(0);
                     }
@@ -675,28 +674,24 @@ namespace ToxicRagers.Stainless.Formats
     {
         int materialID;
         int flags;
-        int vertexA;
-        int vertexB;
-        int vertexC;
+        int[] verts = new int[3];
 
         public int MaterialID { get { return materialID; } }
         public int Flags { get { return flags; } }
-        public int V1 { get { return vertexA; } }
-        public int V2 { get { return vertexB; } }
-        public int V3 { get { return vertexC; } }
+        public int[] Verts { get { return verts; } }
 
         public MDLFace(int MaterialID, int Flags, int A, int B, int C)
         {
             this.materialID = MaterialID;
             this.flags = Flags;
-            this.vertexA = A;
-            this.vertexB = B;
-            this.vertexC = C;
+            this.verts[0] = A;
+            this.verts[1] = B;
+            this.verts[2] = C;
         }
 
         public override string ToString()
         {
-            return "{ Face: {A:" + vertexA + " B:" + vertexB + " C:" + vertexC + "} Material: " + materialID + " Flags: " + flags + " }";
+            return "{ Face: {A:" + verts[0] + " B:" + verts[1] + " C:" + verts[2] + "} Material: " + materialID + " Flags: " + flags + " }";
         }
     }
 
@@ -919,6 +914,7 @@ namespace ToxicRagers.Stainless.Formats
 
     public class MDLMaterialGroup
     {
+        int index;
         string name;
         int stripOffset;
         int stripVertCount;
@@ -928,6 +924,7 @@ namespace ToxicRagers.Stainless.Formats
         List<MDLPoint> triList;
         MDLExtents extents;
 
+        public int Index { get { return index; } }
         public string Name { get { return name; } }
         public int StripOffset { get { return stripOffset; } set { stripOffset = value; } }
         public int StripVertCount { get { return stripVertCount; } set { stripVertCount = value; } }
@@ -937,8 +934,9 @@ namespace ToxicRagers.Stainless.Formats
         public List<MDLPoint> TriList { get { return triList; } set { triList = value; } }
         public MDLExtents Extents { get { return extents; } set { extents = value; } }
 
-        public MDLMaterialGroup(string Name)
+        public MDLMaterialGroup(int Index, string Name)
         {
+            index = Index;
             name = Name;
             stripList = new List<MDLPoint>();
             triList = new List<MDLPoint>();
