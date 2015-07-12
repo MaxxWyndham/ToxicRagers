@@ -2,43 +2,88 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+
+using ToxicRagers.CarmageddonReincarnation.Formats;
 using ToxicRagers.Helpers;
 
 namespace ToxicRagers.Stainless.Formats
 {
     public class CNT
     {
+        public enum NodeType
+        {
+            LITd,
+            LITg,
+            EMIT,
+            EMT2,
+            MODL,
+            SKIN,
+            VFXI,
+            NULL,
+            SPLN
+        }
+
         CNT parent;
         string name;
         string nodeName;
         string modelName;
-        string section;
+        NodeType section;
         Matrix3D transform;
         List<CNT> childNodes = new List<CNT>();
         Version version;
-        CNTLight light;
 
-        public string Name { 
+        bool bEmbeddedLight;
+        LIGHT light;
+        string lightName;
+
+        string effectName;
+
+        public string Name
+        {
             get { return name; }
             set { name = value; }
         }
 
-        public Matrix3D Transform {
-            get { return transform; } 
-            set { transform = value; } 
+        public Matrix3D Transform
+        {
+            get { return transform; }
+            set { transform = value; }
         }
 
-        public string Section {
+        public NodeType Section
+        {
             get { return section; } 
             set { section = value; } 
         }
 
-        public string Model {
-            get { return modelName; } 
-            set { modelName = value; } 
+        public string Model
+        {
+            get { return modelName; }
+            set { modelName = value; }
         }
 
-        public CNTLight Light { get { return light; } }
+        public bool EmbeddedLight
+        {
+            get { return bEmbeddedLight; }
+            set { bEmbeddedLight = value; }
+        }
+
+        public LIGHT Light
+        {
+            get { return light; }
+            set { light = value; }
+        }
+
+        public string LightName
+        {
+            get { return lightName; }
+        }
+
+        public string VFXFile
+        {
+            get { return effectName; }
+            set { effectName = value; }
+        }
 
         public CNT Parent { get { return parent; } }
         public List<CNT> Children { get { return childNodes; } }
@@ -113,64 +158,35 @@ namespace ToxicRagers.Stainless.Formats
                                 br.ReadSingle(), br.ReadSingle(), br.ReadSingle()
                             );
 
-            cnt.section = br.ReadString(4);
+            cnt.section = br.ReadString(4).ToEnum<NodeType>();
             switch (cnt.section)
             {
-                case "LITd":
-                    Logger.LogToFile("LITd, skipping 16 bytes");
-                    br.ReadBytes(16);
-                    break;
-
-                case "LITg":
-                    cnt.light = new CNTLight((int)br.ReadUInt32());
-
-                    switch (cnt.light.LightType)
+                case NodeType.LITg:
+                    int resourceType = (int)br.ReadUInt32();
+                    switch (resourceType)
                     {
-                        case 2: // Bounding box?
-                            Logger.LogToFile("Light type: {0}", cnt.light.LightType);
-
-                            for (int i = 0; i < 26; i++)
-                            {
-                                Logger.LogToFile("{0}] {1}", i, br.ReadSingle());
-                            }
-
+                        case 2: // Embedded
+                            cnt.bEmbeddedLight = true;
+                            cnt.light = LIGHT.Load(br);
                             break;
 
-                        case 3:
-                            Logger.LogToFile("Light type: {0}", cnt.light.LightType);
+                        case 3: // External
+                            nameLength = (int)br.ReadUInt32();
+                            padding = (((nameLength / 4) + (nameLength % 4 > 0 ? 1 : 0)) * 4) - nameLength;
+
+                            cnt.lightName = br.ReadString(nameLength);
+                            br.ReadBytes(padding);
+
+                            Logger.LogToFile(Logger.LogLevel.Debug, "LITg: \"{0}\" of length {1}, padding of {2}", cnt.lightName, nameLength, padding);
                             break;
 
                         default:
-                            Logger.LogToFile("Unknown light type!  I've never seen a light like {0} before", cnt.light.LightType);
-                            break;
+                            throw new NotImplementedException(string.Format("Unknown resource type: {0}.  Aborting", resourceType));
                     }
-
-                    nameLength = (int)br.ReadUInt32();
-                    padding = (((nameLength / 4) + (nameLength % 4 > 0 ? 1 : 0)) * 4) - nameLength;
-
-                    cnt.light.Name = br.ReadString(nameLength);
-                    br.ReadBytes(padding);
-
-                    Logger.LogToFile("LITg: \"{0}\" of length {1}, padding of {2}", cnt.light.Name, nameLength, padding);
                     break;
 
-                case "EMIT":    // <= v4.0
-                    int emitVersion = br.ReadByte();
-                    int toSkip = (emitVersion == 6 ? 128 : 136);
-
-                    br.ReadBytes(25);
-                    Logger.LogToFile("EMIT v{0}, skipping 26 bytes, reading a name (\"{1}\") and then skipping {2} bytes", emitVersion, br.ReadString((int)br.ReadUInt32()), toSkip);
-                    br.ReadBytes(toSkip);
-                    break;
-
-                case "EMT2":
-                    br.ReadBytes(34);
-                    Logger.LogToFile("EMT2, skipping 34 bytes, reading a name (\"{0}\") and then skipping 612 bytes", br.ReadString((int)br.ReadUInt32()));
-                    br.ReadBytes(612);
-                    break;
-
-                case "MODL":
-                case "SKIN":
+                case NodeType.MODL:
+                case NodeType.SKIN:
                     if (version.Major == 3)
                     {
                         cnt.modelName = br.ReadBytes(16).ToName();
@@ -191,20 +207,41 @@ namespace ToxicRagers.Stainless.Formats
 
                     break;
 
-                case "VFXI":
+                case NodeType.VFXI:
                     nameLength = (int)br.ReadUInt32();
 
-                    string effectName = br.ReadString(nameLength);
+                    cnt.effectName = br.ReadString(nameLength);
 
-                    Logger.LogToFile("VXFI: \"{0}\" of length {1}, padding of {2}", effectName, nameLength, 0);
+                    Logger.LogToFile(Logger.LogLevel.Debug, "VXFI: \"{0}\" of length {1}, padding of {2}", cnt.effectName, nameLength, 0);
                     break;
 
-                case "NULL":
-                    break;
-
-                case "SPLN":
-                    Logger.LogToFile("SPLN, skipping 88 bytes");
+                case NodeType.SPLN:
+                    Logger.LogToFile(Logger.LogLevel.Warning, "SPLN, skipping 88 bytes");
                     br.ReadBytes(88);
+                    break;
+
+                case NodeType.NULL:
+                    break;
+
+                // EMIT, EMT2 and LITd no longer occur in C:R
+                case NodeType.LITd:
+                    Logger.LogToFile(Logger.LogLevel.Debug, "LITd, skipping 16 bytes");
+                    br.ReadBytes(16);
+                    break;
+
+                case NodeType.EMIT:    // <= v4.0
+                    int emitVersion = br.ReadByte();
+                    int toSkip = (emitVersion == 6 ? 128 : 136);
+
+                    br.ReadBytes(25);
+                    Logger.LogToFile(Logger.LogLevel.Debug, "EMIT v{0}, skipping 26 bytes, reading a name (\"{1}\") and then skipping {2} bytes", emitVersion, br.ReadString((int)br.ReadUInt32()), toSkip);
+                    br.ReadBytes(toSkip);
+                    break;
+
+                case NodeType.EMT2:    // no longer in C:R
+                    br.ReadBytes(34);
+                    Logger.LogToFile(Logger.LogLevel.Debug, "EMT2, skipping 34 bytes, reading a name (\"{0}\") and then skipping 612 bytes", br.ReadString((int)br.ReadUInt32()));
+                    br.ReadBytes(612);
                     break;
 
                 default:
@@ -261,29 +298,31 @@ namespace ToxicRagers.Stainless.Formats
             bw.Write(cnt.Transform.M42);
             bw.Write(cnt.Transform.M43);
 
-            bw.WriteString(cnt.Section);
+            bw.WriteString(cnt.Section.ToString());
 
             switch (cnt.Section)
             {
-                case "LITg":
-                    bw.Write(cnt.Light.LightType);
-
-                    switch (cnt.light.LightType)
+                case NodeType.LITg:
+                    if (cnt.Light != null)
                     {
-                        case 2:
-                            throw new NotImplementedException("Save code for LightType 2 does not exist!");
+                        bw.Write(2);
+                        LIGHT.Save(bw, cnt.Light);
+                    }
+                    else
+                    {
+                        bw.Write(3);
                     }
 
-                    nameLength = cnt.Light.Name.Length;
+                    nameLength = cnt.LightName.Length;
                     padding = (((nameLength / 4) + (nameLength % 4 > 0 ? 1 : 0)) * 4) - nameLength;
 
                     bw.Write(nameLength);
-                    bw.WriteString(cnt.Light.Name);
+                    bw.WriteString(cnt.LightName);
                     bw.Write(new byte[padding]);
                     break;
 
-                case "MODL":
-                case "SKIN":
+                case NodeType.MODL:
+                case NodeType.SKIN:
                     nameLength = cnt.Model.Length;
                     padding = (((nameLength / 4) + (nameLength % 4 > 0 ? 1 : 0)) * 4) - nameLength;
 
@@ -292,7 +331,7 @@ namespace ToxicRagers.Stainless.Formats
                     bw.Write(new byte[padding]);
                     break;
 
-                case "NULL":
+                case NodeType.NULL:
                     break;
 
                 default:
@@ -323,20 +362,6 @@ namespace ToxicRagers.Stainless.Formats
             }
 
             return match;
-        }
-    }
-
-    public class CNTLight
-    {
-        string name;
-        int type;
-
-        public int LightType { get { return type; } }
-        public string Name { get { return name; } set { name = value; } }
-
-        public CNTLight(int lightType)
-        {
-            type = lightType;
         }
     }
 }
