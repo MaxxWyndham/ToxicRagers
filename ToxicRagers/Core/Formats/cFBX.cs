@@ -49,10 +49,16 @@ namespace ToxicRagers.Core.Formats
             if (bDebug)
             {
                 int depth = 0;
+                Logger.LogLevel oldLevel = Logger.Level;
+
+                Logger.Level = Logger.LogLevel.All;
+
                 foreach (var elem in fbx.elements)
                 {
                     debug(elem, ref depth);
                 }
+
+                Logger.Level = oldLevel;
             }
 
             return fbx;
@@ -169,6 +175,10 @@ namespace ToxicRagers.Core.Formats
 
                 case 68:  // Double
                     property.Value = br.ReadDouble();
+                    break;
+
+                case 70:  // Single
+                    property.Value = br.ReadSingle();
                     break;
 
                 case 73: // 32bit int
@@ -532,6 +542,9 @@ namespace ToxicRagers.Core.Formats
                     case 68:  // Double
                         return 8;
 
+                    case 70: // Single
+                        return 4;
+
                     case 73: // 32bit int
                         return 4;
 
@@ -613,6 +626,10 @@ namespace ToxicRagers.Core.Formats
 
                 case 68:  // Double
                     bw.Write((double)propertyValue);
+                    break;
+
+                case 70: // Single
+                    bw.Write((float)propertyValue);
                     break;
 
                 case 73: // 32bit int
