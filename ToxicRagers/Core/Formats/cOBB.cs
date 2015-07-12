@@ -26,7 +26,7 @@ namespace ToxicRagers.Core.Formats
         public static OBB Load(string path)
         {
             FileInfo fi = new FileInfo(path);
-            Logger.LogToFile("{0}", path);
+            Logger.LogToFile(Logger.LogLevel.Info, "{0}", path);
             OBB obb = new OBB();
 
             obb.name = Path.GetFileNameWithoutExtension(path);

@@ -44,7 +44,7 @@ namespace ToxicRagers.TDR2000.Formats
         public static HIE Load(string path)
         {
             FileInfo fi = new FileInfo(path);
-            Logger.LogToFile("{0}", path);
+            Logger.LogToFile(Logger.LogLevel.Info, "{0}", path);
             HIE hie = new HIE();
             H h = new H(); ;
 

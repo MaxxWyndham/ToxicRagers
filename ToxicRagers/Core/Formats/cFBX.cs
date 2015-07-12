@@ -25,14 +25,14 @@ namespace ToxicRagers.Core.Formats
         public static FBX Load(string path)
         {
             FileInfo fi = new FileInfo(path);
-            Logger.LogToFile("{0}", path);
+            Logger.LogToFile(Logger.LogLevel.Info, "{0}", path);
             FBX fbx = new FBX();
 
             using (var br = new BinaryReader(fi.OpenRead()))
             {
                 if (br.ReadString(20) != "Kaydara FBX Binary  " || br.ReadByte() != 0 || br.ReadByte() != 26 || br.ReadByte() != 0) 
                 {
-                    Logger.LogToFile("Invalid Binary FBX detected, error!");
+                    Logger.LogToFile(Logger.LogLevel.Error, "Invalid Binary FBX detected, error!");
                     return null;
                 }
 
@@ -60,59 +60,59 @@ namespace ToxicRagers.Core.Formats
 
         private static void debug(FBXElem elem, ref int depth)
         {
-            Logger.LogToFile("{0}{1}", new string('\t', depth), elem.ID);
+            Logger.LogToFile(Logger.LogLevel.Debug, "{0}{1}", new string('\t', depth), elem.ID);
 
             depth++;
             string padding = new string('\t', depth);
 
             foreach (var prop in elem.Properties)
             {
-                Logger.LogToFile("{0}{1}", padding, prop.Type);
+                Logger.LogToFile(Logger.LogLevel.Debug, "{0}{1}", padding, prop.Type);
 
                 switch (prop.Type)
                 {
                     case 82:
-                        Logger.LogToFile("{0}*{1} {2}", padding, ((byte[])prop.Value).Length, ((byte[])prop.Value).ToFormattedString());
+                        Logger.LogToFile(Logger.LogLevel.Debug, "{0}*{1} {2}", padding, ((byte[])prop.Value).Length, ((byte[])prop.Value).ToFormattedString());
                         break;
 
                     case 83:
-                        Logger.LogToFile("{0}\"{1}\"", padding, prop.Value);
+                        Logger.LogToFile(Logger.LogLevel.Debug, "{0}\"{1}\"", padding, prop.Value);
                         break;
 
                     case 98:
-                        Logger.LogToFile("{0}*{1} {2}", padding, ((bool[])prop.Value).Length, ((bool[])prop.Value).ToFormattedString());
+                        Logger.LogToFile(Logger.LogLevel.Debug, "{0}*{1} {2}", padding, ((bool[])prop.Value).Length, ((bool[])prop.Value).ToFormattedString());
                         break;
 
                     case 100:
-                        Logger.LogToFile("{0}*{1} {2}", padding, ((double[])prop.Value).Length, ((double[])prop.Value).ToFormattedString());
+                        Logger.LogToFile(Logger.LogLevel.Debug, "{0}*{1} {2}", padding, ((double[])prop.Value).Length, ((double[])prop.Value).ToFormattedString());
                         break;
 
                     case 102:
-                        Logger.LogToFile("{0}*{1} {2}", padding, ((float[])prop.Value).Length, ((float[])prop.Value).ToFormattedString());
+                        Logger.LogToFile(Logger.LogLevel.Debug, "{0}*{1} {2}", padding, ((float[])prop.Value).Length, ((float[])prop.Value).ToFormattedString());
                         break;
 
                     case 105:
-                        Logger.LogToFile("{0}*{1} {2}", padding, ((int[])prop.Value).Length, ((int[])prop.Value).ToFormattedString());
+                        Logger.LogToFile(Logger.LogLevel.Debug, "{0}*{1} {2}", padding, ((int[])prop.Value).Length, ((int[])prop.Value).ToFormattedString());
                         break;
 
                     case 108:
-                        Logger.LogToFile("{0}*{1} {2}", padding, ((long[])prop.Value).Length, ((long[])prop.Value).ToFormattedString());
+                        Logger.LogToFile(Logger.LogLevel.Debug, "{0}*{1} {2}", padding, ((long[])prop.Value).Length, ((long[])prop.Value).ToFormattedString());
                         break;
 
                     default:
-                        Logger.LogToFile("{0}{1}", padding, prop.Value);
+                        Logger.LogToFile(Logger.LogLevel.Debug, "{0}{1}", padding, prop.Value);
                         break;
                 }
             }
 
-            if (elem.Properties.Count > 0) { Logger.LogToFile(""); }
+            if (elem.Properties.Count > 0) { Logger.LogToFile(Logger.LogLevel.Debug, ""); }
 
             foreach (var child in elem.Children)
             {
                 debug(child, ref depth);
             }
 
-            if (elem.Children.Count > 0) { Logger.LogToFile(""); }
+            if (elem.Children.Count > 0) { Logger.LogToFile(Logger.LogLevel.Debug, ""); }
 
             depth--;
         }

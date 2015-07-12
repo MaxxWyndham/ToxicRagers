@@ -23,7 +23,7 @@ namespace ToxicRagers.DoubleStealSecondClash.Formats
         public static PK Load(string path)
         {
             FileInfo fi = new FileInfo(path);
-            Logger.LogToFile("{0}", path);
+            Logger.LogToFile(Logger.LogLevel.Info, "{0}", path);
             PK pk = new PK();
 
             pk.name = Path.GetFileNameWithoutExtension(path);

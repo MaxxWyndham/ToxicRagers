@@ -14,7 +14,7 @@ namespace ToxicRagers.TDR2000.Formats
         public static MSHS Load(string path)
         {
             FileInfo fi = new FileInfo(path);
-            Logger.LogToFile("{0}", path);
+            Logger.LogToFile(Logger.LogLevel.Info, "{0}", path);
             MSHS mshs = new MSHS();
 
             using (BinaryReader br = new BinaryReader(fi.OpenRead()))
@@ -115,7 +115,7 @@ namespace ToxicRagers.TDR2000.Formats
                             break;
 
                         default:
-                            Logger.LogToFile("Unknown mode: {0}", mode);
+                            Logger.LogToFile(Logger.LogLevel.Error, "Unknown mode: {0}", mode);
                             return null;
                     }
 

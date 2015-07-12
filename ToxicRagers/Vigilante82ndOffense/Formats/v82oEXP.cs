@@ -30,7 +30,7 @@ namespace ToxicRagers.Vigilante82ndOffense.Formats
         public static EXP Load(string path)
         {
             FileInfo fi = new FileInfo(path);
-            Logger.LogToFile("{0}", path);
+            Logger.LogToFile(Logger.LogLevel.Info, "{0}", path);
             EXP exp = new EXP();
 
             exp.name = Path.GetFileNameWithoutExtension(path);
@@ -65,15 +65,15 @@ namespace ToxicRagers.Vigilante82ndOffense.Formats
 
                         case "HEAD":
                             length = (int)br.ReadUInt32();
-                            Logger.LogToFile("U: {0}", br.ReadUInt16());
-                            Logger.LogToFile("U: {0}", br.ReadUInt32());
+                            Logger.LogToFile(Logger.LogLevel.Debug, "U: {0}", br.ReadUInt16());
+                            Logger.LogToFile(Logger.LogLevel.Debug, "U: {0}", br.ReadUInt32());
                             exp.entryCount = br.ReadUInt16();
-                            Logger.LogToFile("U: {0}", br.ReadUInt32());
-                            Logger.LogToFile("U: {0}", br.ReadUInt16());
-                            Logger.LogToFile("U: {0}", br.ReadUInt16());
-                            Logger.LogToFile("U: {0}", br.ReadUInt16());
-                            Logger.LogToFile("U: {0}", br.ReadUInt32());
-                            Logger.LogToFile("U: {0}", br.ReadUInt32());
+                            Logger.LogToFile(Logger.LogLevel.Debug, "U: {0}", br.ReadUInt32());
+                            Logger.LogToFile(Logger.LogLevel.Debug, "U: {0}", br.ReadUInt16());
+                            Logger.LogToFile(Logger.LogLevel.Debug, "U: {0}", br.ReadUInt16());
+                            Logger.LogToFile(Logger.LogLevel.Debug, "U: {0}", br.ReadUInt16());
+                            Logger.LogToFile(Logger.LogLevel.Debug, "U: {0}", br.ReadUInt32());
+                            Logger.LogToFile(Logger.LogLevel.Debug, "U: {0}", br.ReadUInt32());
                             break;
 
                         case "BIN ":

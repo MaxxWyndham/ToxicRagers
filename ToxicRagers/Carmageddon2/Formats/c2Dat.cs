@@ -22,10 +22,10 @@ namespace ToxicRagers.Carmageddon2.Formats
             DatMeshes.Add(dm);
         }
 
-        public static DAT Load(string Path)
+        public static DAT Load(string path)
         {
-            FileInfo fi = new FileInfo(Path);
-            Logger.LogToFile("{0}", Path);
+            FileInfo fi = new FileInfo(path);
+            Logger.LogToFile(Logger.LogLevel.Info, "{0}", path);
             DAT dat = new DAT();
 
             DatMesh D = new DatMesh();
@@ -38,7 +38,7 @@ namespace ToxicRagers.Carmageddon2.Formats
                     br.ReadUInt32() != 64206 ||
                     br.ReadUInt32() != 2)
                 {
-                    Logger.LogToFile("{0} isn't a valid DAT file", Path);
+                    Logger.LogToFile(Logger.LogLevel.Error, "{0} isn't a valid DAT file", path);
                     return null;
                 }
 
@@ -105,7 +105,7 @@ namespace ToxicRagers.Carmageddon2.Formats
                             break;
 
                         default:
-                            Logger.LogToFile("Unknown DAT tag: {0} ({1})", tag, br.BaseStream.Position.ToString("X"));
+                            Logger.LogToFile(Logger.LogLevel.Error, "Unknown DAT tag: {0} ({1:x2})", tag, br.BaseStream.Position);
                             return null;
                     }
                 }

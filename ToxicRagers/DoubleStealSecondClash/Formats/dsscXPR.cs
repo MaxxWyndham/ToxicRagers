@@ -32,7 +32,7 @@ namespace ToxicRagers.DoubleStealSecondClash.Formats
         public static XPR Load(string path)
         {
             FileInfo fi = new FileInfo(path);
-            Logger.LogToFile("{0}", path);
+            Logger.LogToFile(Logger.LogLevel.Info, "{0}", path);
             XPR xpr = new XPR();
 
             xpr.name = Path.GetFileNameWithoutExtension(path);
@@ -45,7 +45,7 @@ namespace ToxicRagers.DoubleStealSecondClash.Formats
                     br.ReadByte() != 0x52 ||    // R
                     br.ReadByte() != 0x30)      // 0
                 {
-                    Logger.LogToFile("{0} isn't a valid XPR file", path);
+                    Logger.LogToFile(Logger.LogLevel.Error, "{0} isn't a valid XPR file", path);
                     return null;
                 }
 

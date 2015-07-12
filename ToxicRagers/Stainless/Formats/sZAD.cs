@@ -35,7 +35,7 @@ namespace ToxicRagers.Stainless.Formats
         public static ZAD Load(string path)
         {
             FileInfo fi = new FileInfo(path);
-            Logger.LogToFile("{0}", path);
+            Logger.LogToFile(Logger.LogLevel.Info, "{0}", path);
             ZAD zad = new ZAD();
 
             zad.name = Path.GetFileNameWithoutExtension(path);
@@ -56,7 +56,7 @@ namespace ToxicRagers.Stainless.Formats
                     br.ReadByte() != 0x05 ||
                     br.ReadByte() != 0x06)
                 {
-                    Logger.LogToFile("{0} isn't a valid ZAD file", path);
+                    Logger.LogToFile(Logger.LogLevel.Error, "{0} isn't a valid ZAD file", path);
                     return null;
                 }
 
@@ -65,7 +65,7 @@ namespace ToxicRagers.Stainless.Formats
                 int recordCount = br.ReadUInt16();
                 if (recordCount != br.ReadUInt16())
                 {
-                    Logger.LogToFile("Something has gone horribly wrong!  Aborting");
+                    Logger.LogToFile(Logger.LogLevel.Error, "Something has gone horribly wrong!  Aborting");
                     return null;
                 }
 
@@ -120,7 +120,7 @@ namespace ToxicRagers.Stainless.Formats
                                     bfs.ReadByte() != 0x03 ||
                                     bfs.ReadByte() != 0x04)
                                 {
-                                    Logger.LogToFile("{0} has a malformed header", (bfs.Position - 4).ToString("X"));
+                                    Logger.LogToFile(Logger.LogLevel.Error, "{0:x2} has a malformed header", (bfs.Position - 4));
                                     return;
                                 }
 
@@ -212,7 +212,7 @@ namespace ToxicRagers.Stainless.Formats
                 br.ReadByte() != 0x01 ||
                 br.ReadByte() != 0x02)
             {
-                Logger.LogToFile("{0} isn't a valid ZAD entry", (br.Position - 4).ToString("X"));
+                Logger.LogToFile(Logger.LogLevel.Error, "{0:x2} isn't a valid ZAD entry", (br.Position - 4));
                 return;
             }
 

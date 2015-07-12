@@ -43,10 +43,10 @@ namespace ToxicRagers.Stainless.Formats
         public CNT Parent { get { return parent; } }
         public List<CNT> Children { get { return childNodes; } }
 
-        public static CNT Load(string Path)
+        public static CNT Load(string path)
         {
-            FileInfo fi = new FileInfo(Path);
-            Logger.LogToFile("{0}", Path);
+            FileInfo fi = new FileInfo(path);
+            Logger.LogToFile(Logger.LogLevel.Info, "{0}", path);
             CNT cnt;
 
             using (BinaryReader br = new BinaryReader(fi.OpenRead(), Encoding.Default))
@@ -54,18 +54,18 @@ namespace ToxicRagers.Stainless.Formats
                 if (br.ReadByte() != 69 ||
                     br.ReadByte() != 35)
                 {
-                    Logger.LogToFile("{0} isn't a valid CNT file", Path);
+                    Logger.LogToFile(Logger.LogLevel.Error, "{0} isn't a valid CNT file", path);
                     return null;
                 }
 
                 byte minor = br.ReadByte();
                 byte major = br.ReadByte();
 
-                Logger.LogToFile("CNT v{0}.{1}", major, minor);
+                Logger.LogToFile(Logger.LogLevel.Info, "CNT v{0}.{1}", major, minor);
 
                 cnt = Load(br, new Version(major, minor));
 
-                if (br.BaseStream.Position != br.BaseStream.Length) { Logger.LogToFile("Still has data remaining (processed {0} of {1}", br.BaseStream.Position.ToString("X"), br.BaseStream.Length.ToString("X")); }
+                if (br.BaseStream.Position != br.BaseStream.Length) { Logger.LogToFile(Logger.LogLevel.Warning, "Still has data remaining (processed {0} of {1}", br.BaseStream.Position.ToString("X"), br.BaseStream.Length.ToString("X")); }
             }
 
             return cnt;
@@ -84,7 +84,7 @@ namespace ToxicRagers.Stainless.Formats
             {
                 cnt.name = br.ReadBytes(16).ToName();
 
-                Logger.LogToFile("Name: \"{0}\"", cnt.Name);
+                Logger.LogToFile(Logger.LogLevel.Debug, "Name: \"{0}\"", cnt.Name);
             }
             else
             {
@@ -94,13 +94,13 @@ namespace ToxicRagers.Stainless.Formats
                 cnt.name = br.ReadString(nameLength);
                 br.ReadBytes(padding);
 
-                Logger.LogToFile("Name: \"{0}\" of length {1}, padding of {2}", cnt.Name, nameLength, padding);
+                Logger.LogToFile(Logger.LogLevel.Debug, "Name: \"{0}\" of length {1}, padding of {2}", cnt.Name, nameLength, padding);
             }
 
             byte flags = br.ReadByte();
             while (flags != 0)
             {
-                Logger.LogToFile("Flags: {0}", flags);
+                Logger.LogToFile(Logger.LogLevel.Debug, "Flags: {0}", flags);
                 flags = br.ReadByte();
             }
 
@@ -175,7 +175,7 @@ namespace ToxicRagers.Stainless.Formats
                     {
                         cnt.modelName = br.ReadBytes(16).ToName();
 
-                        Logger.LogToFile("MODL: \"{0}\"", cnt.Name);
+                        Logger.LogToFile(Logger.LogLevel.Debug, "MODL: \"{0}\"", cnt.Name);
                         br.ReadBytes(16);
                     }
                     else
@@ -186,7 +186,7 @@ namespace ToxicRagers.Stainless.Formats
                         cnt.modelName = br.ReadString(nameLength);
                         br.ReadBytes(padding);
 
-                        Logger.LogToFile("{0}: \"{1}\" of length {2}, padding of {3}", cnt.section, cnt.modelName, nameLength, padding);
+                        Logger.LogToFile(Logger.LogLevel.Debug, "{0}: \"{1}\" of length {2}, padding of {3}", cnt.section, cnt.modelName, nameLength, padding);
                     }
 
                     break;
@@ -208,7 +208,7 @@ namespace ToxicRagers.Stainless.Formats
                     break;
 
                 default:
-                    Logger.LogToFile("Unknown section \"{0}\"; Aborting", cnt.section);
+                    Logger.LogToFile(Logger.LogLevel.Error, "Unknown section \"{0}\"; Aborting", cnt.section);
                     return null;
             }
 
@@ -216,7 +216,7 @@ namespace ToxicRagers.Stainless.Formats
 
             for (int i = 0; i < childNodes; i++)
             {
-                Logger.LogToFile("Loading child {0} of {1}", (i + 1), childNodes);
+                Logger.LogToFile(Logger.LogLevel.Debug, "Loading child {0} of {1}", (i + 1), childNodes);
                 cnt.childNodes.Add(Load(br, version, cnt));
             }
 

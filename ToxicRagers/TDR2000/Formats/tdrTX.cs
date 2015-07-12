@@ -22,7 +22,7 @@ namespace ToxicRagers.TDR2000.Formats
         public static TX Load(string path)
         {
             FileInfo fi = new FileInfo(path);
-            Logger.LogToFile("{0}", path);
+            Logger.LogToFile(Logger.LogLevel.Info, "{0}", path);
             TX tx = new TX();
 
             tx.name = Path.GetFileNameWithoutExtension(path);
@@ -34,7 +34,7 @@ namespace ToxicRagers.TDR2000.Formats
                     br.ReadByte() != 69 ||
                     br.ReadByte() != 88)
                 {
-                    Logger.LogToFile("{0} isn't a valid TX file", path);
+                    Logger.LogToFile(Logger.LogLevel.Error, "{0} isn't a valid TX file", path);
                     return null;
                 }
 
@@ -52,7 +52,7 @@ namespace ToxicRagers.TDR2000.Formats
 
                 tx.texture += string.Format("_{0}x{1}_32", tx.width, tx.height);
 
-                Logger.LogToFile("TX v{0}", tx.version);
+                Logger.LogToFile(Logger.LogLevel.Debug, "TX v{0}", tx.version);
             }
 
             return tx;

@@ -27,7 +27,7 @@ namespace ToxicRagers.BurnoutParadise.Formats
         public static BOM Load(string path)
         {
             FileInfo fi = new FileInfo(path);
-            Logger.LogToFile("{0}", path);
+            Logger.LogToFile(Logger.LogLevel.Info, "{0}", path);
             BOM bom = new BOM();
 
             bom.name = Path.GetFileNameWithoutExtension(path);

@@ -14,7 +14,7 @@ namespace ToxicRagers.Vigilante82ndOffense.Formats
         public static BIN Load(string path)
         {
             FileInfo fi = new FileInfo(path);
-            Logger.LogToFile("{0}", path);
+            Logger.LogToFile(Logger.LogLevel.Info, "{0}", path);
             BIN bin = new BIN();
 
             using (var br = new BinaryReader(fi.OpenRead()))
@@ -45,47 +45,47 @@ namespace ToxicRagers.Vigilante82ndOffense.Formats
                 {
                     br.BaseStream.Seek(aOffset + bin.aOffsets[i], SeekOrigin.Begin);
 
-                    Logger.LogToFile("###### {0,0:D4} ######", i);
-                    Logger.LogToFile("U: {0}", br.ReadUInt32());
+                    Logger.LogToFile(Logger.LogLevel.Debug, "###### {0,0:D4} ######", i);
+                    Logger.LogToFile(Logger.LogLevel.Debug, "U: {0}", br.ReadUInt32());
                     int ux = (int)br.ReadUInt32();
-                    Logger.LogToFile("{0}\t\t// Number of entries in second section", ux);
-                    Logger.LogToFile("U: {0}", br.ReadUInt32());
+                    Logger.LogToFile(Logger.LogLevel.Debug, "{0}\t\t// Number of entries in second section", ux);
+                    Logger.LogToFile(Logger.LogLevel.Debug, "U: {0}", br.ReadUInt32());
                     int v = (int)br.ReadUInt32();
-                    Logger.LogToFile("{0}\t\t// Entry count", v);
+                    Logger.LogToFile(Logger.LogLevel.Debug, "{0}\t\t// Entry count", v);
                     int offset1 = (int)br.ReadUInt32();
-                    Logger.LogToFile("{0}\t\t// Offset to first section", offset1);
-                    Logger.LogToFile("U: {0}", br.ReadUInt32());
-                    Logger.LogToFile("{0}\t// End of first section", br.ReadUInt32());
+                    Logger.LogToFile(Logger.LogLevel.Debug, "{0}\t\t// Offset to first section", offset1);
+                    Logger.LogToFile(Logger.LogLevel.Debug, "U: {0}", br.ReadUInt32());
+                    Logger.LogToFile(Logger.LogLevel.Debug, "{0}\t// End of first section", br.ReadUInt32());
                     int offset2 = (int)br.ReadUInt32();
-                    Logger.LogToFile("{0}\t// Offset to second section", offset2);
-                    Logger.LogToFile("U: {0}", br.ReadUInt32());
-                    Logger.LogToFile("U: {0}", br.ReadUInt32());
-                    Logger.LogToFile("U: {0}", br.ReadSingle());
+                    Logger.LogToFile(Logger.LogLevel.Debug, "{0}\t// Offset to second section", offset2);
+                    Logger.LogToFile(Logger.LogLevel.Debug, "U: {0}", br.ReadUInt32());
+                    Logger.LogToFile(Logger.LogLevel.Debug, "U: {0}", br.ReadUInt32());
+                    Logger.LogToFile(Logger.LogLevel.Debug, "U: {0}", br.ReadSingle());
 
                     br.BaseStream.Seek(aOffset + bin.aOffsets[i] + offset1, SeekOrigin.Begin);
                     for (int j = 0; j < v; j++)
                     {
-                        Logger.LogToFile("\tPosition: X: {0} Y: {1} Z: {2} Normal: X: {3} Y: {4} Z: {5}", br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
+                        Logger.LogToFile(Logger.LogLevel.Debug, "\tPosition: X: {0} Y: {1} Z: {2} Normal: X: {3} Y: {4} Z: {5}", br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
                     }
 
                     br.BaseStream.Seek(aOffset + bin.aOffsets[i] + offset2, SeekOrigin.Begin);
                     for (int j = 0; j < ux; j++)
                     {
-                        Logger.LogToFile("###### {0,0:D4}.{1,0:D4} ######", i, j);
-                        Logger.LogToFile("\t{0}", br.ReadUInt32());
-                        Logger.LogToFile("\t{0}", br.ReadUInt32());
-                        Logger.LogToFile("\t{0}", br.ReadUInt32());
-                        Logger.LogToFile("\t{0}", br.ReadUInt32());
-                        Logger.LogToFile("\t{0}", br.ReadUInt32());
-                        Logger.LogToFile("\t{0}", br.ReadUInt32());
-                        Logger.LogToFile("\t{0}", br.ReadUInt32());
-                        Logger.LogToFile("\t{0}", br.ReadUInt32());
-                        Logger.LogToFile("\t{0} {1} {2} {3}", br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
-                        Logger.LogToFile("\t{0} {1} {2} {3}", br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
-                        Logger.LogToFile("\t{0} {1} {2} {3}", br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
-                        Logger.LogToFile("\t{0} {1}", br.ReadSingle(), br.ReadSingle());
-                        Logger.LogToFile("\t{0} {1} {2} {3}", br.ReadByte(), br.ReadByte(), br.ReadByte(), br.ReadByte());
-                        Logger.LogToFile("\t{0} {1} {2} {3}", br.ReadByte(), br.ReadByte(), br.ReadByte(), br.ReadByte());
+                        Logger.LogToFile(Logger.LogLevel.Debug, "###### {0,0:D4}.{1,0:D4} ######", i, j);
+                        Logger.LogToFile(Logger.LogLevel.Debug, "\t{0}", br.ReadUInt32());
+                        Logger.LogToFile(Logger.LogLevel.Debug, "\t{0}", br.ReadUInt32());
+                        Logger.LogToFile(Logger.LogLevel.Debug, "\t{0}", br.ReadUInt32());
+                        Logger.LogToFile(Logger.LogLevel.Debug, "\t{0}", br.ReadUInt32());
+                        Logger.LogToFile(Logger.LogLevel.Debug, "\t{0}", br.ReadUInt32());
+                        Logger.LogToFile(Logger.LogLevel.Debug, "\t{0}", br.ReadUInt32());
+                        Logger.LogToFile(Logger.LogLevel.Debug, "\t{0}", br.ReadUInt32());
+                        Logger.LogToFile(Logger.LogLevel.Debug, "\t{0}", br.ReadUInt32());
+                        Logger.LogToFile(Logger.LogLevel.Debug, "\t{0} {1} {2} {3}", br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
+                        Logger.LogToFile(Logger.LogLevel.Debug, "\t{0} {1} {2} {3}", br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
+                        Logger.LogToFile(Logger.LogLevel.Debug, "\t{0} {1} {2} {3}", br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
+                        Logger.LogToFile(Logger.LogLevel.Debug, "\t{0} {1}", br.ReadSingle(), br.ReadSingle());
+                        Logger.LogToFile(Logger.LogLevel.Debug, "\t{0} {1} {2} {3}", br.ReadByte(), br.ReadByte(), br.ReadByte(), br.ReadByte());
+                        Logger.LogToFile(Logger.LogLevel.Debug, "\t{0} {1} {2} {3}", br.ReadByte(), br.ReadByte(), br.ReadByte(), br.ReadByte());
                     }
                 }
 

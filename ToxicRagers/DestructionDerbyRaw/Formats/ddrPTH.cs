@@ -23,7 +23,7 @@ namespace ToxicRagers.DestructionDerbyRaw.Formats
         public static PTH Load(string path)
         {
             FileInfo fi = new FileInfo(path);
-            Logger.LogToFile("{0}", path);
+            Logger.LogToFile(Logger.LogLevel.Info, "{0}", path);
             PTH pth = new PTH();
 
             using (var br = new BinaryReader(new FileStream(path, FileMode.Open)))

@@ -30,10 +30,10 @@ namespace ToxicRagers.Carmageddon2.Formats
             sections = new List<ACTNode>();
         }
 
-        public static ACT Load(string Path)
+        public static ACT Load(string path)
         {
-            FileInfo fi = new FileInfo(Path);
-            Logger.LogToFile("{0}", Path);
+            FileInfo fi = new FileInfo(path);
+            Logger.LogToFile(Logger.LogLevel.Info, "{0}", path);
             ACT act = new ACT();
 
             using (BEBinaryReader br = new BEBinaryReader(fi.OpenRead(), Encoding.Default))
@@ -43,7 +43,7 @@ namespace ToxicRagers.Carmageddon2.Formats
                     br.ReadUInt32() != 0x1 ||
                     br.ReadUInt32() != 0x2)
                 {
-                    Logger.LogToFile("{0} isn't a valid ACT file", Path);
+                    Logger.LogToFile(Logger.LogLevel.Error, "{0} isn't a valid ACT file", path);
                     return null;
                 }
 

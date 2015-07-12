@@ -24,14 +24,14 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
         public static LIGHT Load(string path)
         {
             FileInfo fi = new FileInfo(path);
-            //Logger.LogToFile("{0}", Path);
-            LIGHT light = new LIGHT();
+            Logger.LogToFile(Logger.LogLevel.Info, "{0}", path);
+            LIGHT light;
 
             using (BinaryReader br = new BinaryReader(fi.OpenRead()))
             {
                 if (br.ReadUInt32() != 3)
                 {
-                    Logger.LogToFile("{0} isn't a valid LIGHT file", path);
+                    Logger.LogToFile(Logger.LogLevel.Error, "{0} isn't a valid LIGHT file", path);
                     return null;
                 }
 

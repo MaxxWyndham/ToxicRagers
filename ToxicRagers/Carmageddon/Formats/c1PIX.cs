@@ -43,7 +43,7 @@ namespace ToxicRagers.Carmageddon.Formats
 
         public static PIX Load(string path)
         {
-            Logger.LogToFile("{0}", path);
+            Logger.LogToFile(Logger.LogLevel.Info, "{0}", path);
             FileInfo fi = new FileInfo(path);
             PIX pix = new PIX();
 
@@ -54,7 +54,7 @@ namespace ToxicRagers.Carmageddon.Formats
                     br.ReadUInt32() != 0x02 ||
                     br.ReadUInt32() != 0x02)
                 {
-                    Logger.LogToFile("{0} isn't a valid PIX file", path);
+                    Logger.LogToFile(Logger.LogLevel.Error, "{0} isn't a valid PIX file", path);
                     return null;
                 }
 
@@ -90,7 +90,7 @@ namespace ToxicRagers.Carmageddon.Formats
                             break;
 
                         default:
-                            Logger.LogToFile("Unknown PIX tag: {0} ({1})", tag, br.BaseStream.Position.ToString("X"));
+                            Logger.LogToFile(Logger.LogLevel.Error, "Unknown PIX tag: {0} ({1:x2})", tag, br.BaseStream.Position);
                             return null;
                     }
                 }

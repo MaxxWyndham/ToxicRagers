@@ -5,6 +5,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
+
 using ToxicRagers.Helpers;
 
 namespace ToxicRagers.Stainless.Formats
@@ -70,9 +71,8 @@ namespace ToxicRagers.Stainless.Formats
 
         public static MDL Load(string path)
         {
-            // All these (int) casts are messy
             FileInfo fi = new FileInfo(path);
-            Logger.LogToFile("{0}", path);
+            Logger.LogToFile(Logger.LogLevel.Info, "{0}", path);
             MDL mdl = new MDL();
 
             mdl.name = fi.Name.Replace(fi.Extension, "");
@@ -82,7 +82,7 @@ namespace ToxicRagers.Stainless.Formats
                 if (br.ReadByte() != 69 ||
                     br.ReadByte() != 35)
                 {
-                    Logger.LogToFile("{0} isn't a valid MDL file", path);
+                    Logger.LogToFile(Logger.LogLevel.Error, "{0} isn't a valid MDL file", path);
                     return null;
                 }
 
@@ -93,11 +93,11 @@ namespace ToxicRagers.Stainless.Formats
 
                 if (!MDL.SupportedVersions.ContainsKey(mdl.version.ToString()))
                 {
-                    Logger.LogToFile("Unsupported MDL version: v{0}", mdl.version.ToString());
+                    Logger.LogToFile(Logger.LogLevel.Error, "Unsupported MDL version: v{0}", mdl.version.ToString());
                     return null;
                 }
 
-                Logger.LogToFile("MDL v{0}", mdl.version.ToString());
+                Logger.LogToFile(Logger.LogLevel.Info, "MDL v{0}", mdl.version.ToString());
 
                 // TODO: v5.6
                 // Ref : F:\Novadrome_Demo\Novadrome_Demo\WADs\data\DATA\SFX\CAR_EXPLOSION\DEBPOOL\DEBPOOL.MDL
@@ -107,15 +107,15 @@ namespace ToxicRagers.Stainless.Formats
                 mdl.checkSum = (int)br.ReadUInt32();
 
                 mdl.flags = (Flags)br.ReadUInt32();
-                Logger.LogToFile("Flags {0}", (Flags)mdl.flags);
+                Logger.LogToFile(Logger.LogLevel.Debug, "Flags {0}", (Flags)mdl.flags);
 
                 mdl.prepDataSize = (int)br.ReadUInt32();    // PREP data size
 
                 mdl.userFaceCount = (int)br.ReadUInt32();
                 mdl.userVertexCount = (int)br.ReadUInt32();
 
-                Logger.LogToFile("USER Faces: {0}", mdl.userFaceCount);
-                Logger.LogToFile("USER Verts: {0}", mdl.userVertexCount);
+                Logger.LogToFile(Logger.LogLevel.Debug, "USER Faces: {0}", mdl.userFaceCount);
+                Logger.LogToFile(Logger.LogLevel.Debug, "USER Verts: {0}", mdl.userVertexCount);
 
                 mdl.fileSize = (int)br.ReadUInt32();
 
@@ -126,7 +126,7 @@ namespace ToxicRagers.Stainless.Formats
 
                 int materialCount = br.ReadInt16();
 
-                Logger.LogToFile("Material count: {0}", materialCount);
+                Logger.LogToFile(Logger.LogLevel.Debug, "Material count: {0}", materialCount);
                 for (int i = 0; i < materialCount; i++)
                 {
                     string materialName;
@@ -151,7 +151,7 @@ namespace ToxicRagers.Stainless.Formats
                 // START PREP DATA
                 mdl.prepFaceCount = (int)br.ReadUInt32();
 
-                Logger.LogToFile("PREP Faces: {0}", mdl.prepFaceCount);
+                Logger.LogToFile(Logger.LogLevel.Debug, "PREP Faces: {0}", mdl.prepFaceCount);
 
                 for (int i = 0; i < mdl.prepFaceCount; i++)
                 {
@@ -164,11 +164,13 @@ namespace ToxicRagers.Stainless.Formats
                     );
 
                     mdl.faces.Add(face);
+
+                    Logger.LogToFile(Logger.LogLevel.Debug, "{0} : {1}", i, face);
                 }
 
                 mdl.prepVertexCount = (int)br.ReadUInt32();
 
-                Logger.LogToFile("PREP Verts: {0}", mdl.prepVertexCount);
+                Logger.LogToFile(Logger.LogLevel.Debug, "PREP Verts: {0}", mdl.prepVertexCount);
 
                 for (int i = 0; i < mdl.prepVertexCount; i++)
                 {
@@ -190,6 +192,8 @@ namespace ToxicRagers.Stainless.Formats
                     );
 
                     mdl.verts.Add(vert);
+
+                    Logger.LogToFile(Logger.LogLevel.Debug, "{0} : {1}", i, vert);
                 }
 
                 int materialGroups = br.ReadUInt16();
@@ -207,6 +211,8 @@ namespace ToxicRagers.Stainless.Formats
                     mesh.StripVertCount = (int)br.ReadUInt32();
                     int stripPointCount = (int)br.ReadUInt32();
 
+                    Logger.LogToFile(Logger.LogLevel.Debug, "{0} : {1} : {2}", mesh.StripOffset, mesh.StripVertCount, stripPointCount);
+
                     for (int j = 0; j < stripPointCount; j++)
                     {
                         uint index = br.ReadUInt32();
@@ -214,15 +220,23 @@ namespace ToxicRagers.Stainless.Formats
                         index &= ~0x80000000;
 
                         mesh.StripList.Add(new MDLPoint((int)index + mesh.StripOffset, bDegenerate));
+
+                        Logger.LogToFile(Logger.LogLevel.Debug, "{0} ] {1} : {2}", j, index, bDegenerate);
                     }
 
                     mesh.TriListOffset = (int)br.ReadUInt32();
                     mesh.TriListVertCount = (int)br.ReadUInt32();
                     int listPointCount = (int)br.ReadUInt32();
 
+                    Logger.LogToFile(Logger.LogLevel.Debug, "{0} : {1} : {2}", mesh.TriListOffset, mesh.TriListVertCount, listPointCount);
+
                     for (int j = 0; j < listPointCount; j++)
                     {
-                        mesh.TriList.Add(new MDLPoint(mesh.TriListOffset + (int)br.ReadUInt32()));
+                        uint index = br.ReadUInt32();
+
+                        mesh.TriList.Add(new MDLPoint((int)index + mesh.TriListOffset));
+
+                        Logger.LogToFile(Logger.LogLevel.Debug, "{0} ] {1}", j, index);
                     }
                 }
 
@@ -249,7 +263,7 @@ namespace ToxicRagers.Stainless.Formats
                         mdl.prepBoneList.Add(bone);
                     }
 
-                    Logger.LogToFile("=====");
+                    //Logger.LogToFile("=====");
 
                     for (int i = 0; i < bodyPartCount; i++)
                     {
@@ -257,30 +271,33 @@ namespace ToxicRagers.Stainless.Formats
                         Vector3 v2 = new Vector3(br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
                         Single v3 = br.ReadSingle();
 
-                        Logger.LogToFile("{2:x2}] {0,-16}: {1} :: {3} :: {4}", boneNames[i], v1, i, v2, v3);
+                        //Logger.LogToFile("{2:x2}] {0,-16}: {1} :: {3} :: {4}", boneNames[i], v1, i, v2, v3);
                     }
 
-                    Logger.LogToFile("=====");
+                    //Logger.LogToFile("=====");
 
                     for (int i = 0; i < mdl.prepVertexCount; i++)
                     {
-                        Logger.LogToFile("{0}\t{1}\t{2}", br.ReadUInt16(), br.ReadUInt16(), br.ReadUInt32());
+                        br.ReadBytes(8);
+                        //Logger.LogToFile("{0}\t{1}\t{2}", br.ReadUInt16(), br.ReadUInt16(), br.ReadUInt32());
                     }
 
-                    Logger.LogToFile("=====");
+                    //Logger.LogToFile("=====");
 
                     int unknownX = (int)br.ReadUInt32();
 
                     for (int i = 0; i < unknownX; i++)
                     {
-                        Logger.LogToFile("{0}] {1}", i, br.ReadUInt16());
+                        br.ReadBytes(2);
+                        //Logger.LogToFile("{0}] {1}", i, br.ReadUInt16());
                     }
 
-                    Logger.LogToFile("=====");
+                    //Logger.LogToFile("=====");
 
                     for (int i = 0; i < unknownX; i++)
                     {
-                        Logger.LogToFile("{0}] {1}", i, br.ReadSingle());
+                        br.ReadBytes(4);
+                        //Logger.LogToFile("{0}] {1}", i, br.ReadSingle());
                     }
                 }
                 // END PREP DATA
@@ -292,13 +309,13 @@ namespace ToxicRagers.Stainless.Formats
 
                     // v5.6 successfully parses from this point down
 
-                    Logger.LogToFile("USER vertex list with index count");
+                    Logger.LogToFile(Logger.LogLevel.Debug, "USER vertex list with index count");
                     for (int i = 0; i < mdl.userVertexCount; i++)
                     {
                         mdl.userVertexList.Add(new MDLUserVertexEntry(br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), (int)br.ReadUInt32()));
                     }
 
-                    Logger.LogToFile("USER face data");
+                    Logger.LogToFile(Logger.LogLevel.Debug, "USER face data");
                     for (int i = 0; i < mdl.userFaceCount; i++)
                     {
                         if (mdl.version.Major == 5 && mdl.version.Minor == 6)
@@ -334,14 +351,14 @@ namespace ToxicRagers.Stainless.Formats
                         }
                     }
 
-                    Logger.LogToFile("PREP to USER face lookup");
+                    Logger.LogToFile(Logger.LogLevel.Debug, "PREP to USER face lookup");
                     for (int i = 0; i < mdl.prepFaceCount; i++)
                     {
                         mdl.ptouFaceLookup.Add((int)br.ReadUInt32());
                     }
 
                     int prepVertexMapCount = (int)br.ReadUInt32();
-                    Logger.LogToFile("PREP to USER vertex lookup");
+                    Logger.LogToFile(Logger.LogLevel.Debug, "PREP to USER vertex lookup");
 
                     for (int i = 0; i < prepVertexMapCount; i++)
                     {
@@ -350,22 +367,29 @@ namespace ToxicRagers.Stainless.Formats
 
                     if (mdl.userFlags.HasFlag(Flags.USERSkinData))
                     {
-                        Logger.LogToFile("Processing USER skin data");
+                        Logger.LogToFile(Logger.LogLevel.Debug, "Processing USER skin data");
 
                         int bodyPartCount = br.ReadUInt16();
 
-                        Logger.LogToFile("Bone count: {0}", bodyPartCount);
+                        Logger.LogToFile(Logger.LogLevel.Debug, "Bone count: {0}", bodyPartCount);
                         for (int i = 0; i < bodyPartCount; i++)
                         {
-                            Logger.LogToFile("{0}) {1}", i, br.ReadString(32));
-                            Logger.LogToFile("{0}", br.ReadUInt16());
-                            Logger.LogToFile("{0}\t{1}\t{2}", br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
-                            Logger.LogToFile("{0}\t{1}\t{2}", br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
-                            Logger.LogToFile("{0}\t{1}\t{2}", br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
-                            Logger.LogToFile("{0}\t{1}\t{2}", br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
+                            string boneName = br.ReadString(32);
+                            ushort u1 = br.ReadUInt16();
+                            Single u2 = br.ReadSingle(); Single u3 = br.ReadSingle(); Single u4 = br.ReadSingle(); Single u5 = br.ReadSingle();
+                            Single u6 = br.ReadSingle(); Single u7 = br.ReadSingle(); Single u8 = br.ReadSingle(); Single u9 = br.ReadSingle();
+                            Single u10 = br.ReadSingle(); Single u11 = br.ReadSingle(); Single u12 = br.ReadSingle(); Single u13 = br.ReadSingle();
+
+                            Logger.LogToFile(Logger.LogLevel.Debug, "{0}) {1}", i, boneName);
+                            Logger.LogToFile(Logger.LogLevel.Debug, "{0}", u1);
+                            Logger.LogToFile(Logger.LogLevel.Debug, "{0}\t{1}\t{2}", u2, u3, u4);
+                            Logger.LogToFile(Logger.LogLevel.Debug, "{0}\t{1}\t{2}", u5, u6, u7);
+                            Logger.LogToFile(Logger.LogLevel.Debug, "{0}\t{1}\t{2}", u8, u9, u10);
+                            Logger.LogToFile(Logger.LogLevel.Debug, "{0}\t{1}\t{2}", u11, u12, u13);
                         }
 
-                        Logger.LogToFile("{0} == {1}", br.ReadUInt32(), mdl.userVertexCount);
+                        int userDataCount = (int)br.ReadUInt32();
+                        Logger.LogToFile(Logger.LogLevel.Debug, "{0} == {1}", userDataCount, mdl.userVertexCount);
 
                         for (int i = 0; i < mdl.userVertexCount; i++)
                         {
@@ -375,7 +399,8 @@ namespace ToxicRagers.Stainless.Formats
                             {
                                 var index = br.ReadUInt16();
                                 var pos = br.ReadSingle();
-                                Logger.LogToFile("{5}.{6}] {0} : {1} [{7}]: {2} : {3} : {4}", index, pos, br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), i, j, BitConverter.GetBytes(pos).ToHex());
+                                Single u1 = br.ReadSingle(); Single u2 = br.ReadSingle(); Single u3 = br.ReadSingle();
+                                Logger.LogToFile(Logger.LogLevel.Debug, "{5}.{6}] {0} : {1} [{7}]: {2} : {3} : {4}", index, pos, u1, u2, u3, i, j, BitConverter.GetBytes(pos).ToHex());
                             }
                         }
                     }
@@ -385,7 +410,7 @@ namespace ToxicRagers.Stainless.Formats
                     Console.WriteLine("no user data");
                 }
 
-                if (br.BaseStream.Position != br.BaseStream.Length) { Logger.LogToFile("Still has data remaining (processed {0} of {1}", br.BaseStream.Position.ToString("X"), br.BaseStream.Length.ToString("X")); }
+                if (br.BaseStream.Position != br.BaseStream.Length) { Logger.LogToFile(Logger.LogLevel.Warning, "Still has data remaining (processed {0:x2} of {1:x2}", br.BaseStream.Position, br.BaseStream.Length); }
             }
 
             return mdl;

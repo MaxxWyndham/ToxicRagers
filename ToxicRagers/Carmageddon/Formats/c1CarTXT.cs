@@ -218,13 +218,13 @@ namespace ToxicRagers.Carmageddon.Formats
 
             if (string.Compare(Path.GetFileName(path).ToUpper(), car.name) != 0)
             {
-                Logger.LogToFile("Not a valid Carmageddon car .txt file, expected {0} but found {1}", Path.GetFileName(path).ToUpper(), car.name);
+                Logger.LogToFile(Logger.LogLevel.Error, "Not a valid Carmageddon car .txt file, expected {0} but found {1}", Path.GetFileName(path).ToUpper(), car.name);
                 return null;
             }
 
             if (file.ReadLine() != "START OF DRIVABLE STUFF")
             {
-                Logger.LogToFile("Expected \"{0}\", didn't get it.  Are you sure this is a Car.TXT file?", "START OF DRIVABLE STUFF");
+                Logger.LogToFile(Logger.LogLevel.Error, "Expected \"{0}\", didn't get it.  Are you sure this is a Car.TXT file?", "START OF DRIVABLE STUFF");
                 return null;
             }
 
@@ -235,7 +235,7 @@ namespace ToxicRagers.Carmageddon.Formats
 
             if (file.ReadLine() != "END OF DRIVABLE STUFF")
             {
-                Logger.LogToFile("Expected \"{0}\", didn't get it.  Are you sure this is a Car.TXT file?", "END OF DRIVABLE STUFF");
+                Logger.LogToFile(Logger.LogLevel.Error, "Expected \"{0}\", didn't get it.  Are you sure this is a Car.TXT file?", "END OF DRIVABLE STUFF");
                 return null;
             }
 
@@ -312,7 +312,7 @@ namespace ToxicRagers.Carmageddon.Formats
 
             if (file.ReadLine() != "START OF FUNK")
             {
-                Logger.LogToFile("Expected \"{0}\", didn't get it.  Are you sure this is a Car.TXT file?", "START OF FUNK");
+                Logger.LogToFile(Logger.LogLevel.Error, "Expected \"{0}\", didn't get it.  Are you sure this is a Car.TXT file?", "START OF FUNK");
                 return null;
             }
 
@@ -324,7 +324,7 @@ namespace ToxicRagers.Carmageddon.Formats
 
             if (file.ReadLine() != "START OF GROOVE")
             {
-                Logger.LogToFile("Expected \"{0}\", didn't get it.  Are you sure this is a Car.TXT file?", "START OF GROOVE");
+                Logger.LogToFile(Logger.LogLevel.Error, "Expected \"{0}\", didn't get it.  Are you sure this is a Car.TXT file?", "START OF GROOVE");
                 return null;
             }
 
@@ -388,7 +388,7 @@ namespace ToxicRagers.Carmageddon.Formats
 
             if (file.ReadLine() != "END OF MECHANICS STUFF")
             {
-                Logger.LogToFile("Expected \"{0}\", didn't get it.  Are you sure this is a Car.TXT file?", "END OF MECHANICS STUFF");
+                Logger.LogToFile(Logger.LogLevel.Error, "Expected \"{0}\", didn't get it.  Are you sure this is a Car.TXT file?", "END OF MECHANICS STUFF");
                 return null;
             }
 

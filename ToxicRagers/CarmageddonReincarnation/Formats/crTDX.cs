@@ -37,7 +37,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
         public static TDX Load(string path)
         {
             FileInfo fi = new FileInfo(path);
-            Logger.LogToFile("{0}", path);
+            Logger.LogToFile(Logger.LogLevel.Info, "{0}", path);
             TDX tdx = new TDX();
 
             tdx.Name = fi.Name.Replace(fi.Extension, "");
@@ -47,7 +47,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                 if (br.ReadByte() != 0x00 ||
                     br.ReadByte() != 0x02)
                 {
-                    Logger.LogToFile("{0} isn't a valid TDX file", path);
+                    Logger.LogToFile(Logger.LogLevel.Error, "{0} isn't a valid TDX file", path);
                     return null;
                 }
 
@@ -61,7 +61,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                 {
                     int extraDataLength = (int)br.ReadUInt32();
 
-                    Logger.LogToFile("Skipped {0} bytes of extra data", extraDataLength);
+                    Logger.LogToFile(Logger.LogLevel.Info, "Skipped {0} bytes of extra data", extraDataLength);
                     br.ReadBytes(extraDataLength);
                 }
 
@@ -91,7 +91,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                             break;
 
                         default:
-                            Logger.LogToFile("Unknown format: {0}", tdx.Format);
+                            Logger.LogToFile(Logger.LogLevel.Error, "Unknown format: {0}", tdx.Format);
                             return null;
                     }
 

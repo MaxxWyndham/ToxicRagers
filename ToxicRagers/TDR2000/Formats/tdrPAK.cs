@@ -23,7 +23,7 @@ namespace ToxicRagers.TDR2000.Formats
         public static PAK Load(string path)
         {
             FileInfo fi = new FileInfo(path);
-            Logger.LogToFile("{0}", path);
+            Logger.LogToFile(Logger.LogLevel.Info, "{0}", path);
             PAK pak = new PAK();
 
             pak.name = Path.GetFileNameWithoutExtension(path);

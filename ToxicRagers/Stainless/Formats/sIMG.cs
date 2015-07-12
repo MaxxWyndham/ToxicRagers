@@ -51,7 +51,7 @@ namespace ToxicRagers.Stainless.Formats
         public static IMG Load(string path)
         {
             FileInfo fi = new FileInfo(path);
-            Logger.LogToFile("{0}", path);
+            Logger.LogToFile(Logger.LogLevel.Info, "{0}", path);
             IMG img = new IMG();
 
             img.Name = fi.Name.Replace(fi.Extension, "");

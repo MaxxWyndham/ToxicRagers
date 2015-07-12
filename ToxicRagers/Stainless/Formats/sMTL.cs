@@ -17,7 +17,7 @@ namespace ToxicRagers.Stainless.Formats
         public static MTL Load(string path)
         {
             FileInfo fi = new FileInfo(path);
-            Logger.LogToFile("{0}", path);
+            Logger.LogToFile(Logger.LogLevel.Info, "{0}", path);
             MTL mtl = new MTL();
 
             mtl.name = Path.GetFileNameWithoutExtension(path);
@@ -29,10 +29,10 @@ namespace ToxicRagers.Stainless.Formats
 
                 mtl.version = new Version(major, minor);
 
-                Logger.LogToFile("MTL v{0}.{1}", major, minor);
+                Logger.LogToFile(Logger.LogLevel.Debug, "MTL v{0}.{1}", major, minor);
 
                 int textureCount = (int)br.ReadUInt32();
-                Logger.LogToFile("Texture count: {0}", textureCount);
+                Logger.LogToFile(Logger.LogLevel.Debug, "Texture count: {0}", textureCount);
                 for (int i = 0; i < textureCount; i++)
                 {
                     if (mtl.version.Major == 4 && mtl.version.Minor == 7)
@@ -48,7 +48,7 @@ namespace ToxicRagers.Stainless.Formats
                         mtl.textureNames.Add(br.ReadString(nameLength));
                         br.ReadBytes(padding);
 
-                        Logger.LogToFile("Added texture \"{0}\" of length {1}, padding of {2}", mtl.textureNames[mtl.textureNames.Count - 1], nameLength, padding);
+                        Logger.LogToFile(Logger.LogLevel.Debug, "Added texture \"{0}\" of length {1}, padding of {2}", mtl.textureNames[mtl.textureNames.Count - 1], nameLength, padding);
                     }
 
                     br.ReadBytes(30);

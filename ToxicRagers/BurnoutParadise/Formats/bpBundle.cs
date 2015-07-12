@@ -29,7 +29,7 @@ namespace ToxicRagers.BurnoutParadise.Formats
         public static BUNDLE Load(string path)
         {
             FileInfo fi = new FileInfo(path);
-            Logger.LogToFile("{0}", path);
+            Logger.LogToFile(Logger.LogLevel.Info, "{0}", path);
             BUNDLE bundle = new BUNDLE();
 
             bundle.name = Path.GetFileNameWithoutExtension(path);
@@ -43,7 +43,7 @@ namespace ToxicRagers.BurnoutParadise.Formats
                     br.ReadByte() != 100 ||
                     br.ReadByte() != 50)
                 {
-                    Logger.LogToFile("{0} isn't a valid BUNDLE file", path);
+                    Logger.LogToFile(Logger.LogLevel.Error, "{0} isn't a valid BUNDLE file", path);
                     return null;
                 }
 

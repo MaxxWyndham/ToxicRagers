@@ -5,6 +5,18 @@ namespace ToxicRagers.Helpers
 {
     public static class Logger
     {
+        [Flags]
+        public enum LogLevel
+        {
+            Debug = 0x1,
+            Info = 0x2,
+            Warning = 0x4,
+            Error = 0x8,
+            All = Debug | Info | Warning | Error
+        }
+
+        public static LogLevel Level = LogLevel.Info | LogLevel.Error;
+
         public static void ResetLog()
         {
             using (StreamWriter w = File.CreateText(Environment.CurrentDirectory + "\\Flummery.log"))
@@ -12,10 +24,13 @@ namespace ToxicRagers.Helpers
             }
         }
 
-        public static void LogToFile(string format, params object[] args) {
-            using (StreamWriter w = File.AppendText(Environment.CurrentDirectory + "\\Flummery.log"))
+        public static void LogToFile(LogLevel level, string format, params object[] args) {
+            if (Logger.Level.HasFlag(level))
             {
-                w.WriteLine(string.Format(format, args));
+                using (StreamWriter w = File.AppendText(Environment.CurrentDirectory + "\\Flummery.log"))
+                {
+                    w.WriteLine(string.Format(format, args));
+                }
             }
         }
     }

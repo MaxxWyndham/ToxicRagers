@@ -29,7 +29,7 @@ namespace ToxicRagers.Stainless.Formats
         public static WAD Load(string path)
         {
             FileInfo fi = new FileInfo(path);
-            Logger.LogToFile("{0}", path);
+            Logger.LogToFile(Logger.LogLevel.Info, "{0}", path);
             WAD wad = new WAD();
 
             wad.name = Path.GetFileNameWithoutExtension(path);
@@ -40,7 +40,7 @@ namespace ToxicRagers.Stainless.Formats
                 if (br.ReadByte() != 0x34 ||
                     br.ReadByte() != 0x12)
                 {
-                    Logger.LogToFile("{0} isn't a valid WAD file", path);
+                    Logger.LogToFile(Logger.LogLevel.Error, "{0} isn't a valid WAD file", path);
                     return null;
                 }
 
@@ -53,7 +53,7 @@ namespace ToxicRagers.Stainless.Formats
                 int xmlLength = (int)br.ReadUInt32();
                 if (xmlLength > 0)
                 {
-                    Logger.LogToFile("Unexpected data discovered.  Aborting");
+                    Logger.LogToFile(Logger.LogLevel.Error, "Unexpected data discovered.  Aborting");
                     return null;
                 }
 

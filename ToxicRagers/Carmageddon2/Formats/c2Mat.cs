@@ -18,10 +18,10 @@ namespace ToxicRagers.Carmageddon2.Formats
             materials = new List<MATMaterial>();
         }
 
-        public static MAT Load(string Path)
+        public static MAT Load(string path)
         {
-            FileInfo fi = new FileInfo(Path);
-            Logger.LogToFile("{0}", Path);
+            FileInfo fi = new FileInfo(path);
+            Logger.LogToFile(Logger.LogLevel.Info, "{0}", path);
             MAT mat = new MAT();
 
             MATMaterial M = new MATMaterial();
@@ -58,7 +58,7 @@ namespace ToxicRagers.Carmageddon2.Formats
                             M.Name = br.ReadString();
                             //Console.WriteLine(Path + "\t" + M.Name + "\t" + x1 + "\t" + x2);
 
-                            if (bDebug) { Console.WriteLine(Path + " :: " + M.Name); bDebug = false; }
+                            if (bDebug) { Console.WriteLine(path + " :: " + M.Name); bDebug = false; }
                             break;
 
                         case 60:
@@ -74,7 +74,7 @@ namespace ToxicRagers.Carmageddon2.Formats
                             br.ReadSingle(); // Specular Power
                             M.SetFlags((int)br.ReadUInt32()); // Flags
                             M.UVMatrix = new Matrix2D(br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
-                            if (br.ReadUInt32() != 169803776) { Console.WriteLine("Weird Beard! (" + Path + ")"); }
+                            if (br.ReadUInt32() != 169803776) { Console.WriteLine("Weird Beard! (" + path + ")"); }
                              br.ReadBytes(13); // 13 bytes of nothing
                             M.Name = br.ReadString();
                             break;
@@ -96,7 +96,7 @@ namespace ToxicRagers.Carmageddon2.Formats
                             break;
 
                         default:
-                            Logger.LogToFile("Unknown MAT tag: {0} ({1})", tag, br.BaseStream.Position.ToString("X"));
+                            Logger.LogToFile(Logger.LogLevel.Error, "Unknown MAT tag: {0} ({1})", tag, br.BaseStream.Position.ToString("X"));
                             return null;
                     }
                     //if (ReadUInt32(br) != 60) { break; }
