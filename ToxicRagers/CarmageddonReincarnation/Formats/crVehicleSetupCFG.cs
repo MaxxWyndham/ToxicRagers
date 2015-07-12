@@ -194,6 +194,11 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                     sw.WriteLine(materialMap.Write());
                 }
 
+                foreach (var wheelMap in wheelMaps)
+                {
+                    sw.WriteLine(wheelMap.Write());
+                }
+
                 sw.WriteLine(stats.Write());
             }
         }
@@ -737,6 +742,10 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             set { wheels = value; }
         }
 
+        public VehicleWheelMap()
+        {
+        }
+
         public VehicleWheelMap(DocumentParser doc)
         {
             this.name = doc.ReadNextLine();
@@ -785,6 +794,9 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
         {
             var sb = new StringBuilder();
             sb.AppendLine("[wheel_map]");
+            sb.AppendLine(name);
+            sb.AppendLine(string.Format("localise {0}", localName));
+            sb.AppendLine(wheels.ToString());
             sb.AppendLine();
             return sb.ToString();
         }
