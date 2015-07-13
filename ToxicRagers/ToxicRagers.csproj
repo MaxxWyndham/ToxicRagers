@@ -64,6 +64,7 @@
     <Compile Include="Carmageddon2\Helpers\Powerups.cs" />
     <Compile Include="CarmageddoniOS\Formats\iTDX.cs" />
     <Compile Include="CarmageddonPSX\OldCodeImport.cs" />
+    <Compile Include="CarmageddonReincarnation\Formats\crLOL.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\crRoutesTXT.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\crSetupLOL.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\crStructureXML.cs" />
@@ -137,6 +138,10 @@
     <ProjectReference Include="..\..\LibSquishNet\LibSquishNet\LibSquishNet.csproj">
       <Project>{8b187d46-bc8e-4b5a-ae68-326958bc9aaa}</Project>
       <Name>LibSquishNet</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\unluacNet\unluacNet\unluacNet.csproj">
+      <Project>{b4099fdf-6c1d-420c-8bea-292b992d6c7f}</Project>
+      <Name>unluacNet</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup />
