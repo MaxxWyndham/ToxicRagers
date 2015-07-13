@@ -48,6 +48,8 @@ namespace ToxicRagers.Helpers
 
         public static string ReadString(this BinaryReader br, int length)
         {
+            if (length == 0) { return null; }
+
             var c = br.ReadChars(length);
             int l = length;
 
@@ -187,6 +189,14 @@ namespace ToxicRagers.Helpers
             StringBuilder hex = new StringBuilder(ba.Length * 2);
             for (int i = 0; i < count; i++) { hex.AppendFormat("{0:x2}{1}", ba[i], (i + 1 < count ? " " : "")); }
             return hex.ToString();
+        }
+
+        public static IEnumerable<T> Every<T>(this List<T> list, int step, int start = 0)
+        {
+            for (int i = start; i < list.Count; i += step)
+            {
+                yield return list[i];
+            }
         }
     }
 }
