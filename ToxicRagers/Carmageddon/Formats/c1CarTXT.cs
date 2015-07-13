@@ -337,6 +337,7 @@ namespace ToxicRagers.Carmageddon.Formats
             for (int i = 0; i < car.models.Count; i++)
             {
                 car.crushes.Add(new Crush(file));
+                Console.WriteLine("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}", car.models[i], car.crushes[i].SoftnessFactor, car.crushes[i].FoldFactor, car.crushes[i].WibbleFactor, car.crushes[i].LimitDeviant, car.crushes[i].SplitChance, car.crushes[i].MinYFoldDown);
             }
 
             int mechanicsVersion = file.ReadLine().Replace("START OF MECHANICS STUFF version ", "", StringComparison.InvariantCultureIgnoreCase).ToInt();
@@ -601,13 +602,49 @@ namespace ToxicRagers.Carmageddon.Formats
 
     public class Crush
     {
-        Single softness;
+        Single softnessFactor;
         Vector2 foldFactor; // min, max
         Single wibbleFactor;
         Single limitDeviant;
         Single splitChance;
         Single minYFoldDown;
         List<CrushPoint> points;
+
+        public Single SoftnessFactor
+        {
+            get { return softnessFactor; }
+            set { softnessFactor = value; }
+        }
+
+        public Vector2 FoldFactor
+        {
+            get { return foldFactor; }
+            set { foldFactor = value; }
+        }
+
+        public Single WibbleFactor
+        {
+            get { return wibbleFactor; }
+            set { wibbleFactor = value; }
+        }
+
+        public Single LimitDeviant
+        {
+            get { return limitDeviant; }
+            set { limitDeviant = value; }
+        }
+
+        public Single SplitChance
+        {
+            get { return splitChance; }
+            set { splitChance = value; }
+        }
+
+        public Single MinYFoldDown
+        {
+            get { return minYFoldDown; }
+            set { minYFoldDown = value; }
+        }
 
         public Crush()
         {
@@ -617,7 +654,7 @@ namespace ToxicRagers.Carmageddon.Formats
         public Crush(DocumentParser file)
             : this()
         {
-            softness = file.ReadSingle();
+            softnessFactor = file.ReadSingle();
             foldFactor = file.ReadVector2();
             wibbleFactor = file.ReadSingle();
             limitDeviant = file.ReadSingle();
