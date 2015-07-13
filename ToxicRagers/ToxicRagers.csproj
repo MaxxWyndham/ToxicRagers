@@ -100,6 +100,7 @@
     <Compile Include="Helpers\IO.cs" />
     <Compile Include="Helpers\Line.cs" />
     <Compile Include="Helpers\Logger.cs" />
+    <Compile Include="Helpers\LZ4Compress.cs" />
     <Compile Include="Helpers\LZ4Decompress.cs" />
     <Compile Include="Helpers\Matrix2D.cs" />
     <Compile Include="Helpers\Matrix3D.cs" />
