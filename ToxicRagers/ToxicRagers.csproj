@@ -104,6 +104,7 @@
     <Compile Include="Helpers\LZ4Decompress.cs" />
     <Compile Include="Helpers\Matrix2D.cs" />
     <Compile Include="Helpers\Matrix3D.cs" />
+    <Compile Include="Helpers\Matrix4D.cs" />
     <Compile Include="Helpers\Plane.cs" />
     <Compile Include="Helpers\Structs.cs" />
     <Compile Include="Helpers\TypeConverters.cs" />
