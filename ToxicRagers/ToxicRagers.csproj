@@ -130,6 +130,8 @@
     <Compile Include="ToxicRagers.cs" />
     <Compile Include="Vigilante82ndOffense\Formats\v820XOBFBIN.cs" />
     <Compile Include="Vigilante82ndOffense\Formats\v82oEXP.cs" />
+    <Compile Include="Wreckfest\Formats\wfBMAP.cs" />
+    <Compile Include="Wreckfest\Formats\wfSCNE.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\LibSquishNet\LibSquishNet\LibSquishNet.csproj">
