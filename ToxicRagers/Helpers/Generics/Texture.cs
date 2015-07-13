@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace ToxicRagers.Helpers
+using ToxicRagers.Helpers;
+
+namespace ToxicRagers.Generics
 {
     public abstract class Texture
     {

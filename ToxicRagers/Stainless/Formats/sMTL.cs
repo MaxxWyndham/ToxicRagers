@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+
+using ToxicRagers.Generics;
 using ToxicRagers.Helpers;
 
 namespace ToxicRagers.Stainless.Formats

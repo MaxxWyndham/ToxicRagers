@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+
 using ToxicRagers.Core.Formats;
+using ToxicRagers.Generics;
 using ToxicRagers.Helpers;
 using Squish;
 

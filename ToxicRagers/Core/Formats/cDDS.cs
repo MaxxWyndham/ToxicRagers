@@ -1,5 +1,7 @@
 ﻿using System;
 using System.IO;
+
+using ToxicRagers.Generics;
 using ToxicRagers.Helpers;
 
 namespace ToxicRagers.Core.Formats

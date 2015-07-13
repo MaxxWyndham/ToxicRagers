@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace ToxicRagers.Helpers
+namespace ToxicRagers.Generics
 {
     public abstract class Material
     {
