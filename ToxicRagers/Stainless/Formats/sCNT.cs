@@ -77,6 +77,7 @@ namespace ToxicRagers.Stainless.Formats
         public string LightName
         {
             get { return lightName; }
+            set { lightName = value; }
         }
 
         public string VFXFile
@@ -212,7 +213,7 @@ namespace ToxicRagers.Stainless.Formats
 
                     cnt.effectName = br.ReadString(nameLength);
 
-                    Logger.LogToFile(Logger.LogLevel.Debug, "VXFI: \"{0}\" of length {1}, padding of {2}", cnt.effectName, nameLength, 0);
+                    Logger.LogToFile(Logger.LogLevel.Debug, "VFXI: \"{0}\" of length {1}, padding of {2}", cnt.effectName, nameLength, 0);
                     break;
 
                 case NodeType.SPLN:
