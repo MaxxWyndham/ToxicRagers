@@ -80,6 +80,9 @@
     <Compile Include="CarmageddonReincarnation\Helpers\XMLWriter.cs" />
     <Compile Include="Carmageddon\Formats\c1PIX.cs" />
     <Compile Include="Carmageddon\Helpers\DocumentParser.cs" />
+    <Compile Include="Compression\Huffman\FrequencyTable.cs" />
+    <Compile Include="Compression\Huffman\Node.cs" />
+    <Compile Include="Compression\Huffman\Tree.cs" />
     <Compile Include="Core\Formats\cDDS.cs" />
     <Compile Include="Core\Formats\cFBX.cs" />
     <Compile Include="Core\Formats\cOBB.cs" />

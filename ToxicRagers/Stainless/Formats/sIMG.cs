@@ -5,7 +5,9 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 
+using ToxicRagers.Compression.Huffman;
 using ToxicRagers.Core.Formats;
 using ToxicRagers.Generics;
 using ToxicRagers.Helpers;
@@ -16,7 +18,7 @@ namespace ToxicRagers.Stainless.Formats
     {
         int width;
         int height;
-        List<ColourCount>[] planes = new List<ColourCount>[4];
+        List<Plane> planes = new List<Plane>();
 
         [Flags]
         public enum BasicFlags : byte
@@ -65,26 +67,39 @@ namespace ToxicRagers.Stainless.Formats
         {
             using (BinaryWriter bw = new BinaryWriter(new FileStream(path, FileMode.Create)))
             {
+                Parallel.ForEach(
+                    this.planes,
+                    p =>
+                    {
+                        p.Compress(Plane.CompressionMethod.Huffman);
+                    }
+                );
+
                 bw.WriteString("IMAGEMAP");
                 bw.Write(new byte[] { 0x1, 0x1 }); // version 1.1
                 bw.Write((byte)(BasicFlags.Compressed | BasicFlags.DisableDownSample | BasicFlags.DisableMipMaps));
-                bw.Write((byte)AdvancedFlags.DontAutoJPEG);
+                bw.Write((byte)(AdvancedFlags.Huffman | AdvancedFlags.DontAutoJPEG));
                 bw.Write(6);
-                bw.Write(16 + (this.planes[0].Count * 2) + (this.planes[1].Count * 2) + (this.planes[2].Count * 2) + (this.planes[3].Count * 2));
+                bw.Write(16 + this.planes[0].DataSize + this.planes[1].DataSize + this.planes[2].DataSize + this.planes[3].DataSize);
                 bw.Write((short)this.width);
                 bw.Write((short)this.height);
                 bw.Write(0x64);
 
-                for (int i = 3; i >= 0; i--) { bw.Write(this.planes[i].Count * 2); }
+                for (int i = 3; i >= 0; i--) { bw.Write(this.planes[i].DataSize); }
 
                 for (int i = 3; i >= 0; i--)
                 {
-                    for (int j = 0; j < planes[i].Count; j++)
-                    {
-                        bw.Write(planes[i][j].Count);
-                        bw.Write(planes[i][j].Colour);
-                    }
+                    bw.Write(planes[i].Output.ToArray());
                 }
+
+                //for (int i = 3; i >= 0; i--)
+                //{
+                //    for (int j = 0; j < planes[i].Data.Count; j++)
+                //    {
+                //        bw.Write(planes[i].Data[j].Count);
+                //        bw.Write(planes[i].Data[j].Colour);
+                //    }
+                //}
             }
         }
 
@@ -99,29 +114,144 @@ namespace ToxicRagers.Stainless.Formats
             Marshal.Copy(bmpdata.Scan0, iB, 0, bmpdata.Stride * bmpdata.Height);
             bitmap.UnlockBits(bmpdata);
 
-            for (int i = 0; i < iB.Length; i += 4)
+            for (int i = 0; i < 4; i++)
             {
-                for (int j = 0; j < 4; j++)
-                {
-                    if (i == 0)
-                    {
-                        planes[j] = new List<ColourCount> { new ColourCount { Colour = iB[i + j], Count = 1 } };
-                    }
-                    else
-                    {
-                        var lastColour = planes[j][planes[j].Count - 1];
+                planes.Add(new Plane(i));
+                planes[i].Data = iB.ToList().Every(4, i).ToArray();
+            }
 
-                        if (lastColour.Colour == iB[i + j] && lastColour.Count < 127)
-                        {
-                            planes[j][planes[j].Count - 1].Count++;
-                        }
-                        else
-                        {
-                            planes[j].Add(new ColourCount { Colour = iB[i + j], Count = 1 });
-                        }
-                    }
+            //for (int i = 0; i < iB.Length; i += 4)
+            //{
+            //    for (int j = 0; j < 4; j++)
+            //    {
+            //        if (i == 0)
+            //        {
+            //            planes.Add(new Plane());
+            //            planes[j].Data.Add(new ColourCount { Colour = iB[i + j], Count = 1 });
+            //        }
+            //        else
+            //        {
+            //            if (planes[j].LastEntry.Colour == iB[i + j] && planes[j].LastEntry.Count < 127)
+            //            {
+            //                planes[j].LastEntry.Count++;
+            //            }
+            //            else
+            //            {
+            //                //planes[j].Add(new ColourCount { Colour = iB[i + j], Count = 1 });
+            //                planes[j].Data.Add(new ColourCount { Colour = iB[i + j], Count = 1 });
+            //            }
+            //        }
+            //    }
+            //}
+        }
+    }
+
+    public class Plane
+    {
+        public enum CompressionMethod
+        {
+            None = 0,
+            RLE = 1,
+            Huffman = 2,
+            LIC = 3
+        }
+
+        int index;
+        byte[] data;
+        CompressionMethod compressionMethod = CompressionMethod.RLE;
+        byte[] output;
+
+        public bool PoorCompression
+        {
+            get { return true; } //return data.Count / data.Sum(cc => cc.Length) > 50; }
+        }
+
+        public byte[] Data
+        {
+            get { return data; }
+            set { data = value; }
+        }
+
+        public byte[] Output
+        {
+            get { return output; }
+        }
+
+        public int DataSize
+        {
+            get
+            {
+                switch (compressionMethod)
+                {
+                    case CompressionMethod.RLE:
+                        return data.Length * 2;
+
+                    case CompressionMethod.Huffman:
+                        return output.Length;
+
+                    case CompressionMethod.LIC:
+                        return -1;
+
+                    default:
+                        return data.Length;
                 }
             }
+        }
+
+        public ColourCount LastEntry
+        {
+            get { return new ColourCount(); }// return data[data.Count - 1]; }
+        }
+
+        public int Index { get { return index; } }
+
+        public Plane(int index)
+        {
+            this.index = index;
+        }
+
+        public void Compress(CompressionMethod method)
+        {
+            switch (method)
+            {
+                case CompressionMethod.Huffman:
+                    compressHuffman();
+                    break;
+            }
+        }
+
+        private void compressHuffman()
+        {
+            compressionMethod = CompressionMethod.Huffman;
+
+            Tree tree = new Tree();
+
+            tree.BuildTree(data);
+
+            using (MemoryStream ms = new MemoryStream())
+            using (BinaryWriter bw = new BinaryWriter(ms))
+            {
+                byte[] huffmanTable = tree.ToByteArray();
+
+                bw.Write((byte)0x42); // B
+                bw.Write((byte)0x54); // T
+                bw.Write((byte)0x54); // T
+                bw.Write((byte)0x42); // B
+                bw.Write(32);
+                bw.Write(1573120);
+                bw.Write(huffmanTable.Length);
+                bw.Write((short)4);
+                bw.Write((short)1);
+                bw.Write(tree.LeafCount);
+                bw.Write(1);
+                bw.Write(8);
+                bw.Write(tree.ToByteArray());
+                bw.Write(tree.Encode(data));
+
+                output = ms.GetBuffer();
+            }
+
+            //Console.WriteLine(string.Join(string.Empty, output.Cast<bool>().Select(bit => bit ? "1" : "0")));
         }
     }
 
