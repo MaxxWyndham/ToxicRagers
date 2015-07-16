@@ -16,6 +16,11 @@ namespace ToxicRagers.Stainless.Formats
 {
     public class IMG : Texture
     {
+        Version version;
+        BasicFlags basicFlags;
+        AdvancedFlags advancedFlags;
+        PixelFormat pixelFormat;
+
         int width;
         int height;
         List<Plane> planes = new List<Plane>();
@@ -44,6 +49,12 @@ namespace ToxicRagers.Stainless.Formats
             SRGB = 0x20
         }
 
+        public enum PixelFormat
+        {
+            Format24bitRGB = 5,
+            Format32bitARGB = 6
+        }
+
         public IMG()
             : base()
         {
@@ -52,13 +63,42 @@ namespace ToxicRagers.Stainless.Formats
 
         public static IMG Load(string path)
         {
-            FileInfo fi = new FileInfo(path);
             Logger.LogToFile(Logger.LogLevel.Info, "{0}", path);
             IMG img = new IMG();
 
-            img.Name = fi.Name.Replace(fi.Extension, "");
+            img.Name = Path.GetFileNameWithoutExtension(path);
 
-            // TO DO
+            using (MemoryStream ms = new MemoryStream(File.ReadAllBytes(path)))
+            using (BinaryReader br = new BinaryReader(ms))
+            {
+                if (br.ReadByte() != 0x49 || // I
+                    br.ReadByte() != 0x4D || // M
+                    br.ReadByte() != 0x41 || // A
+                    br.ReadByte() != 0x47 || // G
+                    br.ReadByte() != 0x45 || // E
+                    br.ReadByte() != 0x4D || // M
+                    br.ReadByte() != 0x41 || // A
+                    br.ReadByte() != 0x50)   // P
+                {
+                    Logger.LogToFile(Logger.LogLevel.Error, "{0} isn't a valid IMG file", path);
+                    return null;
+                }
+
+                byte minor = br.ReadByte();
+                byte major = br.ReadByte();
+
+                img.version = new Version(major, minor);
+                img.basicFlags = (BasicFlags)br.ReadByte();
+                img.advancedFlags = (AdvancedFlags)br.ReadByte();
+                img.pixelFormat = (PixelFormat)br.ReadUInt32();
+                int fileSize = (int)br.ReadUInt32();
+                img.width = br.ReadUInt16();
+                img.height = br.ReadUInt16();
+
+                Logger.LogToFile(Logger.LogLevel.Info, "{0} : {1} : {2} : {3}", img.version, img.basicFlags, img.advancedFlags, img.pixelFormat);
+
+                if (img.version.Minor == 1) { br.ReadUInt32(); }
+            }
 
             return img;
         }
@@ -67,39 +107,40 @@ namespace ToxicRagers.Stainless.Formats
         {
             using (BinaryWriter bw = new BinaryWriter(new FileStream(path, FileMode.Create)))
             {
-                Parallel.ForEach(
-                    this.planes,
-                    p =>
-                    {
-                        p.Compress(Plane.CompressionMethod.Huffman);
-                    }
-                );
+                AdvancedFlags compression = 0;
+
+                if (this.planes.Any(p => p.PoorCompression))
+                {
+                    Parallel.ForEach(
+                        this.planes,
+                        p =>
+                        {
+                            p.Compress(Plane.CompressionMethod.Huffman);
+                        }
+                    );
+
+                    compression = AdvancedFlags.Huffman;
+                }
 
                 bw.WriteString("IMAGEMAP");
                 bw.Write(new byte[] { 0x1, 0x1 }); // version 1.1
                 bw.Write((byte)(BasicFlags.Compressed | BasicFlags.DisableDownSample | BasicFlags.DisableMipMaps));
-                bw.Write((byte)(AdvancedFlags.Huffman | AdvancedFlags.DontAutoJPEG));
+                bw.Write((byte)(compression | AdvancedFlags.DontAutoJPEG));
                 bw.Write(6);
                 bw.Write(16 + this.planes[0].DataSize + this.planes[1].DataSize + this.planes[2].DataSize + this.planes[3].DataSize);
                 bw.Write((short)this.width);
                 bw.Write((short)this.height);
                 bw.Write(0x64);
 
-                for (int i = 3; i >= 0; i--) { bw.Write(this.planes[i].DataSize); }
-
-                for (int i = 3; i >= 0; i--)
+                foreach (var plane in this.planes.OrderByDescending(p => p.Index))
                 {
-                    bw.Write(planes[i].Output.ToArray());
+                    bw.Write(plane.DataSize);
                 }
 
-                //for (int i = 3; i >= 0; i--)
-                //{
-                //    for (int j = 0; j < planes[i].Data.Count; j++)
-                //    {
-                //        bw.Write(planes[i].Data[j].Count);
-                //        bw.Write(planes[i].Data[j].Colour);
-                //    }
-                //}
+                foreach (var plane in this.planes.OrderByDescending(p => p.Index))
+                {
+                    bw.Write(plane.Output);
+                }
             }
         }
 
@@ -110,39 +151,19 @@ namespace ToxicRagers.Stainless.Formats
 
             byte[] iB = new byte[width * height * 4];
 
-            BitmapData bmpdata = bitmap.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
+            BitmapData bmpdata = bitmap.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
             Marshal.Copy(bmpdata.Scan0, iB, 0, bmpdata.Stride * bmpdata.Height);
             bitmap.UnlockBits(bmpdata);
 
-            for (int i = 0; i < 4; i++)
-            {
-                planes.Add(new Plane(i));
-                planes[i].Data = iB.ToList().Every(4, i).ToArray();
-            }
-
-            //for (int i = 0; i < iB.Length; i += 4)
-            //{
-            //    for (int j = 0; j < 4; j++)
-            //    {
-            //        if (i == 0)
-            //        {
-            //            planes.Add(new Plane());
-            //            planes[j].Data.Add(new ColourCount { Colour = iB[i + j], Count = 1 });
-            //        }
-            //        else
-            //        {
-            //            if (planes[j].LastEntry.Colour == iB[i + j] && planes[j].LastEntry.Count < 127)
-            //            {
-            //                planes[j].LastEntry.Count++;
-            //            }
-            //            else
-            //            {
-            //                //planes[j].Add(new ColourCount { Colour = iB[i + j], Count = 1 });
-            //                planes[j].Data.Add(new ColourCount { Colour = iB[i + j], Count = 1 });
-            //            }
-            //        }
-            //    }
-            //}
+            Parallel.For(0, 4,
+                i =>
+                {
+                    var plane = new Plane(i);
+                    plane.Data = iB.ToList().Every(4, i).ToArray();
+                    plane.Compress(Plane.CompressionMethod.RLE);
+                    planes.Add(plane);
+                }
+            );
         }
     }
 
@@ -163,7 +184,7 @@ namespace ToxicRagers.Stainless.Formats
 
         public bool PoorCompression
         {
-            get { return true; } //return data.Count / data.Sum(cc => cc.Length) > 50; }
+            get { return output.Length / (data.Length * 1.0f) > 0.5f; }
         }
 
         public byte[] Data
@@ -179,28 +200,7 @@ namespace ToxicRagers.Stainless.Formats
 
         public int DataSize
         {
-            get
-            {
-                switch (compressionMethod)
-                {
-                    case CompressionMethod.RLE:
-                        return data.Length * 2;
-
-                    case CompressionMethod.Huffman:
-                        return output.Length;
-
-                    case CompressionMethod.LIC:
-                        return -1;
-
-                    default:
-                        return data.Length;
-                }
-            }
-        }
-
-        public ColourCount LastEntry
-        {
-            get { return new ColourCount(); }// return data[data.Count - 1]; }
+            get { return output.Length; }
         }
 
         public int Index { get { return index; } }
@@ -214,9 +214,42 @@ namespace ToxicRagers.Stainless.Formats
         {
             switch (method)
             {
+                case CompressionMethod.RLE:
+                    compressRLE();
+                    break;
+
                 case CompressionMethod.Huffman:
                     compressHuffman();
                     break;
+            }
+        }
+
+        private void compressRLE()
+        {
+            using (MemoryStream ms = new MemoryStream())
+            using (BinaryWriter bw = new BinaryWriter(ms))
+            {
+                byte lastColour = 0;
+                int count = 0;
+
+                for (int i = 0; i < data.Length; i++)
+                {
+                    if (data[i] != lastColour || count == 127)
+                    {
+                        if (i > 0)
+                        {
+                            bw.Write((byte)count);
+                            bw.Write(lastColour);
+                        }
+
+                        lastColour = data[i];
+                        count = 0;
+                    }
+
+                    count++;
+                }
+
+                output = ms.GetBuffer();
             }
         }
 
@@ -250,14 +283,6 @@ namespace ToxicRagers.Stainless.Formats
 
                 output = ms.GetBuffer();
             }
-
-            //Console.WriteLine(string.Join(string.Empty, output.Cast<bool>().Select(bit => bit ? "1" : "0")));
         }
-    }
-
-    public class ColourCount
-    {
-        public byte Colour { get; set; }
-        public byte Count { get; set; }
     }
 }
