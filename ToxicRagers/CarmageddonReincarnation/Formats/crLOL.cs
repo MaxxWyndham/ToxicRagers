@@ -54,5 +54,10 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
             return lol;
         }
+
+        public byte[] ReadAllBytes()
+        {
+            return Encoding.ASCII.GetBytes(document);
+        }
     }
 }

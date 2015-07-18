@@ -25,8 +25,10 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
         public static Setup Load(string path)
         {
             Setup setup = new Setup();
+            LOL lol = LOL.Load(path);
 
-            using (var sr = new StreamReader(path, Encoding.Default))
+            using (var ms = new MemoryStream(lol.ReadAllBytes()))
+            using (var sr = new StreamReader(ms))
             {
                 var testLine = sr.ReadLine();
                 var setupFile = testLine + "\r\n" + sr.ReadToEnd();
@@ -63,8 +65,8 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             this.underScored = false;
 
             this.AddMethod(
-                LUACodeBlockMethodType.Set, 
-                "PowerMultiplier", 
+                LUACodeBlockMethodType.Set,
+                "PowerMultiplier",
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Value", Value = 1 }
             );
 
@@ -81,17 +83,17 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             );
 
             this.AddMethod(
-                LUACodeBlockMethodType.Set, 
+                LUACodeBlockMethodType.Set,
                 "RearGrip",
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Value", Value = 1.4f }
             );
 
-            this.AddMethod(LUACodeBlockMethodType.Set, 
+            this.AddMethod(LUACodeBlockMethodType.Set,
                 "FrontGrip",
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Value", Value = 1.5f }
             );
 
-            this.AddMethod(LUACodeBlockMethodType.Set, 
+            this.AddMethod(LUACodeBlockMethodType.Set,
                 "CMPosY",
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Value", Value = 0.52f }
             );
@@ -101,267 +103,267 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Value", ForceOutput = true }
             );
 
-            this.AddMethod(LUACodeBlockMethodType.Set, 
-                "FrontDownforce", 
+            this.AddMethod(LUACodeBlockMethodType.Set,
+                "FrontDownforce",
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Int, Name = "Value", Value = 20 }
             );
 
-            this.AddMethod(LUACodeBlockMethodType.Set, 
+            this.AddMethod(LUACodeBlockMethodType.Set,
                 "RearDownforce",
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Int, Name = "Value", Value = 20 }
             );
 
-            this.AddMethod(LUACodeBlockMethodType.Set, 
-                "FrontRoll", 
+            this.AddMethod(LUACodeBlockMethodType.Set,
+                "FrontRoll",
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Value", Value = 0.5f }
             );
 
-            this.AddMethod(LUACodeBlockMethodType.Set, 
+            this.AddMethod(LUACodeBlockMethodType.Set,
                 "RearRoll",
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Value", Value = 0.5f }
             );
 
-            this.AddMethod(LUACodeBlockMethodType.Set, 
-                "FrontCriticalAngle", 
+            this.AddMethod(LUACodeBlockMethodType.Set,
+                "FrontCriticalAngle",
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Value", Value = 6 }
             );
 
-            this.AddMethod(LUACodeBlockMethodType.Set, 
-                "RearCriticalAngle", 
+            this.AddMethod(LUACodeBlockMethodType.Set,
+                "RearCriticalAngle",
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Value", Value = 6 }
             );
 
-            this.AddMethod(LUACodeBlockMethodType.Set, 
+            this.AddMethod(LUACodeBlockMethodType.Set,
                 "FrontSuspGive",
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Value", Value = 0.0667f }
             );
 
-            this.AddMethod(LUACodeBlockMethodType.Set, 
+            this.AddMethod(LUACodeBlockMethodType.Set,
                 "RearSuspGive",
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Value", Value = 0.0667f }
             );
 
-            this.AddMethod(LUACodeBlockMethodType.Set, 
-                "SuspDamping", 
+            this.AddMethod(LUACodeBlockMethodType.Set,
+                "SuspDamping",
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Value", Value = 1 }
             );
 
-            this.AddMethod(LUACodeBlockMethodType.Set, 
-                "MomentOfInertiaMultiplier", 
+            this.AddMethod(LUACodeBlockMethodType.Set,
+                "MomentOfInertiaMultiplier",
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Value", Value = 1 }
             );
 
-            this.AddMethod(LUACodeBlockMethodType.Set, 
-                "SteerSpeed1", 
+            this.AddMethod(LUACodeBlockMethodType.Set,
+                "SteerSpeed1",
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Value", Value = 1 }
             );
 
-            this.AddMethod(LUACodeBlockMethodType.Set, 
-                "SteerSpeed2", 
+            this.AddMethod(LUACodeBlockMethodType.Set,
+                "SteerSpeed2",
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Value", Value = 0.5f }
             );
 
-            this.AddMethod(LUACodeBlockMethodType.Set, 
-                "SteerSpeedVel", 
+            this.AddMethod(LUACodeBlockMethodType.Set,
+                "SteerSpeedVel",
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Value", Value = 150 }
             );
 
-            this.AddMethod(LUACodeBlockMethodType.Set, 
-                "SteerCentreMultiplier", 
+            this.AddMethod(LUACodeBlockMethodType.Set,
+                "SteerCentreMultiplier",
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Value", Value = 1 }
             );
 
-            this.AddMethod(LUACodeBlockMethodType.Set, 
-                "MaxSteeringAngle", 
+            this.AddMethod(LUACodeBlockMethodType.Set,
+                "MaxSteeringAngle",
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Value", Value = 40 }
             );
 
-            this.AddMethod(LUACodeBlockMethodType.Set, 
-                "BrakeBalance", 
+            this.AddMethod(LUACodeBlockMethodType.Set,
+                "BrakeBalance",
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Value", Value = 60 }
             );
 
-            this.AddMethod(LUACodeBlockMethodType.Set, 
-                "BrakeForce", 
+            this.AddMethod(LUACodeBlockMethodType.Set,
+                "BrakeForce",
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Value", Value = 60 }
             );
 
-            this.AddMethod(LUACodeBlockMethodType.Set, 
-                "HandBrakeStrength", 
+            this.AddMethod(LUACodeBlockMethodType.Set,
+                "HandBrakeStrength",
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Value", Value = 10 }
             );
 
-            this.AddMethod(LUACodeBlockMethodType.Set, 
-                "TorqueSplit", 
+            this.AddMethod(LUACodeBlockMethodType.Set,
+                "TorqueSplit",
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Value", Value = 65 }
             );
 
-            this.AddMethod(LUACodeBlockMethodType.Set, 
-                "LSDThresholdF", 
+            this.AddMethod(LUACodeBlockMethodType.Set,
+                "LSDThresholdF",
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Value", Value = 10 }
             );
 
-            this.AddMethod(LUACodeBlockMethodType.Set, 
+            this.AddMethod(LUACodeBlockMethodType.Set,
                 "LSDThresholdR",
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Value", Value = 10 }
             );
 
-            this.AddMethod(LUACodeBlockMethodType.Set, 
+            this.AddMethod(LUACodeBlockMethodType.Set,
                 "LSDThresholdM",
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Value", Value = 10 }
             );
 
-            this.AddMethod(LUACodeBlockMethodType.Set, 
-                "ReversePowerMulitplier", 
+            this.AddMethod(LUACodeBlockMethodType.Set,
+                "ReversePowerMulitplier",
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Value", Value = 1 }
             );
 
-            this.AddMethod(LUACodeBlockMethodType.Set, 
-                "WheelMass", 
+            this.AddMethod(LUACodeBlockMethodType.Set,
+                "WheelMass",
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Value", Value = 10 }
             );
 
-            this.AddMethod(LUACodeBlockMethodType.Set, 
-                "DragCoefficient", 
+            this.AddMethod(LUACodeBlockMethodType.Set,
+                "DragCoefficient",
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Value", Value = 0.5f }
             );
 
-            this.AddMethod(LUACodeBlockMethodType.Set, 
-                "SteerLimit1", 
+            this.AddMethod(LUACodeBlockMethodType.Set,
+                "SteerLimit1",
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Value", ForceOutput = true }
             );
 
-            this.AddMethod(LUACodeBlockMethodType.Set, 
+            this.AddMethod(LUACodeBlockMethodType.Set,
                 "SteerLimit2",
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Value", ForceOutput = true }
             );
 
-            this.AddMethod(LUACodeBlockMethodType.Set, 
+            this.AddMethod(LUACodeBlockMethodType.Set,
                 "SteerLimitSpeed",
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Value", ForceOutput = true }
             );
 
-            this.AddMethod(LUACodeBlockMethodType.Set, 
+            this.AddMethod(LUACodeBlockMethodType.Set,
                 "CastorSpeed1",
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Value", ForceOutput = true }
             );
 
-            this.AddMethod(LUACodeBlockMethodType.Set, 
-                "CastorSpeed2", 
+            this.AddMethod(LUACodeBlockMethodType.Set,
+                "CastorSpeed2",
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Value", Value = 1 }
             );
 
-            this.AddMethod(LUACodeBlockMethodType.Set, 
-                "CastorSpeedVel", 
+            this.AddMethod(LUACodeBlockMethodType.Set,
+                "CastorSpeedVel",
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Value", Value = 100 }
             );
 
-            this.AddMethod(LUACodeBlockMethodType.Set, 
-                "SteerGyroscope", 
+            this.AddMethod(LUACodeBlockMethodType.Set,
+                "SteerGyroscope",
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Value", Value = 1 }
             );
 
-            this.AddMethod(LUACodeBlockMethodType.Set, 
-                "BrakeAttack", 
+            this.AddMethod(LUACodeBlockMethodType.Set,
+                "BrakeAttack",
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Value", Value = 1 }
             );
 
-            this.AddMethod(LUACodeBlockMethodType.Set, 
-                "HandBrakeAttack", 
+            this.AddMethod(LUACodeBlockMethodType.Set,
+                "HandBrakeAttack",
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Value", Value = 0.1f }
             );
 
-            this.AddMethod(LUACodeBlockMethodType.Set, 
-                "SlideSpinRecovery", 
+            this.AddMethod(LUACodeBlockMethodType.Set,
+                "SlideSpinRecovery",
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Value", Value = 1 }
             );
 
-            this.AddMethod(LUACodeBlockMethodType.Set, 
-                "RollingResistance", 
+            this.AddMethod(LUACodeBlockMethodType.Set,
+                "RollingResistance",
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Value", Value = 0.018f }
             );
 
-            this.AddMethod(LUACodeBlockMethodType.Set, 
-                "DriveMI", 
+            this.AddMethod(LUACodeBlockMethodType.Set,
+                "DriveMI",
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Value", Value = 2.2f }
             );
 
-            this.AddMethod(LUACodeBlockMethodType.Set, 
-                "EngineMI", 
+            this.AddMethod(LUACodeBlockMethodType.Set,
+                "EngineMI",
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Value", Value = 0.6f }
             );
 
-            this.AddMethod(LUACodeBlockMethodType.Set, 
-                "RedLine", 
+            this.AddMethod(LUACodeBlockMethodType.Set,
+                "RedLine",
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Int, Name = "Value", Value = 6500 }
             );
 
-            this.AddMethod(LUACodeBlockMethodType.Set, 
-                "MaxRevs", 
+            this.AddMethod(LUACodeBlockMethodType.Set,
+                "MaxRevs",
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Int, Name = "Value", Value = 8000 }
             );
 
-            this.AddMethod(LUACodeBlockMethodType.Set, 
-                "LimitRevs", 
+            this.AddMethod(LUACodeBlockMethodType.Set,
+                "LimitRevs",
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Boolean, Name = "Value", Value = true }
             );
 
-            this.AddMethod(LUACodeBlockMethodType.Set, 
-                "ConstantEngineFriction", 
+            this.AddMethod(LUACodeBlockMethodType.Set,
+                "ConstantEngineFriction",
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Value", Value = 833 }
             );
 
-            this.AddMethod(LUACodeBlockMethodType.Set, 
+            this.AddMethod(LUACodeBlockMethodType.Set,
                 "LinearEngineFriction",
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Value", ForceOutput = true }
             );
 
-            this.AddMethod(LUACodeBlockMethodType.Set, 
-                "QuadraticEngineFriction", 
+            this.AddMethod(LUACodeBlockMethodType.Set,
+                "QuadraticEngineFriction",
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Value", Value = 0.0023f }
             );
 
-            this.AddMethod(LUACodeBlockMethodType.Set, 
-                "ConstantDriveFriction", 
+            this.AddMethod(LUACodeBlockMethodType.Set,
+                "ConstantDriveFriction",
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Value", Value = 9.1f }
             );
 
-            this.AddMethod(LUACodeBlockMethodType.Set, 
+            this.AddMethod(LUACodeBlockMethodType.Set,
                 "LinearDriveFriction",
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Value", ForceOutput = true }
             );
 
-            this.AddMethod(LUACodeBlockMethodType.Set, 
-                "QuadraticDriveFriction", 
+            this.AddMethod(LUACodeBlockMethodType.Set,
+                "QuadraticDriveFriction",
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Value", Value = 0.0008f }
             );
 
-            this.AddMethod(LUACodeBlockMethodType.Set, 
-                "EngineBrakeDelay", 
+            this.AddMethod(LUACodeBlockMethodType.Set,
+                "EngineBrakeDelay",
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Value", Value = 0.5f }
             );
 
-            this.AddMethod(LUACodeBlockMethodType.Set, 
-                "EngineBrakeAttack", 
+            this.AddMethod(LUACodeBlockMethodType.Set,
+                "EngineBrakeAttack",
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Value", Value = 0.28f }
             );
 
-            this.AddMethod(LUACodeBlockMethodType.Set, 
+            this.AddMethod(LUACodeBlockMethodType.Set,
                 "ClutchDelay",
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Value", ForceOutput = true }
             );
 
-            this.AddMethod(LUACodeBlockMethodType.Set, 
-                "Mass", 
+            this.AddMethod(LUACodeBlockMethodType.Set,
+                "Mass",
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Value", Value = 2000 }
             );
 
-            this.AddMethod(LUACodeBlockMethodType.Set, 
-                "NumGears", 
+            this.AddMethod(LUACodeBlockMethodType.Set,
+                "NumGears",
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Value", Value = 5 }
             );
 
-            this.AddMethod(LUACodeBlockMethodType.Set, 
+            this.AddMethod(LUACodeBlockMethodType.Set,
                 "GearRatios",
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "0", Value = 10 },
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "1", Value = 13.86f },
@@ -376,7 +378,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "10", Value = 1.1346f }
             );
 
-            this.AddMethod(LUACodeBlockMethodType.Set, 
+            this.AddMethod(LUACodeBlockMethodType.Set,
                 "TorqueCurve",
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "0", Value = 20 },
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "1", Value = 80 },
@@ -401,8 +403,8 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "20" }
             );
 
-            this.AddMethod(LUACodeBlockMethodType.Set, 
-                "StabilityGripChange", 
+            this.AddMethod(LUACodeBlockMethodType.Set,
+                "StabilityGripChange",
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Value", Value = 0.4f }
             );
 
@@ -415,6 +417,16 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                 "CollisionEffect",
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.String, Name = "Effect" },
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Int, Name = "Value" }
+            );
+
+            this.AddMethod(LUACodeBlockMethodType.Set,
+                "SuspensionRollFactor",
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Value", Value = 1f }
+            );
+
+            this.AddMethod(LUACodeBlockMethodType.Set,
+                "SuspensionPitchFactor",
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Value", Value = 1f }
             );
         }
 
