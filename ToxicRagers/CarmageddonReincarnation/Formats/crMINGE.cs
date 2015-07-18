@@ -79,7 +79,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                 sw.WriteLine();
 
                 sw.WriteLine("[Version]");
-                sw.WriteLine(modVersion);
+                sw.WriteLine(modVersion.Major);
 
                 sw.WriteLine();
 
