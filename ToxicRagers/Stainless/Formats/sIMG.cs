@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -23,7 +23,7 @@ namespace ToxicRagers.Stainless.Formats
 
         int width;
         int height;
-        List<Plane> planes = new List<Plane>();
+        ConcurrentBag<Plane> planes = new ConcurrentBag<Plane>();
 
         [Flags]
         public enum BasicFlags : byte
@@ -127,7 +127,7 @@ namespace ToxicRagers.Stainless.Formats
                 bw.Write((byte)(BasicFlags.Compressed | BasicFlags.DisableDownSample | BasicFlags.DisableMipMaps));
                 bw.Write((byte)(compression | AdvancedFlags.DontAutoJPEG));
                 bw.Write(6);
-                bw.Write(16 + this.planes[0].DataSize + this.planes[1].DataSize + this.planes[2].DataSize + this.planes[3].DataSize);
+                bw.Write(16 + this.planes.Sum(p => p.DataSize));
                 bw.Write((short)this.width);
                 bw.Write((short)this.height);
                 bw.Write(0x64);
