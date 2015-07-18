@@ -304,7 +304,7 @@ namespace ToxicRagers.Stainless.Formats
             switch (cnt.Section)
             {
                 case NodeType.LITg:
-                    if (cnt.Light != null)
+                    if (cnt.EmbeddedLight)
                     {
                         bw.Write(2);
                         LIGHT.Save(bw, cnt.Light);
@@ -312,14 +312,13 @@ namespace ToxicRagers.Stainless.Formats
                     else
                     {
                         bw.Write(3);
+                        nameLength = cnt.LightName.Length;
+                        padding = (((nameLength / 4) + (nameLength % 4 > 0 ? 1 : 0)) * 4) - nameLength;
+
+                        bw.Write(cnt.LightName.Length);
+                        bw.WriteString(cnt.LightName);
+                        bw.Write(new byte[padding]);
                     }
-
-                    nameLength = cnt.LightName.Length;
-                    padding = (((nameLength / 4) + (nameLength % 4 > 0 ? 1 : 0)) * 4) - nameLength;
-
-                    bw.Write(nameLength);
-                    bw.WriteString(cnt.LightName);
-                    bw.Write(new byte[padding]);
                     break;
 
                 case NodeType.MODL:
