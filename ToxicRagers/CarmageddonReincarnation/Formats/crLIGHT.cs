@@ -53,7 +53,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
         Single goboScaleY = 1;
         Single goboOffsetX = 0;
         Single goboOffsetY = 0;
-        string goboTexture;
+        string goboTexture = "";
 
         public string Name
         {
@@ -294,6 +294,15 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             br.ReadBytes(padding);
 
             return light;
+        }
+
+        public void Save(string path)
+        {
+            using (BinaryWriter bw = new BinaryWriter(File.Create(path)))
+            {
+                bw.Write(3);
+                Save(bw, this);
+            }
         }
 
         public static void Save(BinaryWriter bw, LIGHT light)
