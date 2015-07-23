@@ -129,9 +129,9 @@ namespace ToxicRagers.Helpers
             var p = x.Position + y.Position;
 
             return new Matrix3D(
-                (x.M11 * y.M11) + (x.M12 * y.M21) + (x.M13 * y.M31), (x.M11 * y.M21) + (x.M12 * y.M22) + (x.M13 * y.M32), (x.M11 * y.M13) + (x.M12 * y.M23) + (x.M13 * y.M33),
-                (x.M21 * y.M11) + (x.M22 * y.M21) + (x.M23 * y.M31), (x.M21 * y.M21) + (x.M22 * y.M22) + (x.M23 * y.M32), (x.M21 * y.M13) + (x.M22 * y.M23) + (x.M23 * y.M33),
-                (x.M31 * y.M11) + (x.M32 * y.M21) + (x.M33 * y.M31), (x.M31 * y.M21) + (x.M32 * y.M22) + (x.M33 * y.M32), (x.M31 * y.M13) + (x.M32 * y.M23) + (x.M33 * y.M33),
+                (x.M11 * y.M11) + (x.M12 * y.M21) + (x.M13 * y.M31), (x.M11 * y.M12) + (x.M12 * y.M22) + (x.M13 * y.M32), (x.M11 * y.M13) + (x.M12 * y.M23) + (x.M13 * y.M33),
+                (x.M21 * y.M11) + (x.M22 * y.M21) + (x.M23 * y.M31), (x.M21 * y.M12) + (x.M22 * y.M22) + (x.M23 * y.M32), (x.M21 * y.M13) + (x.M22 * y.M23) + (x.M23 * y.M33),
+                (x.M31 * y.M11) + (x.M32 * y.M21) + (x.M33 * y.M31), (x.M31 * y.M12) + (x.M32 * y.M22) + (x.M33 * y.M32), (x.M31 * y.M13) + (x.M32 * y.M23) + (x.M33 * y.M33),
                 p.X, p.Y, p.Z
             );
         }
