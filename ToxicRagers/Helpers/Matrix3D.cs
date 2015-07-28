@@ -51,6 +51,22 @@ namespace ToxicRagers.Helpers
             this.M43 = Position.Z;
         }
 
+        public Matrix3D(Vector3 row1, Vector3 row2, Vector3 row3, Vector3 row4)
+        {
+            this.M11 = row1.X;
+            this.M12 = row1.Y;
+            this.M13 = row1.Z;
+            this.M21 = row2.X;
+            this.M22 = row2.Y;
+            this.M23 = row2.Z;
+            this.M31 = row3.X;
+            this.M32 = row3.Y;
+            this.M33 = row3.Z;
+            this.M41 = row4.X;
+            this.M42 = row4.Y;
+            this.M43 = row4.Z;
+        }
+
         static Single toRads = (Single)Math.PI / 180;
 
         public static Matrix3D CreateRotationX(Single Degrees)

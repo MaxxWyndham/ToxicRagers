@@ -54,7 +54,7 @@ namespace ToxicRagers.Helpers
         public static Vector3 Parse(string v)
         {
             v = v.Replace(" ", "");
-            string[] s = v.Split(",".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+            string[] s = v.Split(new char[] { ',', '\t' }, StringSplitOptions.RemoveEmptyEntries);
 
             return new Vector3(s[0].ToSingle(), s[1].ToSingle(), s[2].ToSingle());
         }
