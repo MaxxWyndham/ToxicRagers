@@ -63,6 +63,7 @@
     <Compile Include="CarmageddonPSX\OldCodeImport.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\crLOL.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\crMINGE.cs" />
+    <Compile Include="CarmageddonReincarnation\Formats\crPostFXLOL.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\crRoutesTXT.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\crSetupLOL.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\crStructureXML.cs" />
