@@ -22,6 +22,19 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             set { settings = value; }
         }
 
+        public Setup() { }
+
+        public Setup(SetupContext context)
+        {
+            switch (context)
+            {
+                case SetupContext.Vehicle:
+                    this.context = SetupContext.Vehicle;
+                    this.settings = new VehicleSetupCode();
+                    break;
+            }
+        }
+
         public static Setup Load(string path)
         {
             Setup setup = new Setup();
@@ -146,6 +159,16 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             this.AddMethod(LUACodeBlockMethodType.Set,
                 "SuspDamping",
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Value", Value = 1 }
+            );
+
+            this.AddMethod(LUACodeBlockMethodType.Set,
+                "SuspensionRollFactor",
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Value", Value = 1f }
+            );
+
+            this.AddMethod(LUACodeBlockMethodType.Set,
+                "SuspensionPitchFactor",
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Value", Value = 1f }
             );
 
             this.AddMethod(LUACodeBlockMethodType.Set,
@@ -290,7 +313,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
             this.AddMethod(LUACodeBlockMethodType.Set,
                 "EngineMI",
-                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Value", Value = 0.6f }
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Value", Value = 0.06f }
             );
 
             this.AddMethod(LUACodeBlockMethodType.Set,
@@ -417,16 +440,6 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                 "CollisionEffect",
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.String, Name = "Effect" },
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Int, Name = "Value" }
-            );
-
-            this.AddMethod(LUACodeBlockMethodType.Set,
-                "SuspensionRollFactor",
-                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Value", Value = 1f }
-            );
-
-            this.AddMethod(LUACodeBlockMethodType.Set,
-                "SuspensionPitchFactor",
-                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Value", Value = 1f }
             );
         }
 

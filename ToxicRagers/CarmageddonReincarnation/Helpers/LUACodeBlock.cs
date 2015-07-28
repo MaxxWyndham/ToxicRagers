@@ -327,7 +327,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Helpers
                         return "\"" + value + "\"";
 
                     case LUACodeBlockMethodParameterType.Float:
-                        return (Convert.ToSingle(value) < 0 ? value : string.Format("{0:0.0}", value));
+                        return (Convert.ToSingle(value) < 0 ? value : string.Format(ToxicRagers.Culture, "{0:0.####}", value));
 
                     case LUACodeBlockMethodParameterType.Boolean:
                         return ((bool)value == true ? "true" : "false");
@@ -344,6 +344,9 @@ namespace ToxicRagers.CarmageddonReincarnation.Helpers
             {
                 switch (type)
                 {
+                    case LUACodeBlockMethodParameterType.Int:
+                        return bForceOutput || (value != null && Convert.ToInt32(value) != default(Int32));
+
                     case LUACodeBlockMethodParameterType.String:
                         return value != null;
 
