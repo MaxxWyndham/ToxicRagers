@@ -77,7 +77,8 @@ namespace ToxicRagers.Stainless.Formats
 
             mdl.name = fi.Name.Replace(fi.Extension, "");
 
-            using (BinaryReader br = new BinaryReader(fi.OpenRead(), Encoding.Default))
+            using (MemoryStream ms = new MemoryStream(File.ReadAllBytes(path)))
+            using (BinaryReader br = new BinaryReader(ms, Encoding.Default))
             {
                 if (br.ReadByte() != 69 ||
                     br.ReadByte() != 35)
@@ -127,6 +128,7 @@ namespace ToxicRagers.Stainless.Formats
                 int materialCount = br.ReadInt16();
 
                 Logger.LogToFile(Logger.LogLevel.Debug, "Material count: {0}", materialCount);
+
                 for (int i = 0; i < materialCount; i++)
                 {
                     string materialName;

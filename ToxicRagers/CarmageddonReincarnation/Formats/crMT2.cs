@@ -56,10 +56,10 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             }
         }
 
-        public static MT2 Load(string Path)
+        public static MT2 Load(string path)
         {
             MT2 mt2 = new MT2();
-            mt2.XML = XElement.Load(Path);
+            mt2.XML = XElement.Load(path);
             return mt2;
         }
     }

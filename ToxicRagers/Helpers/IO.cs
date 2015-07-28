@@ -9,11 +9,7 @@ namespace ToxicRagers.Helpers
         {
             callBack(new DirectoryInfo(sPath));
 
-            foreach (DirectoryInfo d in new DirectoryInfo(sPath).GetDirectories())
-            {
-                LoopDirectoriesIn(d.FullName, callBack);
-                callBack(d);
-            }
+            foreach (DirectoryInfo d in new DirectoryInfo(sPath).GetDirectories()) { LoopDirectoriesIn(d.FullName, callBack); }
         }
     }
 }

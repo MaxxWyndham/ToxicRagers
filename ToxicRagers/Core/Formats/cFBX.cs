@@ -22,13 +22,18 @@ namespace ToxicRagers.Core.Formats
 
         public List<FBXElem> Elements { get { return elements; } }
 
+        public FBXElem FBXHeaderExtension
+        {
+            get { return elements.Find(e => e.ID == "FBXHeaderExtension"); }
+        }
+
         public static FBX Load(string path)
         {
-            FileInfo fi = new FileInfo(path);
             Logger.LogToFile(Logger.LogLevel.Info, "{0}", path);
             FBX fbx = new FBX();
 
-            using (var br = new BinaryReader(fi.OpenRead()))
+            using (MemoryStream ms = new MemoryStream(File.ReadAllBytes(path)))
+            using (BinaryReader br = new BinaryReader(ms))
             {
                 if (br.ReadString(20) != "Kaydara FBX Binary  " || br.ReadByte() != 0 || br.ReadByte() != 26 || br.ReadByte() != 0) 
                 {
