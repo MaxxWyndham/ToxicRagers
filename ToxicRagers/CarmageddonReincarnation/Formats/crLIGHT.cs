@@ -53,7 +53,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
         Single goboScaleY = 1;
         Single goboOffsetX = 0;
         Single goboOffsetY = 0;
-        string goboTexture = "";
+        string goboTexture;
 
         public string Name
         {
@@ -337,12 +337,19 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             bw.Write(light.goboOffsetX);
             bw.Write(light.goboOffsetY);
 
-            int nameLength = light.goboTexture.Length;
-            int padding = (((nameLength / 4) + (nameLength % 4 > 0 ? 1 : 0)) * 4) - nameLength;
+            if (light.goboTexture != null)
+            {
+                int nameLength = light.goboTexture.Length;
+                int padding = (((nameLength / 4) + (nameLength % 4 > 0 ? 1 : 0)) * 4) - nameLength;
 
-            bw.Write(nameLength);
-            bw.WriteString(light.goboTexture);
-            bw.Write(new byte[padding]);
+                bw.Write(nameLength);
+                bw.WriteString(light.goboTexture);
+                bw.Write(new byte[padding]);
+            }
+            else
+            {
+                bw.Write(0);
+            }
         }
     }
 }
