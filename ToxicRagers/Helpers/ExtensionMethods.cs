@@ -204,6 +204,8 @@ namespace ToxicRagers.Helpers
 
         public static Bitmap Resize(this Bitmap b, int width, int height)
         {
+            if (b.PixelFormat == PixelFormat.Format8bppIndexed) { return b; }
+
             Graphics g = Graphics.FromImage(b);
             Bitmap d = new Bitmap(width, height);
 
