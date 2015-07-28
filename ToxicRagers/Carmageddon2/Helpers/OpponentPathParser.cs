@@ -162,19 +162,16 @@ namespace ToxicRagers.Carmageddon2.Helpers
         public int EndNode = -1;
         public int SectionType = -1;
 
-        public OpponentPathSection()
-        {
-        }
-
         public OpponentPathSection(string line)
         {
-            string[] s = line.Split(","[0]);
-            StartNode = Convert.ToInt32(s[0]);
-            EndNode = Convert.ToInt32(s[1]);
+            string[] s = line.Split(',');
+
+            StartNode = s[0].ToInt();
+            EndNode = s[1].ToInt();
             // 2, 3 = start path min, max speed
             // 4, 5 = end path min, max speed
             // 6    = width
-            SectionType = Convert.ToInt32(s[7]);
+            SectionType = s[7].ToInt();
 
             switch (SectionType)
             {
@@ -188,6 +185,7 @@ namespace ToxicRagers.Carmageddon2.Helpers
                     // 1000 = ???
                     // 1001 = ???
                     break;
+
                 default:
                     Console.WriteLine("Unknown section type: " + SectionType);
                     break;
