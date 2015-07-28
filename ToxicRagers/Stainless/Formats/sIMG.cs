@@ -19,7 +19,7 @@ namespace ToxicRagers.Stainless.Formats
         Version version;
         BasicFlags basicFlags;
         AdvancedFlags advancedFlags;
-        PixelFormat pixelFormat;
+        PlaneFormat planeFormat;
 
         int width;
         int height;
@@ -49,10 +49,11 @@ namespace ToxicRagers.Stainless.Formats
             SRGB = 0x20
         }
 
-        public enum PixelFormat
+        public enum PlaneFormat
         {
-            Format24bitRGB = 5,
-            Format32bitARGB = 6
+            Format1planeARGB = 0,
+            Format4planeXRGB = 5,
+            Format4planeARGB = 6
         }
 
         public IMG()
@@ -90,12 +91,12 @@ namespace ToxicRagers.Stainless.Formats
                 img.version = new Version(major, minor);
                 img.basicFlags = (BasicFlags)br.ReadByte();
                 img.advancedFlags = (AdvancedFlags)br.ReadByte();
-                img.pixelFormat = (PixelFormat)br.ReadUInt32();
+                img.planeFormat = (PlaneFormat)br.ReadUInt32();
                 int fileSize = (int)br.ReadUInt32();
                 img.width = br.ReadUInt16();
                 img.height = br.ReadUInt16();
 
-                Logger.LogToFile(Logger.LogLevel.Info, "{0} : {1} : {2} : {3}", img.version, img.basicFlags, img.advancedFlags, img.pixelFormat);
+                Logger.LogToFile(Logger.LogLevel.Info, "{0} : {1} : {2} : {3}", img.version, img.basicFlags, img.advancedFlags, img.planeFormat);
 
                 if (img.version.Minor == 1) { br.ReadUInt32(); }
             }
@@ -107,34 +108,50 @@ namespace ToxicRagers.Stainless.Formats
         {
             using (BinaryWriter bw = new BinaryWriter(new FileStream(path, FileMode.Create)))
             {
+                BasicFlags basic = 0;
                 AdvancedFlags compression = 0;
+                int dataSize = 0;
 
-                if (this.planes.Any(p => p.PoorCompression))
+                if (this.planeFormat == PlaneFormat.Format1planeARGB)
                 {
-                    Parallel.ForEach(
-                        this.planes,
-                        p =>
-                        {
-                            p.Compress(Plane.CompressionMethod.Huffman);
-                        }
-                    );
+                    dataSize = this.planes.First().Output.Length;
+                }
+                else
+                {
+                    basic = BasicFlags.Compressed;
 
-                    compression = AdvancedFlags.Huffman;
+                    if (this.planes.Any(p => p.PoorCompression))
+                    {
+                        Parallel.ForEach(
+                            this.planes,
+                            p =>
+                            {
+                                p.Compress(Plane.CompressionMethod.Huffman);
+                            }
+                        );
+
+                        compression = AdvancedFlags.Huffman;
+                    }
+
+                    dataSize = (this.planes.Count * 4) + this.planes.Sum(p => p.DataSize);
                 }
 
                 bw.WriteString("IMAGEMAP");
                 bw.Write(new byte[] { 0x1, 0x1 }); // version 1.1
-                bw.Write((byte)(BasicFlags.Compressed | BasicFlags.DisableDownSample | BasicFlags.DisableMipMaps));
+                bw.Write((byte)(basic | BasicFlags.DisableDownSample | BasicFlags.DisableMipMaps));
                 bw.Write((byte)(compression | AdvancedFlags.DontAutoJPEG));
-                bw.Write(6);
-                bw.Write(16 + this.planes.Sum(p => p.DataSize));
+                bw.Write((int)planeFormat);
+                bw.Write(dataSize);
                 bw.Write((short)this.width);
                 bw.Write((short)this.height);
                 bw.Write(0x64);
 
-                foreach (var plane in this.planes.OrderByDescending(p => p.Index))
+                if (this.planeFormat != PlaneFormat.Format1planeARGB)
                 {
-                    bw.Write(plane.DataSize);
+                    foreach (var plane in this.planes.OrderByDescending(p => p.Index))
+                    {
+                        bw.Write(plane.DataSize);
+                    }
                 }
 
                 foreach (var plane in this.planes.OrderByDescending(p => p.Index))
@@ -146,24 +163,45 @@ namespace ToxicRagers.Stainless.Formats
 
         public void ImportFromBitmap(Bitmap bitmap)
         {
+            if (bitmap.Width <= 32 || bitmap.Height <= 32) { bitmap = bitmap.Resize(64, 64); }
+
             width = bitmap.Width;
             height = bitmap.Height;
 
-            byte[] iB = new byte[width * height * 4];
+            int planeCount = 4;// Image.GetPixelFormatSize(bitmap.PixelFormat) / 8;
 
-            BitmapData bmpdata = bitmap.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+            if (bitmap.Width < 8 && bitmap.Height < 8) { planeCount = 1; }
+
+            BitmapData bmpdata = bitmap.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
+            byte[] iB = new byte[4 * bmpdata.Width * bmpdata.Height];
             Marshal.Copy(bmpdata.Scan0, iB, 0, bmpdata.Stride * bmpdata.Height);
             bitmap.UnlockBits(bmpdata);
 
-            Parallel.For(0, 4,
+            Parallel.For(0, planeCount,
                 i =>
+                //for (int i = 0; i < planeCount; i++)
                 {
                     var plane = new Plane(i);
-                    plane.Data = iB.ToList().Every(4, i).ToArray();
-                    plane.Compress(Plane.CompressionMethod.RLE);
+                    plane.Data = iB.ToList().Every(planeCount, i).ToArray();
+                    plane.Compress(planeCount > 1 ? Plane.CompressionMethod.RLE : Plane.CompressionMethod.None);
                     planes.Add(plane);
                 }
             );
+
+            switch (planeCount)
+            {
+                case 1:
+                    planeFormat = PlaneFormat.Format1planeARGB;
+                    break;
+
+                case 3:
+                    planeFormat = PlaneFormat.Format4planeXRGB;
+                    break;
+
+                case 4:
+                    planeFormat = PlaneFormat.Format4planeARGB;
+                    break;
+            }
         }
     }
 
@@ -179,7 +217,7 @@ namespace ToxicRagers.Stainless.Formats
 
         int index;
         byte[] data;
-        CompressionMethod compressionMethod = CompressionMethod.RLE;
+        CompressionMethod compressionMethod = CompressionMethod.None;
         byte[] output;
 
         public bool PoorCompression
@@ -214,6 +252,10 @@ namespace ToxicRagers.Stainless.Formats
         {
             switch (method)
             {
+                case CompressionMethod.None:
+                    reorderData();
+                    break;
+
                 case CompressionMethod.RLE:
                     compressRLE();
                     break;
@@ -221,6 +263,19 @@ namespace ToxicRagers.Stainless.Formats
                 case CompressionMethod.Huffman:
                     compressHuffman();
                     break;
+            }
+        }
+
+        private void reorderData()
+        {
+            output = new byte[data.Length];
+
+            for (int i = 0; i < data.Length; i += 4)
+            {
+                output[i + 0] = data[i + 3];
+                output[i + 1] = data[i + 2];
+                output[i + 2] = data[i + 1];
+                output[i + 3] = data[i + 0];
             }
         }
 

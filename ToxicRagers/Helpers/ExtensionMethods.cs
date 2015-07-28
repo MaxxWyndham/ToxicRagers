@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Drawing.Drawing2D;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -197,6 +200,29 @@ namespace ToxicRagers.Helpers
             {
                 yield return list[i];
             }
+        }
+
+        public static Bitmap Resize(this Bitmap b, int width, int height)
+        {
+            Graphics g = Graphics.FromImage(b);
+            Bitmap d = new Bitmap(width, height);
+
+            using (Graphics graphics = Graphics.FromImage(d))
+            {
+                graphics.CompositingMode = CompositingMode.SourceCopy;
+                graphics.CompositingQuality = CompositingQuality.HighQuality;
+                graphics.InterpolationMode = InterpolationMode.NearestNeighbor;
+                graphics.SmoothingMode = SmoothingMode.HighQuality;
+                graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
+
+                using (var wrapMode = new ImageAttributes())
+                {
+                    wrapMode.SetWrapMode(WrapMode.TileFlipXY);
+                    graphics.DrawImage(b, new Rectangle(0, 0, width, height), 0, 0, b.Width, b.Height, GraphicsUnit.Pixel, wrapMode);
+                }
+            }
+
+            return d;
         }
     }
 }
