@@ -14,6 +14,14 @@ using ToxicRagers.Helpers;
 
 namespace ToxicRagers.Stainless.Formats
 {
+    public enum CompressionMethod
+    {
+        None = 0,
+        RLE = 1,
+        Huffman = 2,
+        LIC = 3
+    }
+
     public class IMG : Texture
     {
         Version version;
@@ -120,15 +128,18 @@ namespace ToxicRagers.Stainless.Formats
                 {
                     basic = BasicFlags.Compressed;
 
-                    if (this.planes.Any(p => p.PoorCompression))
+                    if (this.planes.Any(p => p.Method == CompressionMethod.Huffman))
                     {
-                        Parallel.ForEach(
-                            this.planes,
-                            p =>
-                            {
-                                p.Compress(Plane.CompressionMethod.Huffman);
-                            }
-                        );
+                        if (this.planes.Any(p => p.Method == CompressionMethod.RLE && p.PoorCompression))
+                        {
+                            Parallel.ForEach(
+                                this.planes,
+                                p =>
+                                {
+                                    p.Compress(CompressionMethod.Huffman);
+                                }
+                            );
+                        }
 
                         compression = AdvancedFlags.Huffman;
                     }
@@ -161,7 +172,7 @@ namespace ToxicRagers.Stainless.Formats
             }
         }
 
-        public void ImportFromBitmap(Bitmap bitmap)
+        public void ImportFromBitmap(Bitmap bitmap, CompressionMethod compression = CompressionMethod.RLE)
         {
             if (bitmap.Width <= 32 || bitmap.Height <= 32) { bitmap = bitmap.Resize(64, 64); }
 
@@ -183,7 +194,7 @@ namespace ToxicRagers.Stainless.Formats
                 {
                     var plane = new Plane(i);
                     plane.Data = iB.ToList().Every(planeCount, i).ToArray();
-                    plane.Compress(planeCount > 1 ? Plane.CompressionMethod.RLE : Plane.CompressionMethod.None);
+                    plane.Compress(planeCount > 1 ? compression : CompressionMethod.None);
                     planes.Add(plane);
                 }
             );
@@ -207,14 +218,6 @@ namespace ToxicRagers.Stainless.Formats
 
     public class Plane
     {
-        public enum CompressionMethod
-        {
-            None = 0,
-            RLE = 1,
-            Huffman = 2,
-            LIC = 3
-        }
-
         int index;
         byte[] data;
         CompressionMethod compressionMethod = CompressionMethod.None;
@@ -223,6 +226,12 @@ namespace ToxicRagers.Stainless.Formats
         public bool PoorCompression
         {
             get { return output.Length / (data.Length * 1.0f) > 0.5f; }
+        }
+
+        public CompressionMethod Method
+        {
+            get { return compressionMethod; }
+            set { compressionMethod = value; }
         }
 
         public byte[] Data
@@ -268,6 +277,8 @@ namespace ToxicRagers.Stainless.Formats
 
         private void reorderData()
         {
+            compressionMethod = CompressionMethod.None;
+
             output = new byte[data.Length];
 
             for (int i = 0; i < data.Length; i += 4)
@@ -281,6 +292,8 @@ namespace ToxicRagers.Stainless.Formats
 
         private void compressRLE()
         {
+            compressionMethod = CompressionMethod.RLE;
+
             using (MemoryStream ms = new MemoryStream())
             using (BinaryWriter bw = new BinaryWriter(ms))
             {
