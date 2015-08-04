@@ -55,19 +55,19 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                     lensflare_luminance = 0.5
                     lensflare_ghostscale = 0.5
                     colour_saturation = {
-                      0.86,
-                      0.9,
-                      0.82
+                      1.02,
+                      0.96,
+                      0.96
                     }
                     colour_contrast = {
                       0.94,
-                      1.02,
-                      1.04
+                      0.96,
+                      1
                     }
                     colour_modulation = {
-                      0.84,
-                      0.96,
-                      0.9
+                      0.94,
+                      1,
+                      0.96
                     }
                     colour_hsb = {
                       0,
@@ -79,7 +79,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                       0,
                       0
                     }
-                    white_bal_lum = {6400, 1.2}
+                    white_bal_lum = {7200, 1}
                     lateral_dispersion = {0.004, 0.002}
                     uniform_dispersion = {0, 0}
                     blur_samples = -1
