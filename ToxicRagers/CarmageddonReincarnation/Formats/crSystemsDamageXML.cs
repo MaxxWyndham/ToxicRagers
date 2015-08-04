@@ -15,7 +15,6 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
         fl_wheel,
         fr_wheel,
         generator,
-        Plasma_Engine,
         rl_wheel,
         rr_wheel,
         steering,
@@ -151,24 +150,10 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
             this.AddMethod(
                 LUACodeBlockMethodType.Add,
-                "WastedLinearContribution",
-                new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Float, Name = "A" },
-                new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Float, Name = "B" },
-                new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Float, Name = "C" }
-            );
-
-            this.AddMethod(
-                LUACodeBlockMethodType.Add,
                 "SolidPart",
                 new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.String, Name = "Part" },
                 new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Float, Name = "A" },
                 new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Float, Name = "B" }
-            );
-
-            this.AddMethod(
-                LUACodeBlockMethodType.Set,
-                "DamageEffect_Drive",
-                new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Float, Name = "Factor" }
             );
 
             this.AddMethod(
@@ -181,6 +166,20 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             this.AddMethod(
                 LUACodeBlockMethodType.Set,
                 "WastedContribution",
+                new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Float, Name = "Factor" }
+            );
+
+            this.AddMethod(
+                LUACodeBlockMethodType.Add,
+                "WastedLinearContribution",
+                new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Float, Name = "A" },
+                new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Float, Name = "B" },
+                new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Float, Name = "C" }
+            );
+
+            this.AddMethod(
+                LUACodeBlockMethodType.Set,
+                "DamageEffect_Drive",
                 new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Float, Name = "Factor" }
             );
 
