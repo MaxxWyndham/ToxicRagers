@@ -65,6 +65,74 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
                     Logger.LogToFile(Logger.LogLevel.Info, "Skipped {0} bytes of extra data", extraDataLength);
                     br.ReadBytes(extraDataLength);
+
+                    //Logger.LogToFile("{0}", br.ReadUInt16());
+                    //Logger.LogToFile("{0}", br.ReadUInt16());
+
+                    //br.ReadUInt32(); // 0xDEADBEEF
+                    //Logger.LogToFile("DEADBEEF");
+
+                    //Logger.LogToFile("{0}", br.ReadUInt32());
+                    //Logger.LogToFile("{0}", br.ReadUInt32());
+                    //Logger.LogToFile("{0}", br.ReadUInt32());
+                    //Logger.LogToFile("{0}", br.ReadUInt32());
+                    //Logger.LogToFile("{0}", br.ReadUInt32());
+
+                    //br.ReadUInt32(); // 0xDEADBEEF
+                    //Logger.LogToFile("DEADBEEF");
+
+                    //int fileCount = (int)br.ReadUInt32();
+
+                    //for (int i = 0; i < fileCount; i++)
+                    //{
+                    //    int x = (int)br.ReadUInt32();
+                    //    int y = (int)br.ReadUInt32();
+                    //    int w = (int)br.ReadUInt32();
+                    //    int h = (int)br.ReadUInt32();
+
+                    //    string file = br.ReadNullTerminatedString();
+
+                    //    byte b = br.ReadByte();
+
+                    //    Logger.LogToFile("{0}\t{1}\t{2}\t{3}\t{5}\t{4}", x, y, w, h, file, b);
+                    //}
+
+                    //br.ReadUInt32(); // 0xDEADBEEF
+                    //Logger.LogToFile("DEADBEEF");
+
+                    //int indexCount = (int)br.ReadUInt32();
+
+                    //for (int i = 0; i < indexCount; i++)
+                    //{
+                    //    int x = (int)br.ReadUInt32();
+                    //    int y = (int)br.ReadUInt32();
+                    //    int z = (int)br.ReadUInt32();
+                    //    uint h = br.ReadUInt32();
+
+                    //    Logger.LogToFile("{0}\t{1}\t{2}\t{3}\t:{3:x2}", x, y, z, h);
+                    //}
+
+                    //br.ReadUInt32(); // 0xDEADBEEF
+                    //Logger.LogToFile("DEADBEEF");
+
+                    //fileCount = (int)br.ReadUInt32();
+
+                    //for (int i = 0; i < fileCount; i++)
+                    //{
+                    //    string file = br.ReadNullTerminatedString();
+                    //    int a = (int)br.ReadUInt32();
+                    //    int b = (int)br.ReadUInt32();
+
+                    //    Logger.LogToFile("{0}\t{1}\t{2}", a, b, file);
+                    //}
+
+                    //br.ReadUInt32(); // 0xDEADBEEF
+                    //Logger.LogToFile("DEADBEEF");
+
+                    //Logger.LogToFile("{0}", br.ReadUInt32());
+
+                    //br.ReadUInt32(); // 0xDEADBEEF
+                    //Logger.LogToFile("DEADBEEF");
                 }
 
                 for (int i = 0; i < mipCount; i++)
