@@ -24,15 +24,6 @@ namespace ToxicRagers.Stainless.Formats
 
     public class IMG : Texture
     {
-        Version version;
-        BasicFlags basicFlags;
-        AdvancedFlags advancedFlags;
-        PlaneFormat planeFormat;
-
-        int width;
-        int height;
-        ConcurrentBag<Plane> planes = new ConcurrentBag<Plane>();
-
         [Flags]
         public enum BasicFlags : byte
         {
@@ -63,6 +54,15 @@ namespace ToxicRagers.Stainless.Formats
             Format4planeXRGB = 5,
             Format4planeARGB = 6
         }
+
+        Version version;
+        BasicFlags basicFlags;
+        AdvancedFlags advancedFlags;
+        PlaneFormat planeFormat;
+
+        int width;
+        int height;
+        ConcurrentBag<Plane> planes = new ConcurrentBag<Plane>();
 
         public IMG()
             : base()
@@ -107,6 +107,23 @@ namespace ToxicRagers.Stainless.Formats
                 Logger.LogToFile(Logger.LogLevel.Info, "{0} : {1} : {2} : {3}", img.version, img.basicFlags, img.advancedFlags, img.planeFormat);
 
                 if (img.version.Minor == 1) { br.ReadUInt32(); }
+
+                int planeCount = (img.planeFormat == PlaneFormat.Format1planeARGB ? 1 : 4);
+
+                for (int i = 0; i < planeCount; i++)
+                {
+                    img.planes.Add(new Plane(i) { Output = new byte[br.ReadUInt32()] });
+                }
+
+                for (int i = planeCount - 1; i >= 0; i--)
+                {
+                    Plane plane = img.planes.First(p => p.Index == i);
+                    plane.Output = br.ReadBytes(plane.Output.Length);
+                    if (img.basicFlags.HasFlag(IMG.BasicFlags.Compressed))
+                    {
+                        plane.Decompress((img.advancedFlags.HasFlag(IMG.AdvancedFlags.Huffman) ? CompressionMethod.Huffman : CompressionMethod.RLE));
+                    }
+                }
             }
 
             return img;
@@ -214,6 +231,29 @@ namespace ToxicRagers.Stainless.Formats
                     break;
             }
         }
+
+        public Bitmap ExportToBitmap()
+        {
+            Bitmap bmp = new Bitmap(width, height);
+            BitmapData bmpdata = bmp.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);
+
+            byte[] oB = new byte[4 * width * height];
+
+            foreach (var plane in planes.OrderBy(p => p.Index))
+            {
+                if (plane.Data == null) { continue; }
+
+                for (int i = 0; i < plane.Data.Length; i++)
+                {
+                    oB[(i * 4) + plane.Index] = plane.Data[i];
+                }
+            }
+
+            Marshal.Copy(oB, 0, bmpdata.Scan0, bmpdata.Stride * bmpdata.Height);
+            bmp.UnlockBits(bmpdata);
+
+            return bmp;
+        }
     }
 
     public class Plane
@@ -243,6 +283,7 @@ namespace ToxicRagers.Stainless.Formats
         public byte[] Output
         {
             get { return output; }
+            set { output = value; }
         }
 
         public int DataSize
@@ -351,6 +392,53 @@ namespace ToxicRagers.Stainless.Formats
 
                 output = ms.GetBuffer();
             }
+        }
+
+        public void Decompress(CompressionMethod method)
+        {
+            switch (method)
+            {
+                case CompressionMethod.None:
+                    //deorderData();
+                    break;
+
+                case CompressionMethod.RLE:
+                    decompressRLE();
+                    break;
+
+                case CompressionMethod.Huffman:
+                    decompressHuffman();
+                    break;
+            }
+        }
+
+        private void decompressRLE()
+        {
+            compressionMethod = CompressionMethod.RLE;
+
+            using (MemoryStream ms = new MemoryStream())
+            using (BinaryWriter bw = new BinaryWriter(ms))
+            {
+                for (int i = 0; i < output.Length; i++)
+                {
+                    int count = output[i];
+                    byte colour = output[++i];
+
+                    for (int j = 0; j < count; j++)
+                    {
+                        bw.Write(colour);
+                    }
+                }
+
+                data = ms.GetBuffer();
+            }
+        }
+
+        private void decompressHuffman()
+        {
+            compressionMethod = CompressionMethod.Huffman;
+
+            // TODO
         }
     }
 }
