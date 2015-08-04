@@ -21,6 +21,13 @@ namespace ToxicRagers.Helpers
             _z = z;
         }
 
+        public Vector3(Vector3 v)
+        {
+            _x = v.X;
+            _y = v.Y;
+            _z = v.Z;
+        }
+
         public static Vector3 Up
         {
             get { return new Vector3(0, 1, 0); }
@@ -33,7 +40,12 @@ namespace ToxicRagers.Helpers
 
         public Vector3 Normalised
         {
-            get { this.Normalise(); return this; }
+            get 
+            {
+                Vector3 v = new Vector3(this);
+                v.Normalise();
+                return v; 
+            }
         }
 
         public override string ToString()
@@ -90,9 +102,10 @@ namespace ToxicRagers.Helpers
 
         public void Normalise()
         {
-            this._x /= this.Length;
-            this._y /= this.Length;
-            this._z /= this.Length;
+            Single l = this.Length;
+            this._x /= l;
+            this._y /= l;
+            this._z /= l;
         }
 
         public static Vector3 operator *(Single y, Vector3 x) { return x * y; }

@@ -78,9 +78,10 @@ namespace ToxicRagers.Carmageddon2.Formats
 
                             for (int i = 0; i < count; i++)
                             {
-                                D.Mesh.AddFace(br.ReadUInt16(), br.ReadUInt16(), br.ReadUInt16());
-                                br.ReadByte(); // smoothing groups 9 - 16
-                                br.ReadByte(); // smoothing groups 1 - 8
+                                int faceID = D.Mesh.AddFace(br.ReadUInt16(), br.ReadUInt16(), br.ReadUInt16());
+                                
+                                D.Mesh.Faces[faceID].SmoothingGroup = br.ReadUInt16();
+
                                 br.ReadByte(); // number of edges, 0 and 3 = tri.  4 = quad.
                             }
                             break;

@@ -52,9 +52,11 @@ namespace ToxicRagers.Carmageddon2.Helpers
             Materials.Add(Name);
         }
 
-        public void AddFace(int v1, int v2, int v3, int MaterialID = -1)
+        public int AddFace(int v1, int v2, int v3, int MaterialID = -1)
         {
             Faces.Add(new c2Face(v1, v2, v3, MaterialID));
+
+            return Faces.Count - 1;
         }
 
         public void AddFace(int v1, int v2, int v3, int uv1, int uv2, int uv3, int MaterialID)
@@ -212,24 +214,25 @@ namespace ToxicRagers.Carmageddon2.Helpers
                 Vector3 v1 = Verts[face.V2];
                 Vector3 v2 = Verts[face.V3];
 
-                Vector3 v21 = v2 - v1;
-                Vector3 v01 = v0 - v1;
+                Vector3 u = v0 - v1;
+                Vector3 v = v0 - v2;
 
-                face.Normal = Vector3.Cross(v21, v01).Normalised;
+                face.Normal = Vector3.Cross(u, v).Normalised;
             }
 
             Normals = new List<Vector3>();
-            for (int i = 0; i < Verts.Count; i++) { Normals.Add(Vector3.Zero); }
 
-            for (int i = 0; i < Faces.Count; i++)
+            for (int i = 0; i < Verts.Count; i++)
             {
-                Normals[Faces[i].V1] += Faces[i].Normal;
-                Normals[Faces[i].V2] += Faces[i].Normal;
-                Normals[Faces[i].V3] += Faces[i].Normal;
-            }
+                Normals.Add(Vector3.Zero);
 
-            for (int i = 0; i < Normals.Count; i++)
-            {
+                foreach (var face in Faces)
+                {
+                    if (face.V1 == i) { Normals[i] += face.Normal; }
+                    if (face.V2 == i) { Normals[i] += face.Normal; }
+                    if (face.V3 == i) { Normals[i] += face.Normal; }
+                }
+
                 Normals[i] = Normals[i].Normalised;
             }
         }
