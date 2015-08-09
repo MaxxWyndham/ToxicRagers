@@ -17,9 +17,11 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
         protected bool bCastsShadows;
         protected bool bFogEnabled;
         protected bool bReceivesShadows;
+        protected bool bTranslucent;
 
         protected bool bWalkable;
         protected bool bPanickable;
+        protected bool bSitable;
 
         protected bool bNeedsWorldLightDir;
         protected bool bNeedsWorldSpaceVertexNormal;
@@ -31,10 +33,14 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
         protected string diffuse;
         protected string substance;
 
+        protected VegetationAnimation vegetationAnimation;
+
         protected List<TextureCoordSource> textureCoordSources;
         protected List<Sampler> samplers;
 
         protected Vector3 multiplier;
+        protected Vector3 emissiveLight;
+        protected Vector3 reflectionMultiplier;
 
         public bool DoubleSided
         {
@@ -54,10 +60,22 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             set { bReceivesShadows = value; }
         }
 
+        public bool Translucent
+        {
+            get { return bTranslucent; }
+            set { bTranslucent = value; }
+        }
+
         public bool Walkable
         {
             get { return bWalkable; }
             set { bWalkable = value; }
+        }
+
+        public bool Sitable
+        {
+            get { return bSitable; }
+            set { bSitable = value; }
         }
 
         public bool FogEnabled
@@ -120,6 +138,18 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             set { multiplier = value; }
         }
 
+        public Vector3 EmissiveLight
+        {
+            get { return multiplier; }
+            set { multiplier = value; }
+        }
+
+        public Vector3 ReflectionMultiplier
+        {
+            get { return multiplier; }
+            set { multiplier = value; }
+        }
+
         public MT2(XElement xml)
         {
             textureCoordSources = new List<TextureCoordSource>();
@@ -130,8 +160,10 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             var castsShads = xml.Descendants("CastsShadows").FirstOrDefault();
             var recShads = xml.Descendants("ReceivesShadows").FirstOrDefault();
             var fog = xml.Descendants("FogEnabled").FirstOrDefault();
+            var trans = xml.Descendants("Translucent").FirstOrDefault();
             var walk = xml.Descendants("Walkable").FirstOrDefault();
             var panic = xml.Descendants("Panickable").FirstOrDefault();
+            var sit = xml.Descendants("Sitable").FirstOrDefault();
             var needWSVN = xml.Descendants("NeedsWorldSpaceVertexNormal").FirstOrDefault();
             var needWEP = xml.Descendants("NeedsWorldEyePos").FirstOrDefault();
             var needWVP = xml.Descendants("NeedsWorldVertexPos").FirstOrDefault();
@@ -143,18 +175,28 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             if (castsShads != null) { bCastsShadows = (castsShads.Attribute("Value").Value.ToLower() == "true"); }
             if (recShads != null) { bReceivesShadows = (recShads.Attribute("Value").Value.ToLower() == "true"); }
             if (fog != null) { bFogEnabled = (fog.Attribute("Value").Value.ToLower() == "true"); }
+            if (trans != null) { bTranslucent = (trans.Attribute("Value").Value.ToLower() == "true"); }
             if (walk != null) { bWalkable = (walk.Attribute("Value").Value.ToLower() == "true"); }
             if (panic != null) { bPanickable = (panic.Attribute("Value").Value.ToLower() == "true"); }
+            if (sit != null) { bSitable = (sit.Attribute("Value").Value.ToLower() == "true"); }
             if (needWSVN != null) { bNeedsWorldSpaceVertexNormal = (needWSVN.Attribute("Value").Value.ToLower() == "true"); }
             if (needWEP != null) { bNeedsWorldEyePos = (needWEP.Attribute("Value").Value.ToLower() == "true"); }
             if (needWVP != null) { bNeedsWorldVertexPos = (needWVP.Attribute("Value").Value.ToLower() == "true"); }
             if (needWLD != null) { bNeedsWorldLightDir = (needWLD.Attribute("Value").Value.ToLower() == "true"); }
             if (needLSVN != null) { bNeedsLightingSpaceVertexNormal = (needLSVN.Attribute("Value").Value.ToLower() == "true"); }
-            if (needVC != null) { bNeedsVertexColour = (needLSVN.Attribute("Value").Value.ToLower() == "true"); }
+            if (needVC != null) { bNeedsVertexColour = (needVC.Attribute("Value").Value.ToLower() == "true"); }
 
             var mult = xml.Descendants("Constant").Where(e => e.Attribute("Alias").Value == "Multiplier").FirstOrDefault();
+            var emmi = xml.Descendants("Constant").Where(e => e.Attribute("Alias").Value == "EmissiveLight").FirstOrDefault();
+            var refl = xml.Descendants("Constant").Where(e => e.Attribute("Alias").Value == "ReflectionMultiplier").FirstOrDefault();
 
             if (mult != null) { multiplier = ReadConstant(mult); }
+            if (emmi != null) { emissiveLight = ReadConstant(emmi); }
+            if (refl != null) { reflectionMultiplier = ReadConstant(refl); }
+
+            var vegetation = xml.Descendants("VegetationAnimation").FirstOrDefault();
+
+            if (vegetation != null) { vegetationAnimation = VegetationAnimation.CreateFromElement(vegetation); }
 
             foreach (var textureCoordSource in xml.Descendants("TextureCoordSource"))
             {
@@ -184,7 +226,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                 {
                     mt2 = (MT2)Activator.CreateInstance(Type.GetType("ToxicRagers.CarmageddonReincarnation.Formats.Materials." + basedOffOf, true, true), mt2.xml);
 
-                    if (basedOffOf.ToLower() == "glow_simple_norm_spec_env_base")
+                    if (basedOffOf.ToLower() == "simple_norm_spec_1bit_env_base")
                     {
                         Logger.LogToFile(Logger.LogLevel.Info, path);
                         //Logger.LogToFile(Logger.LogLevel.Info, mt2.ToString());
@@ -206,7 +248,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             switch (constant.Attribute("Type").Value.ToLower())
             {
                 case "float3":
-                    string[] s = constant.Attribute("Value").Value.Split(' ');
+                    string[] s = constant.Attribute("Value").Value.Split(new char[] { ',', ' ' }, StringSplitOptions.RemoveEmptyEntries);
                     int mult = (s.Length == 3 ? 1 : 0);
                     v.X = s[0 * mult].ToSingle();
                     v.Y = s[1 * mult].ToSingle();
@@ -214,9 +256,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                     break;
 
                 case "float":
-                    v.X = constant.Attribute("Value").Value.ToSingle();
-                    v.Y = constant.Attribute("Value").Value.ToSingle();
-                    v.Z = constant.Attribute("Value").Value.ToSingle();
+                    v.X = v.Y = v.Z = constant.Attribute("Value").Value.ToSingle();
                     break;
 
                 default:
@@ -438,6 +478,51 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             }
 
             return s;
+        }
+    }
+
+    public class VegetationAnimation
+    {
+	    bool bEnabled;
+        Single branchAmplitude;
+        Single detailAmplitude;
+        Single detailFrequency;
+        Single bendScale;
+
+        public static VegetationAnimation CreateFromElement(XElement element)
+        {
+            VegetationAnimation va = new VegetationAnimation();
+
+            foreach (XAttribute attribute in element.Attributes())
+            {
+                switch (attribute.Name.LocalName)
+                {
+                    case "Enabled":
+                        va.bEnabled = (element.Attribute("Enabled").Value.ToLower() == "true");
+                        break;
+
+                    case "BranchAmplitude":
+                        va.branchAmplitude = element.Attribute("BranchAmplitude").Value.ToSingle();
+                        break;
+
+                    case "DetailAmplitude":
+                        va.detailAmplitude = element.Attribute("DetailAmplitude").Value.ToSingle();
+                        break;
+
+                    case "DetailFrequency":
+                        va.detailFrequency = element.Attribute("DetailFrequency").Value.ToSingle();
+                        break;
+
+                    case "BendScale":
+                        va.bendScale = element.Attribute("BendScale").Value.ToSingle();
+                        break;
+
+                    default:
+                        throw new NotImplementedException(string.Format("Unknown Attribute: {0}", attribute.Name.LocalName));
+                }
+            }
+
+            return va;
         }
     }
 }

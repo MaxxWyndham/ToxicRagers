@@ -9,7 +9,8 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats.Materials
     public class glow_simple_norm_spec_env_base : MT2
     {
         // Uses:
-        // Multiplier, DoubleSided, TextureCoordSource, Panickable, FogEnabled, NeedsWorldLightDir
+        // Multiplier, DoubleSided, TextureCoordSource, Sampler, Panickable, FogEnabled
+        // NeedsWorldLightDir, NeedsWorldSpaceVertexNormal, NeedsWorldEyePos, NeedsWorldVertexPos, NeedsLightingSpaceVertexNormal, NeedsVertexColour;
 
         string normal;
         string specular;
