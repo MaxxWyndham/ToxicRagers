@@ -69,6 +69,8 @@
     <Compile Include="CarmageddonReincarnation\Formats\crStructureXML.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\crSystemsDamageXML.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\crVehicleSetupCFG.cs" />
+    <Compile Include="CarmageddonReincarnation\Formats\Materials\glass_base.cs" />
+    <Compile Include="CarmageddonReincarnation\Formats\Materials\glow_simple_norm_spec_env_base.cs" />
     <Compile Include="CarmageddonReincarnation\Helpers\DocumentParser.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\crAccessoryTXT.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\crLIGHT.cs" />
