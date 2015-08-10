@@ -70,6 +70,7 @@
     <Compile Include="CarmageddonReincarnation\Formats\crSystemsDamageXML.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\crVehicleSetupCFG.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\Materials\car_shader_base.cs" />
+    <Compile Include="CarmageddonReincarnation\Formats\Materials\car_shader_base2.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\Materials\car_shader_no_normals_base.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\Materials\decal_base.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\Materials\effects_fluid.cs" />
