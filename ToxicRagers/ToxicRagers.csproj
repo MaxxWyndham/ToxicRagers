@@ -84,6 +84,7 @@
     <Compile Include="CarmageddonReincarnation\Formats\Materials\unlit_1bit_base.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\Materials\unlit_base.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\Materials\vertex_norm_spec_env_base.cs" />
+    <Compile Include="CarmageddonReincarnation\Formats\Materials\water_base.cs" />
     <Compile Include="CarmageddonReincarnation\Helpers\DocumentParser.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\crAccessoryTXT.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\crLIGHT.cs" />

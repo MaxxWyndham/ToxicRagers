@@ -289,7 +289,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                 {
                     mt2 = (MT2)Activator.CreateInstance(Type.GetType("ToxicRagers.CarmageddonReincarnation.Formats.Materials." + basedOffOf, true, true), mt2.xml);
 
-                    if (basedOffOf.ToLower() == "unlit_1bit_base")
+                    if (basedOffOf.ToLower() == "water_base")
                     {
                         Logger.LogToFile(Logger.LogLevel.Info, path);
                         //Logger.LogToFile(Logger.LogLevel.Info, mt2.ToString());
