@@ -76,6 +76,7 @@
     <Compile Include="CarmageddonReincarnation\Formats\Materials\simple_norm_base.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\Materials\simple_norm_spec_1bit_env_base.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\Materials\simple_norm_spec_env_base.cs" />
+    <Compile Include="CarmageddonReincarnation\Formats\Materials\simple_norm_spec_env_base_A.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\Materials\simple_norm_spec_env_blend_base.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\Materials\simple_spec_base.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\Materials\unlit_base.cs" />
