@@ -31,6 +31,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
         protected bool bNeedsLightingSpaceVertexNormal;
         protected bool bNeedsVertexColour;
         protected bool bNeedsLocalCubeMap;
+        protected bool bNeedsSeperateObjectColour;
 
         protected string diffuse;
         protected string substance;
@@ -139,6 +140,12 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             set { bNeedsLocalCubeMap = value; }
         }
 
+        public bool NeedsSeperateObjectColour
+        {
+            get { return bNeedsSeperateObjectColour; }
+            set { bNeedsSeperateObjectColour = value; }
+        }
+
         public bool Panickable
         {
             get { return bPanickable; }
@@ -221,6 +228,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             var needLSVN = xml.Descendants("NeedsLightingSpaceVertexNormal").FirstOrDefault();
             var needVC = xml.Descendants("NeedsVertexColour").FirstOrDefault();
             var needLCM = xml.Descendants("NeedsLocalCubeMap").FirstOrDefault();
+            var needSOC = xml.Descendants("NeedsSeperateObjectColour").FirstOrDefault();
 
             if (dblSided != null) { bDoubleSided = (dblSided.Attribute("Value").Value.ToLower() == "true"); }
             if (castsShads != null) { bCastsShadows = (castsShads.Attribute("Value").Value.ToLower() == "true"); }
@@ -238,6 +246,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             if (needLSVN != null) { bNeedsLightingSpaceVertexNormal = (needLSVN.Attribute("Value").Value.ToLower() == "true"); }
             if (needVC != null) { bNeedsVertexColour = (needVC.Attribute("Value").Value.ToLower() == "true"); }
             if (needLCM != null) { bNeedsLocalCubeMap = (needLCM.Attribute("Value").Value.ToLower() == "true"); }
+            if (needSOC != null) { bNeedsSeperateObjectColour = (needSOC.Attribute("Value").Value.ToLower() == "true"); }
 
             var mult = xml.Descendants("Constant").Where(e => e.Attribute("Alias").Value == "Multiplier").FirstOrDefault();
             var emml = xml.Descendants("Constant").Where(e => e.Attribute("Alias").Value == "EmissiveLight").FirstOrDefault();
@@ -289,7 +298,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                 {
                     mt2 = (MT2)Activator.CreateInstance(Type.GetType("ToxicRagers.CarmageddonReincarnation.Formats.Materials." + basedOffOf, true, true), mt2.xml);
 
-                    if (basedOffOf.ToLower() == "car_shader_no_normals_base")
+                    if (basedOffOf.ToLower() == "simple_additive_base")
                     {
                         Logger.LogToFile(Logger.LogLevel.Info, path);
                         //Logger.LogToFile(Logger.LogLevel.Info, mt2.ToString());

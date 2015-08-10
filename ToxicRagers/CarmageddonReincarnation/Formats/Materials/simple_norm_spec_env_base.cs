@@ -10,7 +10,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats.Materials
     {
         // Uses:
         // DoubleSided, Translucent, Walkable, Panickable, CastsShadows
-        // NeedsVertexColour, NeedsWorldSpaceVertexNormal, NeedsWorldEyePos, NeedsWorldVertexPos, NeedsWorldLightDir, NeedsLightingSpaceVertexNormal, NeedsLocalCubeMap
+        // NeedsVertexColour, NeedsWorldSpaceVertexNormal, NeedsWorldEyePos, NeedsWorldVertexPos, NeedsWorldLightDir, NeedsLightingSpaceVertexNormal, NeedsLocalCubeMap, NeedsSeperateObjectColour
         // Multiplier, Emissive_Colour, EmissiveLight, ReflectionBluryness, ReflectionMultiplier, Fresnel_R0
 
         string normal;
@@ -18,7 +18,6 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats.Materials
         string cubeMap;
         bool bDirectionSet;
         Single directionAngle;
-        bool bNeedsSeperateObjectColour;
 
         public string Normal_Map
         {
@@ -50,12 +49,6 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats.Materials
             set { directionAngle = value; }
         }
 
-        public bool NeedsSeperateObjectColour
-        {
-            get { return bNeedsSeperateObjectColour; }
-            set { bNeedsSeperateObjectColour = value; }
-        }
-
         public simple_norm_spec_env_base(XElement xml)
             : base(xml)
         {
@@ -65,7 +58,6 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats.Materials
             var cube = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "EnvironmentCube").FirstOrDefault();
             var dset = xml.Descendants("DirectionSet").FirstOrDefault();
             var dang = xml.Descendants("DirectionAngle").FirstOrDefault();
-            var needSOC = xml.Descendants("NeedsSeperateObjectColour").FirstOrDefault();
 
             if (diff != null) { diffuse = diff.Attribute("FileName").Value; }
             if (norm != null) { normal = norm.Attribute("FileName").Value; }
@@ -73,7 +65,6 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats.Materials
             if (cube != null) { cubeMap = cube.Attribute("FileName").Value; }
             if (dset != null) { bDirectionSet = (dset.Attribute("Value").Value.ToLower() == "true"); }
             if (dang != null) { directionAngle = dang.Attribute("Value").Value.ToSingle(); }
-            if (needSOC != null) { bNeedsSeperateObjectColour = (needSOC.Attribute("Value").Value.ToLower() == "true"); }
         }
     }
 }
