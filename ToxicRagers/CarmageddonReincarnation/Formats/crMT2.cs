@@ -40,6 +40,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
         protected List<TextureCoordSource> textureCoordSources;
         protected List<Sampler> samplers;
 
+        protected Vector3 alphaCutOff;
         protected Vector3 multiplier;
         protected Vector3 emissiveLight;
         protected Vector3 emissiveFactor;
@@ -150,6 +151,12 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             set { diffuse = value; }
         }
 
+        public Single AlphaCutOff
+        {
+            get { return alphaCutOff.X; }
+            set { alphaCutOff.X = value; }
+        }
+
         public Vector3 Multiplier
         {
             get { return multiplier; }
@@ -239,6 +246,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             var refm = xml.Descendants("Constant").Where(e => e.Attribute("Alias").Value == "ReflectionMultiplier").FirstOrDefault();
             var fres = xml.Descendants("Constant").Where(e => e.Attribute("Alias").Value == "Fresnel_R0").FirstOrDefault();
             var refb = xml.Descendants("Constant").Where(e => e.Attribute("Alias").Value == "ReflectionBluryness").FirstOrDefault();
+            var alph = xml.Descendants("Constant").Where(e => e.Attribute("Alias").Value == "AlphaCutOff").FirstOrDefault();
             
             if (mult != null) { multiplier = ReadConstant(mult); }
             if (emml != null) { emissiveLight = ReadConstant(emml); }
@@ -247,6 +255,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             if (refm != null) { reflectionMultiplier = ReadConstant(refm); }
             if (fres != null) { fresnelR0 = ReadConstant(fres); }
             if (refb != null) { reflectionBluryness = ReadConstant(refb); }
+            if (alph != null) { alphaCutOff = ReadConstant(alph); }
 
             var vegetation = xml.Descendants("VegetationAnimation").FirstOrDefault();
 
@@ -280,7 +289,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                 {
                     mt2 = (MT2)Activator.CreateInstance(Type.GetType("ToxicRagers.CarmageddonReincarnation.Formats.Materials." + basedOffOf, true, true), mt2.xml);
 
-                    if (basedOffOf.ToLower() == "glow_in_the_dark_paint")
+                    if (basedOffOf.ToLower() == "unlit_1bit_base")
                     {
                         Logger.LogToFile(Logger.LogLevel.Info, path);
                         //Logger.LogToFile(Logger.LogLevel.Info, mt2.ToString());
