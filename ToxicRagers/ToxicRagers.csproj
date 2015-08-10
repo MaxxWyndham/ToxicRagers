@@ -83,6 +83,7 @@
     <Compile Include="CarmageddonReincarnation\Formats\Materials\simple_additive_base.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\Materials\simple_base.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\Materials\simple_norm_base.cs" />
+    <Compile Include="CarmageddonReincarnation\Formats\Materials\simple_norm_detail_base.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\Materials\simple_norm_spec_1bit_env_base.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\Materials\simple_norm_spec_env_base.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\Materials\simple_norm_spec_env_base_A.cs" />

@@ -65,7 +65,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats.Materials
             var scol = xml.Descendants("Constant").Where(e => e.Attribute("Alias").Value == "SpecColour").FirstOrDefault();
             var spow = xml.Descendants("Constant").Where(e => e.Attribute("Alias").Value == "SpecPower").FirstOrDefault();
 
-            if (diff != null) { diffuse = norm.Attribute("FileName").Value; }
+            if (diff != null) { diffuse = diff.Attribute("FileName").Value; }
             if (nor1 != null) { normal = nor1.Attribute("FileName").Value; }
             if (nor2 != null) { normal2 = nor2.Attribute("FileName").Value; }
             if (nois != null) { noise = nois.Attribute("FileName").Value; }

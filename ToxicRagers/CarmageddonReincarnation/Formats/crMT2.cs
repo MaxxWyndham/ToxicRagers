@@ -296,19 +296,11 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             {
                 string basedOffOf = mt2.xml.Descendants("BasedOffOf").Attributes("Name").First().Value;
 
-                try
-                {
-                    mt2 = (MT2)Activator.CreateInstance(Type.GetType("ToxicRagers.CarmageddonReincarnation.Formats.Materials." + basedOffOf, true, true), mt2.xml);
+                mt2 = (MT2)Activator.CreateInstance(Type.GetType("ToxicRagers.CarmageddonReincarnation.Formats.Materials." + basedOffOf, true, true), mt2.xml);
 
-                    if (basedOffOf.ToLower() == "effects_fluid")
-                    {
-                        Logger.LogToFile(Logger.LogLevel.Info, path);
-                        //Logger.LogToFile(Logger.LogLevel.Info, mt2.ToString());
-                    }
-                }
-                catch
+                if (basedOffOf.ToLower() == "simple_norm_detail_base")
                 {
-                    return null;
+                    Logger.LogToFile(Logger.LogLevel.Info, path);
                 }
             }
 
