@@ -72,6 +72,7 @@
     <Compile Include="CarmageddonReincarnation\Formats\Materials\car_shader_base.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\Materials\car_shader_no_normals_base.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\Materials\decal_base.cs" />
+    <Compile Include="CarmageddonReincarnation\Formats\Materials\effects_fluid.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\Materials\fog.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\Materials\glass_base.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\Materials\glow_in_the_dark_paint.cs" />
