@@ -69,6 +69,7 @@
     <Compile Include="CarmageddonReincarnation\Formats\crStructureXML.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\crSystemsDamageXML.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\crVehicleSetupCFG.cs" />
+    <Compile Include="CarmageddonReincarnation\Formats\Materials\car_shader_no_normals_base.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\Materials\glass_base.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\Materials\glow_in_the_dark_paint.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\Materials\glow_simple_norm_spec_env_base.cs" />
