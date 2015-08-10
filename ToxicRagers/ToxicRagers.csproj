@@ -71,6 +71,7 @@
     <Compile Include="CarmageddonReincarnation\Formats\crVehicleSetupCFG.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\Materials\glass_base.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\Materials\glow_simple_norm_spec_env_base.cs" />
+    <Compile Include="CarmageddonReincarnation\Formats\Materials\glow_simple_norm_spec_env_base_A.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\Materials\simple_norm_base.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\Materials\simple_norm_spec_1bit_env_base.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\Materials\simple_norm_spec_env_base.cs" />
