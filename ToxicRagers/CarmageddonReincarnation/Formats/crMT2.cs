@@ -22,6 +22,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
         protected bool bWalkable;
         protected bool bPanickable;
         protected bool bSitable;
+        protected bool bUnpickable;
 
         protected bool bNeedsWorldLightDir;
         protected bool bNeedsWorldSpaceVertexNormal;
@@ -40,7 +41,11 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
         protected Vector3 multiplier;
         protected Vector3 emissiveLight;
+        protected Vector3 emissiveFactor;
+        protected Vector3 emissiveColour;
         protected Vector3 reflectionMultiplier;
+        protected Vector3 reflectionBluryness;
+        protected Vector3 fresnelR0;
 
         public bool DoubleSided
         {
@@ -76,6 +81,12 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
         {
             get { return bSitable; }
             set { bSitable = value; }
+        }
+
+        public bool Unpickable
+        {
+            get { return bUnpickable; }
+            set { bUnpickable = value; }
         }
 
         public bool FogEnabled
@@ -144,10 +155,34 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             set { multiplier = value; }
         }
 
+        public Single EmissiveFactor
+        {
+            get { return emissiveFactor.X; }
+            set { emissiveFactor.X = value; }
+        }
+
+        public Vector3 Emissive_Colour
+        {
+            get { return emissiveColour; }
+            set { emissiveColour = value; }
+        }
+
+        public Single ReflectionBluryness
+        {
+            get { return reflectionBluryness.X; }
+            set { reflectionBluryness.X = value; }
+        }
+
         public Vector3 ReflectionMultiplier
         {
             get { return multiplier; }
             set { multiplier = value; }
+        }
+
+        public Single Fresnel_R0
+        {
+            get { return fresnelR0.X; }
+            set { fresnelR0.X = value; }
         }
 
         public MT2(XElement xml)
@@ -164,6 +199,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             var walk = xml.Descendants("Walkable").FirstOrDefault();
             var panic = xml.Descendants("Panickable").FirstOrDefault();
             var sit = xml.Descendants("Sitable").FirstOrDefault();
+            var pick = xml.Descendants("Unpickable").FirstOrDefault();
             var needWSVN = xml.Descendants("NeedsWorldSpaceVertexNormal").FirstOrDefault();
             var needWEP = xml.Descendants("NeedsWorldEyePos").FirstOrDefault();
             var needWVP = xml.Descendants("NeedsWorldVertexPos").FirstOrDefault();
@@ -179,6 +215,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             if (walk != null) { bWalkable = (walk.Attribute("Value").Value.ToLower() == "true"); }
             if (panic != null) { bPanickable = (panic.Attribute("Value").Value.ToLower() == "true"); }
             if (sit != null) { bSitable = (sit.Attribute("Value").Value.ToLower() == "true"); }
+            if (pick != null) { bUnpickable = (pick.Attribute("Value").Value.ToLower() == "true"); }
             if (needWSVN != null) { bNeedsWorldSpaceVertexNormal = (needWSVN.Attribute("Value").Value.ToLower() == "true"); }
             if (needWEP != null) { bNeedsWorldEyePos = (needWEP.Attribute("Value").Value.ToLower() == "true"); }
             if (needWVP != null) { bNeedsWorldVertexPos = (needWVP.Attribute("Value").Value.ToLower() == "true"); }
@@ -187,12 +224,20 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             if (needVC != null) { bNeedsVertexColour = (needVC.Attribute("Value").Value.ToLower() == "true"); }
 
             var mult = xml.Descendants("Constant").Where(e => e.Attribute("Alias").Value == "Multiplier").FirstOrDefault();
-            var emmi = xml.Descendants("Constant").Where(e => e.Attribute("Alias").Value == "EmissiveLight").FirstOrDefault();
-            var refl = xml.Descendants("Constant").Where(e => e.Attribute("Alias").Value == "ReflectionMultiplier").FirstOrDefault();
-
+            var emml = xml.Descendants("Constant").Where(e => e.Attribute("Alias").Value == "EmissiveLight").FirstOrDefault();
+            var emmf = xml.Descendants("Constant").Where(e => e.Attribute("Alias").Value == "EmissiveFactor").FirstOrDefault();
+            var emmc = xml.Descendants("Constant").Where(e => e.Attribute("Alias").Value == "Emissive_Colour").FirstOrDefault();
+            var refm = xml.Descendants("Constant").Where(e => e.Attribute("Alias").Value == "ReflectionMultiplier").FirstOrDefault();
+            var fres = xml.Descendants("Constant").Where(e => e.Attribute("Alias").Value == "Fresnel_R0").FirstOrDefault();
+            var refb = xml.Descendants("Constant").Where(e => e.Attribute("Alias").Value == "ReflectionBluryness").FirstOrDefault();
+            
             if (mult != null) { multiplier = ReadConstant(mult); }
-            if (emmi != null) { emissiveLight = ReadConstant(emmi); }
-            if (refl != null) { reflectionMultiplier = ReadConstant(refl); }
+            if (emml != null) { emissiveLight = ReadConstant(emml); }
+            if (emmf != null) { emissiveFactor = ReadConstant(emmf); }
+            if (emmc != null) { emissiveColour = ReadConstant(emmc); }
+            if (refm != null) { reflectionMultiplier = ReadConstant(refm); }
+            if (fres != null) { fresnelR0 = ReadConstant(fres); }
+            if (refb != null) { reflectionBluryness = ReadConstant(refb); }
 
             var vegetation = xml.Descendants("VegetationAnimation").FirstOrDefault();
 
@@ -226,7 +271,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                 {
                     mt2 = (MT2)Activator.CreateInstance(Type.GetType("ToxicRagers.CarmageddonReincarnation.Formats.Materials." + basedOffOf, true, true), mt2.xml);
 
-                    if (basedOffOf.ToLower() == "simple_norm_spec_1bit_env_base")
+                    if (basedOffOf.ToLower() == "simple_norm_spec_env_base")
                     {
                         Logger.LogToFile(Logger.LogLevel.Info, path);
                         //Logger.LogToFile(Logger.LogLevel.Info, mt2.ToString());

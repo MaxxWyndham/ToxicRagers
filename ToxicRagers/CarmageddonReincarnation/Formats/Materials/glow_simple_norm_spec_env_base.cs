@@ -9,30 +9,22 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats.Materials
     public class glow_simple_norm_spec_env_base : MT2
     {
         // Uses:
-        // Multiplier, DoubleSided, TextureCoordSource, Sampler, Panickable, FogEnabled
+        // Multiplier, DoubleSided, TextureCoordSource, Sampler, Panickable, FogEnabled, EmissiveFactor
         // NeedsWorldLightDir, NeedsWorldSpaceVertexNormal, NeedsWorldEyePos, NeedsWorldVertexPos, NeedsLightingSpaceVertexNormal, NeedsVertexColour;
 
         string normal;
         string specular;
 
-        Vector3 emissiveFactor;
-
-        public string NormalMap
+        public string Normal_Map
         {
             get { return normal; }
             set { normal = value; }
         }
 
-        public string SpecMap
+        public string Spec_Map
         {
             get { return specular; }
             set { specular = value; }
-        }
-
-        public Single EmissiveFactor
-        {
-            get { return emissiveFactor.X; }
-            set { emissiveFactor.X = value; }
         }
 
         public glow_simple_norm_spec_env_base(XElement xml)
@@ -41,12 +33,10 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats.Materials
             var diff = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "DiffuseColour").FirstOrDefault();
             var norm = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "Normal_Map").FirstOrDefault();
             var spec = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "Spec_Map").FirstOrDefault();
-            var emmi = xml.Descendants("Constant").Where(e => e.Attribute("Alias").Value == "EmissiveFactor").FirstOrDefault();
 
             if (diff != null) { diffuse = diff.Attribute("FileName").Value; }
             if (norm != null) { normal = norm.Attribute("FileName").Value; }
             if (spec != null) { specular = spec.Attribute("FileName").Value; }
-            if (emmi != null) { emissiveFactor = ReadConstant(emmi); }
         }
 
         public override string ToString()

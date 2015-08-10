@@ -17,13 +17,13 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats.Materials
         Vector3 alphaCutOff;
         Vector3 transmissiveFactor;
 
-        public string NormalMap
+        public string Normal_Map
         {
             get { return normal; }
             set { normal = value; }
         }
 
-        public string SpecMap
+        public string Spec_Map
         {
             get { return specular; }
             set { specular = value; }
