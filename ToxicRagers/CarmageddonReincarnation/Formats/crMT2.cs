@@ -298,7 +298,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                 {
                     mt2 = (MT2)Activator.CreateInstance(Type.GetType("ToxicRagers.CarmageddonReincarnation.Formats.Materials." + basedOffOf, true, true), mt2.xml);
 
-                    if (basedOffOf.ToLower() == "fog")
+                    if (basedOffOf.ToLower() == "decal_base")
                     {
                         Logger.LogToFile(Logger.LogLevel.Info, path);
                         //Logger.LogToFile(Logger.LogLevel.Info, mt2.ToString());
@@ -320,11 +320,22 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             switch (constant.Attribute("Type").Value.ToLower())
             {
                 case "float3":
-                    string[] s = constant.Attribute("Value").Value.Split(new char[] { ',', ' ' }, StringSplitOptions.RemoveEmptyEntries);
-                    int mult = (s.Length == 3 ? 1 : 0);
-                    v.X = s[0 * mult].ToSingle();
-                    v.Y = s[1 * mult].ToSingle();
-                    v.Z = s[2 * mult].ToSingle();
+                    {
+                        string[] s = constant.Attribute("Value").Value.Split(new char[] { ',', ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                        int mult = (s.Length == 3 ? 1 : 0);
+                        v.X = s[0 * mult].ToSingle();
+                        v.Y = s[1 * mult].ToSingle();
+                        v.Z = s[2 * mult].ToSingle();
+                    }
+                    break;
+
+                case "float2":
+                    {
+                        string[] s = constant.Attribute("Value").Value.Split(new char[] { ',', ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                        int mult = (s.Length == 2 ? 1 : 0);
+                        v.X = s[0 * mult].ToSingle();
+                        v.Y = s[1 * mult].ToSingle();
+                    }
                     break;
 
                 case "float":
