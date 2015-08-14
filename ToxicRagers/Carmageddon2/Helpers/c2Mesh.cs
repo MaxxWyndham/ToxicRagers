@@ -11,7 +11,7 @@ namespace ToxicRagers.Carmageddon2.Helpers
     {
         public List<string> Materials;
         public List<Vector3> Verts;
-        public List<Vector3> Normals;
+        public Dictionary<int, Vector3> Normals;
         public List<Vector2> UVs;
         public List<c2Face> Faces;
         public MeshExtents Extents;
@@ -220,20 +220,25 @@ namespace ToxicRagers.Carmageddon2.Helpers
                 face.Normal = Vector3.Cross(u, v).Normalised;
             }
 
-            Normals = new List<Vector3>();
+            Normals = new Dictionary<int, Vector3>();
 
             for (int i = 0; i < Verts.Count; i++)
             {
-                Normals.Add(Vector3.Zero);
-
                 foreach (var face in Faces)
                 {
-                    if (face.V1 == i) { Normals[i] += face.Normal; }
-                    if (face.V2 == i) { Normals[i] += face.Normal; }
-                    if (face.V3 == i) { Normals[i] += face.Normal; }
-                }
+                    int index = (face.SmoothingGroup << 8);
 
-                Normals[i] = Normals[i].Normalised;
+                    if (face.V1 == i) { if (Normals.ContainsKey(index + i)) { Normals[index + i] += face.Normal; } else { Normals[index + i] = face.Normal; } }
+                    if (face.V2 == i) { if (Normals.ContainsKey(index + i)) { Normals[index + i] += face.Normal; } else { Normals[index + i] = face.Normal; } }
+                    if (face.V3 == i) { if (Normals.ContainsKey(index + i)) { Normals[index + i] += face.Normal; } else { Normals[index + i] = face.Normal; } }
+                }
+            }
+
+            int[] keys = new int[Normals.Count];
+            Normals.Keys.CopyTo(keys, 0);
+            foreach (int key in keys)
+            {
+                Normals[key] = Normals[key].Normalised;
             }
         }
 
