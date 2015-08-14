@@ -145,19 +145,20 @@ namespace ToxicRagers.Stainless.Formats
                 {
                     basic = BasicFlags.Compressed;
 
-                    if (this.planes.Any(p => p.Method == CompressionMethod.Huffman))
+                    if (this.planes.Any(p => p.Method == CompressionMethod.RLE && p.PoorCompression))
                     {
-                        if (this.planes.Any(p => p.Method == CompressionMethod.RLE && p.PoorCompression))
-                        {
-                            Parallel.ForEach(
-                                this.planes,
-                                p =>
-                                {
-                                    p.Compress(CompressionMethod.Huffman);
-                                }
-                            );
-                        }
+                        Parallel.ForEach(
+                            this.planes,
+                            p =>
+                            {
+                                p.Compress(CompressionMethod.Huffman);
+                            }
+                        );
 
+                        compression = AdvancedFlags.Huffman;
+                    }
+                    else if (this.planes.Any(p => p.Method == CompressionMethod.Huffman))
+                    {
                         compression = AdvancedFlags.Huffman;
                     }
 
