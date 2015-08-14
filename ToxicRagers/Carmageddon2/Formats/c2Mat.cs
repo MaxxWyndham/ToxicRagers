@@ -38,60 +38,55 @@ namespace ToxicRagers.Carmageddon2.Formats
 
                     switch (tag)
                     {
-                        case 4:
+                        case 0x4:
                             // C1 mat file
                             M = new MATMaterial();
 
-                            br.ReadByte(); // R
-                            br.ReadByte(); // G
-                            br.ReadByte(); // B
-                            br.ReadByte(); // A
-                            br.ReadSingle(); // Emissive Colour
-                            br.ReadSingle(); // Directional
-                            br.ReadSingle(); // Specular Colour
-                            br.ReadSingle(); // Specular Power
+                            M.DiffuseColour[0] = br.ReadByte(); // R
+                            M.DiffuseColour[1] = br.ReadByte(); // G
+                            M.DiffuseColour[2] = br.ReadByte(); // B
+                            M.DiffuseColour[3] = br.ReadByte(); // A
+                            M.AmbientLighting = br.ReadSingle();
+                            M.DirectionalLighting = br.ReadSingle();
+                            M.SpecularLighting = br.ReadSingle();
+                            M.SpecularPower = br.ReadSingle();
                             M.SetFlags((int)br.ReadUInt16()); // Flags
                             if (M.GetFlag(MATMaterial.Settings.UnknownSetting) || M.GetFlag(MATMaterial.Settings.IFromV) || M.GetFlag(MATMaterial.Settings.UFromI) || M.GetFlag(MATMaterial.Settings.VFromI)) { bDebug = true; }
                             M.UVMatrix = new Matrix2D(br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
                             byte x1 = br.ReadByte(); // ??
                             byte x2 = br.ReadByte(); // ??
                             M.Name = br.ReadString();
-                            //Console.WriteLine(Path + "\t" + M.Name + "\t" + x1 + "\t" + x2);
 
                             if (bDebug) { Console.WriteLine(path + " :: " + M.Name); bDebug = false; }
                             break;
 
-                        case 60:
+                        case 0x3c:
                             M = new MATMaterial();
 
-                            br.ReadByte(); // R
-                            br.ReadByte(); // G
-                            br.ReadByte(); // B
-                            br.ReadByte(); // A
-                            br.ReadSingle(); // Emissive Colour
-                            br.ReadSingle(); // Directional
-                            br.ReadSingle(); // Specular Colour
-                            br.ReadSingle(); // Specular Power
+                            M.DiffuseColour[0] = br.ReadByte(); // R
+                            M.DiffuseColour[1] = br.ReadByte(); // G
+                            M.DiffuseColour[2] = br.ReadByte(); // B
+                            M.DiffuseColour[3] = br.ReadByte(); // A
+                            M.AmbientLighting = br.ReadSingle();
+                            M.DirectionalLighting = br.ReadSingle();
+                            M.SpecularLighting = br.ReadSingle();
+                            M.SpecularPower = br.ReadSingle();
                             M.SetFlags((int)br.ReadUInt32()); // Flags
                             M.UVMatrix = new Matrix2D(br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
                             if (br.ReadUInt32() != 169803776) { Console.WriteLine("Weird Beard! (" + path + ")"); }
-                             br.ReadBytes(13); // 13 bytes of nothing
+                            br.ReadBytes(13); // 13 bytes of nothing
                             M.Name = br.ReadString();
                             break;
 
-                        case 28:
+                        case 0x1c:
                             M.Texture = br.ReadString();
-                            //Tif t = new Tif(Path.Substring(0, Path.LastIndexOf("\\")) + "\\tiffrgb\\" + M.Texture + ".tif");
-                            //M.TextureData = t.GetPixelData();
-                            //M.Width = t.ImageWidth;
-                            //M.Height = t.ImageHeight;
                             break;
 
-                        case 31:
+                        case 0x1f:
                             string s = br.ReadString(); // shadetable
                             break;
 
-                        case 0:
+                        case 0x0:
                             mat.materials.Add(M);
                             break;
 
@@ -99,40 +94,6 @@ namespace ToxicRagers.Carmageddon2.Formats
                             Logger.LogToFile(Logger.LogLevel.Error, "Unknown MAT tag: {0} ({1})", tag, br.BaseStream.Position.ToString("X"));
                             return null;
                     }
-                    //if (ReadUInt32(br) != 60) { break; }
-                    //int Length = (int)ReadUInt32(br) - 67; // Length of material name
-
-                    //materialContent = new BasicMaterialContent();
-
-                    //materialContent.DiffuseColor = new Vector3(br.ReadByte(), br.ReadByte(), br.ReadByte()); materialContent.DiffuseColor = null;
-                    //materialContent.Alpha = br.ReadByte();
-                    //materialContent.EmissiveColor = Color.White.ToVector3() * ReadSingle(br);
-                    //ReadSingle(br); // Directional
-                    //materialContent.SpecularColor = Color.White.ToVector3() * ReadSingle(br);
-                    //materialContent.SpecularPower = ReadSingle(br);
-                    //ReadUInt32(br); // Flags, don't know what to do with these yet
-                    //ReadSingle(br); // Xx
-                    //ReadSingle(br); // Yx
-                    //ReadSingle(br); // Xy - 2d transformation matrix, again, no idea how this is useful
-                    //ReadSingle(br); // Yy
-                    //ReadSingle(br); // Px
-                    //ReadSingle(br); // Py
-                    //ReadUInt32(br);
-                    //br.ReadBytes(13); // 13 pointless bytes of nothing
-                    //materialContent.Name = ToString(br.ReadChars(Length));
-                    //if (ReadUInt32(br) != 28) { break; }
-                    //Length = (int)ReadUInt32(br);
-                    //materialContent.Texture = new ExternalReference<TextureContent>("tiffrgb\\" + ToString(br.ReadChars(Length)) + ".tif", rootNode.Identity);
-
-                    //if (ReadUInt32(br) == 0 && ReadUInt32(br) == 0)
-                    //{
-                    //    if (!materials.ContainsKey(materialContent.Name)) { materials.Add(materialContent.Name, materialContent); }
-                    //}
-                    //else
-                    //{
-                    //    Log("Something has gone horribly wrong");
-                    //    br.BaseStream.Position = br.BaseStream.Length;
-                    //}
                 }
             }
 
