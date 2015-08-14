@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Text;
+
 using ToxicRagers.Helpers;
 
 namespace ToxicRagers.Carmageddon.Formats
@@ -67,7 +70,7 @@ namespace ToxicRagers.Carmageddon.Formats
 
                     switch (tag)
                     {
-                        case 0x00000003:
+                        case 0x03:
                             pixelmap = new PIXIE();
 
                             pixelmap.Format = (PIXIE.PixelmapFormat)br.ReadByte();
@@ -79,14 +82,25 @@ namespace ToxicRagers.Carmageddon.Formats
                             pixelmap.Name = br.ReadString();
                             break;
 
-                        case 0x00000021:
+                        case 0x21:
                             pixelmap.PixelCount = (int)br.ReadUInt32();
                             pixelmap.PixelSize = (int)br.ReadUInt32();
                             pixelmap.SetData(br.ReadBytes(pixelmap.DataLength));
                             break;
 
-                        case 0x00000000:
+                        case 0x00:
                             pix.pixies.Add(pixelmap);
+                            break;
+
+                        case 0x3d:
+                            pixelmap = new PIXIE();
+
+                            pixelmap.Format = (PIXIE.PixelmapFormat)br.ReadByte();
+                            pixelmap.RowSize = br.ReadUInt16();
+                            pixelmap.Width = br.ReadUInt16();
+                            pixelmap.Height = br.ReadUInt16();
+                            br.ReadBytes(6);
+                            pixelmap.Name = br.ReadString();
                             break;
 
                         default:
@@ -104,7 +118,9 @@ namespace ToxicRagers.Carmageddon.Formats
     {
         public enum PixelmapFormat
         {
-            C1_8bit = 3
+            C1_8bit = 3,
+            C2_16bit = 5,
+            C2_16bitAlpha = 18
         }
 
         string name;
@@ -189,7 +205,7 @@ namespace ToxicRagers.Carmageddon.Formats
 
         public int DataLength
         {
-            get { return height * ActualRowSize; }
+            get { return height * ActualRowSize * pixelSize; }
         }
 
         public void SetData(byte[] data)
@@ -199,7 +215,52 @@ namespace ToxicRagers.Carmageddon.Formats
 
         public Color GetColourAtPixel(int x, int y)
         {
-            return PIX.Palette[data[x + y * ActualRowSize]];
+            switch (format)
+            {
+                case PixelmapFormat.C1_8bit:
+                    return PIX.Palette[data[x + y * ActualRowSize]];
+
+                case PixelmapFormat.C2_16bit:
+                    return ColourHelper.R5G6B5ToColour((data[x + (y * rowSize)] << 8) | data[x + (y * rowSize) + 1]);
+
+                case PixelmapFormat.C2_16bitAlpha:
+                    return ColourHelper.A4R4G4B4ToColour(data[x + (y * rowSize)] << 8 | data[x + (y * rowSize) + 1]);
+            }
+
+            return Color.Pink;
+        }
+
+        public Bitmap GetBitmap()
+        {
+            var bmp = new Bitmap(width, height, PixelFormat.Format32bppArgb);
+            {
+                BitmapData bmpdata = bmp.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.ReadWrite, PixelFormat.Format32bppArgb);
+
+                using (var nms = new MemoryStream())
+                {
+                    for (int y = 0; y < height; y++)
+                    {
+                        for (int x = 0; x < ActualRowSize; x++)
+                        {
+                            var c = GetColourAtPixel(x * pixelSize, y);
+                            nms.WriteByte(c.B);
+                            nms.WriteByte(c.G);
+                            nms.WriteByte(c.R);
+                            nms.WriteByte(c.A);
+                        }
+                    }
+
+                    var contentBuffer = new byte[nms.Length];
+                    nms.Position = 0;
+                    nms.Read(contentBuffer, 0, contentBuffer.Length);
+
+                    Marshal.Copy(contentBuffer, 0, bmpdata.Scan0, contentBuffer.Length);
+                }
+
+                bmp.UnlockBits(bmpdata);
+
+                return bmp;
+            }
         }
     }
 }
