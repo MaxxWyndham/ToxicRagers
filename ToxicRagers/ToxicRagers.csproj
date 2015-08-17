@@ -81,6 +81,7 @@
     <Compile Include="CarmageddonReincarnation\Formats\Materials\glow_simple_norm_spec_env_base.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\Materials\glow_simple_norm_spec_env_base_A.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\Materials\ped_base.cs" />
+    <Compile Include="CarmageddonReincarnation\Formats\Materials\repulse_base.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\Materials\simple_1bit_base.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\Materials\simple_additive_base.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\Materials\simple_base.cs" />
@@ -93,6 +94,7 @@
     <Compile Include="CarmageddonReincarnation\Formats\Materials\simple_norm_spec_env_unlit_base.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\Materials\simple_spec_base.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\Materials\skybox_base.cs" />
+    <Compile Include="CarmageddonReincarnation\Formats\Materials\test_blood_particle_base.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\Materials\unlit_1bit_base.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\Materials\unlit_base.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\Materials\vertex_norm_spec_env_base.cs" />

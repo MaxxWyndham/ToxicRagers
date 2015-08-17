@@ -19,6 +19,24 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats.Materials
             set { normal = value; }
         }
 
+        public Vector3 Diffuse_Colour
+        {
+            get { return diffuseColour; }
+            set { diffuseColour = value; }
+        }
+
+        public Vector3 SpecularColour
+        {
+            get { return specularColour; }
+            set { specularColour = value; }
+        }
+
+        public Vector3 AmbientLight
+        {
+            get { return ambientLight; }
+            set { ambientLight = value; }
+        }
+
         public glow_in_the_dark_paint(XElement xml)
             : base(xml)
         {

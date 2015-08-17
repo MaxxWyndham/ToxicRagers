@@ -10,26 +10,26 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats.Materials
         // DoubleSided
         // ReflectionBluryness, ReflectionMultiplier, Fresnel_R0
 
-        string normals;
-        string decals;
-        string decalsSpec;
+        string normal;
+        string decal;
+        string decalSpec;
 
         public string Normal_Map
         {
-            get { return normals; }
-            set { normals = value; }
+            get { return normal; }
+            set { normal = value; }
         }
 
         public string Decals
         {
-            get { return decals; }
-            set { decals = value; }
+            get { return decal; }
+            set { decal = value; }
         }
 
         public string DecalsSpec
         {
-            get { return decalsSpec; }
-            set { decalsSpec = value; }
+            get { return decalSpec; }
+            set { decalSpec = value; }
         }
 
         public car_shader_no_normals_base(XElement xml)
@@ -39,9 +39,9 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats.Materials
             var deca = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "Decals").FirstOrDefault();
             var decs = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "DecalsSpec").FirstOrDefault();
 
-            if (norm != null) { normals = norm.Attribute("FileName").Value; }
-            if (deca != null) { decals = deca.Attribute("FileName").Value; }
-            if (decs != null) { decalsSpec = decs.Attribute("FileName").Value; }
+            if (norm != null) { normal = norm.Attribute("FileName").Value; }
+            if (deca != null) { decal = deca.Attribute("FileName").Value; }
+            if (decs != null) { decalSpec = decs.Attribute("FileName").Value; }
         }
     }
 }

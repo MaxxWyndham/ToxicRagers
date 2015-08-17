@@ -19,12 +19,21 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats.Materials
         bool bDirectionSet;
         Single directionAngle;
 
+        [Required]
+        public string DiffuseColour
+        {
+            get { return diffuse; }
+            set { diffuse = value; }
+        }
+
+        [Required]
         public string Normal_Map
         {
             get { return normal; }
             set { normal = value; }
         }
 
+        [Required]
         public string Spec_Map
         {
             get { return specular; }
@@ -49,9 +58,63 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats.Materials
             set { directionAngle = value; }
         }
 
+        public simple_norm_spec_env_base() { }
+
         public simple_norm_spec_env_base(XElement xml)
             : base(xml)
         {
+            coreDefaults = new simple_norm_spec_env_base
+            {
+                Translucent = TriStateBool.False,
+
+                NeedsWorldSpaceVertexNormal = TriStateBool.True,
+                NeedsWorldEyePos = TriStateBool.True,
+                NeedsWorldVertexPos = TriStateBool.True,
+                //NEEDS_PER_PIXEL_DIFFUSE_LIGHTING = 1,
+                //NEEDS_PER_PIXEL_DIFFUSE_COLOUR = 1,
+                //NEEDS_PER_PIXEL_SPECULAR_LIGHTING = 1,
+                //NEEDS_PER_PIXEL_EMISSIVE_LIGHTING = 1,
+                NeedsLocalCubeMap = TriStateBool.True,
+                //NEEDS_PER_PIXEL_AMBIENT_LIGHTING = 1,
+                //NEEDS_AMBIENT_LIGHT = 1,
+                NeedsLightingSpaceVertexNormal = TriStateBool.True,
+                //NEEDS_TANGENT_FRAME = 1,
+                ReceivesShadows = TriStateBool.True,
+                FogEnabled = TriStateBool.True,
+                //NEEDS_SPECULAR_MASK = 1,
+                NeedsSeperateObjectColour = TriStateBool.True,
+
+                TextureCoordSources =
+                {
+                    new TextureCoordSource
+                    {
+                        Alias = "Tex0",
+                        UVStream = 0
+                    }
+                },
+
+                Samplers =
+                {
+                    new Sampler 
+                    {
+                        Alias = "SAMPLER_DiffuseColour",
+                        UsageRGB = Sampler.Usage.DiffuseAlbedo,
+                        sRGBRead = true
+                    },
+                    new Sampler 
+                    {
+                        Alias = "SAMPLER_NormalMap",
+                        UsageRGB = Sampler.Usage.TangentSpaceNormals
+                    },
+                    new Sampler 
+                    {
+                        Alias = "SAMPLER_SpecMap",
+                        UsageRGB = Sampler.Usage.SpecColour,
+                        UsageAlpha = Sampler.Usage.SpecPower
+                    }
+                }
+            };
+
             var diff = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "DiffuseColour").FirstOrDefault();
             var norm = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "Normal_Map").FirstOrDefault();
             var spec = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "Spec_Map").FirstOrDefault();

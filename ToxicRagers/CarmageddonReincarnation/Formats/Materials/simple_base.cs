@@ -10,6 +10,14 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats.Materials
         // Walkable
         // EmissiveFactor
 
+        public string DiffuseColour
+        {
+            get { return diffuse; }
+            set { diffuse = value; }
+        }
+
+        public simple_base() : base() { }
+
         public simple_base(XElement xml)
             : base(xml)
         {
