@@ -48,18 +48,18 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats.Materials
         {
             coreDefaults = new glass_base
             {
-                Translucent = TriStateBool.True,
-                DoubleSided = TriStateBool.False,
+                Translucent = Troolean.True,
+                DoubleSided = Troolean.False,
 
-                FogEnabled = TriStateBool.True,
-                NeedsWorldSpaceVertexNormal = TriStateBool.True,
-                NeedsWorldEyePos = TriStateBool.True,
-                NeedsWorldVertexPos = TriStateBool.True,
+                FogEnabled = Troolean.True,
+                NeedsWorldSpaceVertexNormal = Troolean.True,
+                NeedsWorldEyePos = Troolean.True,
+                NeedsWorldVertexPos = Troolean.True,
                 //NEEDS_TANGENT_FRAME = 1,
                 //NEEDS_PER_PIXEL_SPECULAR_LIGHTING = 1,
-                NeedsLocalCubeMap = TriStateBool.True,
+                NeedsLocalCubeMap = Troolean.True,
                 //NEEDS_SPECULAR_MASK = 1,
-                ReceivesShadows = TriStateBool.True,
+                ReceivesShadows = Troolean.True,
                 //IS_THIN_GLASS = 1,
 
                 TextureCoordSources =

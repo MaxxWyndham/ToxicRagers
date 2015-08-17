@@ -10,7 +10,7 @@ using ToxicRagers.Helpers;
 
 namespace ToxicRagers.CarmageddonReincarnation.Formats
 {
-    public enum TriStateBool
+    public enum Troolean
     {
         Unset = -1,
         False = 0,
@@ -26,25 +26,25 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
         protected string name;
         protected string basedOffOf;
 
-        protected TriStateBool bDoubleSided = TriStateBool.Unset;
-        protected TriStateBool bCastsShadows = TriStateBool.Unset;
-        protected TriStateBool bFogEnabled = TriStateBool.Unset;
-        protected TriStateBool bReceivesShadows = TriStateBool.Unset;
-        protected TriStateBool bTranslucent = TriStateBool.Unset;
+        protected Troolean bDoubleSided = Troolean.Unset;
+        protected Troolean bCastsShadows = Troolean.Unset;
+        protected Troolean bFogEnabled = Troolean.Unset;
+        protected Troolean bReceivesShadows = Troolean.Unset;
+        protected Troolean bTranslucent = Troolean.Unset;
 
-        protected TriStateBool bWalkable = TriStateBool.Unset;
-        protected TriStateBool bPanickable = TriStateBool.Unset;
-        protected TriStateBool bSitable = TriStateBool.Unset;
-        protected TriStateBool bUnpickable = TriStateBool.Unset;
+        protected Troolean bWalkable = Troolean.Unset;
+        protected Troolean bPanickable = Troolean.Unset;
+        protected Troolean bSitable = Troolean.Unset;
+        protected Troolean bUnpickable = Troolean.Unset;
 
-        protected TriStateBool bNeedsWorldLightDir = TriStateBool.Unset;
-        protected TriStateBool bNeedsWorldSpaceVertexNormal = TriStateBool.Unset;
-        protected TriStateBool bNeedsWorldEyePos = TriStateBool.Unset;
-        protected TriStateBool bNeedsWorldVertexPos = TriStateBool.Unset;
-        protected TriStateBool bNeedsLightingSpaceVertexNormal = TriStateBool.Unset;
-        protected TriStateBool bNeedsVertexColour = TriStateBool.Unset;
-        protected TriStateBool bNeedsLocalCubeMap = TriStateBool.Unset;
-        protected TriStateBool bNeedsSeperateObjectColour = TriStateBool.Unset;
+        protected Troolean bNeedsWorldLightDir = Troolean.Unset;
+        protected Troolean bNeedsWorldSpaceVertexNormal = Troolean.Unset;
+        protected Troolean bNeedsWorldEyePos = Troolean.Unset;
+        protected Troolean bNeedsWorldVertexPos = Troolean.Unset;
+        protected Troolean bNeedsLightingSpaceVertexNormal = Troolean.Unset;
+        protected Troolean bNeedsVertexColour = Troolean.Unset;
+        protected Troolean bNeedsLocalCubeMap = Troolean.Unset;
+        protected Troolean bNeedsSeperateObjectColour = Troolean.Unset;
 
         protected string diffuse;
         protected string substance;
@@ -90,103 +90,103 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             get { return diffuse; }
         }
 
-        public TriStateBool DoubleSided
+        public Troolean DoubleSided
         {
             get { return bDoubleSided; }
             set { bDoubleSided = value; }
         }
 
-        public TriStateBool CastsShadows
+        public Troolean CastsShadows
         {
             get { return bCastsShadows; }
             set { bCastsShadows = value; }
         }
 
-        public TriStateBool ReceivesShadows
+        public Troolean ReceivesShadows
         {
             get { return bReceivesShadows; }
             set { bReceivesShadows = value; }
         }
 
-        public TriStateBool Translucent
+        public Troolean Translucent
         {
             get { return bTranslucent; }
             set { bTranslucent = value; }
         }
 
-        public TriStateBool Walkable
+        public Troolean Walkable
         {
             get { return bWalkable; }
             set { bWalkable = value; }
         }
 
-        public TriStateBool Sitable
+        public Troolean Sitable
         {
             get { return bSitable; }
             set { bSitable = value; }
         }
 
-        public TriStateBool Unpickable
+        public Troolean Unpickable
         {
             get { return bUnpickable; }
             set { bUnpickable = value; }
         }
 
-        public TriStateBool FogEnabled
+        public Troolean FogEnabled
         {
             get { return bFogEnabled; }
             set { bFogEnabled = value; }
         }
 
-        public TriStateBool NeedsWorldSpaceVertexNormal
+        public Troolean NeedsWorldSpaceVertexNormal
         {
             get { return bNeedsWorldSpaceVertexNormal; }
             set { bNeedsWorldSpaceVertexNormal = value; }
         }
 
-        public TriStateBool NeedsWorldEyePos
+        public Troolean NeedsWorldEyePos
         {
             get { return bNeedsWorldEyePos; }
             set { bNeedsWorldEyePos = value; }
         }
 
-        public TriStateBool NeedsWorldVertexPos
+        public Troolean NeedsWorldVertexPos
         {
             get { return bNeedsWorldVertexPos; }
             set { bNeedsWorldVertexPos = value; }
         }
 
-        public TriStateBool NeedsWorldLightDir
+        public Troolean NeedsWorldLightDir
         {
             get { return bNeedsWorldLightDir; }
             set { bNeedsWorldLightDir = value; }
         }
 
-        public TriStateBool NeedsLightingSpaceVertexNormal
+        public Troolean NeedsLightingSpaceVertexNormal
         {
             get { return bNeedsLightingSpaceVertexNormal; }
             set { bNeedsLightingSpaceVertexNormal = value; }
         }
 
-        public TriStateBool NeedsVertexColour
+        public Troolean NeedsVertexColour
         {
             get { return bNeedsVertexColour; }
             set { bNeedsVertexColour = value; }
         }
 
-        public TriStateBool NeedsLocalCubeMap
+        public Troolean NeedsLocalCubeMap
         {
             get { return bNeedsLocalCubeMap; }
             set { bNeedsLocalCubeMap = value; }
         }
 
-        public TriStateBool NeedsSeperateObjectColour
+        public Troolean NeedsSeperateObjectColour
         {
             get { return bNeedsSeperateObjectColour; }
             set { bNeedsSeperateObjectColour = value; }
         }
 
-        public TriStateBool Panickable
+        public Troolean Panickable
         {
             get { return bPanickable; }
             set { bPanickable = value; }
@@ -283,23 +283,23 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             var needLCM = xml.Descendants("NeedsLocalCubeMap").FirstOrDefault();
             var needSOC = xml.Descendants("NeedsSeperateObjectColour").FirstOrDefault();
 
-            if (dblSided != null) { bDoubleSided = (dblSided.Attribute("Value").Value.ToLower() == "true" ? TriStateBool.True : TriStateBool.False); }
-            if (castsShads != null) { bCastsShadows = (castsShads.Attribute("Value").Value.ToLower() == "true" ? TriStateBool.True : TriStateBool.False); }
-            if (recShads != null) { bReceivesShadows = (recShads.Attribute("Value").Value.ToLower() == "true" ? TriStateBool.True : TriStateBool.False); }
-            if (fog != null) { bFogEnabled = (fog.Attribute("Value").Value.ToLower() == "true" ? TriStateBool.True : TriStateBool.False); }
-            if (trans != null) { bTranslucent = (trans.Attribute("Value").Value.ToLower() == "true" ? TriStateBool.True : TriStateBool.False); }
-            if (walk != null) { bWalkable = (walk.Attribute("Value").Value.ToLower() == "true" ? TriStateBool.True : TriStateBool.False); }
-            if (panic != null) { bPanickable = (panic.Attribute("Value").Value.ToLower() == "true" ? TriStateBool.True : TriStateBool.False); }
-            if (sit != null) { bSitable = (sit.Attribute("Value").Value.ToLower() == "true" ? TriStateBool.True : TriStateBool.False); }
-            if (pick != null) { bUnpickable = (pick.Attribute("Value").Value.ToLower() == "true" ? TriStateBool.True : TriStateBool.False); }
-            if (needWSVN != null) { bNeedsWorldSpaceVertexNormal = (needWSVN.Attribute("Value").Value.ToLower() == "true" ? TriStateBool.True : TriStateBool.False); }
-            if (needWEP != null) { bNeedsWorldEyePos = (needWEP.Attribute("Value").Value.ToLower() == "true" ? TriStateBool.True : TriStateBool.False); }
-            if (needWVP != null) { bNeedsWorldVertexPos = (needWVP.Attribute("Value").Value.ToLower() == "true" ? TriStateBool.True : TriStateBool.False); }
-            if (needWLD != null) { bNeedsWorldLightDir = (needWLD.Attribute("Value").Value.ToLower() == "true" ? TriStateBool.True : TriStateBool.False); }
-            if (needLSVN != null) { bNeedsLightingSpaceVertexNormal = (needLSVN.Attribute("Value").Value.ToLower() == "true" ? TriStateBool.True : TriStateBool.False); }
-            if (needVC != null) { bNeedsVertexColour = (needVC.Attribute("Value").Value.ToLower() == "true" ? TriStateBool.True : TriStateBool.False); }
-            if (needLCM != null) { bNeedsLocalCubeMap = (needLCM.Attribute("Value").Value.ToLower() == "true" ? TriStateBool.True : TriStateBool.False); }
-            if (needSOC != null) { bNeedsSeperateObjectColour = (needSOC.Attribute("Value").Value.ToLower() == "true" ? TriStateBool.True : TriStateBool.False); }
+            if (dblSided != null) { bDoubleSided = (dblSided.Attribute("Value").Value.ToLower() == "true" ? Troolean.True : Troolean.False); }
+            if (castsShads != null) { bCastsShadows = (castsShads.Attribute("Value").Value.ToLower() == "true" ? Troolean.True : Troolean.False); }
+            if (recShads != null) { bReceivesShadows = (recShads.Attribute("Value").Value.ToLower() == "true" ? Troolean.True : Troolean.False); }
+            if (fog != null) { bFogEnabled = (fog.Attribute("Value").Value.ToLower() == "true" ? Troolean.True : Troolean.False); }
+            if (trans != null) { bTranslucent = (trans.Attribute("Value").Value.ToLower() == "true" ? Troolean.True : Troolean.False); }
+            if (walk != null) { bWalkable = (walk.Attribute("Value").Value.ToLower() == "true" ? Troolean.True : Troolean.False); }
+            if (panic != null) { bPanickable = (panic.Attribute("Value").Value.ToLower() == "true" ? Troolean.True : Troolean.False); }
+            if (sit != null) { bSitable = (sit.Attribute("Value").Value.ToLower() == "true" ? Troolean.True : Troolean.False); }
+            if (pick != null) { bUnpickable = (pick.Attribute("Value").Value.ToLower() == "true" ? Troolean.True : Troolean.False); }
+            if (needWSVN != null) { bNeedsWorldSpaceVertexNormal = (needWSVN.Attribute("Value").Value.ToLower() == "true" ? Troolean.True : Troolean.False); }
+            if (needWEP != null) { bNeedsWorldEyePos = (needWEP.Attribute("Value").Value.ToLower() == "true" ? Troolean.True : Troolean.False); }
+            if (needWVP != null) { bNeedsWorldVertexPos = (needWVP.Attribute("Value").Value.ToLower() == "true" ? Troolean.True : Troolean.False); }
+            if (needWLD != null) { bNeedsWorldLightDir = (needWLD.Attribute("Value").Value.ToLower() == "true" ? Troolean.True : Troolean.False); }
+            if (needLSVN != null) { bNeedsLightingSpaceVertexNormal = (needLSVN.Attribute("Value").Value.ToLower() == "true" ? Troolean.True : Troolean.False); }
+            if (needVC != null) { bNeedsVertexColour = (needVC.Attribute("Value").Value.ToLower() == "true" ? Troolean.True : Troolean.False); }
+            if (needLCM != null) { bNeedsLocalCubeMap = (needLCM.Attribute("Value").Value.ToLower() == "true" ? Troolean.True : Troolean.False); }
+            if (needSOC != null) { bNeedsSeperateObjectColour = (needSOC.Attribute("Value").Value.ToLower() == "true" ? Troolean.True : Troolean.False); }
 
             var mult = xml.Descendants("Constant").Where(e => e.Attribute("Alias").Value == "Multiplier").FirstOrDefault();
             var emml = xml.Descendants("Constant").Where(e => e.Attribute("Alias").Value == "EmissiveLight").FirstOrDefault();
@@ -382,7 +382,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                             {
                                 string value = (string)property.GetValue(this, null);
                                 if (value != null && value != (string)property.GetValue(coreDefaults, null))
-                                { 
+                                {
                                     xml.Add(new XElement("Texture",
                                         new XAttribute("Alias", property.Name),
                                         new XAttribute("Value", value.ToString())
@@ -391,10 +391,10 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                             }
                             break;
 
-                        case "TriStateBool":
+                        case "Troolean":
                             {
-                                TriStateBool value = (TriStateBool)property.GetValue(this, null);
-                                if (value != TriStateBool.Unset && value != (TriStateBool)property.GetValue(coreDefaults, null)) { xml.Add(new XElement(property.Name, new XAttribute("Value", value.ToString()))); }
+                                Troolean value = (Troolean)property.GetValue(this, null);
+                                if (value != Troolean.Unset && value != (Troolean)property.GetValue(coreDefaults, null)) { xml.Add(new XElement(property.Name, new XAttribute("Value", value.ToString()))); }
                             }
                             break;
 
@@ -722,7 +722,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
     public class VegetationAnimation
     {
-	    bool bEnabled;
+        bool bEnabled;
         Single branchAmplitude;
         Single detailAmplitude;
         Single detailFrequency;

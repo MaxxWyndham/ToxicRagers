@@ -65,24 +65,24 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats.Materials
         {
             coreDefaults = new simple_norm_spec_env_base
             {
-                Translucent = TriStateBool.False,
+                Translucent = Troolean.False,
 
-                NeedsWorldSpaceVertexNormal = TriStateBool.True,
-                NeedsWorldEyePos = TriStateBool.True,
-                NeedsWorldVertexPos = TriStateBool.True,
+                NeedsWorldSpaceVertexNormal = Troolean.True,
+                NeedsWorldEyePos = Troolean.True,
+                NeedsWorldVertexPos = Troolean.True,
                 //NEEDS_PER_PIXEL_DIFFUSE_LIGHTING = 1,
                 //NEEDS_PER_PIXEL_DIFFUSE_COLOUR = 1,
                 //NEEDS_PER_PIXEL_SPECULAR_LIGHTING = 1,
                 //NEEDS_PER_PIXEL_EMISSIVE_LIGHTING = 1,
-                NeedsLocalCubeMap = TriStateBool.True,
+                NeedsLocalCubeMap = Troolean.True,
                 //NEEDS_PER_PIXEL_AMBIENT_LIGHTING = 1,
                 //NEEDS_AMBIENT_LIGHT = 1,
-                NeedsLightingSpaceVertexNormal = TriStateBool.True,
+                NeedsLightingSpaceVertexNormal = Troolean.True,
                 //NEEDS_TANGENT_FRAME = 1,
-                ReceivesShadows = TriStateBool.True,
-                FogEnabled = TriStateBool.True,
+                ReceivesShadows = Troolean.True,
+                FogEnabled = Troolean.True,
                 //NEEDS_SPECULAR_MASK = 1,
-                NeedsSeperateObjectColour = TriStateBool.True,
+                NeedsSeperateObjectColour = Troolean.True,
 
                 TextureCoordSources =
                 {
