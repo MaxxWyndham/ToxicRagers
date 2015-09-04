@@ -154,7 +154,8 @@ namespace ToxicRagers.Stainless.Formats
             foreach (var file in Directory.GetFiles(path))
             {
                 if (string.Compare(Path.GetExtension(file), ".zad", true) == 0) { continue; }
-                if (string.Compare(Path.GetExtension(file), ".tdx", true) == 0) { continue; }
+                if (string.Compare(Path.GetExtension(file), ".zip", true) == 0) { continue; }
+                if (string.Compare(Path.GetExtension(file), ".img", true) == 0) { continue; }
 
                 ZADEntry entry = new ZADEntry();
                 entry.Data = File.ReadAllBytes(file);
