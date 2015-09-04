@@ -904,6 +904,12 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Y" },
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Z" }
             );
+
+            this.AddMethod(
+                LUACodeBlockMethodType.Set,
+                "ShapeTracking",
+                new LUACodeBlockMethodParameter {  Type = LUACodeBlockMethodParameterType.Boolean, Name = "Value" }
+            );
         }
 
         public static StructureDamageCode Parse(string cdata)
