@@ -656,6 +656,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
         Vector3 shrapnel;
         string localName;
         string paint;
+        int appID;
 
         public string Name
         {
@@ -681,6 +682,12 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             set { paint = value; }
         }
 
+        public int MaterialMapProductID
+        {
+            get { return appID; }
+            set { appID = value; }
+        }
+
         public VehicleMaterialMap(DocumentParser doc)
         {
             this.name = doc.ReadNextLine();
@@ -701,6 +708,10 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
                     case "paint":
                         this.paint = mm[2];
+                        break;
+
+                    case "material_map_product_id":
+                        this.appID = mm[1].ToInt();
                         break;
 
                     default:
