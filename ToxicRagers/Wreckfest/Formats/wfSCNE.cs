@@ -9,12 +9,11 @@ namespace ToxicRagers.Wreckfest.Formats
     // Assumes the file has been decompressed
     public class SCNE
     {
+        List<SCNEBone> bones = new List<SCNEBone>();
 
-        List<SCNEMeshPart> meshes = new List<SCNEMeshPart>();
-
-        public List<SCNEMeshPart> Meshes
+        public List<SCNEBone> Bones
         {
-            get { return meshes; }
+            get { return bones; }
         }
 
         public static SCNE Load(string path)
@@ -28,28 +27,35 @@ namespace ToxicRagers.Wreckfest.Formats
                 while (br.BaseStream.Position < br.BaseStream.Length)
                 {
                     string section = br.ReadString(4);
+                    int unknown;
 
                     switch (section)
                     {
                         case "ldom":
-                            br.ReadUInt32();    // 5
+                            unknown = (int)br.ReadUInt32();
+                            Logger.LogToFile(Logger.LogLevel.Debug, "{0} => {1}", section, unknown);
+
                             int modelCount = (int)br.ReadUInt32();
                             for (int k = 0; k < modelCount; k++)
                             {
-                                br.ReadString((int)br.ReadUInt32());
-                                br.ReadString((int)br.ReadUInt32());
+                                Logger.LogToFile(Logger.LogLevel.Debug, "{0} of {1}", k, modelCount);
+
+                                SCNEBone bone = new SCNEBone();
+                                bone.Name = br.ReadString((int)br.ReadUInt32());
+
+                                string dntpName = br.ReadString((int)br.ReadUInt32());
+                                Logger.LogToFile(Logger.LogLevel.Debug, dntpName);
 
                                 br.ReadString(4);   // ptnd
-                                br.ReadString((int)br.ReadUInt32());
+                                string dntpFile = br.ReadString((int)br.ReadUInt32());
+                                Logger.LogToFile(Logger.LogLevel.Debug, dntpFile);
 
-                                var m = new Matrix4D(
+                                bone.Transform = new Matrix4D(
                                     br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle(),
                                     br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle(),
                                     br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle(),
                                     br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle()
                                 );
-
-                                Logger.LogToFile(Logger.LogLevel.Debug, "{0}", m);
 
                                 new Vector3(br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
                                 new Vector3(br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
@@ -63,7 +69,9 @@ namespace ToxicRagers.Wreckfest.Formats
                                     switch (section)
                                     {
                                         case "hsmp":
-                                            br.ReadUInt32();    // 0
+                                            unknown = (int)br.ReadUInt32();
+                                            Logger.LogToFile(Logger.LogLevel.Debug, "{0} => {1}", section, unknown);
+
                                             count = (int)br.ReadUInt32();
                                             for (int i = 0; i < count; i++)
                                             {
@@ -73,19 +81,29 @@ namespace ToxicRagers.Wreckfest.Formats
                                             break;
 
                                         case "hsem":
-                                            br.ReadUInt32();    // 0
+                                            unknown = (int)br.ReadUInt32();
+                                            Logger.LogToFile(Logger.LogLevel.Debug, "{0} => {1}", section, unknown);
+
                                             int meshCount = (int)br.ReadUInt32();
                                             for (int mi = 0; mi < meshCount; mi++)
                                             {
-                                                br.ReadString((int)br.ReadUInt32());
+                                                Logger.LogToFile(Logger.LogLevel.Debug, "{0} of {1}", mi, meshCount);
 
-                                                if (br.ReadString(4) != "hctb") { throw new InvalidDataException("Expected hctb"); }
+                                                SCNEMesh mesh = new SCNEMesh();
+                                                mesh.Name = br.ReadString((int)br.ReadUInt32());
 
-                                                br.ReadUInt32();    // 2
+                                                Logger.LogToFile(Logger.LogLevel.Debug, mesh.Name);
+
+                                                if ((section = br.ReadString(4)) != "hctb") { throw new InvalidDataException("Expected hctb"); }
+                                                unknown = (int)br.ReadUInt32();
+                                                Logger.LogToFile(Logger.LogLevel.Debug, "{0} => {1}", section, unknown);
+
                                                 int batchCount = (int)br.ReadUInt32();
                                                 for (int bi = 0; bi < batchCount; bi++)
                                                 {
-                                                    SCNEMeshPart mesh = new SCNEMeshPart();
+                                                    Logger.LogToFile(Logger.LogLevel.Debug, "{0} of {1}", bi, batchCount);
+
+                                                    SCNEMeshPart part = new SCNEMeshPart();
 
                                                     br.ReadUInt32();    // 0
                                                     br.ReadUInt32();    // 0
@@ -98,86 +116,103 @@ namespace ToxicRagers.Wreckfest.Formats
                                                     br.ReadSingle();
                                                     br.ReadSingle();
 
-                                                    if (br.ReadString(4) != "lrtm") { throw new InvalidDataException("Expected lrtm"); }
+                                                    if ((section = br.ReadString(4)) != "lrtm") { throw new InvalidDataException("Expected lrtm"); }
+                                                    unknown = (int)br.ReadUInt32();
+                                                    Logger.LogToFile(Logger.LogLevel.Debug, "{0} => {1}", section, unknown);
 
-                                                    br.ReadUInt32();    // 6
-                                                    br.ReadUInt32();    // 1
-                                                    br.ReadString((int)br.ReadUInt32());
-                                                    br.ReadUInt32();    // 0x37
-                                                    br.ReadSingle();
-                                                    br.ReadSingle();
-                                                    br.ReadSingle();
-                                                    for (int i = 0; i < 10; i++) { br.ReadUInt32(); } // 0
+                                                    count = (int)br.ReadUInt32();
+                                                    for (int i = 0; i < count; i++)
+                                                    {
+                                                        Logger.LogToFile(Logger.LogLevel.Debug, "{0} of {1}", i, count);
 
-                                                    if (br.ReadString(4) != "rtxt") { throw new InvalidDataException("Expected rtxt"); }
+                                                        part.Materials.Add(br.ReadString((int)br.ReadUInt32()));
 
-                                                    br.ReadUInt32();    // 0
+                                                        br.ReadUInt32();    // 0x37
+                                                        br.ReadSingle();
+                                                        br.ReadSingle();
+                                                        br.ReadSingle();
+                                                        for (int j = 0; j < 10; j++) { br.ReadUInt32(); } // 0
+                                                    }
+
+                                                    if ((section = br.ReadString(4)) != "rtxt") { throw new InvalidDataException("Expected rtxt"); }
+                                                    unknown = (int)br.ReadUInt32();
+                                                    Logger.LogToFile(Logger.LogLevel.Debug, "{0} => {1}", section, unknown);
+
                                                     count = (int)br.ReadUInt32();
                                                     for (int i = 0; i < count; i++)
                                                     {
                                                         br.ReadUInt32();
-                                                        br.ReadString(4);   // pamb
-                                                        br.ReadString((int)br.ReadUInt32());
+                                                        part.Textures.Add(new SCNETexture
+                                                        {
+                                                            Format = br.ReadString(4).ToEnum<SCNETexture.TextureType>(),
+                                                            Name = br.ReadString((int)br.ReadUInt32())
+                                                        });
                                                     }
 
-                                                    if (br.ReadString(4) != "rtlc") { throw new InvalidDataException("Expected rtlc"); }
+                                                    if ((section = br.ReadString(4)) != "rtlc") { throw new InvalidDataException("Expected rtlc"); }
+                                                    unknown = (int)br.ReadUInt32();
+                                                    Logger.LogToFile(Logger.LogLevel.Debug, "{0} => {1}", section, unknown);
 
-                                                    br.ReadUInt32();    // 1
                                                     count = (int)br.ReadUInt32();
                                                     for (int i = 0; i < count; i++)
                                                     {
                                                         new Vector3(br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
                                                         br.ReadUInt32();
                                                         br.ReadUInt32();
-                                                        br.ReadString(4);   // encs
+                                                        br.ReadString(4);
                                                         br.ReadString((int)br.ReadUInt32());
                                                         br.ReadString((int)br.ReadUInt32());
                                                     }
 
-                                                    if (br.ReadString(4) != "trev") { throw new InvalidDataException("Expected trev"); }
+                                                    if ((section = br.ReadString(4)) != "trev") { throw new InvalidDataException("Expected trev"); }
+                                                    unknown = (int)br.ReadUInt32();
+                                                    Logger.LogToFile(Logger.LogLevel.Debug, "{0} => {1}", section, unknown);
 
-                                                    br.ReadUInt32();    // 4
                                                     count = (int)br.ReadUInt32();
                                                     for (int i = 0; i < count; i++)
                                                     {
                                                         SCNEVertex v = new SCNEVertex();
-                                                        v.Position = unpack(br.ReadUInt64()).ToVector3(); //new Vector3(calculateFraction(br.ReadUInt16()), calculateFraction(br.ReadUInt16()), calculateFraction(br.ReadUInt16())); br.ReadUInt16(); // W component of position
+                                                        v.Position = unpack(br.ReadUInt64()).ToVector3();
                                                         v.Normal = unpackNormal(br.ReadUInt32()).ToVector3();
-                                                        v.UV = unpack(br.ReadUInt32());// new Vector2(calculateFraction(br.ReadUInt16()), calculateFraction(br.ReadUInt16()));
+                                                        v.UV = unpack(br.ReadUInt32());
+                                                        part.Verts.Add(v);
+
                                                         br.ReadBytes(16);
-                                                        //Logger.LogToFile("X: {0:x2} Y: {1:x2} Z: {2:x2} W: {3:x2}", br.ReadUInt16(), br.ReadUInt16(), br.ReadUInt16(), br.ReadUInt16());
-                                                        //Logger.LogToFile("N: {0:x2}", br.ReadUInt32());
-                                                        //Logger.LogToFile("U: {0:x2} V: {1:x2}", br.ReadUInt16(), br.ReadUInt16());
-                                                        //Logger.LogToFile("N: {0:x2}", br.ReadUInt32());
-                                                        //Logger.LogToFile("U: {0:x2} V: {1:x2}", br.ReadUInt16(), br.ReadUInt16());
-                                                        //Logger.LogToFile("B: {0:x2}", br.ReadUInt32());
-                                                        //Logger.LogToFile("B: {0:x2}", br.ReadUInt32());
-                                                        mesh.Verts.Add(v);
                                                     }
 
-                                                    if (br.ReadString(4) != "airt") { throw new InvalidDataException("Expected airt"); }
+                                                    if ((section = br.ReadString(4)) != "airt") { throw new InvalidDataException("Expected airt"); }
+                                                    unknown = (int)br.ReadUInt32();
+                                                    Logger.LogToFile(Logger.LogLevel.Debug, "{0} => {1}", section, unknown);
 
-                                                    br.ReadUInt32();    // 0
                                                     count = (int)br.ReadUInt32();
                                                     for (int i = 0; i < count; i++)
                                                     {
-                                                        mesh.IndexBuffer.Add((int)br.ReadUInt16());
-                                                        mesh.IndexBuffer.Add((int)br.ReadUInt16());
-                                                        mesh.IndexBuffer.Add((int)br.ReadUInt16());
+                                                        part.IndexBuffer.Add((int)br.ReadUInt16());
+                                                        part.IndexBuffer.Add((int)br.ReadUInt16());
+                                                        part.IndexBuffer.Add((int)br.ReadUInt16());
                                                     }
 
-                                                    if (br.ReadString(4) != "mgde") { throw new InvalidDataException("Expected mgde"); }
+                                                    if ((section = br.ReadString(4)) != "mgde") { throw new InvalidDataException("Expected mgde"); }
+                                                    unknown = (int)br.ReadUInt32();
+                                                    Logger.LogToFile(Logger.LogLevel.Debug, "{0} => {1}", section, unknown);
 
-                                                    br.ReadUInt32();    // 0
-                                                    br.ReadUInt32();    // 0
+                                                    count = (int)br.ReadUInt32();
+                                                    for (int i = 0; i < count; i++)
+                                                    {
+                                                        throw new NotImplementedException("Can't handle mgde!");
+                                                    }
 
-                                                    scne.meshes.Add(mesh);
+                                                    mesh.Parts.Add(part);
                                                 }
+
+                                                bone.Meshes.Add(mesh);
                                             }
                                             break;
 
                                         case "ephs":
-                                            br.ReadUInt32();    // 1
+                                            unknown = (int)br.ReadUInt32();
+                                            Logger.LogToFile(Logger.LogLevel.Debug, "{0} => {1}", section, unknown);
+
                                             count = (int)br.ReadUInt32();
                                             for (int i = 0; i < count; i++)
                                             {
@@ -187,7 +222,9 @@ namespace ToxicRagers.Wreckfest.Formats
                                             break;
 
                                         case "xbhs":
-                                            br.ReadUInt32();    // 1
+                                            unknown = (int)br.ReadUInt32();
+                                            Logger.LogToFile(Logger.LogLevel.Debug, "{0} => {1}", section, unknown);
+
                                             count = (int)br.ReadUInt32();
                                             for (int i = 0; i < count; i++)
                                             {
@@ -198,45 +235,20 @@ namespace ToxicRagers.Wreckfest.Formats
                                             }
                                             break;
 
-                                        case "mina":
-                                            br.ReadUInt32();    // 0
-                                            br.ReadUInt32();    // 1
-                                            break;
+                                        case "mina": // mina = anim
+                                            unknown = (int)br.ReadUInt32();
+                                            Logger.LogToFile(Logger.LogLevel.Debug, "{0} => {1}", section, unknown);
 
-                                        case "arfk":
-                                            br.ReadUInt32();    // 0
-                                            int animFrameCount = (int)br.ReadUInt32();
-                                            for (int ki = 0; ki < animFrameCount; ki++)
-                                            {
-                                                br.ReadSingle(); br.ReadSingle(); br.ReadSingle(); br.ReadSingle();
-                                                br.ReadSingle(); br.ReadSingle(); br.ReadSingle(); br.ReadSingle();
-                                            }
-                                            break;
-
-                                        case "niks":
-                                            br.ReadUInt32();    // 0
-                                            br.ReadUInt32();    // 1
-                                            break;
-
-                                        case "enob":
-                                            br.ReadUInt32();    // 0
                                             count = (int)br.ReadUInt32();
                                             for (int i = 0; i < count; i++)
                                             {
-                                                br.ReadString((int)br.ReadUInt32());
+                                                // arfk = key frame
+                                                if ((section = br.ReadString(4)) != "arfk") { throw new InvalidDataException("Expected arfk"); }
+                                                unknown = (int)br.ReadUInt32();
+                                                Logger.LogToFile(Logger.LogLevel.Debug, "{0} => {1}", section, unknown);
 
-                                                new Matrix4D(
-                                                    br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle(),
-                                                    br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle(),
-                                                    br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle(),
-                                                    br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle()
-                                                );
-
-                                                if (br.ReadString(4) != "arfk") { throw new InvalidDataException("Expected arfk"); }
-
-                                                br.ReadUInt32();    // 0
-                                                int boneFrameCount = (int)br.ReadUInt32();
-                                                for (int ki = 0; ki < boneFrameCount; ki++)
+                                                int animFrameCount = (int)br.ReadUInt32();
+                                                for (int ki = 0; ki < animFrameCount; ki++)
                                                 {
                                                     br.ReadSingle(); br.ReadSingle(); br.ReadSingle(); br.ReadSingle();
                                                     br.ReadSingle(); br.ReadSingle(); br.ReadSingle(); br.ReadSingle();
@@ -244,8 +256,49 @@ namespace ToxicRagers.Wreckfest.Formats
                                             }
                                             break;
 
-                                        case "ymmd":
-                                            br.ReadUInt32();    // 0
+                                        case "niks": // niks = skin
+                                            unknown = (int)br.ReadUInt32();
+                                            Logger.LogToFile(Logger.LogLevel.Debug, "{0} => {1}", section, unknown);
+
+                                            count = (int)br.ReadUInt32();
+                                            for (int i = 0; i < count; i++)
+                                            {
+                                                // enob = bone
+                                                if ((section = br.ReadString(4)) != "enob") { throw new InvalidDataException("Expected enob"); }
+                                                unknown = (int)br.ReadUInt32();
+                                                Logger.LogToFile(Logger.LogLevel.Debug, "{0} => {1}", section, unknown);
+
+                                                int boneCount = (int)br.ReadUInt32();
+                                                for (int bi = 0; bi < boneCount; bi++)
+                                                {
+                                                    br.ReadString((int)br.ReadUInt32()); // bone name
+
+                                                    new Matrix4D(
+                                                        br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle(),
+                                                        br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle(),
+                                                        br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle(),
+                                                        br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle()
+                                                    );
+
+                                                    // arfk = key frame
+                                                    if ((section = br.ReadString(4)) != "arfk") { throw new InvalidDataException("Expected arfk"); }
+                                                    unknown = (int)br.ReadUInt32();
+                                                    Logger.LogToFile(Logger.LogLevel.Debug, "{0} => {1}", section, unknown);
+
+                                                    int boneFrameCount = (int)br.ReadUInt32();
+                                                    for (int ki = 0; ki < boneFrameCount; ki++)
+                                                    {
+                                                        br.ReadSingle(); br.ReadSingle(); br.ReadSingle(); br.ReadSingle();
+                                                        br.ReadSingle(); br.ReadSingle(); br.ReadSingle(); br.ReadSingle();
+                                                    }
+                                                }
+                                            }
+                                            break;
+
+                                        case "ymmd": // ymmd = dummy, signifies the end of batch when inside a mesh and a null node when not
+                                            unknown = (int)br.ReadUInt32();
+                                            Logger.LogToFile(Logger.LogLevel.Debug, "{0} => {1}", section, unknown);
+
                                             count = (int)br.ReadUInt32();
                                             for (int i = 0; i < count; i++)
                                             {
@@ -256,7 +309,7 @@ namespace ToxicRagers.Wreckfest.Formats
                                                     br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle()
                                                 );
 
-                                                br.ReadString((int)br.ReadUInt32());
+                                                br.ReadString((int)br.ReadUInt32()); // null node name
                                             }
                                             break;
 
@@ -267,7 +320,7 @@ namespace ToxicRagers.Wreckfest.Formats
                                                 section[2] == 0xfffd &&
                                                 section[3] == 0xfffd)
                                             {
-                                                br.ReadUInt32();    // 0xe2c9
+                                                br.ReadUInt32();    // 0xe2c9 (example value, not fixed)
                                                 br.ReadUInt32();    // 0
                                                 bLoop = false;
                                                 break;
@@ -279,11 +332,15 @@ namespace ToxicRagers.Wreckfest.Formats
 
                                     }
                                 } while (bLoop);
+
+                                scne.bones.Add(bone);
                             }
                             break;
 
                         case "ymmd":
-                            br.ReadUInt32();    // 0
+                            unknown = (int)br.ReadUInt32();
+                            Logger.LogToFile(Logger.LogLevel.Debug, "{0} => {1}", section, unknown);
+
                             count = (int)br.ReadUInt32();
                             for (int i = 0; i < count; i++)
                             {
@@ -299,7 +356,9 @@ namespace ToxicRagers.Wreckfest.Formats
                             break;
 
                         case "dptl":
-                            br.ReadUInt32();    // 1
+                            unknown = (int)br.ReadUInt32();
+                            Logger.LogToFile(Logger.LogLevel.Debug, "{0} => {1}", section, unknown);
+
                             count = (int)br.ReadUInt32();
                             for (int i = 0; i < count; i++)
                             {
@@ -318,7 +377,9 @@ namespace ToxicRagers.Wreckfest.Formats
                             break;
 
                         case "ecss":
-                            br.ReadUInt32();    // 2
+                            unknown = (int)br.ReadUInt32();
+                            Logger.LogToFile(Logger.LogLevel.Debug, "{0} => {1}", section, unknown);
+
                             count = (int)br.ReadUInt32();
                             for (int i = 0; i < count; i++)
                             {
@@ -333,14 +394,15 @@ namespace ToxicRagers.Wreckfest.Formats
                                 br.ReadUInt32();    // 0
 
                                 br.ReadString((int)br.ReadUInt32());
-
-                                br.ReadString(4);   // encs
+                                br.ReadString(4);
                                 br.ReadString((int)br.ReadUInt32());
                             }
                             break;
 
                         case "lrpa":
-                            br.ReadUInt32();    // 0
+                            unknown = (int)br.ReadUInt32();
+                            Logger.LogToFile(Logger.LogLevel.Debug, "{0} => {1}", section, unknown);
+
                             count = (int)br.ReadUInt32();
                             for (int i = 0; i < count; i++)
                             {
@@ -355,12 +417,20 @@ namespace ToxicRagers.Wreckfest.Formats
                             break;
 
                         case "tria":
-                            br.ReadUInt32();    // 0
-                            br.ReadUInt32();    // 0
+                            unknown = (int)br.ReadUInt32();
+                            Logger.LogToFile(Logger.LogLevel.Debug, "{0} => {1}", section, unknown);
+
+                            count = (int)br.ReadUInt32();
+                            for (int i = 0; i < count; i++)
+                            {
+                                throw new NotImplementedException("Can't handle tria!");
+                            }
                             break;
 
                         case "csia":
-                            br.ReadUInt32();    // 1
+                            unknown = (int)br.ReadUInt32();
+                            Logger.LogToFile(Logger.LogLevel.Debug, "{0} => {1}", section, unknown);
+
                             count = (int)br.ReadUInt32();
                             for (int i = 0; i < count; i++)
                             {
@@ -375,11 +445,14 @@ namespace ToxicRagers.Wreckfest.Formats
                             break;
 
                         case "psrt":
-                            br.ReadUInt32();    // 1
+                            unknown = (int)br.ReadUInt32();
+                            Logger.LogToFile(Logger.LogLevel.Debug, "{0} => {1}", section, unknown);
+
                             count = (int)br.ReadUInt32();
                             for (int i = 0; i < count; i++)
                             {
                                 br.ReadString((int)br.ReadUInt32());
+
                                 new Matrix4D(
                                     br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle(),
                                     br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle(),
@@ -390,7 +463,9 @@ namespace ToxicRagers.Wreckfest.Formats
                             break;
 
                         case "pcrt":
-                            br.ReadUInt32();    // 0
+                            unknown = (int)br.ReadUInt32();
+                            Logger.LogToFile(Logger.LogLevel.Debug, "{0} => {1}", section, unknown);
+
                             count = (int)br.ReadUInt32();
                             for (int i = 0; i < count; i++)
                             {
@@ -401,7 +476,9 @@ namespace ToxicRagers.Wreckfest.Formats
                             break;
 
                         case "mlvt":
-                            br.ReadUInt32();    // 1
+                            unknown = (int)br.ReadUInt32();
+                            Logger.LogToFile(Logger.LogLevel.Debug, "{0} => {1}", section, unknown);
+
                             count = (int)br.ReadUInt32();
                             for (int i = 0; i < count; i++)
                             {
@@ -420,7 +497,9 @@ namespace ToxicRagers.Wreckfest.Formats
                             break;
 
                         case "lpvt":
-                            br.ReadUInt32();    // 0
+                            unknown = (int)br.ReadUInt32();
+                            Logger.LogToFile(Logger.LogLevel.Debug, "{0} => {1}", section, unknown);
+
                             count = (int)br.ReadUInt32();
                             for (int i = 0; i < count; i++)
                             {
@@ -429,32 +508,80 @@ namespace ToxicRagers.Wreckfest.Formats
                             break;
 
                         case "fpcs":
-                            br.ReadUInt32();    // 0
+                            unknown = (int)br.ReadUInt32();
+                            Logger.LogToFile(Logger.LogLevel.Debug, "{0} => {1}", section, unknown);
+
                             count = (int)br.ReadUInt32();
                             for (int i = 0; i < count; i++)
                             {
-                                br.ReadString(4);   // bfrp
+                                br.ReadString(4);
                                 br.ReadString((int)br.ReadUInt32());
                             }
                             break;
 
                         case "hpsv":
-                            br.ReadUInt32();    // 0
+                            unknown = (int)br.ReadUInt32();
+                            Logger.LogToFile(Logger.LogLevel.Debug, "{0} => {1}", section, unknown);
+
                             count = (int)br.ReadUInt32();
                             for (int i = 0; i < count; i++)
                             {
                                 br.ReadString((int)br.ReadUInt32());
+
                                 br.ReadSingle();
                                 new Vector3(br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
                             }
                             break;
 
+                        case "tcev":
+                            unknown = (int)br.ReadUInt32();
+                            Logger.LogToFile(Logger.LogLevel.Debug, "{0} => {1}", section, unknown);
+
+                            count = (int)br.ReadUInt32();
+                            Vector4 lastValue = new Vector4(0);
+                            for (int i = 0; i < count; i++)
+                            {
+                                lastValue = new Vector4(br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
+                            }
+
+                            if (lastValue.W == 0) { br.ReadSingle(); }
+                            break;
+
+                        case "enil":
+                            unknown = (int)br.ReadUInt32();
+                            Logger.LogToFile(Logger.LogLevel.Debug, "{0} => {1}", section, unknown);
+
+                            count = (int)br.ReadUInt32();
+                            for (int i = 0; i < count; i++)
+                            {
+                                br.ReadUInt16();
+                                br.ReadUInt16();
+                            }
+                            break;
+
+                        case "rtet":
+                            unknown = (int)br.ReadUInt32();
+                            Logger.LogToFile(Logger.LogLevel.Debug, "{0} => {1}", section, unknown);
+
+                            count = (int)br.ReadUInt32();
+                            for (int i = 0; i < count; i++)
+                            {
+                                br.ReadUInt16();
+                                br.ReadUInt16();
+                                br.ReadUInt16();
+                                br.ReadUInt16();
+                            }
+                            break;
+
                         case "xobv":
-                            br.ReadUInt32();    // 0
+                            unknown = (int)br.ReadUInt32();
+                            Logger.LogToFile(Logger.LogLevel.Debug, "{0} => {1}", section, unknown);
+
                             count = (int)br.ReadUInt32();
                             for (int i = 0; i < count; i++)
                             {
                                 br.ReadString((int)br.ReadUInt32());
+
                                 new Vector3(br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
                                 new Vector3(br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
                             }
@@ -467,26 +594,6 @@ namespace ToxicRagers.Wreckfest.Formats
             }
 
             return scne;
-        }
-
-        public static Single calculateFraction(uint i)
-        {
-            Single s = 0;
-            int bits = 12;
-
-
-            for (int x = 0; x < bits; x++)
-            {
-                s += (i & 0x1) * (Single)Math.Pow(2, -(bits - x));
-                i >>= 1;
-            }
-
-            if ((i & 0x8) >> 3 == 1)
-            {
-                s = s - 1;
-            }
-
-            return s;
         }
 
         public static Vector4 unpack(ulong packedValue)
@@ -518,10 +625,77 @@ namespace ToxicRagers.Wreckfest.Formats
         }
     }
 
+    public class SCNEBone
+    {
+        List<SCNEMesh> meshes;
+        string name;
+        Matrix4D matrix;
+
+        public List<SCNEMesh> Meshes
+        {
+            get { return meshes; }
+            set { meshes = value; }
+        }
+
+        public string Name
+        {
+            get { return name; }
+            set { name = value; }
+        }
+
+        public Matrix4D Transform
+        {
+            get { return matrix; }
+            set { matrix = value; }
+        }
+
+        public SCNEBone()
+        {
+            meshes = new List<SCNEMesh>();
+        }
+    }
+
+    public class SCNEMesh
+    {
+        List<SCNEMeshPart> parts;
+        string name;
+
+        public List<SCNEMeshPart> Parts
+        {
+            get { return parts; }
+            set { parts = value; }
+        }
+
+        public string Name
+        {
+            get { return name; }
+            set { name = value; }
+        }
+
+        public SCNEMesh()
+        {
+            parts = new List<SCNEMeshPart>();
+        }
+    }
+
     public class SCNEMeshPart
     {
+        List<string> materials;
+        List<SCNETexture> textures;
         List<SCNEVertex> verts;
         List<int> indexBuffer;
+
+        public List<string> Materials
+        {
+            get { return materials; }
+            set { materials = value; }
+        }
+
+        public List<SCNETexture> Textures
+        {
+            get { return textures; }
+            set { textures = value; }
+        }
 
         public List<SCNEVertex> Verts
         {
@@ -537,8 +711,33 @@ namespace ToxicRagers.Wreckfest.Formats
 
         public SCNEMeshPart()
         {
+            materials = new List<string>();
+            textures = new List<SCNETexture>();
             verts = new List<SCNEVertex>();
             indexBuffer = new List<int>();
+        }
+    }
+
+    public class SCNETexture
+    {
+        public enum TextureType
+        {
+            pamb
+        }
+
+        TextureType type;
+        string name;
+
+        public TextureType Format
+        {
+            get { return type; }
+            set { type = value; }
+        }
+
+        public string Name
+        {
+            get { return name; }
+            set { name = value; }
         }
     }
 
