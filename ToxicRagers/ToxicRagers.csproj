@@ -48,6 +48,10 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="unluac.net, Version=1.1.5792.32599, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\unluac.net.1.1.5792.32599\lib\net40\unluac.net.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BurnoutParadise\Formats\bpBundle.cs" />
@@ -170,12 +174,6 @@
     <Compile Include="Vigilante82ndOffense\Formats\v82oEXP.cs" />
     <Compile Include="Wreckfest\Formats\wfBMAP.cs" />
     <Compile Include="Wreckfest\Formats\wfSCNE.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\unluacNet\unluacNet\unluacNet.csproj">
-      <Project>{b4099fdf-6c1d-420c-8bea-292b992d6c7f}</Project>
-      <Name>unluacNet</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
