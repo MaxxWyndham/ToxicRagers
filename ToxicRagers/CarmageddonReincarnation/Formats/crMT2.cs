@@ -198,12 +198,6 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             set { alphaCutOff.X = value; }
         }
 
-        public Vector3 Multiplier
-        {
-            get { return multiplier; }
-            set { multiplier = value; }
-        }
-
         public Vector3 EmissiveLight
         {
             get { return multiplier; }
@@ -373,7 +367,6 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
                 if (property.CanRead && !attributes.Any(a => a.GetType() == typeof(Ignore)))
                 {
-                    //HasDefault hasDefault = (HasDefault)attributes.Where(a => a.GetType() == typeof(HasDefault)).FirstOrDefault();
                     bool bRequired = attributes.Any(a => a.GetType() == typeof(Required));
 
                     switch (property.PropertyType.ToString().Split('.').Last())
@@ -395,6 +388,20 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                             {
                                 Troolean value = (Troolean)property.GetValue(this, null);
                                 if (value != Troolean.Unset && value != (Troolean)property.GetValue(coreDefaults, null)) { xml.Add(new XElement(property.Name, new XAttribute("Value", value.ToString()))); }
+                            }
+                            break;
+
+                        case "Single":
+                            {
+                                Single value = (Single)property.GetValue(this, null);
+                                if (value != (Single)property.GetValue(coreDefaults, null))
+                                {
+                                    xml.Add(new XElement("Constant",
+                                        new XAttribute("Alias", property.Name),
+                                        new XAttribute("Type", "float"),
+                                        new XAttribute("Value", value.ToString(ToxicRagers.Culture))
+                                    ));
+                                }
                             }
                             break;
 
@@ -435,7 +442,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                     break;
 
                 case "float":
-                    v.X = v.Y = v.Z = constant.Attribute("Value").Value.ToSingle();
+                    v.X = constant.Attribute("Value").Value.ToSingle();
                     break;
 
                 default:
@@ -601,7 +608,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
         int maxAnisotropy = 4;
         Filter mipFilter = Filter.Linear;
         Filter magFilter = Filter.Linear;
-        int mipLevelBias;
+        Single mipLevelBias;
         Address addressU = Address.Wrap;
         Address addressV = Address.Wrap;
         Address addressW;
@@ -680,7 +687,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                         break;
 
                     case "MipLevelBias":
-                        s.mipLevelBias = element.Attribute("MipLevelBias").Value.ToInt();
+                        s.mipLevelBias = element.Attribute("MipLevelBias").Value.ToSingle();
                         break;
 
                     case "MagFilter":
