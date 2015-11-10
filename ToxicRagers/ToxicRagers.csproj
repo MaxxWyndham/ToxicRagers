@@ -36,6 +36,10 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="LibSquishNet, Version=1.11.5792.20541, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\LibSquishNet.1.11.5792.20541\lib\net46\LibSquishNet.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
@@ -168,16 +172,14 @@
     <Compile Include="Wreckfest\Formats\wfSCNE.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\LibSquishNet\LibSquishNet\LibSquishNet.csproj">
-      <Project>{8b187d46-bc8e-4b5a-ae68-326958bc9aaa}</Project>
-      <Name>LibSquishNet</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\unluacNet\unluacNet\unluacNet.csproj">
       <Project>{b4099fdf-6c1d-420c-8bea-292b992d6c7f}</Project>
       <Name>unluacNet</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
