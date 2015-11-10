@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
-using System.Linq;
 using System.Text;
 
 using ToxicRagers.Helpers;
@@ -33,8 +32,8 @@ namespace ToxicRagers.Stainless.Formats
         };
 
         int userFaceCount;
-        int prepFaceCount;
         int userVertexCount;
+        int prepFaceCount;
         int prepVertexCount;
         Version version;
         string name;
@@ -52,6 +51,8 @@ namespace ToxicRagers.Stainless.Formats
         List<MDLBone> prepBoneList = new List<MDLBone>();
         List<int> ptouVertexLookup = new List<int>();
         List<int> ptouFaceLookup = new List<int>();
+
+        List<MDLPrepSkinWeightLookup> prepVertSkinWeightLookup = new List<MDLPrepSkinWeightLookup>();
 
         MDLExtents extents = new MDLExtents();
 
@@ -80,8 +81,8 @@ namespace ToxicRagers.Stainless.Formats
             using (MemoryStream ms = new MemoryStream(File.ReadAllBytes(path)))
             using (BinaryReader br = new BinaryReader(ms, Encoding.Default))
             {
-                if (br.ReadByte() != 69 ||
-                    br.ReadByte() != 35)
+                if (br.ReadByte() != 0x45||
+                    br.ReadByte() != 0x23)
                 {
                     Logger.LogToFile(Logger.LogLevel.Error, "{0} isn't a valid MDL file", path);
                     return null;
@@ -101,8 +102,8 @@ namespace ToxicRagers.Stainless.Formats
                 Logger.LogToFile(Logger.LogLevel.Info, "MDL v{0}", mdl.version.ToString());
 
                 // TODO: v5.6
-                // Ref : F:\Novadrome_Demo\Novadrome_Demo\WADs\data\DATA\SFX\CAR_EXPLOSION\DEBPOOL\DEBPOOL.MDL
-                // Ref : C:\Users\Maxx\Downloads\Carma_iOS\Carmageddon Mobile\Data_IOS\DATA\CONTENT\SFX\SHRAPNEL.MDL
+                // Ref : Novadrome_Demo\WADs\data\DATA\SFX\CAR_EXPLOSION\DEBPOOL\DEBPOOL.MDL
+                // Ref : Carmageddon Mobile\Data_IOS\DATA\CONTENT\SFX\SHRAPNEL.MDL
                 // 01 00 00 00 EE 02 00 00 02 00 00 00 04 00 00 00 01 00 00 00 49 33 35 3F 89 41 00 BF 18 B7 51 BA 89 41 00 BF 00 00 00 3F 52 49 9D 3A 00 00 00 3F 00 12 03 BA 18 B7 51 39 00 12 03 BA 01 00 66 69 72 65 70 6F 6F 6C 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 02 00 00 00 00 00 00 00 00 00 00 00 01 00 00 00 02 00 00 00 17 B7 51 39 17 B7 D1 38 00 00 80 3F 17 B7 D1 B8 00 00 00 00 03 00 00 00 02 00 00 00 01 00 00 00 17 B7 51 39 17 B7 D1 B8 00 00 80 3F 17 B7 D1 38 04 00 00 00 00 00 00 3F 17 B7 D1 38 00 00 00 BF 17 B7 D1 38 00 00 80 3F 17 B7 D1 B8 00 00 80 3F 00 00 80 3F 00 00 00 00 00 00 00 00 80 80 80 FF 00 00 00 BF 17 B7 51 39 00 00 00 BF 00 00 00 00 00 00 80 3F 00 00 00 00 00 00 00 00 00 00 80 3F 00 00 00 00 00 00 00 00 80 80 80 FF 00 00 00 3F 17 B7 51 39 00 00 00 3F 00 00 00 00 00 00 80 3F 00 00 00 00 00 00 80 3F 00 00 00 00 00 00 00 00 00 00 00 00 80 80 80 FF 00 00 00 BF 17 B7 D1 38 00 00 00 3F 17 B7 D1 B8 00 00 80 3F 17 B7 D1 38 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 80 80 80 FF 01 00 00 00 00 00 17 B7 D1 38 00 00 00 00 00 00 00 00 04 00 00 00 04 00 00 00 00 00 00 00 01 00 00 00 02 00 00 00 03 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 FF FF FF FF
 
                 mdl.checkSum = (int)br.ReadUInt32();
@@ -244,19 +245,23 @@ namespace ToxicRagers.Stainless.Formats
 
                 if (mdl.flags.HasFlag(Flags.PREPSkinData))
                 {
+                    Logger.LogToFile(Logger.LogLevel.Debug, "Processing PREP skin data");
+
                     int bodyPartCount = br.ReadUInt16();
-                    int unknownA = br.ReadUInt16();
-                    int unknownB = br.ReadUInt16();
+                    int maxBonesPerVertex = br.ReadUInt16();
+                    int rootBoneIndex = br.ReadUInt16();
                     var boneNames = br.ReadStrings(bodyPartCount);
+
+                    Logger.LogToFile(Logger.LogLevel.Debug, "Body Part Count: {0}. Max Bones per Vertex : {1}. Root Bone Index : {2}", bodyPartCount, maxBonesPerVertex, rootBoneIndex);
 
                     for (int i = 0; i < bodyPartCount; i++)
                     {
                         var bone = new MDLBone();
 
                         bone.Name = boneNames[i];
-                        bone.MinExtents = new Vector3(br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
+                        bone.MinExtents = new Vector3(br.ReadSingle(), br.ReadSingle(), br.ReadSingle());   // Min and Max bone local space
                         bone.MaxExtents = new Vector3(br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
-                        bone.Offset = new Vector3(br.ReadSingle(), br.ReadSingle(), br.ReadSingle()); // offset from parent in parents rotational space
+                        bone.Offset = new Vector3(br.ReadSingle(), br.ReadSingle(), br.ReadSingle());       // Offset is in parents local space
 
                         bone.Parent = br.ReadByte();
                         bone.Child = br.ReadByte();
@@ -265,41 +270,49 @@ namespace ToxicRagers.Stainless.Formats
                         mdl.prepBoneList.Add(bone);
                     }
 
-                    //Logger.LogToFile("=====");
-
                     for (int i = 0; i < bodyPartCount; i++)
                     {
-                        Vector4 v1 = new Vector4(br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
-                        Vector3 v2 = new Vector3(br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
-                        Single v3 = br.ReadSingle();
+                        mdl.prepBoneList[i].Rotation = new Vector4(br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
+                        mdl.prepBoneList[i].Position = new Vector3(br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
+                        br.ReadBytes(4);
 
-                        //Logger.LogToFile("{2:x2}] {0,-16}: {1} :: {3} :: {4}", boneNames[i], v1, i, v2, v3);
+                        Logger.LogToFile(Logger.LogLevel.Debug, "{0}) {1}", i, mdl.prepBoneList[i].Name);
+                        Logger.LogToFile(Logger.LogLevel.Debug, "P{0} C{1} S{2}", mdl.prepBoneList[i].Parent, mdl.prepBoneList[i].Child, mdl.prepBoneList[i].Sibling);
+                        Logger.LogToFile(Logger.LogLevel.Debug, "{0}", mdl.prepBoneList[i].MinExtents);
+                        Logger.LogToFile(Logger.LogLevel.Debug, "{0}", mdl.prepBoneList[i].MaxExtents);
+                        Logger.LogToFile(Logger.LogLevel.Debug, "{0}", mdl.prepBoneList[i].Offset);
+                        Logger.LogToFile(Logger.LogLevel.Debug, "{0}", mdl.prepBoneList[i].Rotation);
+                        Logger.LogToFile(Logger.LogLevel.Debug, "{0}", mdl.prepBoneList[i].Position);
+                        Logger.LogToFile(Logger.LogLevel.Debug, "");
                     }
 
-                    //Logger.LogToFile("=====");
+                    Logger.LogToFile(Logger.LogLevel.Debug, "PREP skin vert weight table");
 
                     for (int i = 0; i < mdl.prepVertexCount; i++)
                     {
-                        br.ReadBytes(8);
-                        //Logger.LogToFile("{0}\t{1}\t{2}", br.ReadUInt16(), br.ReadUInt16(), br.ReadUInt32());
-                    }
-
-                    //Logger.LogToFile("=====");
-
-                    int unknownX = (int)br.ReadUInt32();
-
-                    for (int i = 0; i < unknownX; i++)
-                    {
+                        int weightCount = br.ReadUInt16();
                         br.ReadBytes(2);
-                        //Logger.LogToFile("{0}] {1}", i, br.ReadUInt16());
+                        int weightOffset = (int)br.ReadUInt32();
+
+                        mdl.prepVertSkinWeightLookup.Add(new MDLPrepSkinWeightLookup { Count = weightCount, Index = weightOffset });
+
+                        Logger.LogToFile(Logger.LogLevel.Debug, "{0,5}]  {1} @ {2}", i, weightCount, weightOffset);
                     }
 
-                    //Logger.LogToFile("=====");
+                    int prepSkinWeightCount = (int)br.ReadUInt32();
 
-                    for (int i = 0; i < unknownX; i++)
+                    Logger.LogToFile(Logger.LogLevel.Debug, "PREP Skin Weight Count: {0}", prepSkinWeightCount);
+
+                    for (int i = 0; i < prepSkinWeightCount; i++)
                     {
-                        br.ReadBytes(4);
-                        //Logger.LogToFile("{0}] {1}", i, br.ReadSingle());
+                        int boneIndex = br.ReadUInt16();
+                        Logger.LogToFile(Logger.LogLevel.Debug, "{0,5}] {1}", i, boneIndex);
+                    }
+
+                    for (int i = 0; i < prepSkinWeightCount; i++)
+                    {
+                        Single weight = br.ReadSingle();
+                        Logger.LogToFile(Logger.LogLevel.Debug, "{0,5}] {1}", i, weight);
                     }
                 }
                 // END PREP DATA
@@ -371,23 +384,24 @@ namespace ToxicRagers.Stainless.Formats
                     {
                         Logger.LogToFile(Logger.LogLevel.Debug, "Processing USER skin data");
 
-                        int bodyPartCount = br.ReadUInt16();
+                        int boneCount = br.ReadUInt16();
 
-                        Logger.LogToFile(Logger.LogLevel.Debug, "Bone count: {0}", bodyPartCount);
-                        for (int i = 0; i < bodyPartCount; i++)
+                        Logger.LogToFile(Logger.LogLevel.Debug, "Bone count: {0}", boneCount);
+                        for (int i = 0; i < boneCount; i++)
                         {
                             string boneName = br.ReadString(32);
-                            ushort u1 = br.ReadUInt16();
-                            Single u2 = br.ReadSingle(); Single u3 = br.ReadSingle(); Single u4 = br.ReadSingle(); Single u5 = br.ReadSingle();
-                            Single u6 = br.ReadSingle(); Single u7 = br.ReadSingle(); Single u8 = br.ReadSingle(); Single u9 = br.ReadSingle();
-                            Single u10 = br.ReadSingle(); Single u11 = br.ReadSingle(); Single u12 = br.ReadSingle(); Single u13 = br.ReadSingle();
+                            short parentBoneIndex = br.ReadInt16();
+                            Matrix3D boneTransform = new Matrix3D(
+                                                            br.ReadSingle(), br.ReadSingle(), br.ReadSingle(),
+                                                            br.ReadSingle(), br.ReadSingle(), br.ReadSingle(),
+                                                            br.ReadSingle(), br.ReadSingle(), br.ReadSingle(),
+                                                            br.ReadSingle(), br.ReadSingle(), br.ReadSingle()
+                                                        );
 
                             Logger.LogToFile(Logger.LogLevel.Debug, "{0}) {1}", i, boneName);
-                            Logger.LogToFile(Logger.LogLevel.Debug, "{0}", u1);
-                            Logger.LogToFile(Logger.LogLevel.Debug, "{0}\t{1}\t{2}", u2, u3, u4);
-                            Logger.LogToFile(Logger.LogLevel.Debug, "{0}\t{1}\t{2}", u5, u6, u7);
-                            Logger.LogToFile(Logger.LogLevel.Debug, "{0}\t{1}\t{2}", u8, u9, u10);
-                            Logger.LogToFile(Logger.LogLevel.Debug, "{0}\t{1}\t{2}", u11, u12, u13);
+                            Logger.LogToFile(Logger.LogLevel.Debug, "{0}", parentBoneIndex);
+                            Logger.LogToFile(Logger.LogLevel.Debug, "{0}", boneTransform);
+                            Logger.LogToFile(Logger.LogLevel.Debug, "");
                         }
 
                         int userDataCount = (int)br.ReadUInt32();
@@ -399,10 +413,10 @@ namespace ToxicRagers.Stainless.Formats
 
                             for (int j = 0; j < entryCount; j++)
                             {
-                                var index = br.ReadUInt16();
-                                var pos = br.ReadSingle();
-                                Single u1 = br.ReadSingle(); Single u2 = br.ReadSingle(); Single u3 = br.ReadSingle();
-                                Logger.LogToFile(Logger.LogLevel.Debug, "{5}.{6}] {0} : {1} [{7}]: {2} : {3} : {4}", index, pos, u1, u2, u3, i, j, BitConverter.GetBytes(pos).ToHex());
+                                int boneIndex = br.ReadUInt16();
+                                Single weight = br.ReadSingle();
+                                Vector3 vertexPosition = new Vector3(br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
+                                Logger.LogToFile(Logger.LogLevel.Debug, "{0}.{1}]  {2,2} : {3,6:0.00}% : {4}", i, j, boneIndex, (weight * 100.0f), vertexPosition);
                             }
                         }
                     }
@@ -551,7 +565,7 @@ namespace ToxicRagers.Stainless.Formats
                     }
                 }
 
-                if ((this.flags & Flags.USERData) == Flags.USERData)
+                if (this.flags.HasFlag(Flags.USERData))
                 {
                     bw.Write(0);
 
@@ -607,14 +621,16 @@ namespace ToxicRagers.Stainless.Formats
                         bw.Write(0);
                     }
 
-                    for (int i = 0; i < this.faces.Count; i++)
-                    {
-                        bw.Write(i);
-                    }
+                    for (int i = 0; i < this.faces.Count; i++) { bw.Write(i); }
 
                     bw.Write(this.verts.Count);
 
                     for (int i = 0; i < this.verts.Count; i++) { bw.Write(i); }
+
+                    if (this.flags.HasFlag(Flags.USERSkinData))
+                    {
+
+                    }
                 }
             }
 
@@ -808,6 +824,9 @@ namespace ToxicRagers.Stainless.Formats
         byte child;
         byte sibling;
 
+        Vector4 rotation; // Actually a quat
+        Vector3 position;
+
         public string Name
         {
             get { return name; }
@@ -848,6 +867,54 @@ namespace ToxicRagers.Stainless.Formats
         {
             get { return sibling; }
             set { sibling = value; }
+        }
+
+        public Vector4 Rotation
+        {
+            get { return rotation; }
+            set { rotation = value; }
+        }
+
+        public Vector3 Position
+        {
+            get { return position; }
+            set { position = value; }
+        }
+    }
+
+    public class MDLPrepSkinWeightLookup
+    {
+        int count;
+        int index;
+
+        public int Count
+        {
+            get { return count; }
+            set { count = value; }
+        }
+
+        public int Index
+        {
+            get { return index; }
+            set { index = value; }
+        }
+    }
+
+    public class MDLPrepSkinWeight
+    {
+        int boneIndex;
+        float weight;
+
+        public int BoneIndex
+        {
+            get { return boneIndex; }
+            set { boneIndex = value; }
+        }
+
+        public float Weight
+        {
+            get { return weight; }
+            set { weight = value; }
         }
     }
 
