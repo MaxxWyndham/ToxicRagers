@@ -1,6 +1,3 @@
-[submodule "LibSquishNet"]
-	path = LibSquishNet
-	url = https://github.com/MaxxWyndham/LibSquishNet.git
 [submodule "unluacNet"]
 	path = unluacNet
 	url = https://github.com/MaxxWyndham/unluacNet.git
