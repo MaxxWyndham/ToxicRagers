@@ -227,18 +227,19 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
     public class AccessoryDynamics
     {
         string lump;
-        Single mass;
+        float mass;
         bool bDrivableOn;
         bool bSolid;
         bool bStopSinkingIntoGround;
         bool bPartOfWorld;
         bool bBuouyant;
-        Single buoyancyCount;
+        float buoyancyCount;
         Vector3 buoyancyVector;
         Vector3 moments;
         bool bBuoyancyRelativeToCOM;
         Vector3 centreOfMass;
         AccessoryShape shape;
+        float sphereRollingResistance;
         AccessoryBreak breakable;
         AccessoryJoint worldJoint;
         AccessoryJoint childJoint;
@@ -450,6 +451,10 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
                     case "<centre_of_mass>":
                         centreOfMass = doc.ReadVector3();
+                        break;
+
+                    case "<sphere_rolling_resistance>":
+                        sphereRollingResistance = doc.ReadFloat();
                         break;
 
                     case "<shape>":
