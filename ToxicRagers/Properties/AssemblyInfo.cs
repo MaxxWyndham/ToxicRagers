@@ -6,11 +6,11 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("ToxicRagers")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("A collection of file handlers for various games")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("MaxxTek Ltd")]
+[assembly: AssemblyCompany("Maxx 'Errol' Wyndham")]
 [assembly: AssemblyProduct("ToxicRagers")]
-[assembly: AssemblyCopyright("Copyright © MaxxTek Ltd 2011")]
+[assembly: AssemblyCopyright("Copyright © Maxx Wyndham 2011-2015")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
