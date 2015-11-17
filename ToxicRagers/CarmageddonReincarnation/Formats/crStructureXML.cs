@@ -1,14 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Xml;
 using System.Xml.Linq;
 
-using ToxicRagers.Helpers;
 using ToxicRagers.CarmageddonReincarnation.Helpers;
-using ToxicRagers.Stainless.Formats;
 
 namespace ToxicRagers.CarmageddonReincarnation.Formats
 {
@@ -584,13 +579,13 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             this.AddMethod(
                 LUACodeBlockMethodType.Set,
                 new string[] {
-                    "PreIK_StrutWishboneMountFL", 
-                    "PreIK_StrutWishboneMountFR", 
-                    "PreIK_StrutWishboneMountRL", 
+                    "PreIK_StrutWishboneMountFL",
+                    "PreIK_StrutWishboneMountFR",
+                    "PreIK_StrutWishboneMountRL",
                     "PreIK_StrutWishboneMountRR",
-                    "PreIK_StrutUpperMountFL", 
-                    "PreIK_StrutUpperMountFR", 
-                    "PreIK_StrutUpperMountRL", 
+                    "PreIK_StrutUpperMountFL",
+                    "PreIK_StrutUpperMountFR",
+                    "PreIK_StrutUpperMountRL",
                     "PreIK_StrutUpperMountRR",
                     "PreIK_WishboneMountLowerFL",
                     "PreIK_WishboneMountLowerFR",
@@ -908,7 +903,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             this.AddMethod(
                 LUACodeBlockMethodType.Set,
                 "ShapeTracking",
-                new LUACodeBlockMethodParameter {  Type = LUACodeBlockMethodParameterType.Boolean, Name = "Value" }
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Boolean, Name = "Value" }
             );
         }
 
@@ -1072,6 +1067,12 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                 LUACodeBlockMethodType.Set,
                 "ExtraFallingDamageFactor",
                 new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Int, Name = "Value" }
+            );
+
+            this.AddMethod(
+                LUACodeBlockMethodType.Set,
+                "Damage_MaxDeflectionForDamageTexture",
+                new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Float, Name = "Value" }
             );
         }
 

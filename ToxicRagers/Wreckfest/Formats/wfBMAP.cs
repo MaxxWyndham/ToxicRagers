@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 
+using ToxicRagers.Compression.LZ4;
 using ToxicRagers.Helpers;
 
 namespace ToxicRagers.Wreckfest.Formats

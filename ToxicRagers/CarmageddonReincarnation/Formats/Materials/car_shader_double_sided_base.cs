@@ -27,6 +27,13 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats.Materials
         Vector3 layer1UVSlot = Vector3.Zero;
         Vector3 layer2UVSlot = Vector3.Zero;
 
+        [Ignore]
+        public string DiffuseColour
+        {
+            get { return diffuse; }
+            set { diffuse = value; }
+        }
+
         [Required]
         public string Side1_DiffuseColour1
         {
@@ -129,13 +136,6 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats.Materials
         {
             get { return blendUVSlot.X; }
             set { blendUVSlot.X = value; }
-        }
-
-        [Ignore]
-        public new string DiffuseColour
-        {
-            get { return diffuse; }
-            set { diffuse = value; }
         }
 
         public car_shader_double_sided_base() { }

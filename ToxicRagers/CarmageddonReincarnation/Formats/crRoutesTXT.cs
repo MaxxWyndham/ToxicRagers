@@ -152,10 +152,15 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                                         }
                                         break;
 
+                                    case "<RACE_VALUE>":
+                                        link.RaceValueAmount = doc.ReadInt();
+                                        link.RaceValue = doc.ReadNextLine();
+                                        break;
+
                                     default:
                                         bAILink = false;
                                         routes.links.Add(link);
-                                        if (line != null && !line.StartsWith("[")) { Console.WriteLine("Unexpected [AILINK] line: " + line); }
+                                        if (line != null && !line.StartsWith("[")) { throw new NotImplementedException("Unexpected [AILINK] line: " + line); }
                                         break;
                                 }
                             }
@@ -225,6 +230,8 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
         string name;
         float width;
         bool oneWay;
+        int raceValueAmount;
+        string raceValue;
         List<int> types;
 
         public AILink()
@@ -255,6 +262,18 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
         {
             get { return width; }
             set { width = value; }
+        }
+
+        public int RaceValueAmount
+        {
+            get { return raceValueAmount; }
+            set { raceValueAmount = value; }
+        }
+
+        public  string RaceValue
+        {
+            get { return raceValue; }
+            set { raceValue = value; }
         }
 
         public List<int> Types

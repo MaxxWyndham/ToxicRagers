@@ -36,9 +36,16 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats.Materials
             set { bNoSortAlpha = value; }
         }
 
+        public glow_simple_norm_spec_env_base_A() { }
+
         public glow_simple_norm_spec_env_base_A(XElement xml)
             : base(xml)
         {
+            coreDefaults = new glow_simple_norm_spec_env_base_A
+            {
+
+            };
+
             var diff = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "DiffuseColour").FirstOrDefault();
             var norm = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "Normal_Map").FirstOrDefault();
             var spec = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "Spec_Map").FirstOrDefault();

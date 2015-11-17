@@ -9,13 +9,18 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats.Materials
         // Uses:
         // CastsShadows, DoubleSided
         // NeedsSeperateObjectColour, NeedsVertexColour
-        // Multiplier
 
         [Required]
         public string DiffuseColour
         {
             get { return diffuse; }
             set { diffuse = value; }
+        }
+
+        public Single Multiplier
+        {
+            get { return multiplier.X; }
+            set { multiplier.X = value; }
         }
 
         public simple_additive_base() { }

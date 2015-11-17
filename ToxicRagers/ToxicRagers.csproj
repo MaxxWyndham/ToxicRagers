@@ -36,6 +36,10 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="LibSquishNet, Version=1.11.5792.20541, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\LibSquishNet.1.11.5792.20541\lib\net46\LibSquishNet.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
@@ -44,6 +48,10 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="unluac.net, Version=1.1.5792.32599, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\unluac.net.1.1.5792.32599\lib\net40\unluac.net.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BurnoutParadise\Formats\bpBundle.cs" />
@@ -134,8 +142,8 @@
     <Compile Include="Helpers\IO.cs" />
     <Compile Include="Helpers\Line.cs" />
     <Compile Include="Helpers\Logger.cs" />
-    <Compile Include="Helpers\LZ4Compress.cs" />
-    <Compile Include="Helpers\LZ4Decompress.cs" />
+    <Compile Include="Compression\LZ4\LZ4Compress.cs" />
+    <Compile Include="Compression\LZ4\LZ4Decompress.cs" />
     <Compile Include="Helpers\Matrix2D.cs" />
     <Compile Include="Helpers\Matrix3D.cs" />
     <Compile Include="Helpers\Matrix4D.cs" />
@@ -145,7 +153,7 @@
     <Compile Include="Helpers\Vector2.cs" />
     <Compile Include="Helpers\Vector3.cs" />
     <Compile Include="Helpers\Vector4.cs" />
-    <Compile Include="Helpers\LSZZDecompress.cs" />
+    <Compile Include="Compression\LSZZ\LSZZDecompress.cs" />
     <Compile Include="Novadrome\Formats\nXT2.cs" />
     <Compile Include="Powerslide\HistoricCode.cs" />
     <Compile Include="Stainless\Formats\sCNT.cs" />
@@ -168,16 +176,8 @@
     <Compile Include="Wreckfest\Formats\wfSCNE.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\LibSquishNet\LibSquishNet\LibSquishNet.csproj">
-      <Project>{8b187d46-bc8e-4b5a-ae68-326958bc9aaa}</Project>
-      <Name>LibSquishNet</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\unluacNet\unluacNet\unluacNet.csproj">
-      <Project>{b4099fdf-6c1d-420c-8bea-292b992d6c7f}</Project>
-      <Name>unluacNet</Name>
-    </ProjectReference>
+    <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

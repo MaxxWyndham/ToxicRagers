@@ -1,9 +1,12 @@
 ﻿using System;
+using System.IO;
 
-namespace ToxicRagers.Helpers
+namespace ToxicRagers.Compression.LZ4
 {
-    public class LZ4Compress
+    public class LZ4Compress : Stream
     {
+        private Stream stream;
+
         private const int MINMATCH = 4;
         private const int COPYLENGTH = 8;
         private const int MFLIMIT = COPYLENGTH + MINMATCH;
@@ -15,7 +18,9 @@ namespace ToxicRagers.Helpers
         private const int MAX_DISTANCE = ((1 << MAXD_LOG) - 1);
 
         private const int MEMORY_USAGE = 14;
+
         private const int HASH_LOG = MEMORY_USAGE - 2;
+        private const int HASH_TABLESIZE = 1 << HASH_LOG;
         private const int HASH_ADJUST = (MINMATCH * 8) - HASH_LOG;
 
         private const int ML_BITS = 4;
@@ -30,16 +35,66 @@ namespace ToxicRagers.Helpers
         private const int STEPSIZE_32 = 4;
 
         private static readonly int[] DEBRUIJN_TABLE_32 = new[] {
-			0, 0, 3, 0, 3, 1, 3, 0, 3, 2, 2, 1, 3, 2, 0, 1,
-			3, 3, 1, 2, 2, 2, 2, 0, 3, 1, 2, 0, 1, 0, 1, 1
-		};
+            0, 0, 3, 0, 3, 1, 3, 0, 3, 2, 2, 1, 3, 2, 0, 1,
+            3, 3, 1, 2, 2, 2, 2, 0, 3, 1, 2, 0, 1, 0, 1, 1
+        };
+
+        public LZ4Compress(MemoryStream ms)
+        {
+            stream = ms;
+        }
+
+        public override bool CanRead
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        public override bool CanSeek
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        public override bool CanWrite
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        public override long Length
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        public override long Position
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+
+            set
+            {
+                throw new NotImplementedException();
+            }
+        }
 
         public static int Compress(int[] hash, byte[] source, byte[] dest, int size, int maxOutputSize)
         {
             // maxOutputSize = 0
             // outputLimited = notLimited
             // tableType = LZ4_64bits() ? byU32 : byPtr
-            // dict = noDict
+            // dict = noDictq
             // dictIssue = noDictIssue
 
             int ip = 0;
@@ -140,7 +195,7 @@ namespace ToxicRagers.Helpers
                         op += litLength;
                     }
 
-                _next_match:
+                    _next_match:
                     // Encode Offset
                     WriteInt16(dest, op, (ushort)(ip - match));
                     op += 2;
@@ -170,7 +225,7 @@ namespace ToxicRagers.Helpers
                     }
                     if ((ip < src_LASTLITERALS) && (source[match] == source[ip])) ip++;
 
-                _endCount:
+                    _endCount:
                     // Encode MatchLength
                     litLength = (ip - anchor);
 
@@ -228,11 +283,14 @@ namespace ToxicRagers.Helpers
                     forwardH = (((LookInt32(source, ip)) * 2654435761u) >> HASH_ADJUST);
                 }
             }
-            
+
             _last_literals:
             var lastRun = (src_end - anchor);
 
-            if (op + lastRun + 1 + ((lastRun + 255 - RUN_MASK) / 255) > olimit) return 0;
+            if (op + lastRun + 1 + ((lastRun + 255 - RUN_MASK) / 255) > olimit)
+            {
+                return 0;
+            }
 
             if (lastRun >= RUN_MASK)
             {
@@ -246,6 +304,18 @@ namespace ToxicRagers.Helpers
             op += src_end - anchor;
 
             return op;
+        }
+
+        public static int CalculateChunkSize(int length)
+        {
+            int chunkSize = 65535;
+
+            while (length % chunkSize > 0 && length % chunkSize < 255)
+            {
+                chunkSize--;
+            }
+
+            return chunkSize;
         }
 
         private static uint LookInt32(byte[] buffer, int offset)
@@ -266,9 +336,9 @@ namespace ToxicRagers.Helpers
             return true;
         }
 
-        public static bool CompareInt32(byte[] buffer, int a, int b)
+        private static bool CompareInt32(byte[] buffer, int a, int b)
         {
-            if (a < 0 || a > buffer.Length || b < 0 ||  b > buffer.Length)
+            if (a < 0 || a > buffer.Length || b < 0 || b > buffer.Length)
             {
                 Console.WriteLine();
             }
@@ -335,6 +405,47 @@ namespace ToxicRagers.Helpers
         private static uint Xor4(byte[] buffer, int offset1, int offset2)
         {
             return LookInt32(buffer, offset1) ^ LookInt32(buffer, offset2);
+        }
+
+        public override void Flush()
+        {
+            return;
+        }
+
+        public override long Seek(long offset, SeekOrigin origin)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void SetLength(long value)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override int Read(byte[] buffer, int offset, int count)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Write(byte[] buffer, int offset, int count)
+        {
+            int[] hashTable = new int[HASH_TABLESIZE];
+            byte[] output = new byte[buffer.Length + (buffer.Length / 255) + 16];
+            int i = 0;
+
+            //while (i < buffer.Length)
+            //{
+                //byte[] chunk = new byte[Math.Min(buffer.Length - i, output.Length)];
+
+                //Array.Copy(buffer, i, chunk, 0, chunk.Length);
+                //Array.Clear(hashTable, 0, hashTable.Length);
+
+                int size = Compress(hashTable, buffer, output, buffer.Length, output.Length);
+
+                stream.Write(output, 0, size);
+
+                //i += chunk.Length;
+            //}
         }
     }
 }

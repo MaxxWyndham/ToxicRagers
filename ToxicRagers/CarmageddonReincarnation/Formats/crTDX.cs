@@ -62,77 +62,82 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                 if (tdx.flags.HasFlag(Flags.ExtraData))
                 {
                     int extraDataLength = (int)br.ReadUInt32();
+                    int extraDataType = br.ReadUInt16();
 
-                    Logger.LogToFile(Logger.LogLevel.Info, "Skipped {0} bytes of extra data", extraDataLength);
-                    br.ReadBytes(extraDataLength);
+                    switch (extraDataType)
+                    {
+                        case 0:
+                            /* font */
+                            Logger.LogToFile(Logger.LogLevel.Info, "Skipped {0} bytes of extra data", extraDataLength);
+                            br.ReadBytes(extraDataLength - 2);
+                            break;
 
-                    //Logger.LogToFile("{0}", br.ReadUInt16());
-                    //Logger.LogToFile("{0}", br.ReadUInt16());
+                        case 1:
+                            /* animation */
+                            Logger.LogToFile(Logger.LogLevel.Info, "Skipped {0} bytes of extra data", extraDataLength);
+                            br.ReadBytes(extraDataLength - 2);
+                            break;
 
-                    //br.ReadUInt32(); // 0xDEADBEEF
-                    //Logger.LogToFile("DEADBEEF");
+                        case 3:
+                            /* vt dictionary */
+                            int textureType = br.ReadUInt16(); // 2 = Diffuse, 3 = Normal, 4 = Specular
 
-                    //Logger.LogToFile("{0}", br.ReadUInt32());
-                    //Logger.LogToFile("{0}", br.ReadUInt32());
-                    //Logger.LogToFile("{0}", br.ReadUInt32());
-                    //Logger.LogToFile("{0}", br.ReadUInt32());
-                    //Logger.LogToFile("{0}", br.ReadUInt32());
+                            br.ReadUInt32(); // 0xdeadbeef
 
-                    //br.ReadUInt32(); // 0xDEADBEEF
-                    //Logger.LogToFile("DEADBEEF");
+                            int sheetWidth = (int)br.ReadUInt32();
+                            int sheetHeight = (int)br.ReadUInt32();
+                            int mipLevels = (int)br.ReadUInt32();
+                            int tileSizeNoPadding = (int)br.ReadUInt32();
+                            int tilePadding = (int)br.ReadUInt32();
 
-                    //int fileCount = (int)br.ReadUInt32();
+                            br.ReadUInt32(); // 0xdeadbeef
 
-                    //for (int i = 0; i < fileCount; i++)
-                    //{
-                    //    int x = (int)br.ReadUInt32();
-                    //    int y = (int)br.ReadUInt32();
-                    //    int w = (int)br.ReadUInt32();
-                    //    int h = (int)br.ReadUInt32();
+                            int fileCount = (int)br.ReadUInt32();
 
-                    //    string file = br.ReadNullTerminatedString();
+                            for (int i = 0; i < fileCount; i++)
+                            {
+                                int x = (int)br.ReadUInt32();
+                                int y = (int)br.ReadUInt32();
+                                int w = (int)br.ReadUInt32();
+                                int h = (int)br.ReadUInt32();
+                                string file = br.ReadNullTerminatedString();
+                                br.ReadByte(); // padding?
+                            }
 
-                    //    byte b = br.ReadByte();
+                            br.ReadUInt32(); // 0xdeadbeef
 
-                    //    Logger.LogToFile("{0}\t{1}\t{2}\t{3}\t{5}\t{4}", x, y, w, h, file, b);
-                    //}
+                            int indexCount = (int)br.ReadUInt32();
 
-                    //br.ReadUInt32(); // 0xDEADBEEF
-                    //Logger.LogToFile("DEADBEEF");
+                            for (int i = 0; i < indexCount; i++)
+                            {
+                                int row = (int)br.ReadUInt32();
+                                int col = (int)br.ReadUInt32();
+                                int level = (int)br.ReadUInt32();
+                                uint hash = br.ReadUInt32();
 
-                    //int indexCount = (int)br.ReadUInt32();
+                                string tileName = string.Format("{0:x8}", hash);
+                                string zadTileName = string.Format("{0}/{1}_{2}.tdx", tileName.Substring(0, 2), tileName, (textureType == 2 ? "D" : (textureType == 3 ? "N" : "S")));
+                            }
 
-                    //for (int i = 0; i < indexCount; i++)
-                    //{
-                    //    int x = (int)br.ReadUInt32();
-                    //    int y = (int)br.ReadUInt32();
-                    //    int z = (int)br.ReadUInt32();
-                    //    uint h = br.ReadUInt32();
+                            br.ReadUInt32(); // 0xdeadbeef
 
-                    //    Logger.LogToFile("{0}\t{1}\t{2}\t{3}\t:{3:x2}", x, y, z, h);
-                    //}
+                            fileCount = (int)br.ReadUInt32();
 
-                    //br.ReadUInt32(); // 0xDEADBEEF
-                    //Logger.LogToFile("DEADBEEF");
+                            for (int i = 0; i < fileCount; i++)
+                            {
+                                string file = br.ReadNullTerminatedString();
+                                int timestamp = (int)br.ReadUInt32();
+                                br.ReadUInt32(); // padding?
+                            }
 
-                    //fileCount = (int)br.ReadUInt32();
+                            br.ReadUInt32(); // 0xdeadbeef
+                            br.ReadUInt32(); // padding?
+                            br.ReadUInt32(); // 0xdeadbeef
+                            break;
 
-                    //for (int i = 0; i < fileCount; i++)
-                    //{
-                    //    string file = br.ReadNullTerminatedString();
-                    //    int a = (int)br.ReadUInt32();
-                    //    int b = (int)br.ReadUInt32();
-
-                    //    Logger.LogToFile("{0}\t{1}\t{2}", a, b, file);
-                    //}
-
-                    //br.ReadUInt32(); // 0xDEADBEEF
-                    //Logger.LogToFile("DEADBEEF");
-
-                    //Logger.LogToFile("{0}", br.ReadUInt32());
-
-                    //br.ReadUInt32(); // 0xDEADBEEF
-                    //Logger.LogToFile("DEADBEEF");
+                        default:
+                            throw new NotImplementedException(string.Format("Unknown Extra Data flag: {0}", extraDataType));
+                    }
                 }
 
                 for (int i = 0; i < mipCount; i++)

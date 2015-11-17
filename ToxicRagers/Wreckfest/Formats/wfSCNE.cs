@@ -105,16 +105,22 @@ namespace ToxicRagers.Wreckfest.Formats
 
                                                     SCNEMeshPart part = new SCNEMeshPart();
 
-                                                    br.ReadUInt32();    // 0
-                                                    br.ReadUInt32();    // 0
-                                                    br.ReadUInt32();    // 0
-                                                    br.ReadSingle();
-                                                    br.ReadSingle();
-                                                    br.ReadSingle();
-                                                    br.ReadSingle();
-                                                    br.ReadSingle();
-                                                    br.ReadSingle();
-                                                    br.ReadSingle();
+                                                    int ia = (int)br.ReadUInt32();
+                                                    int ib = (int)br.ReadUInt32();
+                                                    int ic = (int)br.ReadUInt32();
+                                                    Single sa = br.ReadSingle();
+                                                    Single sb = br.ReadSingle();
+                                                    Single sc = br.ReadSingle();
+                                                    Single sd = br.ReadSingle();
+                                                    Single se = br.ReadSingle();
+                                                    Single sf = br.ReadSingle();
+                                                    Single sg = br.ReadSingle();
+
+                                                    Logger.LogToFile(Logger.LogLevel.Info, mesh.Name);
+                                                    Logger.LogToFile(Logger.LogLevel.Info, "{0} : {1} : {2}", ia, ib, ic);
+                                                    Logger.LogToFile(Logger.LogLevel.Info, "{0} : {1} : {2}", sa, sb, sc);
+                                                    Logger.LogToFile(Logger.LogLevel.Info, "{0} : {1} : {2}", sd, se, sf);
+                                                    Logger.LogToFile(Logger.LogLevel.Info, "{0}", sg);
 
                                                     if ((section = br.ReadString(4)) != "lrtm") { throw new InvalidDataException("Expected lrtm"); }
                                                     unknown = (int)br.ReadUInt32();
