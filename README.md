@@ -52,7 +52,7 @@ Game file formats supported...
   * **.mshs** - Read
   * **.pak** - Read, Extract
   * **.tx** - Read
-* Vigilante 82nd Offense
+* Vigilante 8: 2nd Offense
   * **xobfbin** - Partial read
   * **.exp** - Read, Extract
 * Wreckfest
