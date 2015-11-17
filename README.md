@@ -6,13 +6,13 @@ Game file formats supported...
   * **.bundle** - Read, Extract
   * **.bom** - Partial read
 * Carmageddon
-  * ***car*.txt** - Read (car details, funks, grooves, crush and bounding box data)
+  * **\<carname\>.txt** - Read (car details, funks, grooves, crush and bounding box data)
   * **.pix** - Read, Extract
 * Carmageddon 2
   * **.act** - Read, Write
   * **.dat** - Read, Write
   * **.mat** - Read, Write
-  * ***map*.txt** - Partial read
+  * **\<mapname\>.txt** - Partial read
 * Carmageddon Mobile
   * **.tdx** - Partial read
 * Carmageddon PSX
@@ -25,7 +25,7 @@ Game file formats supported...
   * **.mt2** - Read, Write
   * **postfx.lol** - Write (sort of, extremely shoddy)
   * **routes.txt** - Read
-  * ***car\*setup.lol** - Read, Write
+  * **\<carname\>\setup.lol** - Read, Write
   * **structure.xml** - Read, Write
   * **systemsdamage.xml** - Read, Write
   * **.tdx** - Read, Write
