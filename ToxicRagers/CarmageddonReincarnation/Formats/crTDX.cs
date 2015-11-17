@@ -78,20 +78,17 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                             br.ReadBytes(extraDataLength - 2);
                             break;
 
-                        case 2:
+                        case 3:
                             /* vt dictionary */
-
-                            int u1 = br.ReadUInt16();
-                            Logger.LogToFile(Logger.LogLevel.Info, "Unknown: {0}", u1);
+                            int textureType = br.ReadUInt16(); // 2 = Diffuse, 3 = Normal, 4 = Specular
 
                             br.ReadUInt32(); // 0xdeadbeef
 
                             int sheetWidth = (int)br.ReadUInt32();
                             int sheetHeight = (int)br.ReadUInt32();
                             int mipLevels = (int)br.ReadUInt32();
-                            int u2 = (int)br.ReadUInt32();
-                            int u3 = (int)br.ReadUInt32();
-                            Logger.LogToFile(Logger.LogLevel.Info, "{0}x{1} with {2} levels.  U: {3} U: {4}", sheetWidth, sheetHeight, mipLevels, u2, u3);
+                            int tileSizeNoPadding = (int)br.ReadUInt32();
+                            int tilePadding = (int)br.ReadUInt32();
 
                             br.ReadUInt32(); // 0xdeadbeef
 
@@ -105,7 +102,6 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                                 int h = (int)br.ReadUInt32();
                                 string file = br.ReadNullTerminatedString();
                                 br.ReadByte(); // padding?
-                                Logger.LogToFile(Logger.LogLevel.Info, "{0}x{1}\t{2}x{3}\t{4}", x, y, w, h, file);
                             }
 
                             br.ReadUInt32(); // 0xdeadbeef
@@ -119,9 +115,8 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                                 int level = (int)br.ReadUInt32();
                                 uint hash = br.ReadUInt32();
 
-                                string tileName = string.Format("{0:x02}", hash);
-
-                                Logger.LogToFile(Logger.LogLevel.Info, "{0}x{1}\tlevel {2}\t{3}", row, col, level, tileName);
+                                string tileName = string.Format("{0:x8}", hash);
+                                string zadTileName = string.Format("{0}/{1}_{2}.tdx", tileName.Substring(0, 2), tileName, (textureType == 2 ? "D" : (textureType == 3 ? "N" : "S")));
                             }
 
                             br.ReadUInt32(); // 0xdeadbeef
@@ -132,15 +127,11 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                             {
                                 string file = br.ReadNullTerminatedString();
                                 int timestamp = (int)br.ReadUInt32();
-                                int b = (int)br.ReadUInt32();
-
-                                Logger.LogToFile(Logger.LogLevel.Info, "{0}\t{1}\t{2}", timestamp, b, file);
+                                br.ReadUInt32(); // padding?
                             }
 
                             br.ReadUInt32(); // 0xdeadbeef
-
-                            Logger.LogToFile(Logger.LogLevel.Info, "{0} is always zero", br.ReadUInt32());
-
+                            br.ReadUInt32(); // padding?
                             br.ReadUInt32(); // 0xdeadbeef
                             break;
 
