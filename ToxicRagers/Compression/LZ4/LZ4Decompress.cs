@@ -1,7 +1,6 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 
-namespace ToxicRagers.Helpers
+namespace ToxicRagers.Compression.LZ4
 {
     class LZ4Decompress : BinaryReader
     {
@@ -18,7 +17,7 @@ namespace ToxicRagers.Helpers
 
             while (true)
             {
-                byte token = this.ReadByte();
+                byte token = ReadByte();
                 int literalsLength = (token & 0xF0) >> 4;
                 int matchLength = (token & 0x0F) + 4;
 
@@ -28,16 +27,16 @@ namespace ToxicRagers.Helpers
 
                     while (lengthToAdd == 255)
                     {
-                        lengthToAdd = this.ReadByte();
+                        lengthToAdd = ReadByte();
                         literalsLength += lengthToAdd;
                     }
                 }
 
-                for (int i = 0; i < literalsLength; i++) { buffer[index + pos++] = this.ReadByte(); }
+                for (int i = 0; i < literalsLength; i++) { buffer[index + pos++] = ReadByte(); }
 
-                if (this.BaseStream.Position == this.BaseStream.Length) { break; }
+                if (BaseStream.Position == BaseStream.Length) { break; }
 
-                int offset = this.ReadUInt16();
+                int offset = ReadUInt16();
 
                 if (matchLength == 19)
                 {
@@ -45,7 +44,7 @@ namespace ToxicRagers.Helpers
 
                     while (matchToAdd == 255)
                     {
-                        matchToAdd = this.ReadByte();
+                        matchToAdd = ReadByte();
                         matchLength += matchToAdd;
                     }
                 }

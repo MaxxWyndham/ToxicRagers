@@ -142,8 +142,8 @@
     <Compile Include="Helpers\IO.cs" />
     <Compile Include="Helpers\Line.cs" />
     <Compile Include="Helpers\Logger.cs" />
-    <Compile Include="Helpers\LZ4Compress.cs" />
-    <Compile Include="Helpers\LZ4Decompress.cs" />
+    <Compile Include="Compression\LZ4\LZ4Compress.cs" />
+    <Compile Include="Compression\LZ4\LZ4Decompress.cs" />
     <Compile Include="Helpers\Matrix2D.cs" />
     <Compile Include="Helpers\Matrix3D.cs" />
     <Compile Include="Helpers\Matrix4D.cs" />

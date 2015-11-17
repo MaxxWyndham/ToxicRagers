@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
-using System.Threading.Tasks;
 
+using ToxicRagers.Compression.LZ4;
 using ToxicRagers.Helpers;
 
 namespace ToxicRagers.Stainless.Formats
@@ -15,24 +15,32 @@ namespace ToxicRagers.Stainless.Formats
         VirtualTexture
     }
 
+    public enum CompressionMethods
+    {
+        None = 0,
+        Deflate = 8,
+        LZ4 = 56
+    }
+
     public class ZAD
     {
         string name;
         string location;
-        int entryCount;
         List<ZADEntry> contents;
         ZADType type = ZADType.Archive;
-
-        Version version;
-        int flags;
 
         public string Name { get { return name; } }
         public List<ZADEntry> Contents { get { return contents; } }
         public bool IsVT { get { return type == ZADType.VirtualTexture; } }
+        public ZADType Type
+        {
+            get { return type; }
+            set { type = value; }
+        }
 
         public int CentralDirectoryOffset
         {
-            get { return contents.Sum(e => e.EntrySize); }
+            get { return contents.Sum(e => e.EntrySize + e.Padding); }
         }
 
         public ZAD()
@@ -48,7 +56,13 @@ namespace ToxicRagers.Stainless.Formats
 
         public static ZAD Create(string path)
         {
+            return Create(path, ZADType.Archive);
+        }
+
+        public static ZAD Create(string path, ZADType type)
+        {
             ZAD zad = new ZAD(Path.GetFileNameWithoutExtension(path));
+            zad.type = type;
             zad.location = Path.GetDirectoryName(path);
 
             using (BinaryWriter bw = new BinaryWriter(new FileStream(path, FileMode.Create)))
@@ -110,6 +124,22 @@ namespace ToxicRagers.Stainless.Formats
                         zad.contents.Add(new ZADEntry(ms));
                     }
                 }
+
+                /* The padding calculations below serve no real purpose, they're just used for debugging VTs */
+
+                ZADEntry lastEntry = null;
+
+                foreach (ZADEntry entry in zad.contents.OrderBy(e => e.Offset))
+                {
+                    if (lastEntry != null)
+                    {
+                        lastEntry.Padding = entry.Offset - lastEntry.Offset - lastEntry.SizeCompressed;
+                    }
+
+                    lastEntry = entry;
+                }
+
+                lastEntry.Padding = directoryOffset - lastEntry.Offset - lastEntry.SizeCompressed;
             }
 
             return zad;
@@ -131,20 +161,23 @@ namespace ToxicRagers.Stainless.Formats
 
             ZADEntry directory = new ZADEntry();
             directory.Name = path.Replace(root, "").Replace("\\", "/") + "/";
-
-            // Write entry
             directory.Offset = (int)bw.BaseStream.Position;
-            bw.Write(new byte[] { 0x50, 0x4b, 0x03, 0x04 });
-            bw.Write((short)0x14);  // Version needed to extract
-            bw.Write((short)0);     // Flags
-            bw.Write((short)0);     // Compression method (0 == stored)
-            bw.Write(0);            // DateTime
-            bw.Write(0);            // CRC
-            bw.Write(0);            // Compressed filesize
-            bw.Write(0);            // Uncompressed filesize
-            bw.Write(directory.Name.Length);
-            bw.Write(directory.Name.ToCharArray());
-            this.contents.Add(directory);
+
+            /* Write entry (ZAD.VTs don't record folder info as specific entries) */
+            if (type == ZADType.Archive)
+            {
+                bw.Write(new byte[] { 0x50, 0x4b, 0x03, 0x04 });
+                bw.Write((short)0x0a);  // Version needed to extract
+                bw.Write((short)0);     // Flags
+                bw.Write((short)CompressionMethods.None);
+                bw.Write(0);            // DateTime
+                bw.Write(0);            // CRC
+                bw.Write(0);            // Compressed filesize
+                bw.Write(0);            // Uncompressed filesize
+                bw.Write(directory.Name.Length);
+                bw.Write(directory.Name.ToCharArray());
+                contents.Add(directory);
+            }
 
             foreach (var folder in Directory.GetDirectories(path))
             {
@@ -158,23 +191,34 @@ namespace ToxicRagers.Stainless.Formats
                 if (string.Compare(Path.GetExtension(file), ".img", true) == 0) { continue; }
 
                 ZADEntry entry = new ZADEntry();
-                entry.Data = File.ReadAllBytes(file);
-                entry.Offset = (int)bw.BaseStream.Position;
+                entry.CompressionMethod = (type == ZADType.Archive ? CompressionMethods.Deflate : CompressionMethods.LZ4);
                 entry.Name = directory.Name + Path.GetFileName(file);
+                entry.Offset = (int)bw.BaseStream.Position;
+                entry.Data = File.ReadAllBytes(file);
 
-                bw.Write(new byte[] { 0x50, 0x4b, 0x03, 0x04 });
-                bw.Write((short)0x14);  // Version needed to extract
-                bw.Write((short)0);     // Flags
-                bw.Write((short)entry.CompressionMethod);
-                bw.Write(0);            // DateTime
-                bw.Write(entry.CRC);
-                bw.Write(entry.SizeCompressed);
-                bw.Write(entry.SizeUncompressed);
-                bw.Write(entry.Name.Length);
-                bw.Write(entry.Name.ToCharArray());
+                if (type == ZADType.Archive)
+                {
+                    bw.Write(new byte[] { 0x50, 0x4b, 0x03, 0x04 });
+                    bw.Write((short)0x14);  // Version needed to extract
+                    bw.Write((short)0);     // Flags
+                    bw.Write((short)entry.CompressionMethod);
+                    bw.Write(0);            // DateTime
+                    bw.Write(entry.CRC);
+                    bw.Write(entry.SizeCompressed);
+                    bw.Write(entry.SizeUncompressed);
+                    bw.Write(entry.Name.Length);
+                    bw.Write(entry.Name.ToCharArray());
+                }
                 bw.Write(entry.Data);
 
-                this.contents.Add(entry);
+                if (type == ZADType.VirtualTexture)
+                {
+                    while (entry.Data.Length > entry.Padding) { entry.Padding += 4096; }
+                    entry.Padding -= entry.Data.Length;
+                    bw.Write(new byte[entry.Padding]);
+                }
+
+                contents.Add(entry);
             }
         }
 
@@ -184,26 +228,34 @@ namespace ToxicRagers.Stainless.Formats
 
             foreach (ZADEntry entry in contents)
             {
-                // Write end of dictionary
+                /* Write end of dictionary */
                 bw.Write(new byte[] { 0x50, 0x4b, 0x01, 0x02 });
                 bw.Write((byte)0x3f);   // Version made by
                 bw.Write((byte)0);      // Host OS
-                bw.Write((byte)0x14);   // Minimum version to extract
+                bw.Write((byte)0x0a);   // Minimum version to extract
                 bw.Write((byte)0);      // Target OS
-                bw.Write((short)0);     // Flags
+                bw.Write((short)(entry.CompressionMethod == CompressionMethods.LZ4 ? 0x100 : 0x0)); // Flags
                 bw.Write((short)entry.CompressionMethod);
                 bw.Write(0);            // DateTime
                 bw.Write(entry.CRC);
                 bw.Write(entry.SizeCompressed);
                 bw.Write(entry.SizeUncompressed);
                 bw.Write((short)entry.Name.Length);
-                bw.Write((short)0);     // Extra field length
+                bw.Write((short)36);    // Extra field length
                 bw.Write((short)0);     // Comment length
                 bw.Write((short)0);     // Disk number
                 bw.Write((short)0);     // Internal file attributes
                 bw.Write(0x20);         // External file attributes
                 bw.Write(entry.Offset); // Relative offset from start
                 bw.Write(entry.Name.ToCharArray());
+                bw.Write((short)0x0a);
+                bw.Write((short)0x20);
+                bw.Write(0);
+                bw.Write((short)0x01);
+                bw.Write((short)0x18);
+                bw.Write(DateTime.Now.Ticks);
+                bw.Write(DateTime.Now.Ticks);
+                bw.Write(DateTime.Now.Ticks);
             }
 
             centralDirectorySize = (int)bw.BaseStream.Position - centralDirectorySize;
@@ -244,8 +296,8 @@ namespace ToxicRagers.Stainless.Formats
 
                         switch (file.CompressionMethod)
                         {
-                            case 0: // no compression
-                            case 8: // deflate
+                            case CompressionMethods.None:
+                            case CompressionMethods.Deflate:
                                 if (bfs.ReadByte() != 0x50 ||
                                     bfs.ReadByte() != 0x4B ||
                                     bfs.ReadByte() != 0x03 ||
@@ -268,7 +320,7 @@ namespace ToxicRagers.Stainless.Formats
                                 bfs.ReadString(nameLength);
                                 bfs.ReadBytes(extraLength);
 
-                                if (file.CompressionMethod == 0)
+                                if (file.CompressionMethod == CompressionMethods.None)
                                 {
                                     bfs.Read(buff, 0, file.SizeUncompressed);
                                 }
@@ -282,11 +334,11 @@ namespace ToxicRagers.Stainless.Formats
                                 }
                                 break;
 
-                            case 56:
+                            case CompressionMethods.LZ4:
                                 using (var ms = new MemoryStream(bfs.ReadBytes(file.SizeCompressed)))
                                 using (var lz4 = new LZ4Decompress(ms))
                                 {
-                                    lz4.Read(buff, 0, file.SizeUncompressed);
+                                    lz4.Read(buff, 0, file.SizeCompressed);
                                 }
                                 break;
 
@@ -310,8 +362,9 @@ namespace ToxicRagers.Stainless.Formats
         int sizeCompressed;
         int sizeUncompressed;
         int offset;
+        int padding;
         string name;
-        int compressionMethod;
+        CompressionMethods compressionMethod;
 
         public string Name
         {
@@ -323,6 +376,12 @@ namespace ToxicRagers.Stainless.Formats
         {
             get { return offset; }
             set { offset = value; }
+        }
+
+        public int Padding
+        {
+            get { return padding; }
+            set { padding = value; }
         }
 
         public byte[] CRC
@@ -341,17 +400,37 @@ namespace ToxicRagers.Stainless.Formats
 
                 if (sizeUncompressed > 0)
                 {
-                    using (MemoryStream ms = new MemoryStream())
-                    using (DeflateStream ds = new DeflateStream(ms, CompressionMode.Compress))
+                    switch (compressionMethod)
                     {
-                        ds.Write(data, 0, data.Length);
-                        ds.Flush();
-                        ds.Close();
+                        case CompressionMethods.Deflate:
+                            using (MemoryStream ms = new MemoryStream())
+                            using (DeflateStream ds = new DeflateStream(ms, CompressionMode.Compress))
+                            {
+                                ds.Write(data, 0, data.Length);
+                                ds.Flush();
+                                ds.Close();
 
-                        data = ms.ToArray();
+                                data = ms.ToArray();
+                            }
+
+                            break;
+
+                        case CompressionMethods.LZ4:
+                            using (MemoryStream ms = new MemoryStream())
+                            using (LZ4Compress lz4 = new LZ4Compress(ms))
+                            {
+                                lz4.Write(data, 0, data.Length);
+                                lz4.Flush();
+                                lz4.Close();
+
+                                data = ms.ToArray();
+                            }
+                            break;
                     }
-
-                    compressionMethod = 8;
+                }
+                else
+                {
+                    compressionMethod = CompressionMethods.None;
                 }
 
                 sizeCompressed = data.Length;
@@ -370,12 +449,23 @@ namespace ToxicRagers.Stainless.Formats
 
         public int EntrySize
         {
-            get { return name.Length + sizeCompressed + 0x1e; }
+            get
+            {
+                if (compressionMethod == CompressionMethods.LZ4)
+                {
+                    return sizeCompressed;
+                }
+                else
+                {
+                    return name.Length + sizeCompressed + 0x1e;
+                }
+            }
         }
 
-        public int CompressionMethod
+        public CompressionMethods CompressionMethod
         {
             get { return compressionMethod; }
+            set { compressionMethod = value; }
         }
 
         public ZADEntry()
@@ -393,10 +483,12 @@ namespace ToxicRagers.Stainless.Formats
                 return;
             }
 
-            br.ReadUInt16();    // version made by
-            br.ReadUInt16();    // version needed to extract    
+            br.ReadByte();      // version made by
+            br.ReadByte();      // Host OS
+            br.ReadByte();      // version needed to extract    
+            br.ReadByte();      // target os
             int flags = br.ReadUInt16();
-            compressionMethod = br.ReadUInt16();
+            compressionMethod = (CompressionMethods)br.ReadUInt16();
             br.ReadUInt16();    // file last modified time
             br.ReadUInt16();    // file last modified date
             br.ReadUInt32();    // crc32
