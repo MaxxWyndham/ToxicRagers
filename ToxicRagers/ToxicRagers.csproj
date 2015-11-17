@@ -153,7 +153,7 @@
     <Compile Include="Helpers\Vector2.cs" />
     <Compile Include="Helpers\Vector3.cs" />
     <Compile Include="Helpers\Vector4.cs" />
-    <Compile Include="Helpers\LSZZDecompress.cs" />
+    <Compile Include="Compression\LSZZ\LSZZDecompress.cs" />
     <Compile Include="Novadrome\Formats\nXT2.cs" />
     <Compile Include="Powerslide\HistoricCode.cs" />
     <Compile Include="Stainless\Formats\sCNT.cs" />

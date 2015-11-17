@@ -1,9 +1,8 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 
-namespace ToxicRagers.Helpers
+namespace ToxicRagers.Compression.LZSS
 {
-    class LSZZDecompress : BinaryReader
+    public class LSZZDecompress : BinaryReader
     {
         // "Based" on the code found here:
         // http://my.execpc.com/~geezer/code/lzss.c
@@ -32,26 +31,26 @@ namespace ToxicRagers.Helpers
             {
                 if ((flags & 0x100) == 0)
                 {
-                    if (this.BaseStream.Position == this.BaseStream.Length) { break; }
-                    c = this.ReadByte();
+                    if (BaseStream.Position == BaseStream.Length) { break; }
+                    c = ReadByte();
 
                     flags = c | 0xFF00;
                 }
 
                 if ((flags & 1) == 1)
                 {
-                    if (this.BaseStream.Position == this.BaseStream.Length) { break; }
-                    c = this.ReadByte();
+                    if (BaseStream.Position == BaseStream.Length) { break; }
+                    c = ReadByte();
                     buffer[index++] = c;
                     g_ring_buffer[r] = c;
                     r = (r + 1) & (N - 1);
                 }
                 else
                 {
-                    if (this.BaseStream.Position == this.BaseStream.Length) { break; }
-                    i = this.ReadByte();
-                    if (this.BaseStream.Position == this.BaseStream.Length) { break; }
-                    j = this.ReadByte();
+                    if (BaseStream.Position == BaseStream.Length) { break; }
+                    i = ReadByte();
+                    if (BaseStream.Position == BaseStream.Length) { break; }
+                    j = ReadByte();
 
                     i |= ((j & 0xF0) << 4);
                     j = (j & 0x0F) + THRESHOLD;
