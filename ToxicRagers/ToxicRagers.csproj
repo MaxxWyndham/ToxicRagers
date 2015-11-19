@@ -24,6 +24,7 @@
     <WarningLevel>4</WarningLevel>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <Prefer32Bit>false</Prefer32Bit>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -77,6 +78,12 @@
     <Compile Include="CarmageddonReincarnation\Formats\crStructureXML.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\crSystemsDamageXML.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\crVehicleSetupCFG.cs" />
+    <Compile Include="CarmageddonReincarnation\Formats\crVTMap.cs" />
+    <Compile Include="CarmageddonReincarnation\Formats\crVTMapEntry.cs" />
+    <Compile Include="CarmageddonReincarnation\Formats\crVTMapPage.cs" />
+    <Compile Include="CarmageddonReincarnation\Formats\crVTMapTile.cs" />
+    <Compile Include="CarmageddonReincarnation\Formats\crVTMapTileTDX.cs" />
+    <Compile Include="CarmageddonReincarnation\Formats\crVTPage.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\Materials\car_shader_base.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\Materials\car_shader_base2.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\Materials\car_shader_double_sided_base.cs" />
@@ -123,9 +130,11 @@
     <Compile Include="Core\Formats\cDDS.cs" />
     <Compile Include="Core\Formats\cFBX.cs" />
     <Compile Include="Core\Formats\cOBB.cs" />
+    <Compile Include="Core\Formats\TgaFile.cs" />
     <Compile Include="DestructionDerbyRaw\Formats\ddrPTH.cs" />
     <Compile Include="DoubleStealSecondClash\Formats\dsscPk.cs" />
     <Compile Include="DoubleStealSecondClash\Formats\dsscXPR.cs" />
+    <Compile Include="Helpers\BC5Unorm.cs" />
     <Compile Include="Helpers\BinaryFileStream.cs" />
     <Compile Include="Helpers\BinaryMemoryStream.cs" />
     <Compile Include="Helpers\ColourHelper.cs" />

@@ -76,7 +76,7 @@ namespace ToxicRagers.Stainless.Formats
         public static ZAD Load(string path)
         {
             FileInfo fi = new FileInfo(path);
-            Logger.LogToFile(Logger.LogLevel.Info, "{0}", path);
+            //Logger.LogToFile(Logger.LogLevel.Info, "{0}", path);
             ZAD zad = new ZAD();
 
             zad.name = Path.GetFileNameWithoutExtension(path);
@@ -133,18 +133,211 @@ namespace ToxicRagers.Stainless.Formats
                 {
                     if (lastEntry != null)
                     {
-                        lastEntry.Padding = entry.Offset - lastEntry.Offset - lastEntry.SizeCompressed;
+                        lastEntry.Padding = entry.Offset - lastEntry.Offset - lastEntry.EntrySize;
                     }
 
                     lastEntry = entry;
                 }
 
-                lastEntry.Padding = directoryOffset - lastEntry.Offset - lastEntry.SizeCompressed;
+                lastEntry.Padding = directoryOffset - lastEntry.Offset - lastEntry.EntrySize;
             }
 
             return zad;
         }
+        public void RemoveEntry(ZADEntry entry)
+        {
+            int indexOfEntry = contents.IndexOf(entry);
+            int oldContentsCount = contents.Count;
+            int centralDirectoryOffset = CentralDirectoryOffset;
+            //ZADEntry nextEntry = indexOfEntry == contents.Count ? null : contents[indexOfEntry + 1];
+            contents.Remove(entry);
+            using (var fs = new FileStream(Path.Combine(this.location, this.name + ".zad"), FileMode.Open))
+            {
+                Logger.LogToFile(Logger.LogLevel.Info, "\tFile Size Before Removal:\t\t{0}", fs.Length);
+                Logger.LogToFile(Logger.LogLevel.Info, "\tEntryOffset:\t\t\t\t\t\t{0}", entry.Offset);
 
+                int dataSize = entry.EntrySize + entry.Padding;
+                Logger.LogToFile(Logger.LogLevel.Info, "\tEntrySize:\t\t\t\t\t\t{0}\n\tEntryPadding:\t\t\t\t\t{1}\n\tDataSize:\t\t\t\t\t\t{2}", entry.EntrySize, entry.Padding, dataSize);
+                /*if (type == ZADType.Archive)\
+                {
+                    dataSize += 30 + entry.Name.Length;
+                }
+                else if (type == ZADType.VirtualTexture)
+                {
+
+                    dataSize += entry.Padding;
+                }*/
+                Logger.LogToFile(Logger.LogLevel.Info, "\tEntryOffset+DataSize:\t\t\t{0}\n\tNextEntryOffset:\t\t\t\t{1}", entry.Offset + dataSize, contents[indexOfEntry + 1].Offset);
+
+                var nextEntryOffset = entry.Offset + dataSize;
+                int foundOffset = contents[indexOfEntry + 1].Offset;
+                ZADEntry foundEntry = null;
+                int firstIndexAfterEntry = 0;
+                for (int i = 1; i < contents.Count; i++)
+                {
+                    if (contents[i].Offset >= nextEntryOffset && contents[i].Offset <= foundOffset)
+                    {
+                        foundOffset = contents[i].Offset;
+                        foundEntry = contents[i];
+                    }
+                    //fs.Seek(contents[i].Offset, SeekOrigin.Begin);
+                    if (contents[i].Offset > entry.Offset)
+                    {
+                        if (firstIndexAfterEntry == 0) firstIndexAfterEntry = i;
+                        contents[i].Offset -= dataSize;
+                    }
+                }
+                if (foundEntry != null) Logger.LogToFile(Logger.LogLevel.Info, "\tFoundEntryOffset:\t\t\t{0}\n\tFoundEntryName:\t\t\t\t\t{1}\n\tFoundEntrySize:\t\t\t\t\t{2}", foundOffset, foundEntry.Name, foundEntry.EntrySize + foundEntry.Padding);
+                Logger.LogToFile(Logger.LogLevel.Info, "\tCalculatedNextEntryOffset:\t\t{0}", nextEntryOffset);
+                fs.Seek(nextEntryOffset, SeekOrigin.Begin);
+                byte[] data = new byte[fs.Length - nextEntryOffset];
+                fs.Read(data, 0, (int)fs.Length - nextEntryOffset);
+                fs.Seek(entry.Offset, SeekOrigin.Begin);
+
+                fs.SetLength(entry.Offset);
+
+                fs.Write(data, 0, data.Length);
+                using (var bw = new BinaryWriter(fs))
+                {
+                    bw.Seek(CentralDirectoryOffset, SeekOrigin.Begin);
+                    fs.SetLength(CentralDirectoryOffset);
+                    this.WriteCentralDirectory(bw);
+                    Logger.LogToFile(Logger.LogLevel.Info, "\tFile Size After Removal:\t\t{0}", fs.Length);
+                }
+
+            }
+        }
+        public void ReplaceEntryFromFile(ZADEntry entry, string file)
+        {
+            ReplaceEntryFromBuffer(entry, File.ReadAllBytes(file));
+        }
+        public void ReplaceEntryFromBuffer(ZADEntry entry, byte[] newData)
+        {
+            int indexOfEntry = contents.IndexOf(entry);
+            int oldContentsCount = contents.Count;
+            int centralDirectoryOffset = CentralDirectoryOffset;
+            //ZADEntry nextEntry = indexOfEntry == contents.Count ? null : contents[indexOfEntry + 1];
+            //contents.Remove(entry);
+            using (var fs = new FileStream(Path.Combine(this.location, this.name + ".zad"), FileMode.Open))
+            {
+
+
+                int dataSize = entry.EntrySize + entry.Padding;
+                entry.Data = newData;
+                entry.Padding = 0;
+                if(Type == ZADType.VirtualTexture)
+                {
+
+                    while (entry.Data.Length > entry.Padding) { entry.Padding += 4096; }
+                    entry.Padding -= entry.Data.Length;
+                }
+                int newDataSize = entry.EntrySize + entry.Padding;
+                
+                var nextEntryOffset = entry.Offset + dataSize;
+                int foundOffset = contents[indexOfEntry + 1].Offset;
+                ZADEntry foundEntry = null;
+                int firstIndexAfterEntry = 0;
+                for (int i = 1; i < contents.Count; i++)
+                {
+                    if (indexOfEntry == i) continue;
+                    if (contents[i].Offset >= nextEntryOffset && contents[i].Offset <= foundOffset)
+                    {
+                        foundOffset = contents[i].Offset;
+                        foundEntry = contents[i];
+                    }
+                    //fs.Seek(contents[i].Offset, SeekOrigin.Begin);
+                    if (contents[i].Offset > entry.Offset)
+                    {
+                        if (firstIndexAfterEntry == 0) firstIndexAfterEntry = i;
+                        contents[i].Offset -= dataSize;
+                        contents[i].Offset += newDataSize;
+                    }
+                }
+
+                fs.Seek(nextEntryOffset, SeekOrigin.Begin);
+                byte[] data = new byte[fs.Length - nextEntryOffset];
+                fs.Read(data, 0, (int)fs.Length - nextEntryOffset);
+                fs.Seek(entry.Offset, SeekOrigin.Begin);
+
+                fs.SetLength(entry.Offset);
+
+
+                using (var bw = new BinaryWriter(fs))
+                {
+                    if (type == ZADType.Archive)
+                    {
+                        bw.Write(new byte[] { 0x50, 0x4b, 0x03, 0x04 });
+                        bw.Write((short)0x14);  // Version needed to extract
+                        bw.Write((short)0);     // Flags
+                        bw.Write((short)entry.CompressionMethod);
+                        bw.Write(0);            // DateTime
+                        bw.Write(entry.CRC);
+                        bw.Write(entry.SizeCompressed);
+                        bw.Write(entry.SizeUncompressed);
+                        bw.Write(entry.Name.Length);
+                        bw.Write(entry.Name.ToCharArray());
+                    }
+                    bw.Write(entry.Data);
+
+                    if (type == ZADType.VirtualTexture)
+                    {
+                        bw.Write(new byte[entry.Padding]);
+                    }
+
+                    fs.Write(data, 0, data.Length);
+                    bw.Seek(CentralDirectoryOffset, SeekOrigin.Begin);
+                    fs.SetLength(CentralDirectoryOffset);
+                    this.WriteCentralDirectory(bw);
+                    
+                }
+
+            }
+        }
+        public void AddEntryFromFile(string file, string folder)
+        {
+            AddEntryFromBuffer(File.ReadAllBytes(file), Path.Combine(folder, Path.GetFileName(file)));
+        }
+        public void AddEntryFromBuffer(byte[] data, string name)
+        {
+            using (BinaryWriter bw = new BinaryWriter(new FileStream(Path.Combine(this.location, this.name + ".zad"), FileMode.Open)))
+            {
+                
+                bw.Seek(this.CentralDirectoryOffset, SeekOrigin.Begin);
+
+                ZADEntry entry = new ZADEntry();
+                entry.CompressionMethod = (type == ZADType.Archive ? CompressionMethods.Deflate : CompressionMethods.LZ4);
+                entry.Name = name;
+                entry.Offset = (int)bw.BaseStream.Position;
+                entry.Data = data;
+
+
+                if (type == ZADType.Archive)
+                {
+                    bw.Write(new byte[] { 0x50, 0x4b, 0x03, 0x04 });
+                    bw.Write((short)0x14);  // Version needed to extract
+                    bw.Write((short)0);     // Flags
+                    bw.Write((short)entry.CompressionMethod);
+                    bw.Write(0);            // DateTime
+                    bw.Write(entry.CRC);
+                    bw.Write(entry.SizeCompressed);
+                    bw.Write(entry.SizeUncompressed);
+                    bw.Write(entry.Name.Length);
+                    bw.Write(entry.Name.ToCharArray());
+                }
+                bw.Write(entry.Data);
+
+                if (type == ZADType.VirtualTexture)
+                {
+                    while (entry.Data.Length > entry.Padding) { entry.Padding += 4096; }
+                    entry.Padding -= entry.Data.Length;
+                    bw.Write(new byte[entry.Padding]);
+                }
+
+                contents.Add(entry);
+
+                this.WriteCentralDirectory(bw);
+            }
+        }
         public void AddDirectory(string path)
         {
             using (BinaryWriter bw = new BinaryWriter(new FileStream(Path.Combine(this.location, this.name + ".zad"), FileMode.Open)))
@@ -292,65 +485,89 @@ namespace ToxicRagers.Stainless.Formats
                     {
                         bfs.Seek(file.Offset, SeekOrigin.Begin);
 
-                        var buff = new byte[file.SizeUncompressed];
-
-                        switch (file.CompressionMethod)
-                        {
-                            case CompressionMethods.None:
-                            case CompressionMethods.Deflate:
-                                if (bfs.ReadByte() != 0x50 ||
-                                    bfs.ReadByte() != 0x4B ||
-                                    bfs.ReadByte() != 0x03 ||
-                                    bfs.ReadByte() != 0x04)
-                                {
-                                    Logger.LogToFile(Logger.LogLevel.Error, "{0:x2} has a malformed header", (bfs.Position - 4));
-                                    return;
-                                }
-
-                                bfs.ReadUInt16();    // version needed to extract    
-                                bfs.ReadUInt16();    // flags
-                                bfs.ReadUInt16();    // compression method
-                                bfs.ReadUInt16();    // file last modified time
-                                bfs.ReadUInt16();    // file last modified date
-                                bfs.ReadUInt32();    // crc32
-                                bfs.ReadUInt32();    // compressed size
-                                bfs.ReadUInt32();    // uncompressed size
-                                int nameLength = bfs.ReadUInt16();
-                                int extraLength = bfs.ReadUInt16();
-                                bfs.ReadString(nameLength);
-                                bfs.ReadBytes(extraLength);
-
-                                if (file.CompressionMethod == CompressionMethods.None)
-                                {
-                                    bfs.Read(buff, 0, file.SizeUncompressed);
-                                }
-                                else
-                                {
-                                    using (var ms = new MemoryStream(bfs.ReadBytes(file.SizeCompressed)))
-                                    using (var ds = new DeflateStream(ms, CompressionMode.Decompress))
-                                    {
-                                        ds.Read(buff, 0, file.SizeUncompressed);
-                                    }
-                                }
-                                break;
-
-                            case CompressionMethods.LZ4:
-                                using (var ms = new MemoryStream(bfs.ReadBytes(file.SizeCompressed)))
-                                using (var lz4 = new LZ4Decompress(ms))
-                                {
-                                    lz4.Read(buff, 0, file.SizeCompressed);
-                                }
-                                break;
-
-                            default:
-                                throw new NotImplementedException(string.Format("Unknown CompressionMethod: {0}", file.CompressionMethod));
-                        }
+                        var buff = Decompress(file, bfs);
 
                         bw.Write(buff);
                         buff = null;
                     }
                 }
             }
+        }
+        public byte[] ExtractToBuffer(ZADEntry file)
+        {
+
+            file.Name = file.Name.Replace("/", "\\");
+
+            if (file.SizeUncompressed == 0)
+            {
+                return null; //if (!Directory.Exists(destination + file.Name)) { Directory.CreateDirectory(destination + file.Name); }
+            }
+            using (var bfs = new BinaryFileStream(this.location + this.name + ".zad", FileMode.Open))
+            {
+                bfs.Seek(file.Offset, SeekOrigin.Begin);
+
+                return Decompress(file, bfs);
+
+            }
+        }
+
+        public byte[] Decompress(ZADEntry file, BinaryFileStream bfs)
+        {
+            var buff = new byte[file.SizeUncompressed];
+
+            switch (file.CompressionMethod)
+            {
+                case CompressionMethods.None:
+                case CompressionMethods.Deflate:
+                    if (bfs.ReadByte() != 0x50 ||
+                        bfs.ReadByte() != 0x4B ||
+                        bfs.ReadByte() != 0x03 ||
+                        bfs.ReadByte() != 0x04)
+                    {
+                        Logger.LogToFile(Logger.LogLevel.Error, "{0:x2} has a malformed header", (bfs.Position - 4));
+                        return null;
+                    }
+
+                    bfs.ReadUInt16();    // version needed to extract    
+                    bfs.ReadUInt16();    // flags
+                    bfs.ReadUInt16();    // compression method
+                    bfs.ReadUInt16();    // file last modified time
+                    bfs.ReadUInt16();    // file last modified date
+                    bfs.ReadUInt32();    // crc32
+                    bfs.ReadUInt32();    // compressed size
+                    bfs.ReadUInt32();    // uncompressed size
+                    int nameLength = bfs.ReadUInt16();
+                    int extraLength = bfs.ReadUInt16();
+                    bfs.ReadString(nameLength);
+                    bfs.ReadBytes(extraLength);
+
+                    if (file.CompressionMethod == CompressionMethods.None)
+                    {
+                        bfs.Read(buff, 0, file.SizeUncompressed);
+                    }
+                    else
+                    {
+                        using (var ms = new MemoryStream(bfs.ReadBytes(file.SizeCompressed)))
+                        using (var ds = new DeflateStream(ms, CompressionMode.Decompress))
+                        {
+                            ds.Read(buff, 0, file.SizeUncompressed);
+                        }
+                    }
+                    break;
+
+                case CompressionMethods.LZ4:
+                    using (var ms = new MemoryStream(bfs.ReadBytes(file.SizeCompressed)))
+                    using (var lz4 = new LZ4Decompress(ms))
+                    {
+                        lz4.Read(buff, 0, file.SizeCompressed);
+                    }
+                    break;
+
+                default:
+                    throw new NotImplementedException(string.Format("Unknown CompressionMethod: {0}", file.CompressionMethod));
+            }
+
+            return buff;
         }
     }
 
