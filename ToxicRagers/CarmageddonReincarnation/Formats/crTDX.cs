@@ -45,6 +45,10 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
         {
             get { return extraData; }
         }
+        public void SetFlags(Flags flags)
+        {
+            this.flags = flags;
+        }
 
         public TDX()
             : base()
@@ -247,39 +251,88 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                         flags = Squish.SquishFlags.kDxt5;
                         break;
                 }
+                var mipBitmaps = GenerateMips(b, b.Width, b.Height);
 
-                var mip = new MipMap();
-                mip.Width = b.Width;
-                mip.Height = b.Height;
-
-                byte[] data = new byte[b.Width * b.Height * 4];
-                byte[] dest = new byte[Squish.Squish.GetStorageRequirements(b.Width, b.Height, flags | Squish.SquishFlags.kColourIterativeClusterFit | Squish.SquishFlags.kWeightColourByAlpha)];
-
-                int ii = 0;
-                for (int y = 0; y < b.Height; y++)
+                foreach (var mb in mipBitmaps)
                 {
-                    for (int x = 0; x < b.Width; x++)
+                    var mip = new MipMap();
+                    mip.Width = mb.Width;
+                    mip.Height = mb.Height;
+
+                    byte[] data = new byte[mb.Width * mb.Height * 4];
+                    byte[] dest = new byte[Squish.Squish.GetStorageRequirements(mb.Width, mb.Height, flags | Squish.SquishFlags.kColourIterativeClusterFit | Squish.SquishFlags.kWeightColourByAlpha)];
+
+                    int ii = 0;
+                    for (int y = 0; y < mb.Height; y++)
                     {
-                        var p = b.GetPixel(x, y);
-                        data[ii + 0] = p.R;
-                        data[ii + 1] = p.G;
-                        data[ii + 2] = p.B;
-                        data[ii + 3] = p.A;
+                        for (int x = 0; x < mb.Width; x++)
+                        {
+                            var p = mb.GetPixel(x, y);
+                            data[ii + 0] = p.R;
+                            data[ii + 1] = p.G;
+                            data[ii + 2] = p.B;
+                            data[ii + 3] = p.A;
 
-                        ii += 4;
+                            ii += 4;
+                        }
                     }
+
+                    if (format == D3DFormat.ATI2) dest = BC5Unorm.Compress(data, (ushort)mb.Width, (ushort)mb.Height, GetMipSize(format, (ushort)mb.Width, (ushort)mb.Height));
+                    else Squish.Squish.CompressImage(data, mb.Width, mb.Height, ref dest, flags | Squish.SquishFlags.kColourClusterFit);
+                    mip.Data = dest;
+
+                    tdx.MipMaps.Add(mip);
                 }
-
-
-                Squish.Squish.CompressImage(data, b.Width, b.Height, ref dest, flags | Squish.SquishFlags.kColourClusterFit);
-                mip.Data = dest;
-
-                tdx.MipMaps.Add(mip);
             }
 
             return tdx;
         }
+        public static int GetMipSize(D3DFormat format, ushort width, ushort height)
+        {
+            width = Math.Max((ushort)4, width);
+            height = Math.Max((ushort)4, height);
 
+            if (format == D3DFormat.DXT1)
+            {
+                return
+                    (((width + 3) / 4) *
+                     ((height + 3) / 4)) * 8;
+            }
+
+            if (format == D3DFormat.DXT5 ||
+                format == D3DFormat.ATI2)
+            {
+                return
+                    (((width + 3) / 4) *
+                     ((height + 3) / 4)) * 16;
+            }
+
+            return width * height * 4;
+        }
+        public static List<Bitmap> GenerateMips(Bitmap b, int width, int height)
+        {
+            List<Bitmap> mips = new List<Bitmap>();
+            int currentWidth = width / 2;
+            int currentHeight = height / 2;
+            mips.Add(b);
+            int i = 1;
+            while (currentWidth > 1 && currentHeight > 1)
+            {
+                
+                    Bitmap mipimage = new Bitmap(currentWidth, currentHeight);
+                    var srcRect = new RectangleF(0, 0, width, height);
+                    var destRect = new RectangleF(0, 0, currentWidth, currentHeight);
+                    Graphics grfx = Graphics.FromImage(mipimage);
+                    grfx.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+                    grfx.DrawImage(b, destRect, srcRect, GraphicsUnit.Pixel);
+                    mips.Add(mipimage);
+                i++;
+
+                currentHeight /= 2;
+                currentWidth /= 2;
+            }
+            return mips;
+        }
         public int GetMipLevelForSize(int maxDimension)
         {
             for (int i = 0; i < this.MipMaps.Count; i++)
@@ -357,7 +410,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             }
             else if (ATI2)
             {
-                return DecompressATI2(data, (uint)width, (uint)height, !bSuppressAlpha);
+                return DecompressATI2(data, (uint)mip.Width, (uint)mip.Height, !bSuppressAlpha);
             }
             else
             {
