@@ -1,12 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Runtime.InteropServices;
 
 using ToxicRagers.Core.Formats;
 using ToxicRagers.Generics;
 using ToxicRagers.Helpers;
+
 using Squish;
 
 namespace ToxicRagers.CarmageddonReincarnation.Formats
@@ -558,13 +559,13 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             {
                 bw.Write(new byte[] { 0, 2 });
 
-                bw.Write((short)this.MipMaps[0].Width);
-                bw.Write((short)this.MipMaps[0].Height);
-                bw.Write((short)this.MipMaps.Count);
-                bw.Write((int)this.flags);
-                bw.WriteString(this.ShortFormat);
+                bw.Write((short)MipMaps[0].Width);
+                bw.Write((short)MipMaps[0].Height);
+                bw.Write((short)MipMaps.Count);
+                bw.Write((int)flags);
+                bw.WriteString(ShortFormat);
 
-                for (int i = 0; i < this.MipMaps.Count; i++) { bw.Write(this.MipMaps[i].Data); }
+                for (int i = 0; i < MipMaps.Count; i++) { bw.Write(MipMaps[i].Data); }
             }
         }
         public void SaveAsDDS(string path)
@@ -573,7 +574,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             dds.Width = this.MipMaps[0].Width;
             dds.Height = this.MipMaps[0].Height;
             dds.Format = this.Format;
-            dds.Data = this.MipMaps[0].Data;
+            dds.MipMaps.Add(new MipMap { Width = dds.Width, Height = dds.Height, Data = MipMaps[0].Data });
             dds.Save(path);
         }
     }

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace ToxicRagers.Helpers
+﻿namespace ToxicRagers.Helpers
 {
     public enum D3DFormat : uint
     {
@@ -13,6 +11,7 @@ namespace ToxicRagers.Helpers
         A8 = 28,
         ATI2 = 0x32495441,  // MakeFourCC('A', 'T', 'I', '2')
         DXT1 = 0x31545844,  // MakeFourCC('D', 'X', 'T', '1')
+        DXT3 = 0x33545844,  // MakeFourCC('D', 'X', 'T', '3')
         DXT5 = 0x35545844   // MakeFourCC('D', 'X', 'T', '5')
     }
 }

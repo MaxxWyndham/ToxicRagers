@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+
 using ToxicRagers.Core.Formats;
 using ToxicRagers.Helpers;
 
@@ -146,8 +147,8 @@ namespace ToxicRagers.DoubleStealSecondClash.Formats
 
             dds.Width = dimensionLookup[u];
             dds.Height = dimensionLookup[v];
-            dds.Data = new byte[size];
-            fs.Read(dds.Data, 0, size);
+            dds.MipMaps.Add(new Generics.MipMap { Width = dds.Width, Height = dds.Height, Data = new byte[size] });
+            fs.Read(dds.MipMaps[0].Data, 0, size);
 
             dds.Save(path);
         }
