@@ -379,8 +379,6 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
         public AccessoryDynamics(DocumentParser doc)
         {
-            bool bDynamics = true;
-
             while (!doc.NextLineIsASection() && !doc.EOF())
             {
                 string line = doc.ReadNextLine();

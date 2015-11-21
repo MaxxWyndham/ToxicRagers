@@ -125,7 +125,7 @@ namespace ToxicRagers.CarmageddoniOS.Formats
                 int BLK_X_4BPP = 4;
                 int BLK_X_SIZE = (true) ? BLK_X_2BPP : BLK_X_4BPP; // is_2bpp
                 int BLK_Y_SIZE = 4;
-                int BLK_X_MAX = 8;
+                //int BLK_X_MAX = 8;
                 int blkX, blkY;
                 int blkXp1, blkYp1;
                 int blkXDim, blkYDim;

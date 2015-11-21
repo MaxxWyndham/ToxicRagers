@@ -89,7 +89,6 @@ namespace ToxicRagers.Carmageddon2.Helpers
 
                 while (getNextLine(sr) != "NEXT GROOVE") { if (sr.EndOfStream) { return true; } }
                 s = getNextLine(sr);
-                continue;
 
                 Grooves.Add(groove);
 

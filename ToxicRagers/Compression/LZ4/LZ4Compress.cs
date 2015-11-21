@@ -431,7 +431,7 @@ namespace ToxicRagers.Compression.LZ4
         {
             int[] hashTable = new int[HASH_TABLESIZE];
             byte[] output = new byte[buffer.Length + (buffer.Length / 255) + 16];
-            int i = 0;
+            //int i = 0;
 
             //while (i < buffer.Length)
             //{

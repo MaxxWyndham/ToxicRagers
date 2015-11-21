@@ -203,9 +203,9 @@ namespace ToxicRagers.Wreckfest.Formats
                                                     Logger.LogToFile(Logger.LogLevel.Debug, "{0} => {1}", section, unknown);
 
                                                     count = (int)br.ReadUInt32();
+                                                    if (count > 0) { throw new NotImplementedException("Can't handle mgde!"); }
                                                     for (int i = 0; i < count; i++)
                                                     {
-                                                        throw new NotImplementedException("Can't handle mgde!");
                                                     }
 
                                                     mesh.Parts.Add(part);
@@ -375,7 +375,7 @@ namespace ToxicRagers.Wreckfest.Formats
                                     br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle()
                                 );
 
-                                br.ReadSingle(); br.ReadSingle(); br.ReadSingle(); 
+                                br.ReadSingle(); br.ReadSingle(); br.ReadSingle();
                                 br.ReadSingle(); br.ReadSingle(); br.ReadSingle();
                                 br.ReadSingle(); br.ReadSingle(); br.ReadSingle();
                                 br.ReadSingle(); br.ReadSingle();
@@ -418,7 +418,7 @@ namespace ToxicRagers.Wreckfest.Formats
                                 br.ReadSingle(); br.ReadSingle(); br.ReadSingle(); br.ReadSingle();
                                 br.ReadSingle(); br.ReadSingle(); br.ReadSingle(); br.ReadSingle();
                                 br.ReadSingle(); br.ReadSingle(); br.ReadSingle(); br.ReadSingle();
-                                br.ReadSingle(); br.ReadSingle(); br.ReadSingle(); br.ReadSingle(); 
+                                br.ReadSingle(); br.ReadSingle(); br.ReadSingle(); br.ReadSingle();
                             }
                             break;
 
@@ -427,9 +427,9 @@ namespace ToxicRagers.Wreckfest.Formats
                             Logger.LogToFile(Logger.LogLevel.Debug, "{0} => {1}", section, unknown);
 
                             count = (int)br.ReadUInt32();
+                            if (count > 0) { throw new NotImplementedException("Can't handle tria!"); }
                             for (int i = 0; i < count; i++)
                             {
-                                throw new NotImplementedException("Can't handle tria!");
                             }
                             break;
 
@@ -440,9 +440,9 @@ namespace ToxicRagers.Wreckfest.Formats
                             count = (int)br.ReadUInt32();
                             for (int i = 0; i < count; i++)
                             {
-                                br.ReadSingle(); br.ReadSingle(); br.ReadSingle(); 
-                                br.ReadSingle(); br.ReadSingle(); br.ReadSingle(); 
-                                br.ReadSingle(); br.ReadSingle(); br.ReadSingle(); 
+                                br.ReadSingle(); br.ReadSingle(); br.ReadSingle();
+                                br.ReadSingle(); br.ReadSingle(); br.ReadSingle();
+                                br.ReadSingle(); br.ReadSingle(); br.ReadSingle();
                                 br.ReadSingle();
                             }
                             br.ReadByte(); br.ReadByte(); br.ReadByte(); br.ReadByte(); // 0xff
@@ -509,7 +509,7 @@ namespace ToxicRagers.Wreckfest.Formats
                             count = (int)br.ReadUInt32();
                             for (int i = 0; i < count; i++)
                             {
-                                br.ReadSingle(); br.ReadSingle(); br.ReadSingle(); br.ReadSingle(); 
+                                br.ReadSingle(); br.ReadSingle(); br.ReadSingle(); br.ReadSingle();
                             }
                             break;
 

@@ -16,7 +16,7 @@ namespace ToxicRagers.Carmageddon2.Helpers
             while (getNextLine(sr) != "START OF FUNK") { if (sr.EndOfStream) { return true; } }
 
             string s = getNextLine(sr);
-            while (s != "END OF FUNK"  && s != null)
+            while (s != "END OF FUNK" && s != null)
             {
                 Funk funk = new Funk();
                 funk.File = pathToFile;
@@ -32,7 +32,6 @@ namespace ToxicRagers.Carmageddon2.Helpers
 
                 while (getNextLine(sr) != "NEXT FUNK") { if (sr.EndOfStream) { return true; } }
                 s = getNextLine(sr);
-                continue;
 
                 if (funk.HasMovementType) { funk.MovementType = s = getNextLine(sr); }
                 if (funk.HasMovementSettings)
@@ -46,7 +45,7 @@ namespace ToxicRagers.Carmageddon2.Helpers
                     //{
                     //    s = getNextLine(sr); funk.MovementSettings = Vector2.Parse(s);
                     //}
-                    
+
                 }
                 if (funk.HasMovementSettings2) { s = getNextLine(sr); funk.MovementSettings2 = Vector2.Parse(s); }
                 if (funk.HasMovementSettings3) { s = getNextLine(sr); funk.MovementSettings3 = Vector2.Parse(s); }
@@ -55,7 +54,7 @@ namespace ToxicRagers.Carmageddon2.Helpers
                 if (funk.HasAnimationSettings) { funk.AnimationQuality = s = getNextLine(sr); }
                 if (funk.Animation == "flic") { funk.FlicFile = s = getNextLine(sr); }
                 if (funk.Animation == "frames")
-                { 
+                {
                     funk.AnimationSpeed = s = getNextLine(sr);
 
                     if (funk.AnimationSpeed == "texturebits")
@@ -182,7 +181,7 @@ namespace ToxicRagers.Carmageddon2.Helpers
             {
                 if (s.ToLower() == distortion.ToLower())
                 {
-                    
+
                     Distortion = (DistortionType)Enum.Parse(typeof(DistortionType), distortion, true);
                     return;
                 }

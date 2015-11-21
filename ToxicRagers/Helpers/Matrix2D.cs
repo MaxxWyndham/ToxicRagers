@@ -40,7 +40,25 @@ namespace ToxicRagers.Helpers
 
         public bool Equals(Matrix2D other)
         {
-            return (this.M11 == other.M11 && this.M12 == other.M12 && this.M21 == other.M21 && this.M22 == other.M22 && this.M31 == other.M31 && this.M32 == other.M32);
+            return (M11 == other.M11 && M12 == other.M12 && M21 == other.M21 && M22 == other.M22 && M31 == other.M31 && M32 == other.M32);
+        }
+
+        public override bool Equals(object obj)
+        {
+            Matrix2D m = obj as Matrix2D;
+
+            if (m == null) { return false; }
+            return (this == m);
+        }
+
+        public override int GetHashCode()
+        {
+            return M11.GetHashCode() ^
+                   M12.GetHashCode() ^
+                   M21.GetHashCode() ^
+                   M22.GetHashCode() ^
+                   M31.GetHashCode() ^
+                   M32.GetHashCode();
         }
     }
 }
