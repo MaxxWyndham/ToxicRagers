@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -7,6 +8,7 @@ using System.Runtime.InteropServices;
 using ToxicRagers.Core.Formats;
 using ToxicRagers.Generics;
 using ToxicRagers.Helpers;
+using ToxicRagers.CarmageddonReincarnation.VirtualTextures;
 
 using Squish;
 
@@ -26,26 +28,30 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             Unknown1024 = 1024,
             Unknown16384 = 16384
         }
-        public enum ExtraDataTypeEnum
+
+        public enum ExtraDataTypes
         {
-            byteArray,
-            crVTMap
+            Font,
+            Animation,
+            VTMap
         }
 
         int width;
         int height;
         Flags flags;
-        ExtraDataTypeEnum extraDataType;
-        object extraData;
-        
-        public ExtraDataTypeEnum ExtraDataType
+        ExtraDataTypes extraDataType;
+        TDXExtraData extraData;
+
+        public ExtraDataTypes ExtraDataType
         {
             get { return extraDataType; }
         }
-        public object ExtraData
+
+        public TDXExtraData ExtraData
         {
             get { return extraData; }
         }
+
         public void SetFlags(Flags flags)
         {
             this.flags = flags;
@@ -54,174 +60,100 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
         public TDX()
             : base()
         {
-            this.extension = "TDX";
+            extension = "TDX";
         }
 
         public static TDX Load(string path)
         {
-            FileInfo fi = new FileInfo(path);
             Logger.LogToFile(Logger.LogLevel.Info, "{0}", path);
             TDX tdx = new TDX();
 
-            tdx.Name = fi.Name.Replace(fi.Extension, "");
-
-            using (BinaryReader br = new BinaryReader(fi.OpenRead()))
-            {
-                ReadFromBinary(br, ref tdx, path);
-            }
+            using (MemoryStream ms = new MemoryStream(File.ReadAllBytes(path))) { tdx = Load(ms, Path.GetFileNameWithoutExtension(path)); }
 
             return tdx;
         }
-        public static TDX LoadFromMemoryStream(Stream stream, string name)
+
+        public static TDX Load(Stream stream, string name = null)
         {
-
-            TDX tdx = new TDX();
-
-            tdx.Name = name;
+            TDX tdx = new TDX { Name = name };
 
             using (BinaryReader br = new BinaryReader(stream))
             {
-                ReadFromBinary(br, ref tdx, name);
+                if (br.ReadByte() != 0x00 ||
+                    br.ReadByte() != 0x02)
+                {
+                    Logger.LogToFile(Logger.LogLevel.Error, "This isn't a valid TDX");
+                    return null;
+                }
+
+                tdx.width = br.ReadUInt16();
+                tdx.height = br.ReadUInt16();
+                int mipCount = br.ReadUInt16();
+                tdx.flags = (Flags)br.ReadUInt32();
+                tdx.Format = (D3DFormat)br.ReadUInt32();
+
+                if (tdx.flags.HasFlag(Flags.ExtraData))
+                {
+                    int extraDataLength = (int)br.ReadUInt32();
+                    int extraDataType = br.ReadUInt16();
+
+                    switch (extraDataType)
+                    {
+                        case 0:
+                            tdx.extraDataType = ExtraDataTypes.Font;
+                            tdx.extraData = new FontDefinition(br.ReadBytes(extraDataLength - 2));
+                            break;
+
+                        case 1:
+                            tdx.extraDataType = ExtraDataTypes.Animation;
+                            tdx.extraData = new AnimationDefinition(br.ReadBytes(extraDataLength - 2));
+                            break;
+
+                        case 3:
+                            tdx.extraDataType = ExtraDataTypes.VTMap;
+                            tdx.extraData = new VTMap(br.ReadBytes(extraDataLength - 2));
+                            break;
+
+                        default:
+                            throw new NotImplementedException(string.Format("Unknown Extra Data flag: {0}", extraDataType));
+                    }
+                }
+
+                for (int i = 0; i < mipCount; i++)
+                {
+                    var mip = new MipMap();
+                    mip.Width = tdx.width >> i;
+                    mip.Height = tdx.height >> i;
+
+                    switch (tdx.Format)
+                    {
+                        case D3DFormat.A8R8G8B8:
+                            mip.Data = br.ReadBytes(mip.Width * mip.Height * 4);
+                            break;
+
+                        case D3DFormat.A8:
+                            mip.Data = br.ReadBytes(mip.Width * mip.Height);
+                            break;
+
+                        case D3DFormat.DXT1:
+                            mip.Data = br.ReadBytes((((mip.Width + 3) / 4) * ((mip.Height + 3) / 4)) * 8);
+                            break;
+
+                        case D3DFormat.ATI2:
+                        case D3DFormat.DXT5:
+                            mip.Data = br.ReadBytes((((mip.Width + 3) / 4) * ((mip.Height + 3) / 4)) * 16);
+                            break;
+
+                        default:
+                            Logger.LogToFile(Logger.LogLevel.Error, "Unknown format: {0}", tdx.Format);
+                            return null;
+                    }
+
+                    tdx.MipMaps.Add(mip);
+                }
             }
 
             return tdx;
-        }
-        private static void ReadFromBinary(BinaryReader br, ref TDX tdx, string path)
-        {
-            if (br.ReadByte() != 0x00 ||
-                    br.ReadByte() != 0x02)
-            {
-                Logger.LogToFile(Logger.LogLevel.Error, "{0} isn't a valid TDX file", path);
-                tdx = null;
-                return;
-            }
-
-            tdx.width = (int)br.ReadUInt16();
-            tdx.height = (int)br.ReadUInt16();
-            int mipCount = (int)br.ReadUInt16();
-            tdx.flags = (Flags)br.ReadUInt32();
-            tdx.Format = (D3DFormat)br.ReadUInt32();
-
-            if (tdx.flags.HasFlag(Flags.ExtraData))
-            {
-                int extraDataLength = (int)br.ReadUInt32();
-                int extraDataType = br.ReadUInt16();
-
-                switch (extraDataType)
-                {
-                    case 0:
-                        /* font */
-                        Logger.LogToFile(Logger.LogLevel.Info, "Skipped {0} bytes of extra data", extraDataLength);
-                        tdx.extraData = br.ReadBytes(extraDataLength - 2);
-                        tdx.extraDataType = ExtraDataTypeEnum.byteArray;
-                        break;
-
-                    case 1:
-                        /* animation */
-                        Logger.LogToFile(Logger.LogLevel.Info, "Skipped {0} bytes of extra data", extraDataLength);
-                        tdx.extraData = br.ReadBytes(extraDataLength - 2);
-                        tdx.extraDataType = ExtraDataTypeEnum.byteArray;
-                        break;
-
-                    case 3:
-                        /* vt dictionary */
-                        var vtmapbytes = br.ReadBytes(extraDataLength - 2);
-                        var vtmap = new crVTMap(vtmapbytes);
-                        tdx.extraDataType = ExtraDataTypeEnum.crVTMap;
-                        tdx.extraData = vtmap;
-                        /*int textureType = br.ReadUInt16(); // 2 = Diffuse, 3 = Normal, 4 = Specular
-
-                        br.ReadUInt32(); // 0xdeadbeef
-
-                        int sheetWidth = (int)br.ReadUInt32();
-                        int sheetHeight = (int)br.ReadUInt32();
-                        int mipLevels = (int)br.ReadUInt32();
-                        int tileSizeNoPadding = (int)br.ReadUInt32();
-                        int tilePadding = (int)br.ReadUInt32();
-
-                        br.ReadUInt32(); // 0xdeadbeef
-
-                        int fileCount = (int)br.ReadUInt32();
-
-                        for (int i = 0; i < fileCount; i++)
-                        {
-                            int x = (int)br.ReadUInt32();
-                            int y = (int)br.ReadUInt32();
-                            int w = (int)br.ReadUInt32();
-                            int h = (int)br.ReadUInt32();
-                            string file = br.ReadNullTerminatedString();
-                            br.ReadByte(); // padding?
-                        }
-
-                        br.ReadUInt32(); // 0xdeadbeef
-
-                        int indexCount = (int)br.ReadUInt32();
-
-                        for (int i = 0; i < indexCount; i++)
-                        {
-                            int row = (int)br.ReadUInt32();
-                            int col = (int)br.ReadUInt32();
-                            int level = (int)br.ReadUInt32();
-                            uint hash = br.ReadUInt32();
-
-                            string tileName = string.Format("{0:x8}", hash);
-                            string zadTileName = string.Format("{0}/{1}_{2}.tdx", tileName.Substring(0, 2), tileName, (textureType == 2 ? "D" : (textureType == 3 ? "N" : "S")));
-                        }
-
-                        br.ReadUInt32(); // 0xdeadbeef
-
-                        fileCount = (int)br.ReadUInt32();
-
-                        for (int i = 0; i < fileCount; i++)
-                        {
-                            string file = br.ReadNullTerminatedString();
-                            int timestamp = (int)br.ReadUInt32();
-                            br.ReadUInt32(); // padding?
-                        }
-
-                        br.ReadUInt32(); // 0xdeadbeef
-                        br.ReadUInt32(); // padding?
-                        br.ReadUInt32(); // 0xdeadbeef*/
-                        break;
-
-                    default:
-                        throw new NotImplementedException(string.Format("Unknown Extra Data flag: {0}", extraDataType));
-                }
-            }
-
-            for (int i = 0; i < mipCount; i++)
-            {
-                var mip = new MipMap();
-                mip.Width = tdx.width >> i;
-                mip.Height = tdx.height >> i;
-
-                switch (tdx.Format)
-                {
-                    case D3DFormat.A8R8G8B8:
-                        mip.Data = br.ReadBytes(mip.Width * mip.Height * 4);
-                        break;
-
-                    case D3DFormat.A8:
-                        mip.Data = br.ReadBytes(mip.Width * mip.Height);
-                        break;
-
-                    case D3DFormat.DXT1:
-                        mip.Data = br.ReadBytes((((mip.Width + 3) / 4) * ((mip.Height + 3) / 4)) * 8);
-                        break;
-
-                    case D3DFormat.ATI2:
-                    case D3DFormat.DXT5:
-                        mip.Data = br.ReadBytes((((mip.Width + 3) / 4) * ((mip.Height + 3) / 4)) * 16);
-                        break;
-
-                    default:
-                        Logger.LogToFile(Logger.LogLevel.Error, "Unknown format: {0}", tdx.Format);
-                        tdx = null;
-                        return;
-                }
-
-                tdx.MipMaps.Add(mip);
-            }
         }
 
         public static TDX LoadFromBitmap(Bitmap asset, string name, D3DFormat format)
@@ -288,6 +220,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
             return tdx;
         }
+
         public static int GetMipSize(D3DFormat format, ushort width, ushort height)
         {
             width = Math.Max((ushort)4, width);
@@ -310,6 +243,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
             return width * height * 4;
         }
+
         public static List<Bitmap> GenerateMips(Bitmap b, int width, int height)
         {
             List<Bitmap> mips = new List<Bitmap>();
@@ -319,14 +253,13 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             int i = 1;
             while (currentWidth > 1 && currentHeight > 1)
             {
-                
-                    Bitmap mipimage = new Bitmap(currentWidth, currentHeight);
-                    var srcRect = new RectangleF(0, 0, width, height);
-                    var destRect = new RectangleF(0, 0, currentWidth, currentHeight);
-                    Graphics grfx = Graphics.FromImage(mipimage);
-                    grfx.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
-                    grfx.DrawImage(b, destRect, srcRect, GraphicsUnit.Pixel);
-                    mips.Add(mipimage);
+                Bitmap mipimage = new Bitmap(currentWidth, currentHeight);
+                var srcRect = new RectangleF(0, 0, width, height);
+                var destRect = new RectangleF(0, 0, currentWidth, currentHeight);
+                Graphics grfx = Graphics.FromImage(mipimage);
+                grfx.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+                grfx.DrawImage(b, destRect, srcRect, GraphicsUnit.Pixel);
+                mips.Add(mipimage);
                 i++;
 
                 currentHeight /= 2;
@@ -334,6 +267,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             }
             return mips;
         }
+
         public int GetMipLevelForSize(int maxDimension)
         {
             for (int i = 0; i < this.MipMaps.Count; i++)
@@ -349,28 +283,21 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
         public Bitmap Decompress(int mipLevel = 0, bool bSuppressAlpha = false)
         {
-            var mip = this.MipMaps[mipLevel];
+            var mip = MipMaps[mipLevel];
 
             Bitmap b = new Bitmap(mip.Width, mip.Height, PixelFormat.Format32bppArgb);
-            var dest = Decompress(mip, bSuppressAlpha);
+            byte[] dest = Decompress(mip, bSuppressAlpha);
 
             var bmpdata = b.LockBits(new Rectangle(0, 0, mip.Width, mip.Height), ImageLockMode.ReadWrite, (bSuppressAlpha ? PixelFormat.Format32bppRgb : b.PixelFormat));
-            System.Runtime.InteropServices.Marshal.Copy(dest, 0, bmpdata.Scan0, dest.Length);
+            Marshal.Copy(dest, 0, bmpdata.Scan0, dest.Length);
             b.UnlockBits(bmpdata);
 
             return b;
         }
-        public byte[] DecompressToBytes(int mipLevel = 0, bool bSuppressAlpha = false)
-        {
 
-            var mip = this.MipMaps[mipLevel];
-
-            return Decompress(mip, bSuppressAlpha);
-        }
         public byte[] Decompress(MipMap mip, bool bSuppressAlpha = false)
         {
-
-            Squish.SquishFlags flags = 0;
+            SquishFlags flags = 0;
             bool bNotCompressed = false;
             bool ATI2 = false;
 
@@ -426,15 +353,14 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             }
             return dest;
         }
+
         private Bitmap MakeBitmapFromATI2(byte[] blocks, uint width, uint height, bool keepAlpha)
         {
-
-
             byte[] buffer = DecompressATI2(blocks, width, height, keepAlpha);
             Bitmap bitmap = new Bitmap((int)width, (int)height, PixelFormat.Format32bppArgb);
             Rectangle area = new Rectangle(0, 0, bitmap.Width, bitmap.Height);
             BitmapData data = bitmap.LockBits(area, ImageLockMode.WriteOnly, bitmap.PixelFormat);
-            System.Runtime.InteropServices.Marshal.Copy(buffer, 0, data.Scan0, (int)(width * height * 4));
+            Marshal.Copy(buffer, 0, data.Scan0, (int)(width * height * 4));
             bitmap.UnlockBits(data);
             return bitmap;
         }
@@ -443,79 +369,83 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             byte[] redBuffer = new byte[width * height];
             byte[] greenBuffer = new byte[width * height];
 
-
             for (int row = 0, col = 0, j = 0; j < blocks.Length; j += 16, col += 4)
             {
-
-                //Console.WriteLine("Converting Block "+(i / 16));
                 byte[] redColours = BC5Unorm.CalcColours(blocks[j], blocks[j + 1]);
                 byte[] greenColours = BC5Unorm.CalcColours(blocks[j + 8], blocks[j + 9]);
 
                 uint[] redIndices = BC5Unorm.GetIndices(blocks[j + 7], blocks[j + 6], blocks[j + 5], blocks[j + 4], blocks[j + 3], blocks[j + 2]);
                 uint[] greenIndices = BC5Unorm.GetIndices(blocks[j + 15], blocks[j + 14], blocks[j + 13], blocks[j + 12], blocks[j + 11], blocks[j + 10]);
 
-
-
                 if (col > width)
                 {
                     col -= (int)width;
                     row += 4;
                 }
-                redBuffer[row * width + col + width * 2] = redColours[redIndices[0]];
+
+                /* To test: see if this spits out the same numbers as below */
+                //int[] offsets = new int[]
+                //{
+                //    (int)(2 * row * width + col + width),
+                //    (int)(3 * row * width + col + width),
+                //    (int)(1 * row * width + col),
+                //    (int)(1 * row * width + col + width)
+                //};
+
+                //for (int i = 0; i < 4; i++)
+                //{
+                //    for (int k = 0; k < 4; k++)
+                //    {
+                //        redBuffer[  offsets[i] + k] = redColours[    redIndices[i * 4 + k]];
+                //        greenBuffer[offsets[i] + k] = greenColours[greenIndices[i * 4 + k]];
+                //    }
+                //}
+
+                redBuffer[row * width + col + width * 2 + 0] = redColours[redIndices[0]];
                 redBuffer[row * width + col + width * 2 + 1] = redColours[redIndices[1]];
                 redBuffer[row * width + col + width * 2 + 2] = redColours[redIndices[2]];
                 redBuffer[row * width + col + width * 2 + 3] = redColours[redIndices[3]];
 
-                greenBuffer[row * width + col + width * 2] = greenColours[greenIndices[0]];
-                greenBuffer[row * width + col + width * 2 + 1] = greenColours[greenIndices[1]];
-                greenBuffer[row * width + col + width * 2 + 2] = greenColours[greenIndices[2]];
-                greenBuffer[row * width + col + width * 2 + 3] = greenColours[greenIndices[3]];
-
-                redBuffer[row * width + col + width * 3] = redColours[redIndices[4]];
+                redBuffer[row * width + col + width * 3 + 0] = redColours[redIndices[4]];
                 redBuffer[row * width + col + width * 3 + 1] = redColours[redIndices[5]];
                 redBuffer[row * width + col + width * 3 + 2] = redColours[redIndices[6]];
                 redBuffer[row * width + col + width * 3 + 3] = redColours[redIndices[7]];
 
-                greenBuffer[row * width + col + width * 3] = greenColours[greenIndices[4]];
-                greenBuffer[row * width + col + width * 3 + 1] = greenColours[greenIndices[5]];
-                greenBuffer[row * width + col + width * 3 + 2] = greenColours[greenIndices[6]];
-                greenBuffer[row * width + col + width * 3 + 3] = greenColours[greenIndices[7]];
-
-                redBuffer[row * width + col] = redColours[redIndices[8]];
+                redBuffer[row * width + col + 0] = redColours[redIndices[8]];
                 redBuffer[row * width + col + 1] = redColours[redIndices[9]];
                 redBuffer[row * width + col + 2] = redColours[redIndices[10]];
                 redBuffer[row * width + col + 3] = redColours[redIndices[11]];
 
-                greenBuffer[row * width + col] = greenColours[greenIndices[8]];
-                greenBuffer[row * width + col + 1] = greenColours[greenIndices[9]];
-                greenBuffer[row * width + col + 2] = greenColours[greenIndices[10]];
-                greenBuffer[row * width + col + 3] = greenColours[greenIndices[11]];
-
-                redBuffer[row * width + col + width] = redColours[redIndices[12]];
+                redBuffer[row * width + col + width + 0] = redColours[redIndices[12]];
                 redBuffer[row * width + col + width + 1] = redColours[redIndices[13]];
                 redBuffer[row * width + col + width + 2] = redColours[redIndices[14]];
                 redBuffer[row * width + col + width + 3] = redColours[redIndices[15]];
 
-                greenBuffer[row * width + col + width] = greenColours[greenIndices[12]];
+                greenBuffer[row * width + col + width * 2 + 0] = greenColours[greenIndices[0]];
+                greenBuffer[row * width + col + width * 2 + 1] = greenColours[greenIndices[1]];
+                greenBuffer[row * width + col + width * 2 + 2] = greenColours[greenIndices[2]];
+                greenBuffer[row * width + col + width * 2 + 3] = greenColours[greenIndices[3]];
+
+                greenBuffer[row * width + col + width * 3 + 0] = greenColours[greenIndices[4]];
+                greenBuffer[row * width + col + width * 3 + 1] = greenColours[greenIndices[5]];
+                greenBuffer[row * width + col + width * 3 + 2] = greenColours[greenIndices[6]];
+                greenBuffer[row * width + col + width * 3 + 3] = greenColours[greenIndices[7]];
+
+                greenBuffer[row * width + col + 0] = greenColours[greenIndices[8]];
+                greenBuffer[row * width + col + 1] = greenColours[greenIndices[9]];
+                greenBuffer[row * width + col + 2] = greenColours[greenIndices[10]];
+                greenBuffer[row * width + col + 3] = greenColours[greenIndices[11]];
+
+                greenBuffer[row * width + col + width + 0] = greenColours[greenIndices[12]];
                 greenBuffer[row * width + col + width + 1] = greenColours[greenIndices[13]];
                 greenBuffer[row * width + col + width + 2] = greenColours[greenIndices[14]];
                 greenBuffer[row * width + col + width + 3] = greenColours[greenIndices[15]];
-
-
-                //Console.WriteLine("Filled Red Buffer For Pixel");
-
-
-                //Console.WriteLine("Filled Green Buffer For Pixel");
             }
-
-
 
             byte[] buffer = new byte[width * height * 4];
 
-
             for (uint i = 0, j = 0; i < width * height * 4; i += 4, j++)
             {
-
                 //Console.WriteLine("Filling Buffer Pixel " + (i / 4));
                 buffer[i + 2] = redBuffer[j];
                 buffer[i + 1] = greenBuffer[j];
@@ -528,54 +458,79 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                 buffer[i] = 255;// (byte)(blueTmp * 255);
                 buffer[i + 3] = 255;
             }
-            return buffer;
 
+            return buffer;
         }
 
         public void Save(string path)
         {
-            using (var fs = new FileStream(path, FileMode.Create))
-            {
-                SaveToStream(fs);
-            }
+            using (var fs = new FileStream(path, FileMode.Create)) { Save(fs); }
         }
 
-        public byte[] SaveToBuffer()
+        public void Save(Stream s)
         {
-            
+            byte[] data = Save(this);
+            s.Write(data, 0, data.Length);
+        }
+
+        public static byte[] Save(TDX tdx)
+        {
             byte[] buffer;
-            using (MemoryStream s = new MemoryStream())
-            {
-                SaveToStream(s);
-                
-                buffer = s.GetBuffer();
-            }
-            return buffer;
-        }
 
-        public void SaveToStream(Stream s)
-        {
-            using (BinaryWriter bw = new BinaryWriter(s))
+            using (MemoryStream ms = new MemoryStream())
+            using (BinaryWriter bw = new BinaryWriter(ms))
             {
                 bw.Write(new byte[] { 0, 2 });
 
-                bw.Write((short)MipMaps[0].Width);
-                bw.Write((short)MipMaps[0].Height);
-                bw.Write((short)MipMaps.Count);
-                bw.Write((int)flags);
-                bw.WriteString(ShortFormat);
+                bw.Write((short)tdx.MipMaps[0].Width);
+                bw.Write((short)tdx.MipMaps[0].Height);
+                bw.Write((short)tdx.MipMaps.Count);
+                bw.Write((int)tdx.flags);
+                bw.WriteString(tdx.ShortFormat);
 
-                for (int i = 0; i < MipMaps.Count; i++) { bw.Write(MipMaps[i].Data); }
+                for (int i = 0; i < tdx.MipMaps.Count; i++) { bw.Write(tdx.MipMaps[i].Data); }
+
+                bw.Flush();
+                ms.Flush();
+
+                buffer = ms.ToArray();
             }
+
+            return buffer;
         }
-        public void SaveAsDDS(string path)
+
+        public static explicit operator DDS(TDX tdx)
         {
             DDS dds = new DDS();
-            dds.Width = this.MipMaps[0].Width;
-            dds.Height = this.MipMaps[0].Height;
-            dds.Format = this.Format;
-            dds.MipMaps.Add(new MipMap { Width = dds.Width, Height = dds.Height, Data = MipMaps[0].Data });
-            dds.Save(path);
+
+            dds.Width = tdx.MipMaps[0].Width;
+            dds.Height = tdx.MipMaps[0].Height;
+            dds.Format = tdx.Format;
+
+            foreach (MipMap mip in tdx.MipMaps)
+            {
+                dds.MipMaps.Add(new MipMap { Width = mip.Width, Height = mip.Height, Data = mip.Data });
+            }
+
+            return dds;
+        }
+    }
+
+    public abstract class TDXExtraData { }
+
+    public class FontDefinition : TDXExtraData
+    {
+        public FontDefinition(byte[] data)
+        {
+
+        }
+    }
+
+    public class AnimationDefinition : TDXExtraData
+    {
+        public AnimationDefinition(byte[] data)
+        {
+
         }
     }
 }

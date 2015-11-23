@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
-namespace ToxicRagers.CarmageddonReincarnation.Formats
+namespace ToxicRagers.CarmageddonReincarnation.VirtualTextures
 {
-    public class crVTMapPage
+    public class VTMapPage
     {
-        List<List<crVTMapTile>> tiles = new List<List<crVTMapTile>>();
+        List<List<VTMapTile>> tiles = new List<List<VTMapTile>>();
         int maxTilesX = 0;
         int maxTilesY = 0;
 
@@ -19,7 +15,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
         }
         public int MaxTilesX { get { return maxTilesX; } set { maxTilesX = value; } }
         public int MaxTilesY { get { return maxTilesY; } set { maxTilesY = value; } }
-        public List<List<crVTMapTile>> Tiles
+        public List<List<VTMapTile>> Tiles
         {
             get { return tiles; }
             set { tiles = value; }
@@ -32,13 +28,13 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
         {
             get { return (MaxTilesY + 1) * 120; }
         }
-        public void AddTile(crVTMapTile tile)
+        public void AddTile(VTMapTile tile)
         {
             if (Tiles.Count <= tile.Row)
             {
                 for (int x = Tiles.Count; x <= tile.Row; x++)
                 {
-                    Tiles.Add(new List<crVTMapTile>());
+                    Tiles.Add(new List<VTMapTile>());
                 }
             }
             if (Tiles[tile.Row].Count <= tile.Column)

@@ -1,20 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.IO;
+
+using ToxicRagers.CarmageddonReincarnation.Formats;
 using ToxicRagers.Stainless.Formats;
-using ToxicRagers.Core.Formats;
-using ToxicRagers.Helpers;
 
-
-namespace ToxicRagers.CarmageddonReincarnation.Formats
+namespace ToxicRagers.CarmageddonReincarnation.VirtualTextures
 {
-    public class crVTMapTileTDX
+    public class VTMapTileTDX
     {
-        List<crVTMapTile> coords = new List<crVTMapTile>();
+        List<VTMapTile> coords = new List<VTMapTile>();
 
-        byte[] tileName = new byte[4];
+        string tileName;
         TDX texture = null;
 
         public string ZADFile
@@ -22,29 +20,29 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             get;
             set;
         }
+
         public string ZADEntryLocation
         {
             get;
             set;
         }
+
         public TDX Texture
         {
             get { return texture; }
             set { texture = value; }
         }
-        public List<crVTMapTile> Coords
+
+        public List<VTMapTile> Coords
         {
             get { return coords; }
             set { coords = value; }
         }
-        public byte[] TileName
+
+        public string TileName
         {
             get { return tileName; }
             set { tileName = value; }
-        }
-        public string TileNameString
-        {
-            get { return BitConverter.ToString(new byte[] { tileName[3], tileName[2], tileName[1], tileName[0] }).Replace("-", string.Empty); }
         }
 
         public void GetTextureFromZAD()
@@ -58,7 +56,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                 if (buffer != null)
                     using (MemoryStream stream = new MemoryStream(buffer))
                     {
-                        texture = TDX.LoadFromMemoryStream(stream, zadEntry.Name);
+                        texture = TDX.Load(stream, zadEntry.Name);
                     }
             }
         }

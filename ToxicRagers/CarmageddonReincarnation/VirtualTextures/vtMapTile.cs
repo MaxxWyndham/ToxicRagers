@@ -1,44 +1,53 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace ToxicRagers.CarmageddonReincarnation.Formats
+namespace ToxicRagers.CarmageddonReincarnation.VirtualTextures
 {
-    public class crVTMapTile
+    public class VTMapTile
     {
         int column;
         int row;
         int page;
-        byte[] tileName = new byte[4];
-
+        uint hash;
+        string tileName;
+        string zadTileName;
 
         public int Column
         {
             get { return column; }
             set { column = value; }
         }
+
         public int Row
         {
             get { return row; }
             set { row = value; }
         }
+
         public int Page
         {
             get { return page; }
             set { page = value; }
         }
-        public byte[] TileName
+
+        public uint Hash
+        {
+            get { return hash; }
+            set { hash = value; }
+        }
+
+        public string TileName
         {
             get { return tileName; }
             set { tileName = value; }
         }
-        public string TileNameString
+
+        public string ZadTileName
         {
-            get { return BitConverter.ToString(new byte[] { tileName[3], tileName[2], tileName[1], tileName[0] }).Replace("-", string.Empty); }
+            get { return zadTileName; }
+            set { zadTileName = value; }
         }
-        public crVTMapTileTDX TDXTile
+
+        public VTMapTileTDX TDXTile
         {
             get;
             set;

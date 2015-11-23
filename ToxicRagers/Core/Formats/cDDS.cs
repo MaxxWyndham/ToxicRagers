@@ -148,18 +148,6 @@ namespace ToxicRagers.Core.Formats
             get { return depth; }
         }
 
-        public D3DFormat Format
-        {
-            get { return format; }
-            set { format = value; }
-        }
-
-        public List<MipMap> MipMaps
-        {
-            get { return mipMaps; }
-            set { mipMaps = value; }
-        }
-
         public DDS() { }
 
         public DDS(D3DFormat Format, Bitmap bitmap)

@@ -1,15 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.IO;
-using ToxicRagers.Stainless.Formats;
-using ToxicRagers.Core.Formats;
-using ToxicRagers.Helpers;
 
-namespace ToxicRagers.CarmageddonReincarnation.Formats
+namespace ToxicRagers.CarmageddonReincarnation.VirtualTextures
 {
-    public class crVTMapEntry
+    public class VTMapEntry
     {
         int column;
         int row;
@@ -19,9 +13,9 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
         int timeStamp;
         int unknown2;
-        Dictionary<string, crVTMapTile> tiles = new Dictionary<string, crVTMapTile>();
+        Dictionary<string, VTMapTile> tiles = new Dictionary<string, VTMapTile>();
 
-        public Dictionary<string, crVTMapTile> Tiles
+        public Dictionary<string, VTMapTile> Tiles
         {
             get { return tiles; }
             set { tiles = value; }
