@@ -12,7 +12,6 @@ namespace ToxicRagers.Stainless.Formats
     {
         string name;
         string location;
-        int entryCount;
         List<WADEntry> contents;
 
         Version version;

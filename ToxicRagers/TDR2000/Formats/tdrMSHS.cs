@@ -129,11 +129,9 @@ namespace ToxicRagers.TDR2000.Formats
 
     public class TDRMesh
     {
-        string name;
         List<TDRVertex> verts;
         List<TDRFace> faces;
 
-        public string Name { get { return name; } }
         public List<TDRVertex> Vertexes { get { return verts; } set { verts = value; } }
         public List<TDRFace> Faces { get { return faces; } set { faces = value; } }
 

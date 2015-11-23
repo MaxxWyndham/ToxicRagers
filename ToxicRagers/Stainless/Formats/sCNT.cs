@@ -25,7 +25,6 @@ namespace ToxicRagers.Stainless.Formats
 
         CNT parent;
         string name;
-        string nodeName;
         string modelName;
         NodeType section;
         Matrix3D transform;

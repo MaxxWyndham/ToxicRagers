@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 
 using ToxicRagers.Generics;
@@ -13,9 +12,6 @@ namespace ToxicRagers.Novadrome.Formats
         int width;
         int height;
         D3DBaseTexture header;
-        string textureName;
-
-        public string Texture { get { return textureName; } }
 
         public XT2()
             : base()

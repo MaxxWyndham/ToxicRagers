@@ -30,7 +30,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             {
                 case SetupContext.Vehicle:
                     this.context = SetupContext.Vehicle;
-                    this.settings = new VehicleSetupCode();
+                    settings = new VehicleSetupCode();
                     break;
             }
         }
