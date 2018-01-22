@@ -4,17 +4,17 @@ namespace ToxicRagers.Helpers
 {
     public class Vector4
     {
-        private Single _x;
-        private Single _y;
-        private Single _z;
-        private Single _w;
+        private float _x;
+        private float _y;
+        private float _z;
+        private float _w;
 
-        public Single X { get { return _x; } }
-        public Single Y { get { return _y; } }
-        public Single Z { get { return _z; } }
-        public Single W { get { return _w; } }
+        public float X => _x;
+        public float Y => _y;
+        public float Z => _z;
+        public float W => _w;
 
-        public Vector4(Single n)
+        public Vector4(float n)
         {
             _x = n;
             _y = n;
@@ -22,7 +22,7 @@ namespace ToxicRagers.Helpers
             _w = n;
         }
 
-        public Vector4(Single X, Single Y, Single Z, Single W)
+        public Vector4(float X, float Y, float Z, float W)
         {
             _x = X;
             _y = Y;
@@ -60,10 +60,10 @@ namespace ToxicRagers.Helpers
             );
         }
 
-        public Vector4 SplatX() { return new Vector4(this._x); }
-        public Vector4 SplatY() { return new Vector4(this._y); }
-        public Vector4 SplatZ() { return new Vector4(this._z); }
-        public Vector4 SplatW() { return new Vector4(this._w); }
+        public Vector4 SplatX() { return new Vector4(_x); }
+        public Vector4 SplatY() { return new Vector4(_y); }
+        public Vector4 SplatZ() { return new Vector4(_z); }
+        public Vector4 SplatW() { return new Vector4(_w); }
 
         public static Vector4 Reciprocal(Vector4 v)
         {
@@ -75,17 +75,17 @@ namespace ToxicRagers.Helpers
             );
         }
 
-        public static bool CompareAnyLessThan(Vector4 left, Vector4 right) 
+        public static bool CompareAnyLessThan(Vector4 left, Vector4 right)
         {
-                return left._x < right._x
-                        || left._y < right._y
-                        || left._z < right._z
-                        || left._w < right._w;
+            return left._x < right._x
+                    || left._y < right._y
+                    || left._z < right._z
+                    || left._w < right._w;
         }
 
         public Vector3 ToVector3()
         {
-            return new Vector3(this._x, this._y, this._z);
+            return new Vector3(_x, _y, _z);
         }
 
         public static Vector4 operator +(Vector4 x, Vector4 y)

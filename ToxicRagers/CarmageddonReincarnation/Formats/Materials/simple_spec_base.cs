@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Xml.Linq;
 
 namespace ToxicRagers.CarmageddonReincarnation.Formats.Materials
@@ -14,15 +13,22 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats.Materials
 
         public string Spec_Map
         {
-            get { return specular; }
-            set { specular = value; }
+            get => specular;
+            set => specular = value;
         }
+
+        public simple_spec_base() { }
 
         public simple_spec_base(XElement xml)
             : base(xml)
         {
-            var diff = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "DiffuseColour").FirstOrDefault();
-            var spec = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "Spec_Map").FirstOrDefault();
+            coreDefaults = new simple_spec_base
+            {
+
+            };
+
+            XElement diff = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "DiffuseColour").FirstOrDefault();
+            XElement spec = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "Spec_Map").FirstOrDefault();
 
             if (diff != null) { diffuse = diff.Attribute("FileName").Value; }
             if (spec != null) { specular = spec.Attribute("FileName").Value; }

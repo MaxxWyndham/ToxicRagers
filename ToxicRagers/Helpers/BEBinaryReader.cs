@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Text;
 
 namespace ToxicRagers.Helpers
@@ -27,7 +26,7 @@ namespace ToxicRagers.Helpers
         public override uint ReadUInt32()
         {
             byte[] bytes = ReadBytes(4);
-            UInt32[] ints = new UInt32[4];
+            uint[] ints = new uint[4];
 
             ints[0] = bytes[0];
             ints[1] = bytes[1];
@@ -55,7 +54,7 @@ namespace ToxicRagers.Helpers
 
         public string ReadStringOfLength(int length)
         {
-            Char[] chars = ReadChars(length);
+            char[] chars = ReadChars(length);
 
             string sout = "";
             for (int i = 0; i < chars.Length - 1; i++)

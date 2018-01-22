@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Xml.Linq;
 
 namespace ToxicRagers.CarmageddonReincarnation.Formats.Materials
@@ -10,10 +9,17 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats.Materials
         // FogEnabled
         // Multiplier
 
+        public skybox_base() { }
+
         public skybox_base(XElement xml)
             : base(xml)
         {
-            var diff = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "DiffuseColour").FirstOrDefault();
+            coreDefaults = new skybox_base
+            {
+
+            };
+
+            XElement diff = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "DiffuseColour").FirstOrDefault();
 
             if (diff != null) { diffuse = diff.Attribute("FileName").Value; }
         }

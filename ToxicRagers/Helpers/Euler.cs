@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace ToxicRagers.Helpers
+﻿namespace ToxicRagers.Helpers
 {
     public class Euler
     {

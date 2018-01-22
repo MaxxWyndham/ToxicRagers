@@ -1,7 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
-using System.Linq;
+
 using ToxicRagers.Helpers;
 
 namespace ToxicRagers.BurnoutParadise.Formats
@@ -13,9 +12,9 @@ namespace ToxicRagers.BurnoutParadise.Formats
         List<BOMVertex> verts;
         string name;
 
-        public List<BOMMesh> Meshes { get { return meshes; } }
-        public List<BOMVertex> Verts { get { return verts; } }
-        public string Name { get { return name; } }
+        public List<BOMMesh> Meshes => meshes;
+        public List<BOMVertex> Verts => verts;
+        public string Name => name;
 
         public BOM()
         {
@@ -28,9 +27,7 @@ namespace ToxicRagers.BurnoutParadise.Formats
         {
             FileInfo fi = new FileInfo(path);
             Logger.LogToFile(Logger.LogLevel.Info, "{0}", path);
-            BOM bom = new BOM();
-
-            bom.name = Path.GetFileNameWithoutExtension(path);
+            BOM bom = new BOM() { name = Path.GetFileNameWithoutExtension(path) };
 
             using (BinaryReader br = new BinaryReader(fi.OpenRead()))
             {
@@ -43,7 +40,7 @@ namespace ToxicRagers.BurnoutParadise.Formats
                 for (int i = 0; i < meshCount; i++)
                 {
                     br.BaseStream.Seek(bom.offsets[i], SeekOrigin.Begin);
-                    var mesh = new BOMMesh();
+                    BOMMesh mesh = new BOMMesh();
 
                     br.ReadBytes(76);
                     mesh.VertCount = br.ReadInt32();
@@ -110,17 +107,17 @@ namespace ToxicRagers.BurnoutParadise.Formats
 
         public int FaceCount
         {
-            get { return faceCount; }
-            set { faceCount = value; }
+            get => faceCount;
+            set => faceCount = value;
         }
 
         public int VertCount
         {
-            get { return vertCount; }
-            set { vertCount = value; }
+            get => vertCount;
+            set => vertCount = value;
         }
 
-        public List<int> IndexBuffer { get { return ibo; } }
+        public List<int> IndexBuffer => ibo;
 
         public BOMMesh()
         {
@@ -133,13 +130,13 @@ namespace ToxicRagers.BurnoutParadise.Formats
         Vector3 position;
         Vector3 normal;
 
-        public Vector3 Position { get { return position; } }
-        public Vector3 Normal { get { return normal; } }
+        public Vector3 Position => position;
+        public Vector3 Normal => normal;
 
         public BOMVertex(float pX, float pY, float pZ, float nX, float nY, float nZ)
         {
-            this.position = new Vector3(pX, pY, pZ);
-            this.normal = new Vector3(nX, nY, nZ);
+            position = new Vector3(pX, pY, pZ);
+            normal = new Vector3(nX, nY, nZ);
         }
     }
 }

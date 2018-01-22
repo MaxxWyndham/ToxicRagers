@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+
 using ToxicRagers.Helpers;
 
 namespace ToxicRagers.Carmageddon2.Formats
@@ -22,8 +23,7 @@ namespace ToxicRagers.Carmageddon2.Formats
     public class ACT
     {
         List<ACTNode> sections;
-
-        public List<ACTNode> Sections { get { return sections; } }
+        public List<ACTNode> Sections => sections;
 
         public ACT()
         {
@@ -225,50 +225,50 @@ namespace ToxicRagers.Carmageddon2.Formats
 
         public Section Section
         {
-            get { return section; }
-            set { section = value; }
+            get => section;
+            set => section = value;
         }
 
         public ActorType ActorType
         {
-            get { return type; }
-            set { type = value; }
+            get => type;
+            set => type = value;
         }
 
         public RenderStyle RenderStyle
         {
-            get { return renderStyle; }
-            set { renderStyle = value; }
+            get => renderStyle;
+            set => renderStyle = value;
         }
 
         public string Identifier
         {
-            get { return identifier; }
-            set { identifier = value; }
+            get => identifier;
+            set => identifier = value;
         }
 
         public string Model
         {
-            get { return model; }
-            set { model = value; }
+            get => model;
+            set => model = value;
         }
 
         public string Material
         {
-            get { return material; }
-            set { material = value; }
+            get => material;
+            set => material = value;
         }
 
         public Matrix3D Transform
         {
-            get { return transform; }
-            set { transform = value; }
+            get => transform;
+            set => transform = value;
         }
 
         public MeshExtents Bounds
         {
-            get { return bounds; }
-            set { bounds = value; }
+            get => bounds;
+            set => bounds = value;
         }
 
         public ACTNode(Section section, string name = null)
@@ -278,22 +278,22 @@ namespace ToxicRagers.Carmageddon2.Formats
             switch (Section)
             {
                 case Section.Name:
-                    this.identifier = name;
+                    identifier = name;
                     break;
 
                 case Section.Model:
-                    this.model = name;
+                    model = name;
                     break;
 
                 case Section.Material:
-                    this.material = name;
+                    material = name;
                     break;
             }
         }
 
         public ACTNode(Matrix3D transform)
         {
-            this.section = Section.Matrix;
+            section = Section.Matrix;
             this.transform = transform;
         }
     }

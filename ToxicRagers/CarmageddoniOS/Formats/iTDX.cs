@@ -35,8 +35,8 @@ namespace ToxicRagers.CarmageddoniOS.Formats
             Debug.Assert(YPos < YSize);
             Debug.Assert(XPos < XSize);
 
-            Debug.Assert(number_is_power_2(YSize));
-            Debug.Assert(number_is_power_2(XSize));
+            Debug.Assert(Number_is_power_2(YSize));
+            Debug.Assert(Number_is_power_2(XSize));
 
             if (YSize < XSize)
             {
@@ -77,7 +77,7 @@ namespace ToxicRagers.CarmageddoniOS.Formats
             return Twiddled;
         }
 
-        public static bool number_is_power_2(uint imp)
+        public static bool Number_is_power_2(uint imp)
         {
             if (imp == 0) { return false; }
 
@@ -102,7 +102,7 @@ namespace ToxicRagers.CarmageddoniOS.Formats
             int type = (int)br.ReadUInt32();
             int x = 0, y = 0;
 
-            UInt32 pixel = 0;
+            uint pixel = 0;
 
             //Console.Write("\t{0}", br.BaseStream.Length);
             //Console.Write("\t{0}\t{1}\t{2}", width, height, mipmaps);
@@ -182,7 +182,7 @@ namespace ToxicRagers.CarmageddoniOS.Formats
                                 break;
 
                             case 21:
-                                pixel = (UInt32)((br.ReadByte() << 0) | (br.ReadByte() << 8) | (br.ReadByte() << 16));
+                                pixel = (uint)((br.ReadByte() << 0) | (br.ReadByte() << 8) | (br.ReadByte() << 16));
                                 break;
 
                             default:
@@ -201,7 +201,7 @@ namespace ToxicRagers.CarmageddoniOS.Formats
             br.Close();
         }
 
-        private static Color pixelToRGB(UInt32 i, int format)
+        private static Color pixelToRGB(uint i, int format)
         {
             // Note to idiot self, values are passed in backwards.
             int r = 0;

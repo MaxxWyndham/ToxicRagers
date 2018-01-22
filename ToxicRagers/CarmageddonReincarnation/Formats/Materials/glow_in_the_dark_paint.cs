@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Xml.Linq;
 
 using ToxicRagers.Helpers;
@@ -15,38 +14,45 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats.Materials
 
         public string Normal_Map
         {
-            get { return normal; }
-            set { normal = value; }
+            get => normal;
+            set => normal = value;
         }
 
         public Vector3 Diffuse_Colour
         {
-            get { return diffuseColour; }
-            set { diffuseColour = value; }
+            get => diffuseColour;
+            set => diffuseColour = value;
         }
 
         public Vector3 SpecularColour
         {
-            get { return specularColour; }
-            set { specularColour = value; }
+            get => specularColour;
+            set => specularColour = value;
         }
 
         public Vector3 AmbientLight
         {
-            get { return ambientLight; }
-            set { ambientLight = value; }
+            get => ambientLight;
+            set => ambientLight = value;
         }
+
+        public glow_in_the_dark_paint() { }
 
         public glow_in_the_dark_paint(XElement xml)
             : base(xml)
         {
-            var norm = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "Normal_Map").FirstOrDefault();
+            coreDefaults = new glow_in_the_dark_paint
+            {
+
+            };
+
+            XElement norm = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "Normal_Map").FirstOrDefault();
 
             if (norm != null) { normal = norm.Attribute("FileName").Value; }
 
-            var diff = xml.Descendants("Constant").Where(e => e.Attribute("Alias").Value == "DiffuseColour").FirstOrDefault();
-            var spec = xml.Descendants("Constant").Where(e => e.Attribute("Alias").Value == "SpecularColour").FirstOrDefault();
-            var ambi = xml.Descendants("Constant").Where(e => e.Attribute("Alias").Value == "AmbientLight").FirstOrDefault();
+            XElement diff = xml.Descendants("Constant").Where(e => e.Attribute("Alias").Value == "DiffuseColour").FirstOrDefault();
+            XElement spec = xml.Descendants("Constant").Where(e => e.Attribute("Alias").Value == "SpecularColour").FirstOrDefault();
+            XElement ambi = xml.Descendants("Constant").Where(e => e.Attribute("Alias").Value == "AmbientLight").FirstOrDefault();
 
             if (diff != null) { diffuseColour = ReadConstant(diff); }
             if (spec != null) { specularColour = ReadConstant(spec); }

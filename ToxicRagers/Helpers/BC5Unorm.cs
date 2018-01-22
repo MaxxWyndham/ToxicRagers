@@ -1,14 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ToxicRagers.Helpers
 {
     public class BC5Unorm
     {
-
         public static byte[] Compress(byte[] buffer, ushort width, ushort height, int byteCount)
         {
             List<byte> compressed = new List<byte>();
@@ -17,9 +13,9 @@ namespace ToxicRagers.Helpers
             {
                 for (int pixX = 0; pixX < width; pixX++)
                 {
-
                     byte[] redPixels = new byte[16];
                     byte[] greenPixels = new byte[16];
+
                     for (int y = 0; y < 4; y++)
                     {
                         for (int x = 0; x < 4; x++)
@@ -68,18 +64,18 @@ namespace ToxicRagers.Helpers
                 }
                 i += width * 4 * 3;
             }
+
             return compressed.ToArray();
         }
+
         public static byte[] FlipBlockRows(byte[] pixels)
         {
             byte[] output = new byte[16];
-
 
             output[0] = pixels[8];
             output[1] = pixels[9];
             output[2] = pixels[10];
             output[3] = pixels[11];
-
 
             output[4] = pixels[12];
             output[5] = pixels[13];
@@ -96,12 +92,11 @@ namespace ToxicRagers.Helpers
             output[14] = pixels[6];
             output[15] = pixels[7];
 
-
             return output;
         }
+
         public static int[] CalculateIndices(byte[] pixels, byte minColour, byte maxColour)
         {
-
             byte[] colours = CalcColours(minColour, maxColour);
             int[] indices = new int[16];
 
@@ -133,12 +128,12 @@ namespace ToxicRagers.Helpers
                 }
                 indices[i] = index;
             }
-            return indices;
 
+            return indices;
         }
+
         public static byte[] ConvertIndicesToBytes(int[] indices)
         {
-
             byte[] output = new byte[6];
 
             bool[] index7bits = GetBitsForIndex(indices[7]);
@@ -211,6 +206,7 @@ namespace ToxicRagers.Helpers
 
             bool[] index9bits = GetBitsForIndex(indices[9]);
             bool[] index8bits = GetBitsForIndex(indices[8]);
+
             output[5] += (byte)((index10bits[1] ? (byte)(1 << 7) : (byte)0) +
                 (index10bits[0] ? (byte)(1 << 6) : (byte)0) +
                 (index9bits[2] ? (byte)(1 << 5) : (byte)0) +
@@ -221,7 +217,6 @@ namespace ToxicRagers.Helpers
                 (index8bits[0] ? (byte)(1) : (byte)0));
 
             return output;
-
         }
 
         public static bool[] GetBitsForIndex(int index)
@@ -274,6 +269,7 @@ namespace ToxicRagers.Helpers
 
             return output;
         }
+
         public static byte[] CalcColours(byte minColour, byte maxColour)
         {
             byte[] output = new byte[8];
@@ -305,6 +301,7 @@ namespace ToxicRagers.Helpers
 
             return output;
         }
+
         public static uint[] GetIndices(byte b1, byte b2, byte b3, byte b4, byte b5, byte b6)
         {
             int value1 = b3;
@@ -365,11 +362,14 @@ namespace ToxicRagers.Helpers
         {
             return MakeIndexFrom3Bits(mostSigBit, midBit, leastSigBit, false);
         }
+
         public static uint MakeIndexFrom3Bits(bool mostSigBit, bool midBit, bool leastSigBit, bool flip)
         {
-            if (flip) return (uint)((leastSigBit ? 1 << 2 : 0) + (midBit ? 1 << 1 : 0) + (mostSigBit ? 1 : 0));
+            if (flip) { return (uint)((leastSigBit ? 1 << 2 : 0) + (midBit ? 1 << 1 : 0) + (mostSigBit ? 1 : 0)); }
+
             return (uint)((mostSigBit ? 1 << 2 : 0) + (midBit ? 1 << 1 : 0) + (leastSigBit ? 1 : 0));
         }
+
         public static bool GetBit(byte b, int n)
         {
             return (b & (1 << n - 1)) != 0;

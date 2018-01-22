@@ -13,15 +13,8 @@ namespace ToxicRagers.Carmageddon.Helpers
         int position;
         bool bFiddled = false;
 
-        public bool EOF
-        {
-            get { return position == data.Length; }
-        }
-
-        public bool Fiddled
-        {
-            get { return bFiddled; }
-        }
+        public bool EOF => position == data.Length;
+        public bool Fiddled => bFiddled;
 
         public override string ToString()
         {
@@ -30,14 +23,15 @@ namespace ToxicRagers.Carmageddon.Helpers
 
         public DocumentParser(string path)
         {
-            using (var br = new BinaryReader(File.OpenRead(path))) {
+            using (BinaryReader br = new BinaryReader(File.OpenRead(path)))
+            {
                 if (br.PeekChar() == '@')
                 {
                     List<byte> processed = new List<byte>();
 
                     while (br.BaseStream.Position != br.BaseStream.Length)
                     {
-                        var s = IWantToFiddle(ReadLine(br, 256));
+                        byte[] s = iWantToFiddle(readLine(br, 256));
                         if (s != null)
                         {
                             processed.AddRange(s);
@@ -58,9 +52,9 @@ namespace ToxicRagers.Carmageddon.Helpers
             }
         }
 
-        private byte[] ReadLine(BinaryReader br, int buffSize)
+        private byte[] readLine(BinaryReader br, int buffSize)
         {
-            var b = new byte[buffSize];
+            byte[] b = new byte[buffSize];
             int i = 0;
 
             while (br.BaseStream.Position != br.BaseStream.Length)
@@ -73,33 +67,34 @@ namespace ToxicRagers.Carmageddon.Helpers
                 b[i++] = c;
             }
 
-            var r = new byte[i];
+            byte[] r = new byte[i];
             Array.Copy(b, r, i);
 
             return r;
         }
 
-        private byte[] IWantToFiddle(byte[] s)
+        private byte[] iWantToFiddle(byte[] s)
         {
+            if (s.Length == 0) { return null; }
             if (s[0] != '@') { return null; }
 
             byte[] d = new byte[s.Length - 1];
 
-            var seeds = new byte[] { 
-                0x6C, 0x1B, 0x99, 0x5F, 
+            byte[] seeds = new byte[] {
+                0x6C, 0x1B, 0x99, 0x5F,
                 0xB9, 0xCD, 0x5F, 0x13,
                 0xCB, 0x04, 0x20, 0x0E,
                 0x5E, 0x1C, 0xA1, 0x0E
             };
 
-            var commentSeeds = new byte[] { 
+            byte[] commentSeeds = new byte[] {
                 0x67, 0xA8, 0xD6, 0x26,
                 0xB6, 0xDD, 0x45, 0x1B,
                 0x32, 0x7E, 0x22, 0x13,
                 0x15, 0xC2, 0x94, 0x37
             };
 
-            var key = seeds;
+            byte[] key = seeds;
 
             Array.Copy(s, 1, d, 0, d.Length);
             int len = d.Length;
@@ -168,7 +163,7 @@ namespace ToxicRagers.Carmageddon.Helpers
             return ReadLine().ToInt();
         }
 
-        public Single ReadSingle()
+        public float ReadSingle()
         {
             return ReadLine().ToSingle();
         }
@@ -180,8 +175,8 @@ namespace ToxicRagers.Carmageddon.Helpers
 
         public int[] ReadInts()
         {
-            var s = ReadStrings();
-            var i = new int[s.Length];
+            string[] s = ReadStrings();
+            int[] i = new int[s.Length];
 
             for (int j = 0; j < i.Length; j++)
             {

@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
+
 using ToxicRagers.Helpers;
 
 namespace ToxicRagers.Carmageddon2.Helpers
@@ -85,7 +85,7 @@ namespace ToxicRagers.Carmageddon2.Helpers
 
         public int PathNodeCount
         {
-            get { return pathnodes; }
+            get => pathnodes;
             set
             {
                 PathNodes = new OpponentPathNode[value];
@@ -95,7 +95,7 @@ namespace ToxicRagers.Carmageddon2.Helpers
 
         public int PathSectionCount
         {
-            get { return pathsections; }
+            get => pathsections;
             set
             {
                 PathSections = new OpponentPathSection[value];
@@ -105,7 +105,7 @@ namespace ToxicRagers.Carmageddon2.Helpers
 
         public int CopCount
         {
-            get { return cops; }
+            get => cops;
             set
             {
                 Cops = new OpponentPathCop[value];

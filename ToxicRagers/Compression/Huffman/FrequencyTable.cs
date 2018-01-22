@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
 namespace ToxicRagers.Compression.Huffman
@@ -8,10 +7,7 @@ namespace ToxicRagers.Compression.Huffman
     {
         Dictionary<byte, int> frequencyTable = new Dictionary<byte, int>();
 
-        public Dictionary<byte, int> Frequencies
-        {
-            get { return frequencyTable; }
-        }
+        public Dictionary<byte, int> Frequencies => frequencyTable;
 
         public void Clear()
         {

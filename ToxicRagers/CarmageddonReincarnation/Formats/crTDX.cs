@@ -5,10 +5,10 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Runtime.InteropServices;
 
+using ToxicRagers.CarmageddonReincarnation.VirtualTextures;
 using ToxicRagers.Core.Formats;
 using ToxicRagers.Generics;
 using ToxicRagers.Helpers;
-using ToxicRagers.CarmageddonReincarnation.VirtualTextures;
 
 using Squish;
 
@@ -42,16 +42,8 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
         ExtraDataTypes extraDataType;
         TDXExtraData extraData;
 
-        public ExtraDataTypes ExtraDataType
-        {
-            get { return extraDataType; }
-        }
-
-        public TDXExtraData ExtraData
-        {
-            get { return extraData; }
-        }
-
+        public ExtraDataTypes ExtraDataType => extraDataType;
+        public TDXExtraData ExtraData => extraData;
         public void SetFlags(Flags flags)
         {
             this.flags = flags;
@@ -121,9 +113,11 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
                 for (int i = 0; i < mipCount; i++)
                 {
-                    var mip = new MipMap();
-                    mip.Width = tdx.width >> i;
-                    mip.Height = tdx.height >> i;
+                    MipMap mip = new MipMap()
+                    {
+                        Width = tdx.width >> i,
+                        Height = tdx.height >> i
+                    };
 
                     switch (tdx.Format)
                     {
@@ -158,18 +152,14 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
         public static TDX LoadFromBitmap(Bitmap asset, string name, D3DFormat format)
         {
-
             TDX tdx = null;
 
             if (tdx == null)
             {
                 tdx = new TDX();
 
-                var b = asset;
-
-
-
-                var flags = Squish.SquishFlags.kDxt1;
+                Bitmap b = asset;
+                SquishFlags flags = Squish.SquishFlags.kDxt1;
 
                 tdx.Name = name;
                 tdx.Format = format;
@@ -184,13 +174,16 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                         flags = Squish.SquishFlags.kDxt5;
                         break;
                 }
-                var mipBitmaps = GenerateMips(b, b.Width, b.Height);
 
-                foreach (var mb in mipBitmaps)
+                List<Bitmap> mipBitmaps = GenerateMips(b, b.Width, b.Height);
+
+                foreach (Bitmap mb in mipBitmaps)
                 {
-                    var mip = new MipMap();
-                    mip.Width = mb.Width;
-                    mip.Height = mb.Height;
+                    MipMap mip = new MipMap()
+                    {
+                        Width = mb.Width,
+                        Height = mb.Height
+                    };
 
                     byte[] data = new byte[mb.Width * mb.Height * 4];
                     byte[] dest = new byte[Squish.Squish.GetStorageRequirements(mb.Width, mb.Height, flags | Squish.SquishFlags.kColourIterativeClusterFit | Squish.SquishFlags.kWeightColourByAlpha)];
@@ -200,7 +193,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                     {
                         for (int x = 0; x < mb.Width; x++)
                         {
-                            var p = mb.GetPixel(x, y);
+                            Color p = mb.GetPixel(x, y);
                             data[ii + 0] = p.R;
                             data[ii + 1] = p.G;
                             data[ii + 2] = p.B;
@@ -210,8 +203,15 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                         }
                     }
 
-                    if (format == D3DFormat.ATI2) dest = BC5Unorm.Compress(data, (ushort)mb.Width, (ushort)mb.Height, GetMipSize(format, (ushort)mb.Width, (ushort)mb.Height));
-                    else Squish.Squish.CompressImage(data, mb.Width, mb.Height, ref dest, flags | Squish.SquishFlags.kColourClusterFit);
+                    if (format == D3DFormat.ATI2)
+                    {
+                        dest = BC5Unorm.Compress(data, (ushort)mb.Width, (ushort)mb.Height, GetMipSize(format, (ushort)mb.Width, (ushort)mb.Height));
+                    }
+                    else
+                    {
+                        Squish.Squish.CompressImage(data, mb.Width, mb.Height, ref dest, flags | Squish.SquishFlags.kColourClusterFit);
+                    }
+
                     mip.Data = dest;
 
                     tdx.MipMaps.Add(mip);
@@ -254,8 +254,8 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             while (currentWidth > 1 && currentHeight > 1)
             {
                 Bitmap mipimage = new Bitmap(currentWidth, currentHeight);
-                var srcRect = new RectangleF(0, 0, width, height);
-                var destRect = new RectangleF(0, 0, currentWidth, currentHeight);
+                RectangleF srcRect = new RectangleF(0, 0, width, height);
+                RectangleF destRect = new RectangleF(0, 0, currentWidth, currentHeight);
                 Graphics grfx = Graphics.FromImage(mipimage);
                 grfx.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
                 grfx.DrawImage(b, destRect, srcRect, GraphicsUnit.Pixel);
@@ -270,9 +270,9 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
         public int GetMipLevelForSize(int maxDimension)
         {
-            for (int i = 0; i < this.MipMaps.Count; i++)
+            for (int i = 0; i < MipMaps.Count; i++)
             {
-                if (this.MipMaps[i].Width <= maxDimension || this.MipMaps[i].Height <= maxDimension)
+                if (MipMaps[i].Width <= maxDimension || MipMaps[i].Height <= maxDimension)
                 {
                     return i;
                 }
@@ -283,12 +283,12 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
         public Bitmap Decompress(int mipLevel = 0, bool bSuppressAlpha = false)
         {
-            var mip = MipMaps[mipLevel];
+            MipMap mip = MipMaps[mipLevel];
 
             Bitmap b = new Bitmap(mip.Width, mip.Height, PixelFormat.Format32bppArgb);
             byte[] dest = Decompress(mip, bSuppressAlpha);
 
-            var bmpdata = b.LockBits(new Rectangle(0, 0, mip.Width, mip.Height), ImageLockMode.ReadWrite, (bSuppressAlpha ? PixelFormat.Format32bppRgb : b.PixelFormat));
+            BitmapData bmpdata = b.LockBits(new Rectangle(0, 0, mip.Width, mip.Height), ImageLockMode.ReadWrite, (bSuppressAlpha ? PixelFormat.Format32bppRgb : b.PixelFormat));
             Marshal.Copy(dest, 0, bmpdata.Scan0, dest.Length);
             b.UnlockBits(bmpdata);
 
@@ -301,7 +301,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             bool bNotCompressed = false;
             bool ATI2 = false;
 
-            switch (this.Format)
+            switch (Format)
             {
                 case D3DFormat.DXT1:
                     flags = SquishFlags.kDxt1;
@@ -320,7 +320,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                     break;
 
                 default:
-                    throw new NotImplementedException(string.Format("Can't decompress: {0}", this.Format));
+                    throw new NotImplementedException(string.Format("Can't decompress: {0}", Format));
             }
 
             byte[] dest = new byte[mip.Width * mip.Height * 4];
@@ -354,7 +354,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             return dest;
         }
 
-        private Bitmap MakeBitmapFromATI2(byte[] blocks, uint width, uint height, bool keepAlpha)
+        private Bitmap makeBitmapFromATI2(byte[] blocks, uint width, uint height, bool keepAlpha)
         {
             byte[] buffer = DecompressATI2(blocks, width, height, keepAlpha);
             Bitmap bitmap = new Bitmap((int)width, (int)height, PixelFormat.Format32bppArgb);
@@ -364,6 +364,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             bitmap.UnlockBits(data);
             return bitmap;
         }
+
         public byte[] DecompressATI2(byte[] blocks, uint width, uint height, bool keepAlpha)
         {
             byte[] redBuffer = new byte[width * height];
@@ -464,7 +465,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
         public void Save(string path)
         {
-            using (var fs = new FileStream(path, FileMode.Create)) { Save(fs); }
+            using (FileStream fs = new FileStream(path, FileMode.Create)) { Save(fs); }
         }
 
         public void Save(Stream s)
@@ -501,11 +502,12 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
         public static explicit operator DDS(TDX tdx)
         {
-            DDS dds = new DDS();
-
-            dds.Width = tdx.MipMaps[0].Width;
-            dds.Height = tdx.MipMaps[0].Height;
-            dds.Format = tdx.Format;
+            DDS dds = new DDS()
+            {
+                Width = tdx.MipMaps[0].Width,
+                Height = tdx.MipMaps[0].Height,
+                Format = tdx.Format
+            };
 
             foreach (MipMap mip in tdx.MipMaps)
             {

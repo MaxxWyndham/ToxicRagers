@@ -17,84 +17,97 @@ namespace ToxicRagers.CarmageddonReincarnation.VirtualTextures
 
         public Dictionary<string, VTMapTile> Tiles
         {
-            get { return tiles; }
-            set { tiles = value; }
+            get => tiles;
+            set => tiles = value;
         }
+
         public int TimeStamp
         {
-            get { return timeStamp; }
-            set { timeStamp = value; }
+            get => timeStamp;
+            set => timeStamp = value;
         }
+
         public int Unknown2
         {
-            get { return unknown2; }
-            set { unknown2 = value; }
+            get => unknown2;
+            set => unknown2 = value;
         }
+
         public int Width
         {
-            get { return width; }
-            set { width = value; }
+            get => width;
+            set => width = value;
         }
+
         public int Height
         {
-            get { return height; }
-            set { height = value; }
+            get => height;
+            set => height = value;
         }
+
         public int Column
         {
-            get { return column; }
-            set { column = value; }
+            get => column;
+            set => column = value;
         }
+
         public int Row
         {
-            get { return row; }
-            set { row = value; }
+            get => row;
+            set => row = value;
         }
+
         public string FileName
         {
-            get { return fileName; }
-            set { fileName = value; }
+            get => fileName;
+            set => fileName = value;
         }
-        public int NumTiles
-        {
-            get { return (width / 120) * (height / 120); }
-        }
+
+        public int NumTiles => (width / 120) * (height / 120);
+
         public int GetWidth(int page)
         {
-            if (page == 0) return Width;
+            if (page == 0) { return Width; }
+
             int divisor = 1;
             for (int i = 1; i <= page; i++, divisor *= 2) { }
             return Width / divisor;
         }
+
         public int GetHeight(int page)
         {
-            if (page == 0) return Height;
+            if (page == 0) { return Height; }
+
             int divisor = 1;
             for (int i = 1; i <= page; i++, divisor *= 2) { }
             return Height / divisor;
         }
-        public int GetPaddingX(int page)
+
+        public int GetPadding(int pageWidth)
         {
-            int pageWidth = GetWidth(page);
-            if (pageWidth == 2048) return 72;
-            else if (pageWidth == 1024) return 36;
-            else if (pageWidth == 512) return 20;
-            else if (pageWidth == 256) return 12;
-            else if (pageWidth == 128) return 8;
-            else if (pageWidth < 128) return 4;
-            else return 0;
+            switch (pageWidth)
+            {
+                case 2048:
+                    return 72;
+
+                case 1024:
+                    return 36;
+
+                case 512:
+                    return 20;
+
+                case 256:
+                    return 12;
+
+                case 128:
+                    return 8;
+
+                default:
+                    if (pageWidth < 128) { return 4; }
+                    return 0;
+            }
         }
-        public int GetPaddingY(int page)
-        {
-            int pageWidth = GetHeight(page);
-            if (pageWidth == 2048) return 72;
-            else if (pageWidth == 1024) return 36;
-            else if (pageWidth == 512) return 20;
-            else if (pageWidth == 256) return 12;
-            else if (pageWidth == 128) return 8;
-            else if (pageWidth < 128) return 4;
-            else return 0;
-        }
+
         public override string ToString()
         {
             return Path.GetFileName(FileName);

@@ -16,16 +16,14 @@ namespace ToxicRagers.Novadrome.Formats
         public XT2()
             : base()
         {
-            this.extension = "XT2";
+            extension = "XT2";
         }
 
         public static XT2 Load(string Path)
         {
             FileInfo fi = new FileInfo(Path);
             Console.WriteLine("{0}", Path);
-            XT2 xt2 = new XT2();
-
-            xt2.Name = fi.Name.Replace(fi.Extension, "");
+            XT2 xt2 = new XT2() { Name = fi.Name.Replace(fi.Extension, "") };
 
             using (BEBinaryReader br = new BEBinaryReader(fi.OpenRead()))
             {
@@ -84,7 +82,7 @@ namespace ToxicRagers.Novadrome.Formats
                         OutSize = W * H * TexelPitch;
                         break;
 
-                    case D3DFormat.X360_DXT1: 
+                    case D3DFormat.X360_DXT1:
                         OutSize = W * H * TexelPitch;
                         break;
 
@@ -119,10 +117,13 @@ namespace ToxicRagers.Novadrome.Formats
                     }
                 }
 
-                var mip = new MipMap();
-                mip.Width = xt2.width;
-                mip.Height = xt2.height;
-                mip.Data = data;
+                MipMap mip = new MipMap()
+                {
+                    Width = xt2.width,
+                    Height = xt2.height,
+                    Data = data
+                };
+
                 xt2.MipMaps.Add(mip);
             }
 
@@ -137,12 +138,12 @@ namespace ToxicRagers.Novadrome.Formats
             int Micro;
             int Offset;
 
-            alignedWidth = (w + 31) &~ 31;
+            alignedWidth = (w + 31) & ~31;
             logBpp = (TexelPitch >> 2) + ((TexelPitch >> 1) >> (TexelPitch >> 2));
             Macro = ((x >> 5) + (y >> 5) * (alignedWidth >> 5)) << (logBpp + 7);
             Micro = (((x & 7) + ((y & 6) << 2)) << logBpp);
-            Offset = Macro + ((Micro &~ 15) << 1) + (Micro & 15) + ((y & 8) << (3 + logBpp)) + ((y & 1) << 4);
-            return (((Offset &~ 511) << 3) + ((Offset & 448) << 2) + (Offset & 63) + ((y & 16) << 7) + (((((y & 8) >> 2) + (x >> 3)) & 3) << 6)) >> logBpp;
+            Offset = Macro + ((Micro & ~15) << 1) + (Micro & 15) + ((y & 8) << (3 + logBpp)) + ((y & 1) << 4);
+            return (((Offset & ~511) << 3) + ((Offset & 448) << 2) + (Offset & 63) + ((y & 16) << 7) + (((((y & 8) >> 2) + (x >> 3)) & 3) << 6)) >> logBpp;
         }
     }
 }

@@ -4,16 +4,16 @@ namespace ToxicRagers.Helpers
 {
     public class Matrix2D : IEquatable<Matrix2D>
     {
-        public Single M11;
-        public Single M12;
-        public Single M21;
-        public Single M22;
-        public Single M31;
-        public Single M32;
+        public float M11;
+        public float M12;
+        public float M21;
+        public float M22;
+        public float M31;
+        public float M32;
 
-        public static Matrix2D Identity { get { return new Matrix2D(1.0f, 0, 0, 1.0f, 0, 0); } }
+        public static Matrix2D Identity => new Matrix2D(1.0f, 0, 0, 1.0f, 0, 0);
 
-        public Matrix2D(Single m11, Single m12, Single m21, Single m22, Single m31, Single m32)
+        public Matrix2D(float m11, float m12, float m21, float m22, float m31, float m32)
         {
             M11 = m11;
             M12 = m12;

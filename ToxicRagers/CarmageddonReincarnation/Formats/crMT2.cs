@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Xml.Linq;
 
 using ToxicRagers.CarmageddonReincarnation.Helpers;
@@ -66,192 +67,191 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
         [Ignore]
         public MT2 Defaults
         {
-            get { return coreDefaults; }
-            set { coreDefaults = value; }
+            get => coreDefaults;
+            set => coreDefaults = value;
         }
 
         [Ignore]
         public string Name
         {
-            get { return name; }
-            set { name = value; }
+            get => name;
+            set => name = value;
         }
 
         [Ignore]
         public string BasedOffOf
         {
-            get { return basedOffOf; }
-            set { basedOffOf = value; }
+            get => basedOffOf;
+            set => basedOffOf = value;
         }
 
         [Ignore]
-        public string Texture
-        {
-            get { return diffuse; }
-        }
+        public string Texture => diffuse;
 
         public Troolean DoubleSided
         {
-            get { return bDoubleSided; }
-            set { bDoubleSided = value; }
+            get => bDoubleSided;
+            set => bDoubleSided = value;
         }
 
         public Troolean CastsShadows
         {
-            get { return bCastsShadows; }
-            set { bCastsShadows = value; }
+            get => bCastsShadows;
+            set => bCastsShadows = value;
         }
 
         public Troolean ReceivesShadows
         {
-            get { return bReceivesShadows; }
-            set { bReceivesShadows = value; }
+            get => bReceivesShadows;
+            set => bReceivesShadows = value;
         }
 
         public Troolean Translucent
         {
-            get { return bTranslucent; }
-            set { bTranslucent = value; }
+            get => bTranslucent;
+            set => bTranslucent = value;
         }
 
         public Troolean Walkable
         {
-            get { return bWalkable; }
-            set { bWalkable = value; }
+            get => bWalkable;
+            set => bWalkable = value;
         }
 
         public Troolean Sitable
         {
-            get { return bSitable; }
-            set { bSitable = value; }
+            get => bSitable;
+            set => bSitable = value;
         }
 
         public Troolean Unpickable
         {
-            get { return bUnpickable; }
-            set { bUnpickable = value; }
+            get => bUnpickable;
+            set => bUnpickable = value;
         }
 
         public Troolean FogEnabled
         {
-            get { return bFogEnabled; }
-            set { bFogEnabled = value; }
+            get => bFogEnabled;
+            set => bFogEnabled = value;
         }
 
         public Troolean NeedsWorldSpaceVertexNormal
         {
-            get { return bNeedsWorldSpaceVertexNormal; }
-            set { bNeedsWorldSpaceVertexNormal = value; }
+            get => bNeedsWorldSpaceVertexNormal;
+            set => bNeedsWorldSpaceVertexNormal = value;
         }
 
         public Troolean NeedsWorldEyePos
         {
-            get { return bNeedsWorldEyePos; }
-            set { bNeedsWorldEyePos = value; }
+            get => bNeedsWorldEyePos;
+            set => bNeedsWorldEyePos = value;
         }
 
         public Troolean NeedsWorldVertexPos
         {
-            get { return bNeedsWorldVertexPos; }
-            set { bNeedsWorldVertexPos = value; }
+            get => bNeedsWorldVertexPos;
+            set => bNeedsWorldVertexPos = value;
         }
 
         public Troolean NeedsWorldLightDir
         {
-            get { return bNeedsWorldLightDir; }
-            set { bNeedsWorldLightDir = value; }
+            get => bNeedsWorldLightDir;
+            set => bNeedsWorldLightDir = value;
         }
 
         public Troolean NeedsLightingSpaceVertexNormal
         {
-            get { return bNeedsLightingSpaceVertexNormal; }
-            set { bNeedsLightingSpaceVertexNormal = value; }
+            get => bNeedsLightingSpaceVertexNormal;
+            set => bNeedsLightingSpaceVertexNormal = value;
         }
 
         public Troolean NeedsVertexColour
         {
-            get { return bNeedsVertexColour; }
-            set { bNeedsVertexColour = value; }
+            get => bNeedsVertexColour;
+            set => bNeedsVertexColour = value;
         }
 
         public Troolean NeedsLocalCubeMap
         {
-            get { return bNeedsLocalCubeMap; }
-            set { bNeedsLocalCubeMap = value; }
+            get => bNeedsLocalCubeMap;
+            set => bNeedsLocalCubeMap = value;
         }
 
         public Troolean NeedsSeperateObjectColour
         {
-            get { return bNeedsSeperateObjectColour; }
-            set { bNeedsSeperateObjectColour = value; }
+            get => bNeedsSeperateObjectColour;
+            set => bNeedsSeperateObjectColour = value;
         }
 
         public Troolean Panickable
         {
-            get { return bPanickable; }
-            set { bPanickable = value; }
+            get => bPanickable;
+            set => bPanickable = value;
         }
 
-        public Single AlphaCutOff
+        public float AlphaCutOff
         {
-            get { return alphaCutOff.X; }
-            set { alphaCutOff.X = value; }
+            get => alphaCutOff.X;
+            set => alphaCutOff.X = value;
         }
 
         public Vector3 EmissiveLight
         {
-            get { return multiplier; }
-            set { multiplier = value; }
+            get => multiplier;
+            set => multiplier = value;
         }
 
-        public Single EmissiveFactor
+        public float EmissiveFactor
         {
-            get { return emissiveFactor.X; }
-            set { emissiveFactor.X = value; }
+            get => emissiveFactor.X;
+            set => emissiveFactor.X = value;
         }
 
         public Vector3 Emissive_Colour
         {
-            get { return emissiveColour; }
-            set { emissiveColour = value; }
+            get => emissiveColour;
+            set => emissiveColour = value;
         }
 
-        public Single ReflectionBluryness
+        public float ReflectionBluryness
         {
-            get { return reflectionBluryness.X; }
-            set { reflectionBluryness.X = value; }
+            get => reflectionBluryness.X;
+            set => reflectionBluryness.X = value;
         }
 
         public Vector3 ReflectionMultiplier
         {
-            get { return multiplier; }
-            set { multiplier = value; }
+            get => multiplier;
+            set => multiplier = value;
         }
 
-        public Single Fresnel_R0
+        public float Fresnel_R0
         {
-            get { return fresnelR0.X; }
-            set { fresnelR0.X = value; }
+            get => fresnelR0.X;
+            set => fresnelR0.X = value;
         }
 
         [Ignore]
         public List<TextureCoordSource> TextureCoordSources
         {
-            get { return textureCoordSources; }
-            set { textureCoordSources = value; }
+            get => textureCoordSources;
+            set => textureCoordSources = value;
         }
 
         [Ignore]
         public List<Sampler> Samplers
         {
-            get { return samplers; }
-            set { samplers = value; }
+            get => samplers;
+            set => samplers = value;
         }
 
         public MT2()
         {
             textureCoordSources = new List<TextureCoordSource>();
             samplers = new List<Sampler>();
+
+            basedOffOf = GetType().ToString().Substring(GetType().ToString().LastIndexOf(".") + 1);
         }
 
         public MT2(XElement xml)
@@ -259,23 +259,23 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
         {
             this.xml = xml;
 
-            var dblSided = xml.Descendants("DoubleSided").FirstOrDefault();
-            var castsShads = xml.Descendants("CastsShadows").FirstOrDefault();
-            var recShads = xml.Descendants("ReceivesShadows").FirstOrDefault();
-            var fog = xml.Descendants("FogEnabled").FirstOrDefault();
-            var trans = xml.Descendants("Translucent").FirstOrDefault();
-            var walk = xml.Descendants("Walkable").FirstOrDefault();
-            var panic = xml.Descendants("Panickable").FirstOrDefault();
-            var sit = xml.Descendants("Sitable").FirstOrDefault();
-            var pick = xml.Descendants("Unpickable").FirstOrDefault();
-            var needWSVN = xml.Descendants("NeedsWorldSpaceVertexNormal").FirstOrDefault();
-            var needWEP = xml.Descendants("NeedsWorldEyePos").FirstOrDefault();
-            var needWVP = xml.Descendants("NeedsWorldVertexPos").FirstOrDefault();
-            var needWLD = xml.Descendants("NeedsWorldLightDir").FirstOrDefault();
-            var needLSVN = xml.Descendants("NeedsLightingSpaceVertexNormal").FirstOrDefault();
-            var needVC = xml.Descendants("NeedsVertexColour").FirstOrDefault();
-            var needLCM = xml.Descendants("NeedsLocalCubeMap").FirstOrDefault();
-            var needSOC = xml.Descendants("NeedsSeperateObjectColour").FirstOrDefault();
+            XElement dblSided = xml.Descendants("DoubleSided").FirstOrDefault();
+            XElement castsShads = xml.Descendants("CastsShadows").FirstOrDefault();
+            XElement recShads = xml.Descendants("ReceivesShadows").FirstOrDefault();
+            XElement fog = xml.Descendants("FogEnabled").FirstOrDefault();
+            XElement trans = xml.Descendants("Translucent").FirstOrDefault();
+            XElement walk = xml.Descendants("Walkable").FirstOrDefault();
+            XElement panic = xml.Descendants("Panickable").FirstOrDefault();
+            XElement sit = xml.Descendants("Sitable").FirstOrDefault();
+            XElement pick = xml.Descendants("Unpickable").FirstOrDefault();
+            XElement needWSVN = xml.Descendants("NeedsWorldSpaceVertexNormal").FirstOrDefault();
+            XElement needWEP = xml.Descendants("NeedsWorldEyePos").FirstOrDefault();
+            XElement needWVP = xml.Descendants("NeedsWorldVertexPos").FirstOrDefault();
+            XElement needWLD = xml.Descendants("NeedsWorldLightDir").FirstOrDefault();
+            XElement needLSVN = xml.Descendants("NeedsLightingSpaceVertexNormal").FirstOrDefault();
+            XElement needVC = xml.Descendants("NeedsVertexColour").FirstOrDefault();
+            XElement needLCM = xml.Descendants("NeedsLocalCubeMap").FirstOrDefault();
+            XElement needSOC = xml.Descendants("NeedsSeperateObjectColour").FirstOrDefault();
 
             if (dblSided != null) { bDoubleSided = (dblSided.Attribute("Value").Value.ToLower() == "true" ? Troolean.True : Troolean.False); }
             if (castsShads != null) { bCastsShadows = (castsShads.Attribute("Value").Value.ToLower() == "true" ? Troolean.True : Troolean.False); }
@@ -295,14 +295,14 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             if (needLCM != null) { bNeedsLocalCubeMap = (needLCM.Attribute("Value").Value.ToLower() == "true" ? Troolean.True : Troolean.False); }
             if (needSOC != null) { bNeedsSeperateObjectColour = (needSOC.Attribute("Value").Value.ToLower() == "true" ? Troolean.True : Troolean.False); }
 
-            var mult = xml.Descendants("Constant").Where(e => e.Attribute("Alias").Value == "Multiplier").FirstOrDefault();
-            var emml = xml.Descendants("Constant").Where(e => e.Attribute("Alias").Value == "EmissiveLight").FirstOrDefault();
-            var emmf = xml.Descendants("Constant").Where(e => e.Attribute("Alias").Value == "EmissiveFactor").FirstOrDefault();
-            var emmc = xml.Descendants("Constant").Where(e => e.Attribute("Alias").Value == "Emissive_Colour").FirstOrDefault();
-            var refm = xml.Descendants("Constant").Where(e => e.Attribute("Alias").Value == "ReflectionMultiplier").FirstOrDefault();
-            var fres = xml.Descendants("Constant").Where(e => e.Attribute("Alias").Value == "Fresnel_R0").FirstOrDefault();
-            var refb = xml.Descendants("Constant").Where(e => e.Attribute("Alias").Value == "ReflectionBluryness").FirstOrDefault();
-            var alph = xml.Descendants("Constant").Where(e => e.Attribute("Alias").Value == "AlphaCutOff").FirstOrDefault();
+            XElement mult = xml.Descendants("Constant").Where(e => e.Attribute("Alias").Value == "Multiplier").FirstOrDefault();
+            XElement emml = xml.Descendants("Constant").Where(e => e.Attribute("Alias").Value == "EmissiveLight").FirstOrDefault();
+            XElement emmf = xml.Descendants("Constant").Where(e => e.Attribute("Alias").Value == "EmissiveFactor").FirstOrDefault();
+            XElement emmc = xml.Descendants("Constant").Where(e => e.Attribute("Alias").Value == "Emissive_Colour").FirstOrDefault();
+            XElement refm = xml.Descendants("Constant").Where(e => e.Attribute("Alias").Value == "ReflectionMultiplier").FirstOrDefault();
+            XElement fres = xml.Descendants("Constant").Where(e => e.Attribute("Alias").Value == "Fresnel_R0").FirstOrDefault();
+            XElement refb = xml.Descendants("Constant").Where(e => e.Attribute("Alias").Value == "ReflectionBluryness").FirstOrDefault();
+            XElement alph = xml.Descendants("Constant").Where(e => e.Attribute("Alias").Value == "AlphaCutOff").FirstOrDefault();
 
             if (mult != null) { multiplier = ReadConstant(mult); }
             if (emml != null) { emissiveLight = ReadConstant(emml); }
@@ -313,23 +313,23 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             if (refb != null) { reflectionBluryness = ReadConstant(refb); }
             if (alph != null) { alphaCutOff = ReadConstant(alph); }
 
-            var vegetation = xml.Descendants("VegetationAnimation").FirstOrDefault();
+            XElement vegetation = xml.Descendants("VegetationAnimation").FirstOrDefault();
 
             if (vegetation != null) { vegetationAnimation = VegetationAnimation.CreateFromElement(vegetation); }
 
-            foreach (var textureCoordSource in xml.Descendants("TextureCoordSource"))
+            foreach (XElement textureCoordSource in xml.Descendants("TextureCoordSource"))
             {
                 textureCoordSources.Add(TextureCoordSource.CreateFromElement(textureCoordSource));
             }
 
-            foreach (var sampler in xml.Descendants("Sampler"))
+            foreach (XElement sampler in xml.Descendants("Sampler"))
             {
                 samplers.Add(Sampler.CreateFromElement(sampler));
             }
 
             // Rotator2D
 
-            var sub = xml.Descendants("Substance").FirstOrDefault();
+            XElement sub = xml.Descendants("Substance").FirstOrDefault();
 
             if (sub != null) { substance = sub.Attribute("Name").Value; }
         }
@@ -361,7 +361,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                 new XElement("BasedOffOf", new XAttribute("Name", basedOffOf))
             );
 
-            foreach (var property in this.GetType().GetProperties())
+            foreach (PropertyInfo property in GetType().GetProperties())
             {
                 object[] attributes = property.GetCustomAttributes(true);
 
@@ -391,10 +391,10 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                             }
                             break;
 
-                        case "Single":
+                        case "float":
                             {
-                                Single value = (Single)property.GetValue(this, null);
-                                if (value != (Single)property.GetValue(coreDefaults, null))
+                                float value = (float)property.GetValue(this, null);
+                                if (value != (float)property.GetValue(coreDefaults, null))
                                 {
                                     xml.Add(new XElement("Constant",
                                         new XAttribute("Alias", property.Name),
@@ -457,38 +457,38 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
     {
         string alias;
         bool bScrolling;
-        Single scrollX;
-        Single scrollY;
-        Single scrollZ;
+        float scrollX;
+        float scrollY;
+        float scrollZ;
         bool bFlipBook;
         int framesX = 1;
         int framesY = 1;
-        Single frameRate;
+        float frameRate;
         bool bFlipBookSelect;
         int flipBookSelectFrame;
         bool bWaving;
-        Single waveFrequenceU;
-        Single waveFrequenceV;
-        Single waveAmplitudeU;
-        Single waveAmplitudeV;
+        float waveFrequenceU;
+        float waveFrequenceV;
+        float waveAmplitudeU;
+        float waveAmplitudeV;
         int uvStream;
 
         public string Alias
         {
-            get { return alias; }
-            set { alias = value; }
+            get => alias;
+            set => alias = value;
         }
 
         public int UVStream
         {
-            get { return uvStream; }
-            set { uvStream = value; }
+            get => uvStream;
+            set => uvStream = value;
         }
 
         public bool FlipBook
         {
-            get { return bFlipBook; }
-            set { bFlipBook = true; }
+            get => bFlipBook;
+            set => bFlipBook = true;
         }
 
         public static TextureCoordSource CreateFromElement(XElement element)
@@ -608,7 +608,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
         int maxAnisotropy = 4;
         Filter mipFilter = Filter.Linear;
         Filter magFilter = Filter.Linear;
-        Single mipLevelBias;
+        float mipLevelBias;
         Address addressU = Address.Wrap;
         Address addressV = Address.Wrap;
         Address addressW;
@@ -618,44 +618,44 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
         public string Alias
         {
-            get { return alias; }
-            set { alias = value; }
+            get => alias;
+            set => alias = value;
         }
 
         public Filter MinFilter
         {
-            get { return minFilter; }
-            set { minFilter = value; }
+            get => minFilter;
+            set => minFilter = value;
         }
 
         public Filter MipFilter
         {
-            get { return mipFilter; }
-            set { mipFilter = value; }
+            get => mipFilter;
+            set => mipFilter = value;
         }
 
         public Filter MagFilter
         {
-            get { return magFilter; }
-            set { magFilter = value; }
+            get => magFilter;
+            set => magFilter = value;
         }
 
         public Usage UsageRGB
         {
-            get { return usageRGB; }
-            set { usageRGB = value; }
+            get => usageRGB;
+            set => usageRGB = value;
         }
 
         public Usage UsageAlpha
         {
-            get { return usageAlpha; }
-            set { usageAlpha = value; }
+            get => usageAlpha;
+            set => usageAlpha = value;
         }
 
         public bool sRGBRead
         {
-            get { return bsRGBRead; }
-            set { bsRGBRead = value; }
+            get => bsRGBRead;
+            set => bsRGBRead = value;
         }
 
         public static Sampler CreateFromElement(XElement element)
@@ -730,10 +730,10 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
     public class VegetationAnimation
     {
         bool bEnabled;
-        Single branchAmplitude;
-        Single detailAmplitude;
-        Single detailFrequency;
-        Single bendScale;
+        float branchAmplitude;
+        float detailAmplitude;
+        float detailFrequency;
+        float bendScale;
 
         public static VegetationAnimation CreateFromElement(XElement element)
         {

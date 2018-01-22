@@ -44,49 +44,15 @@ namespace ToxicRagers.Compression.LZ4
             stream = ms;
         }
 
-        public override bool CanRead
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        public override bool CanSeek
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        public override bool CanWrite
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        public override long Length
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-        }
+        public override bool CanRead => throw new NotImplementedException();
+        public override bool CanSeek => throw new NotImplementedException();
+        public override bool CanWrite => throw new NotImplementedException();
+        public override long Length => throw new NotImplementedException();
 
         public override long Position
         {
-            get
-            {
-                throw new NotImplementedException();
-            }
-
-            set
-            {
-                throw new NotImplementedException();
-            }
+            get => throw new NotImplementedException();
+            set => throw new NotImplementedException();
         }
 
         public static int Compress(int[] hash, byte[] source, byte[] dest, int size, int maxOutputSize)
@@ -107,27 +73,27 @@ namespace ToxicRagers.Compression.LZ4
             int mflimit = source.Length - MFLIMIT;
             int olimit = op + maxOutputSize;
 
-            var src_end = ip + size;
-            var src_LASTLITERALS = src_end - LASTLITERALS;
+            int src_end = ip + size;
+            int src_LASTLITERALS = src_end - LASTLITERALS;
             int src_LASTLITERALS_1 = src_LASTLITERALS - 1;
-            var src_LASTLITERALS_STEPSIZE_1 = src_LASTLITERALS - (STEPSIZE_32 - 1);
+            int src_LASTLITERALS_STEPSIZE_1 = src_LASTLITERALS - (STEPSIZE_32 - 1);
 
             uint forwardH;
             uint h;
 
             if (size > LZ4_minLength)
             {
-                hash[(((LookInt32(source, ip)) * 2654435761u) >> HASH_ADJUST)] = (ip - basep);
+                hash[(((lookInt32(source, ip)) * 2654435761u) >> HASH_ADJUST)] = (ip - basep);
                 ip++;
-                forwardH = (((LookInt32(source, ip)) * 2654435761u) >> HASH_ADJUST);
+                forwardH = (((lookInt32(source, ip)) * 2654435761u) >> HASH_ADJUST);
 
                 while (true)
                 {
                     int match;
                     int token;
-                    var forwardIp = ip;
+                    int forwardIp = ip;
                     int step = 1;
-                    var searchMatchNb = (1 << LZ4_skipTrigger) + 3;
+                    int searchMatchNb = (1 << LZ4_skipTrigger) + 3;
 
                     // Find a match
                     do
@@ -137,12 +103,12 @@ namespace ToxicRagers.Compression.LZ4
                         forwardIp += step;
                         step = searchMatchNb++ >> LZ4_skipTrigger;
 
-                        if (forwardIp > mflimit) goto _last_literals;
+                        if (forwardIp > mflimit) { goto _last_literals; }
 
                         match = basep + hash[h];
-                        forwardH = (((LookInt32(source, forwardIp)) * 2654435761u) >> HASH_ADJUST);
+                        forwardH = (((lookInt32(source, forwardIp)) * 2654435761u) >> HASH_ADJUST);
                         hash[h] = (ip - basep);
-                    } while ((match < ip - MAX_DISTANCE) || (!CompareInt32(source, match, ip)));
+                    } while ((match < ip - MAX_DISTANCE) || (!compareInt32(source, match, ip)));
 
                     // Catch up
                     while ((ip > anchor) && (match > lowLimit) && (source[ip - 1] == source[match - 1]))
@@ -162,7 +128,7 @@ namespace ToxicRagers.Compression.LZ4
 
                     if (litLength >= RUN_MASK)
                     {
-                        var len = litLength - RUN_MASK;
+                        int len = litLength - RUN_MASK;
                         dest[token] = (RUN_MASK << ML_BITS);
                         if (len > 254)
                         {
@@ -173,7 +139,7 @@ namespace ToxicRagers.Compression.LZ4
                             } while (len > 254);
                             dest[op++] = (byte)len;
 
-                            BlockCopy(source, anchor, dest, op, litLength);
+                            blockCopy(source, anchor, dest, op, litLength);
                             op += litLength;
 
                             goto _next_match;
@@ -191,13 +157,13 @@ namespace ToxicRagers.Compression.LZ4
                     // Copy Literals
                     if (litLength > 0)
                     {
-                        WildCopy(source, anchor, dest, op, op + litLength);
+                        wildCopy(source, anchor, dest, op, op + litLength);
                         op += litLength;
                     }
 
                     _next_match:
                     // Encode Offset
-                    WriteInt16(dest, op, (ushort)(ip - match));
+                    writeInt16(dest, op, (ushort)(ip - match));
                     op += 2;
 
                     // Start Counting
@@ -207,23 +173,27 @@ namespace ToxicRagers.Compression.LZ4
 
                     while (ip < src_LASTLITERALS_STEPSIZE_1)
                     {
-                        var diff = (int)Xor4(source, match, ip);
+                        int diff = (int)xor4(source, match, ip);
+
                         if (diff == 0)
                         {
                             ip += STEPSIZE_32;
                             match += STEPSIZE_32;
                             continue;
                         }
+
                         ip += DEBRUIJN_TABLE_32[((uint)((diff) & -(diff)) * 0x077CB531u) >> 27];
+
                         goto _endCount;
                     }
 
-                    if ((ip < src_LASTLITERALS_1) && (CompareInt16(source, match, ip)))
+                    if ((ip < src_LASTLITERALS_1) && (compareInt16(source, match, ip)))
                     {
                         ip += 2;
                         match += 2;
                     }
-                    if ((ip < src_LASTLITERALS) && (source[match] == source[ip])) ip++;
+
+                    if ((ip < src_LASTLITERALS) && (source[match] == source[ip])) { ip++; }
 
                     _endCount:
                     // Encode MatchLength
@@ -263,15 +233,15 @@ namespace ToxicRagers.Compression.LZ4
                     }
 
                     // Fill table
-                    hash[(((LookInt32(source, ip - 2)) * 2654435761u) >> HASH_ADJUST)] = (ip - 2 - basep);
+                    hash[(((lookInt32(source, ip - 2)) * 2654435761u) >> HASH_ADJUST)] = (ip - 2 - basep);
 
                     // Test next position
 
-                    h = (((LookInt32(source, ip)) * 2654435761u) >> HASH_ADJUST);
+                    h = (((lookInt32(source, ip)) * 2654435761u) >> HASH_ADJUST);
                     match = basep + hash[h];
                     hash[h] = (ip - basep);
 
-                    if ((match > ip - (MAX_DISTANCE + 1)) && (CompareInt32(source, match, ip)))
+                    if ((match > ip - (MAX_DISTANCE + 1)) && (compareInt32(source, match, ip)))
                     {
                         token = op++;
                         dest[token] = 0;
@@ -280,12 +250,12 @@ namespace ToxicRagers.Compression.LZ4
 
                     // Prepare next loop
                     anchor = ip++;
-                    forwardH = (((LookInt32(source, ip)) * 2654435761u) >> HASH_ADJUST);
+                    forwardH = (((lookInt32(source, ip)) * 2654435761u) >> HASH_ADJUST);
                 }
             }
 
             _last_literals:
-            var lastRun = (src_end - anchor);
+            int lastRun = (src_end - anchor);
 
             if (op + lastRun + 1 + ((lastRun + 255 - RUN_MASK) / 255) > olimit)
             {
@@ -296,11 +266,15 @@ namespace ToxicRagers.Compression.LZ4
             {
                 dest[op++] = (RUN_MASK << ML_BITS);
                 lastRun -= RUN_MASK;
-                for (; lastRun > 254; lastRun -= 255) dest[op++] = 255;
+                for (; lastRun > 254; lastRun -= 255) { dest[op++] = 255; }
                 dest[op++] = (byte)lastRun;
             }
-            else dest[op++] = (byte)(lastRun << ML_BITS);
-            BlockCopy(source, anchor, dest, op, src_end - anchor);
+            else
+            {
+                dest[op++] = (byte)(lastRun << ML_BITS);
+            }
+
+            blockCopy(source, anchor, dest, op, src_end - anchor);
             op += src_end - anchor;
 
             return op;
@@ -318,25 +292,25 @@ namespace ToxicRagers.Compression.LZ4
             return chunkSize;
         }
 
-        private static uint LookInt32(byte[] buffer, int offset)
+        private static uint lookInt32(byte[] buffer, int offset)
         {
-            return (UInt32)(buffer[offset + 0] | buffer[offset + 1] << 8 | buffer[offset + 2] << 16 | buffer[offset + 3] << 24);
+            return (uint)(buffer[offset + 0] | buffer[offset + 1] << 8 | buffer[offset + 2] << 16 | buffer[offset + 3] << 24);
         }
 
-        private static void WriteInt16(byte[] buffer, int offset, ushort value)
+        private static void writeInt16(byte[] buffer, int offset, ushort value)
         {
             buffer[offset + 0] = (byte)value;
             buffer[offset + 1] = (byte)(value >> 8);
         }
 
-        private static bool CompareInt16(byte[] buffer, int a, int b)
+        private static bool compareInt16(byte[] buffer, int a, int b)
         {
             if (buffer[a + 0] != buffer[b + 0]) { return false; }
             if (buffer[a + 1] != buffer[b + 1]) { return false; }
             return true;
         }
 
-        private static bool CompareInt32(byte[] buffer, int a, int b)
+        private static bool compareInt32(byte[] buffer, int a, int b)
         {
             if (a < 0 || a > buffer.Length || b < 0 || b > buffer.Length)
             {
@@ -350,7 +324,7 @@ namespace ToxicRagers.Compression.LZ4
             return true;
         }
 
-        private static void BlockCopy(byte[] source, int sOffset, byte[] dest, int dOffset, int length)
+        private static void blockCopy(byte[] source, int sOffset, byte[] dest, int dOffset, int length)
         {
             if (length >= BLOCK_COPY_LIMIT)
             {
@@ -377,9 +351,9 @@ namespace ToxicRagers.Compression.LZ4
             }
         }
 
-        private static int WildCopy(byte[] source, int sOffset, byte[] dest, int dOffset, int destEnd)
+        private static int wildCopy(byte[] source, int sOffset, byte[] dest, int dOffset, int destEnd)
         {
-            var length = destEnd - dOffset;
+            int length = destEnd - dOffset;
 
             if (length <= 8)
             {
@@ -397,14 +371,14 @@ namespace ToxicRagers.Compression.LZ4
             else
             {
                 length = (length + 7) & ~7;
-                BlockCopy(source, sOffset, dest, dOffset, length);
+                blockCopy(source, sOffset, dest, dOffset, length);
                 return length;
             }
         }
 
-        private static uint Xor4(byte[] buffer, int offset1, int offset2)
+        private static uint xor4(byte[] buffer, int offset1, int offset2)
         {
-            return LookInt32(buffer, offset1) ^ LookInt32(buffer, offset2);
+            return lookInt32(buffer, offset1) ^ lookInt32(buffer, offset2);
         }
 
         public override void Flush()
@@ -435,16 +409,16 @@ namespace ToxicRagers.Compression.LZ4
 
             //while (i < buffer.Length)
             //{
-                //byte[] chunk = new byte[Math.Min(buffer.Length - i, output.Length)];
+            //byte[] chunk = new byte[Math.Min(buffer.Length - i, output.Length)];
 
-                //Array.Copy(buffer, i, chunk, 0, chunk.Length);
-                //Array.Clear(hashTable, 0, hashTable.Length);
+            //Array.Copy(buffer, i, chunk, 0, chunk.Length);
+            //Array.Clear(hashTable, 0, hashTable.Length);
 
-                int size = Compress(hashTable, buffer, output, buffer.Length, output.Length);
+            int size = Compress(hashTable, buffer, output, buffer.Length, output.Length);
 
-                stream.Write(output, 0, size);
+            stream.Write(output, 0, size);
 
-                //i += chunk.Length;
+            //i += chunk.Length;
             //}
         }
     }

@@ -1,19 +1,17 @@
-﻿using System;
-
-namespace ToxicRagers.Helpers
+﻿namespace ToxicRagers.Helpers
 {
     public class Matrix4D
     {
-        public Single M11; public Single M12; public Single M13; public Single M14;
-        public Single M21; public Single M22; public Single M23; public Single M24;
-        public Single M31; public Single M32; public Single M33; public Single M34;
-        public Single M41; public Single M42; public Single M43; public Single M44;
+        public float M11; public float M12; public float M13; public float M14;
+        public float M21; public float M22; public float M23; public float M24;
+        public float M31; public float M32; public float M33; public float M34;
+        public float M41; public float M42; public float M43; public float M44;
 
         public Matrix4D(
-            Single M11, Single M12, Single M13, Single M14,
-            Single M21, Single M22, Single M23, Single M24,
-            Single M31, Single M32, Single M33, Single M34,
-            Single M41, Single M42, Single M43, Single M44)
+            float M11, float M12, float M13, float M14,
+            float M21, float M22, float M23, float M24,
+            float M31, float M32, float M33, float M34,
+            float M41, float M42, float M43, float M44)
         {
             this.M11 = M11; this.M12 = M12; this.M13 = M13; this.M14 = M14;
             this.M21 = M21; this.M22 = M22; this.M23 = M23; this.M24 = M24;

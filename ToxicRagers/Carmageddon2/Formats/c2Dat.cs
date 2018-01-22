@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using ToxicRagers.Helpers;
+
 using ToxicRagers.Carmageddon2.Helpers;
+using ToxicRagers.Helpers;
 
 namespace ToxicRagers.Carmageddon2.Formats
 {
@@ -18,8 +19,7 @@ namespace ToxicRagers.Carmageddon2.Formats
 
         public DAT(DatMesh dm)
         {
-            DatMeshes = new List<DatMesh>();
-            DatMeshes.Add(dm);
+            DatMeshes = new List<DatMesh> { dm };
         }
 
         public static DAT Load(string path)
@@ -50,9 +50,11 @@ namespace ToxicRagers.Carmageddon2.Formats
                     switch (tag)
                     {
                         case 54: // 00 00 00 36
-                            D = new DatMesh();
-                            D.UnknownAttribute = br.ReadUInt16();   // I think this is actually two byte values
-                            D.Name = br.ReadString();
+                            D = new DatMesh()
+                            {
+                                UnknownAttribute = br.ReadUInt16(),   // I think this is actually two byte values
+                                Name = br.ReadString()
+                            };
                             break;
 
                         case 23: // 00 00 00 17 : vertex data
@@ -79,7 +81,7 @@ namespace ToxicRagers.Carmageddon2.Formats
                             for (int i = 0; i < count; i++)
                             {
                                 int faceID = D.Mesh.AddFace(br.ReadUInt16(), br.ReadUInt16(), br.ReadUInt16());
-                                
+
                                 D.Mesh.Faces[faceID].SmoothingGroup = br.ReadUInt16();
 
                                 br.ReadByte(); // number of edges, 0 and 3 = tri.  4 = quad.
@@ -221,12 +223,14 @@ namespace ToxicRagers.Carmageddon2.Formats
             bw.Close();
         }
 
-        public void AddMesh(string Name, byte Flag, c2Mesh Mesh)
+        public void AddMesh(string Name, byte Flag, C2Mesh Mesh)
         {
-            DatMesh d = new DatMesh();
-            d.Name = Name;
-            d.UnknownAttribute = Flag;
-            d.Mesh = Mesh;
+            DatMesh d = new DatMesh()
+            {
+                Name = Name,
+                UnknownAttribute = Flag,
+                Mesh = Mesh
+            };
             DatMeshes.Add(d);
         }
 
@@ -237,8 +241,8 @@ namespace ToxicRagers.Carmageddon2.Formats
             get
             {
                 Vector3 min, max;
-                min = new Vector3(Single.MaxValue, Single.MaxValue, Single.MaxValue);
-                max = new Vector3(Single.MinValue, Single.MinValue, Single.MinValue);
+                min = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
+                max = new Vector3(float.MinValue, float.MinValue, float.MinValue);
 
                 foreach (DatMesh d in DatMeshes)
                 {
@@ -265,7 +269,7 @@ namespace ToxicRagers.Carmageddon2.Formats
             }
         }
 
-        public void CentreOn(Single x, Single y, Single z)
+        public void CentreOn(float x, float y, float z)
         {
             MeshExtents extents = Extents;
             Vector3 offset = (extents.Min + extents.Max) / 2;
@@ -279,7 +283,7 @@ namespace ToxicRagers.Carmageddon2.Formats
             }
         }
 
-        public void Scale(Single scale)
+        public void Scale(float scale)
         {
             foreach (DatMesh d in DatMeshes)
             {
@@ -295,30 +299,30 @@ namespace ToxicRagers.Carmageddon2.Formats
         #region Variables
         private string _name = "";
         private int _attribUnknown = 0;
-        private c2Mesh _mesh = new c2Mesh();
+        private C2Mesh _mesh = new C2Mesh();
         #endregion
 
         public string Name
         {
-            get { return _name; }
-            set { _name = value; }
+            get => _name;
+            set => _name = value;
         }
 
         public int UnknownAttribute
         {
-            get { return _attribUnknown; }
-            set { _attribUnknown = value; }
+            get => _attribUnknown;
+            set => _attribUnknown = value;
         }
 
-        public c2Mesh Mesh
+        public C2Mesh Mesh
         {
-            get { return _mesh; }
-            set { _mesh = value; }
+            get => _mesh;
+            set => _mesh = value;
         }
 
         public DatMesh() { }
 
-        public DatMesh(string Name, c2Mesh m)
+        public DatMesh(string Name, C2Mesh m)
         {
             _name = Name;
             _mesh = m;

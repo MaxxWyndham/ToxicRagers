@@ -78,6 +78,10 @@
     <Compile Include="CarmageddonReincarnation\Formats\crStructureXML.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\crSystemsDamageXML.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\crVehicleSetupCFG.cs" />
+    <Compile Include="CarmageddonReincarnation\Formats\Materials\car_shader_glass.cs" />
+    <Compile Include="CarmageddonReincarnation\Formats\Materials\car_translucent_body_base.cs" />
+    <Compile Include="CarmageddonReincarnation\Formats\Materials\simple_anim_foliage.cs" />
+    <Compile Include="CarmageddonReincarnation\Formats\Materials\simple_norm_detail_spec_base.cs" />
     <Compile Include="CarmageddonReincarnation\VirtualTextures\vtMap.cs" />
     <Compile Include="CarmageddonReincarnation\VirtualTextures\vtMapEntry.cs" />
     <Compile Include="CarmageddonReincarnation\VirtualTextures\vtMapPage.cs" />
@@ -165,6 +169,7 @@
     <Compile Include="Compression\LSZZ\LSZZDecompress.cs" />
     <Compile Include="Novadrome\Formats\nXT2.cs" />
     <Compile Include="Powerslide\HistoricCode.cs" />
+    <Compile Include="Roadkill\Formats\rkSMB.cs" />
     <Compile Include="Stainless\Formats\sCNT.cs" />
     <Compile Include="Stainless\Formats\sIMG.cs" />
     <Compile Include="Stainless\Formats\sMDL.cs" />

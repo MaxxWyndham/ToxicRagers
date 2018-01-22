@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 
 using ToxicRagers.Generics;
 using ToxicRagers.Helpers;
@@ -18,16 +16,14 @@ namespace ToxicRagers.TDR2000.Formats
         int width;
         int height;
 
-        public string Name { get { return name; } }
-        public override string FileName { get { return texture; } }
+        public string Name => name;
+        public override string FileName => texture;
 
         public static TX Load(string path)
         {
             FileInfo fi = new FileInfo(path);
             Logger.LogToFile(Logger.LogLevel.Info, "{0}", path);
-            TX tx = new TX();
-
-            tx.name = Path.GetFileNameWithoutExtension(path);
+            TX tx = new TX() { name = Path.GetFileNameWithoutExtension(path) };
 
             using (BinaryReader br = new BinaryReader(fi.OpenRead()))
             {

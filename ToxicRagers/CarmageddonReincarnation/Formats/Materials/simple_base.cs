@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Xml.Linq;
 
 namespace ToxicRagers.CarmageddonReincarnation.Formats.Materials
@@ -12,16 +11,21 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats.Materials
 
         public string DiffuseColour
         {
-            get { return diffuse; }
-            set { diffuse = value; }
+            get => diffuse;
+            set => diffuse = value;
         }
 
-        public simple_base() : base() { }
+        public simple_base() : this(new XElement("poop")) { }
 
         public simple_base(XElement xml)
             : base(xml)
         {
-            var diff = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "DiffuseColour").FirstOrDefault();
+            coreDefaults = new simple_base
+            {
+
+            };
+
+            XElement diff = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "DiffuseColour").FirstOrDefault();
 
             if (diff != null) { diffuse = diff.Attribute("FileName").Value; }
         }

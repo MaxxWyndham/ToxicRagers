@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Xml.Linq;
 
 using ToxicRagers.Helpers;
@@ -20,50 +19,57 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats.Materials
 
         public string Normal_Map
         {
-            get { return normal; }
-            set { normal = value; }
+            get => normal;
+            set => normal = value;
         }
 
         public string Normal_Map2
         {
-            get { return normal2; }
-            set { normal2 = value; }
+            get => normal2;
+            set => normal2 = value;
         }
 
         public string Noise
         {
-            get { return noise; }
-            set { noise = value; }
+            get => noise;
+            set => noise = value;
         }
 
         public string Reflect_2d
         {
-            get { return reflect2D; }
-            set { reflect2D = value; }
+            get => reflect2D;
+            set => reflect2D = value;
         }
 
         public Vector3 SpecColour
         {
-            get { return specColour; }
-            set { specColour = value; }
+            get => specColour;
+            set => specColour = value;
         }
 
-        public Single SpecPower
+        public float SpecPower
         {
-            get { return specPower.X; }
-            set { specPower.X = value; }
+            get => specPower.X;
+            set => specPower.X = value;
         }
+
+        public effects_fluid() { }
 
         public effects_fluid(XElement xml)
             : base(xml)
         {
-            var diff = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "DiffuseColour").FirstOrDefault();
-            var nor1 = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "Normal_Map").FirstOrDefault();
-            var nor2 = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "Normal_Map2").FirstOrDefault();
-            var nois = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "Noise").FirstOrDefault();
-            var refl = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "Reflect_2d").FirstOrDefault();
-            var scol = xml.Descendants("Constant").Where(e => e.Attribute("Alias").Value == "SpecColour").FirstOrDefault();
-            var spow = xml.Descendants("Constant").Where(e => e.Attribute("Alias").Value == "SpecPower").FirstOrDefault();
+            coreDefaults = new effects_fluid()
+            {
+
+            };
+
+            XElement diff = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "DiffuseColour").FirstOrDefault();
+            XElement nor1 = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "Normal_Map").FirstOrDefault();
+            XElement nor2 = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "Normal_Map2").FirstOrDefault();
+            XElement nois = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "Noise").FirstOrDefault();
+            XElement refl = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "Reflect_2d").FirstOrDefault();
+            XElement scol = xml.Descendants("Constant").Where(e => e.Attribute("Alias").Value == "SpecColour").FirstOrDefault();
+            XElement spow = xml.Descendants("Constant").Where(e => e.Attribute("Alias").Value == "SpecPower").FirstOrDefault();
 
             if (diff != null) { diffuse = diff.Attribute("FileName").Value; }
             if (nor1 != null) { normal = nor1.Attribute("FileName").Value; }

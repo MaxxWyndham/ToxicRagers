@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+
 using ToxicRagers.Helpers;
 
 namespace ToxicRagers.Carmageddon2.Helpers
@@ -18,9 +19,12 @@ namespace ToxicRagers.Carmageddon2.Helpers
             string s = getNextLine(sr);
             while (s != "END OF FUNK" && s != null)
             {
-                Funk funk = new Funk();
-                funk.File = pathToFile;
-                funk.Material = s;
+                Funk funk = new Funk()
+                {
+                    File = pathToFile,
+                    Material = s
+                };
+
                 funk.SetDistance(getNextLine(sr));
                 funk.SetDistortion(getNextLine(sr));
 
@@ -153,7 +157,7 @@ namespace ToxicRagers.Carmageddon2.Helpers
 
         public int Frames
         {
-            get { return frames; }
+            get => frames;
             set
             {
                 FrameFile = new string[value];
@@ -195,7 +199,7 @@ namespace ToxicRagers.Carmageddon2.Helpers
 
         public string MovementType
         {
-            get { return movementType; }
+            get => movementType;
             set
             {
                 switch (value)
@@ -217,7 +221,7 @@ namespace ToxicRagers.Carmageddon2.Helpers
 
         public string Lighting
         {
-            get { return lighting; }
+            get => lighting;
             set
             {
                 switch (value)
@@ -239,7 +243,7 @@ namespace ToxicRagers.Carmageddon2.Helpers
 
         public string Animation
         {
-            get { return animation; }
+            get => animation;
             set
             {
                 switch (value)
@@ -265,7 +269,7 @@ namespace ToxicRagers.Carmageddon2.Helpers
 
         public string AnimationQuality
         {
-            get { return animationQuality; }
+            get => animationQuality;
             set
             {
                 switch (value)
@@ -285,7 +289,7 @@ namespace ToxicRagers.Carmageddon2.Helpers
 
         public string AnimationSpeed
         {
-            get { return animationSpeed; }
+            get => animationSpeed;
             set
             {
                 switch (value)
@@ -305,7 +309,7 @@ namespace ToxicRagers.Carmageddon2.Helpers
 
         public string TexturebitsMode
         {
-            get { return texturebitsMode; }
+            get => texturebitsMode;
             set
             {
                 switch (value)

@@ -20,7 +20,8 @@ namespace ToxicRagers.Stainless.Formats
             SKIN,
             VFXI,
             NULL,
-            SPLN
+            SPLN,
+            shrb
         }
 
         CNT parent;
@@ -37,56 +38,64 @@ namespace ToxicRagers.Stainless.Formats
 
         string effectName;
 
+        string foliageName;
+
         public string Name
         {
-            get { return name; }
-            set { name = value; }
+            get => name;
+            set => name = value;
         }
 
         public Matrix3D Transform
         {
-            get { return transform; }
-            set { transform = value; }
+            get => transform;
+            set => transform = value;
         }
 
         public NodeType Section
         {
-            get { return section; } 
-            set { section = value; } 
+            get => section;
+            set => section = value;
         }
 
         public string Model
         {
-            get { return modelName; }
-            set { modelName = value; }
+            get => modelName;
+            set => modelName = value;
         }
 
         public bool EmbeddedLight
         {
-            get { return bEmbeddedLight; }
-            set { bEmbeddedLight = value; }
+            get => bEmbeddedLight;
+            set => bEmbeddedLight = value;
         }
 
         public LIGHT Light
         {
-            get { return light; }
-            set { light = value; }
+            get => light;
+            set => light = value;
         }
 
         public string LightName
         {
-            get { return lightName; }
-            set { lightName = value; }
+            get => lightName;
+            set => lightName = value;
         }
 
         public string VFXFile
         {
-            get { return effectName; }
-            set { effectName = value; }
+            get => effectName;
+            set => effectName = value;
         }
 
-        public CNT Parent { get { return parent; } }
-        public List<CNT> Children { get { return childNodes; } }
+        public string FoliageFile
+        {
+            get => foliageName;
+            set => foliageName = value;
+        }
+
+        public CNT Parent => parent;
+        public List<CNT> Children => childNodes;
 
         public static CNT Load(string path)
         {
@@ -108,7 +117,7 @@ namespace ToxicRagers.Stainless.Formats
 
                 Logger.LogToFile(Logger.LogLevel.Info, "CNT v{0}.{1}", major, minor);
 
-                cnt = Load(br, new Version(major, minor));
+                cnt = load(br, new Version(major, minor));
 
                 if (br.BaseStream.Position != br.BaseStream.Length) { Logger.LogToFile(Logger.LogLevel.Warning, "Still has data remaining (processed {0} of {1}", br.BaseStream.Position.ToString("X"), br.BaseStream.Length.ToString("X")); }
             }
@@ -117,7 +126,7 @@ namespace ToxicRagers.Stainless.Formats
         }
 
         // The Load(BinaryReader) version skips the header check and is used for recursive loading
-        private static CNT Load(BinaryReader br, Version version, CNT parent = null)
+        private static CNT load(BinaryReader br, Version version, CNT parent = null)
         {
             CNT cnt = new CNT();
             int nameLength, padding;
@@ -220,6 +229,11 @@ namespace ToxicRagers.Stainless.Formats
                     br.ReadBytes(88);
                     break;
 
+                case NodeType.shrb:
+                    nameLength = (int)br.ReadUInt32();
+                    cnt.foliageName = br.ReadString(nameLength);
+                    break;
+
                 case NodeType.NULL:
                     break;
 
@@ -254,7 +268,7 @@ namespace ToxicRagers.Stainless.Formats
             for (int i = 0; i < childNodes; i++)
             {
                 Logger.LogToFile(Logger.LogLevel.Debug, "Loading child {0} of {1}", (i + 1), childNodes);
-                cnt.childNodes.Add(Load(br, version, cnt));
+                cnt.childNodes.Add(load(br, version, cnt));
             }
 
             br.ReadUInt32();    // Terminator
@@ -268,11 +282,11 @@ namespace ToxicRagers.Stainless.Formats
             {
                 bw.Write(new byte[] { 69, 35, 0, 4 });
 
-                Save(bw, this);
+                save(bw, this);
             }
         }
 
-        private static void Save(BinaryWriter bw, CNT cnt)
+        private static void save(BinaryWriter bw, CNT cnt)
         {
             int nameLength = cnt.Name.Length;
             int padding = (((nameLength / 4) + (nameLength % 4 > 0 ? 1 : 0)) * 4) - nameLength;
@@ -338,7 +352,7 @@ namespace ToxicRagers.Stainless.Formats
             }
 
             bw.Write(cnt.Children.Count);
-            foreach (CNT c in cnt.Children) { Save(bw, c); }
+            foreach (CNT c in cnt.Children) { save(bw, c); }
             bw.Write((int)0);
         }
 
@@ -353,7 +367,7 @@ namespace ToxicRagers.Stainless.Formats
             }
             else
             {
-                foreach (CNT c in this.childNodes)
+                foreach (CNT c in childNodes)
                 {
                     match = c.FindByName(name);
                     if (match != null) { break; }

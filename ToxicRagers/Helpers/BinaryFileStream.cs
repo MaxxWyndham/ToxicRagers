@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Text;
 
 namespace ToxicRagers.Helpers
@@ -10,14 +9,14 @@ namespace ToxicRagers.Helpers
 
         public byte[] ReadBytes(int count)
         {
-            var b = new byte[count];
-            this.Read(b, 0, count);
+            byte[] b = new byte[count];
+            Read(b, 0, count);
             return b;
         }
 
         public char[] ReadChars(int count)
         {
-            return Encoding.ASCII.GetString(this.ReadBytes(count)).ToCharArray();
+            return Encoding.ASCII.GetString(ReadBytes(count)).ToCharArray();
         }
 
         public ushort ReadUInt16()
@@ -29,12 +28,12 @@ namespace ToxicRagers.Helpers
         public uint ReadUInt32()
         {
             byte[] bytes = ReadBytes(4);
-            return (UInt32)(bytes[0] | bytes[1] << 8 | bytes[2] << 16 | bytes[3] << 24);
+            return (uint)(bytes[0] | bytes[1] << 8 | bytes[2] << 16 | bytes[3] << 24);
         }
 
         public string ReadString(int length)
         {
-            var c = this.ReadChars(length);
+            char[] c = ReadChars(length);
             int l = length;
 
             for (int i = 0; i < length; i++)

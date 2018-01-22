@@ -30,7 +30,7 @@ namespace ToxicRagers.Helpers
 
         public void WriteInt16(int i)
         {
-            byte[] b = BitConverter.GetBytes((Int16)i);
+            byte[] b = BitConverter.GetBytes((short)i);
             Array.Reverse(b);
             Write(BitConverter.ToInt16(b, 0));
         }
@@ -42,7 +42,7 @@ namespace ToxicRagers.Helpers
             Write(BitConverter.ToInt32(b, 0));
         }
 
-        public void WriteSingle(Single s)
+        public void WriteSingle(float s)
         {
             byte[] b = BitConverter.GetBytes(s);
             Array.Reverse(b);

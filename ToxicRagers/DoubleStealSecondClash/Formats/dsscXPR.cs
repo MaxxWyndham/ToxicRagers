@@ -22,8 +22,8 @@ namespace ToxicRagers.DoubleStealSecondClash.Formats
         string location;
         List<XPREntry> contents;
 
-        public string Name { get { return name; } }
-        public List<XPREntry> Contents { get { return contents; } }
+        public string Name => name;
+        public List<XPREntry> Contents => contents;
 
         public XPR()
         {
@@ -34,12 +34,14 @@ namespace ToxicRagers.DoubleStealSecondClash.Formats
         {
             FileInfo fi = new FileInfo(path);
             Logger.LogToFile(Logger.LogLevel.Info, "{0}", path);
-            XPR xpr = new XPR();
 
-            xpr.name = Path.GetFileNameWithoutExtension(path);
-            xpr.location = Path.GetDirectoryName(path) + "\\";
+            XPR xpr = new XPR()
+            {
+                name = Path.GetFileNameWithoutExtension(path),
+                location = Path.GetDirectoryName(path) + "\\"
+            };
 
-            using (var br = new BinaryReader(fi.OpenRead()))
+            using (BinaryReader br = new BinaryReader(fi.OpenRead()))
             {
                 if (br.ReadByte() != 0x58 ||    // X
                     br.ReadByte() != 0x50 ||    // P
@@ -101,7 +103,7 @@ namespace ToxicRagers.DoubleStealSecondClash.Formats
         {
             if (!Directory.Exists(destination)) { Directory.CreateDirectory(destination); }
 
-            using (var fs = new FileStream(this.location + this.name + ".xpr", FileMode.Open))
+            using (FileStream fs = new FileStream(location + name + ".xpr", FileMode.Open))
             {
                 fs.Seek(file.Offset, SeekOrigin.Begin);
 
@@ -163,26 +165,26 @@ namespace ToxicRagers.DoubleStealSecondClash.Formats
 
         public string Name
         {
-            get { return name; }
-            set { name = value; }
+            get => name;
+            set => name = value;
         }
 
         public XPR.RecordType Type
         {
-            get { return type; }
-            set { type = value; }
+            get => type;
+            set => type = value;
         }
 
         public int Offset
         {
-            get { return offset; }
-            set { offset = value; }
+            get => offset;
+            set => offset = value;
         }
 
         public int Flags
         {
-            get { return flags; }
-            set { flags = value; }
+            get => flags;
+            set => flags = value;
         }
     }
 }

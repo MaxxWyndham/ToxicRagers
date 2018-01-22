@@ -1,15 +1,18 @@
-﻿using System;
-using System.Linq;
-using System.Xml.Linq;
+﻿using System.Xml.Linq;
 
 namespace ToxicRagers.CarmageddonReincarnation.Formats.Materials
 {
     public class test_blood_particle_base : MT2
     {
+        public test_blood_particle_base() { }
+
         public test_blood_particle_base(XElement xml)
             : base(xml)
         {
-            // TODO
+            coreDefaults = new test_blood_particle_base
+            {
+
+            };
         }
     }
 }

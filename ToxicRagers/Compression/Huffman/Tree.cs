@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
 namespace ToxicRagers.Compression.Huffman
@@ -10,20 +9,17 @@ namespace ToxicRagers.Compression.Huffman
         Node root;
 
         FrequencyTable frequencies = new FrequencyTable();
-        
+
         int bitCount = 0;
         int leafCount = 0;
 
         public FrequencyTable FrequencyTable
         {
-            get { return frequencies; }
-            set { frequencies = value; }
+            get => frequencies;
+            set => frequencies = value;
         }
 
-        public int LeafCount
-        {
-            get { return (leafCount * 2) + 1; }
-        }
+        public int LeafCount => (leafCount * 2) + 1;
 
         public void BuildTree(byte[] source = null)
         {
@@ -62,7 +58,50 @@ namespace ToxicRagers.Compression.Huffman
             root = nodes.FirstOrDefault();
         }
 
-        public byte[] ToByteArray() {
+        public void FromByteArray(byte[] array, int leafCount)
+        {
+            List<bool> decodedDictionary = new List<bool>();
+
+            for (int j = 0; j < array.Length; j++)
+            {
+                byte b = array[j];
+
+                for (int i = 0; i < 8; i++)
+                {
+                    decodedDictionary.Add((b & (0x80 >> i)) > 0);
+                }
+            }
+
+            int offset = 0;
+            Node node = new Node();
+
+            while (true)
+            {
+                if (decodedDictionary[offset++] && !decodedDictionary[offset++])
+                {
+                    node = new Node();
+                }
+
+                if (decodedDictionary[offset++] && decodedDictionary[offset++])
+                {
+                    for (int i = 0; i < 8; i++)
+                    {
+                        node.Symbol |= (byte)(decodedDictionary[offset++] ? (0x80 >> i) : 0);
+                    }
+
+                    offset++;
+                    offset++;
+                }
+
+                nodes.Add(node);
+                break;
+            }
+
+            root = nodes.FirstOrDefault();
+        }
+
+        public byte[] ToByteArray()
+        {
             List<bool> encodedDictionary = new List<bool>();
             processNode(root, encodedDictionary);
             return boolListToByteArray(encodedDictionary);
@@ -102,7 +141,7 @@ namespace ToxicRagers.Compression.Huffman
 
             for (int i = 0; i < 256; i++)
             {
-                var list = root.Traverse((byte)i, new List<bool>());
+                List<bool> list = root.Traverse((byte)i, new List<bool>());
                 if (list != null) { tree.Add((byte)i, list); }
             }
 
@@ -115,6 +154,11 @@ namespace ToxicRagers.Compression.Huffman
             bitCount = encodedSource.Count;
 
             return boolListToByteArray(encodedSource);
+        }
+
+        public byte[] Decode(byte[] source)
+        {
+            return new byte[1];
         }
 
         private static byte[] boolListToByteArray(List<bool> list)

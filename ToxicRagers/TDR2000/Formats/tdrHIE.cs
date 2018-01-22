@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Text;
+
 using ToxicRagers.Helpers;
 
 namespace ToxicRagers.TDR2000.Formats
@@ -28,10 +28,10 @@ namespace ToxicRagers.TDR2000.Formats
         List<TDRNode> nodes;
         TDRNode root;
 
-        public TDRNode Root { get { return root; } }
-        public List<string> Textures { get { return textures; } }
-        public List<TDRMatrix> Matrixes { get { return matrixes; } }
-        public List<string> Meshes { get { return meshes; } }
+        public TDRNode Root => root;
+        public List<string> Textures => textures;
+        public List<TDRMatrix> Matrixes => matrixes;
+        public List<string> Meshes => meshes;
 
         public HIE()
         {
@@ -48,13 +48,13 @@ namespace ToxicRagers.TDR2000.Formats
             HIE hie = new HIE();
             H h = new H(); ;
 
-            var f = fi.Directory.GetFiles(Path.GetFileNameWithoutExtension(path) + ".h");
+            FileInfo[] f = fi.Directory.GetFiles(Path.GetFileNameWithoutExtension(path) + ".h");
             if (f.Length == 0) { f = fi.Directory.Parent.GetFiles(Path.GetFileNameWithoutExtension(path) + ".h"); }
             if (f.Length > 0) { h = H.Load(f[0].FullName); }
 
             string[] lines;
 
-            using (var sr = new StreamReader(fi.OpenRead())) { lines = sr.ReadToEnd().Split("\r\n".ToCharArray(), StringSplitOptions.RemoveEmptyEntries); }
+            using (StreamReader sr = new StreamReader(fi.OpenRead())) { lines = sr.ReadToEnd().Split("\r\n".ToCharArray(), StringSplitOptions.RemoveEmptyEntries); }
             lines = lines.Select(l => l.Trim()).ToArray();
 
             for (int i = 0; i < lines.Length; i++)
@@ -73,7 +73,7 @@ namespace ToxicRagers.TDR2000.Formats
                     case "// cull node list":
                         for (int j = 0; j < hie.cullNodeCount; j++)
                         {
-                            var cullNode = lines[++i];
+                            string cullNode = lines[++i];
                         }
                         break;
 
@@ -84,7 +84,7 @@ namespace ToxicRagers.TDR2000.Formats
                     case "// collision data list":
                         for (int j = 0; j < hie.collisionDataMeshCount; j++)
                         {
-                            var collisionDataMesh = lines[++i];
+                            string collisionDataMesh = lines[++i];
                         }
                         break;
 
@@ -95,7 +95,7 @@ namespace ToxicRagers.TDR2000.Formats
                     case "// line name list":
                         for (int j = 0; j < hie.lineCount; j++)
                         {
-                            var line = lines[++i];
+                            string line = lines[++i];
                         }
                         break;
 
@@ -117,7 +117,7 @@ namespace ToxicRagers.TDR2000.Formats
                     case "// material name list":
                         for (int j = 0; j < hie.materialCount; j++)
                         {
-                            var material = lines[++i];
+                            string material = lines[++i];
                         }
                         break;
 
@@ -129,7 +129,7 @@ namespace ToxicRagers.TDR2000.Formats
                         for (int j = 0; j < hie.matrixCount; j++)
                         {
                             string[] parts;
-                            var matrix = new TDRMatrix();
+                            TDRMatrix matrix = new TDRMatrix();
 
                             parts = lines[++i].Trim().Split(" ".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
                             matrix.Matrix.M11 = Convert.ToSingle(parts[0], HIE.Culture);
@@ -178,7 +178,7 @@ namespace ToxicRagers.TDR2000.Formats
                         if (lines[i + 1].ToLower() == "// high_val  low_val") { i++; }
                         for (int j = 0; j < hie.expressionCount; j++)
                         {
-                            var expression = lines[++i];
+                            string expression = lines[++i];
                         }
                         break;
 
@@ -258,7 +258,7 @@ namespace ToxicRagers.TDR2000.Formats
             return hie;
         }
 
-        private static void walkHierarchy(TDRNode parent, int index, HIE hie) 
+        private static void walkHierarchy(TDRNode parent, int index, HIE hie)
         {
             TDRNode node = hie.nodes[index];
 
@@ -308,34 +308,50 @@ namespace ToxicRagers.TDR2000.Formats
         TDRNode parent;
         List<TDRNode> children;
 
-        public NodeType Type { get { return type; } }
-        public int ID { get { return id; } }
-        public TDRNode Parent { get { return parent; } set { parent = value; } }
-        public List<TDRNode> Children { get { return children; } }
+        public NodeType Type => type;
+        public int ID => id;
+
+        public TDRNode Parent
+        {
+            get => parent;
+            set => parent = value;
+        }
+
+        public List<TDRNode> Children => children;
 
         public string Name
         {
-            get { return name; } 
-            set { name = value; } 
-        }
-        
-        public Matrix3D Transform 
-        { 
-            get { return transform; } 
-            set { transform = value; } 
+            get => name;
+            set => name = value;
         }
 
-        public int Index { get { return index; } }
-        public int Child { get { return child; } set { child = value; } }
-        public int Sibling { get { return sibling; } set { sibling = value; } }
+        public Matrix3D Transform
+        {
+            get => transform;
+            set => transform = value;
+        }
+
+        public int Index => index;
+
+        public int Child
+        {
+            get => child;
+            set => child = value;
+        }
+
+        public int Sibling
+        {
+            get => sibling;
+            set => sibling = value;
+        }
 
         public TDRNode(string name, int i, string line)
         {
             this.name = name;
-            this.id = i;
+            id = i;
 
             children = new List<TDRNode>();
-            var parts = line.Split(" ".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+            string[] parts = line.Split(" ".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
 
             type = (NodeType)int.Parse(parts[0]);
             index = int.Parse(parts[1]);
@@ -351,14 +367,14 @@ namespace ToxicRagers.TDR2000.Formats
 
         public string Name
         {
-            get { return name; }
-            set { name = value; }
+            get => name;
+            set => name = value;
         }
 
         public Matrix3D Matrix
         {
-            get { return matrix; }
-            set { matrix = value; }
+            get => matrix;
+            set => matrix = value;
         }
 
         public TDRMatrix()

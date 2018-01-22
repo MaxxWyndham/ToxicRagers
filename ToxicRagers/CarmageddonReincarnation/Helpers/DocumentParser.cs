@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Text;
+
 using ToxicRagers.Helpers;
 
 namespace ToxicRagers.CarmageddonReincarnation.Helpers
@@ -54,15 +55,15 @@ namespace ToxicRagers.CarmageddonReincarnation.Helpers
 
         public string ReadNextLine()
         {
-            this.position = this.br.BaseStream.Position;
+            position = br.BaseStream.Position;
             string s = "";
             bool bRead = true;
 
             while (bRead)
             {
-                if (this.br.BaseStream.Position == this.br.BaseStream.Length) { break; }
+                if (br.BaseStream.Position == br.BaseStream.Length) { break; }
 
-                int c = this.br.PeekChar();
+                int c = br.PeekChar();
 
                 switch (c)
                 {
@@ -73,7 +74,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Helpers
 
                     case '>':
                     case ']':
-                        s += this.br.ReadChar();
+                        s += br.ReadChar();
                         bRead = false;
                         break;
 
@@ -86,12 +87,12 @@ namespace ToxicRagers.CarmageddonReincarnation.Helpers
                         if (s.Length == 1 && s[0] == '/')
                         {
                             s = "";
-                            while (this.br.ReadChar() != 10) { }
+                            while (br.ReadChar() != 10) { }
                         }
                         break;
                 }
 
-                if (bRead) { s += this.br.ReadChar(); }
+                if (bRead) { s += br.ReadChar(); }
                 if (s.Trim().Length == 0) { s = s.Trim(); }
             }
 
@@ -104,10 +105,9 @@ namespace ToxicRagers.CarmageddonReincarnation.Helpers
 
         public int ReadInt()
         {
-            int i;
             string s = ReadNextLine();
 
-            if (int.TryParse(s, out i))
+            if (int.TryParse(s, out int i))
             {
                 return i;
             }
@@ -127,7 +127,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Helpers
 
         public string[] ReadStringArray(int expectedLength = -1)
         {
-            var a = ReadNextLine().Split(' ');
+            string[] a = ReadNextLine().Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
 
             if (expectedLength == -1)
             {
@@ -148,7 +148,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Helpers
 
         public void Rewind()
         {
-            this.br.BaseStream.Seek(position, SeekOrigin.Begin);
+            br.BaseStream.Seek(position, SeekOrigin.Begin);
         }
 
         public void Dispose()

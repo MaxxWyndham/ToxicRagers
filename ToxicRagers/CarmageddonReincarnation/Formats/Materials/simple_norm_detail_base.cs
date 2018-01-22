@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Xml.Linq;
 
 namespace ToxicRagers.CarmageddonReincarnation.Formats.Materials
@@ -11,22 +10,29 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats.Materials
 
         public string Normal_Map
         {
-            get { return normal; }
-            set { normal = value; }
+            get => normal;
+            set => normal = value;
         }
 
         public string Normal_Map2
         {
-            get { return normal2; }
-            set { normal2 = value; }
+            get => normal2;
+            set => normal2 = value;
         }
+
+        public simple_norm_detail_base() { }
 
         public simple_norm_detail_base(XElement xml)
             : base(xml)
         {
-            var diff = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "DiffuseColour").FirstOrDefault();
-            var nor1 = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "Normal_Map").FirstOrDefault();
-            var nor2 = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "Normal_Map").FirstOrDefault();
+            coreDefaults = new simple_norm_detail_base
+            {
+
+            };
+
+            XElement diff = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "DiffuseColour").FirstOrDefault();
+            XElement nor1 = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "Normal_Map").FirstOrDefault();
+            XElement nor2 = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "Normal_Map").FirstOrDefault();
 
             if (diff != null) { diffuse = diff.Attribute("FileName").Value; }
             if (nor1 != null) { normal = nor1.Attribute("FileName").Value; }

@@ -52,26 +52,26 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
         public StructureCharacteristicsCode Characteristics
         {
-            get { return characteristics; }
-            set { characteristics = value; }
+            get => characteristics;
+            set => characteristics = value;
         }
 
         public StructurePart Root
         {
-            get { return root; }
-            set { root = value; }
+            get => root;
+            set => root = value;
         }
 
         public Structure()
         {
-            this.characteristics = new StructureCharacteristicsCode();
+            characteristics = new StructureCharacteristicsCode();
         }
 
         public static Structure Load(string path)
         {
             Structure structure = new Structure();
 
-            using (var xml = new XMLParser(path, "STRUCTURE"))
+            using (XMLParser xml = new XMLParser(path, "STRUCTURE"))
             {
                 structure.characteristics = StructureCharacteristicsCode.Parse(xml.GetNode("CHARACTERISTICS").FirstChild.InnerText);
                 structure.root = new StructurePart(xml.GetNode("ROOT"));
@@ -82,11 +82,11 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
         public void Save(string path)
         {
-            var xml = new XDocument();
+            XDocument xml = new XDocument();
 
-            var structure = new XElement("STRUCTURE");
+            XElement structure = new XElement("STRUCTURE");
             structure.Add(new XElement("CHARACTERISTICS", new XCData(characteristics.ToString())));
-            structure.Add(this.root.Write());
+            structure.Add(root.Write());
             xml.Add(structure);
 
             XMLWriter.Save(xml, path);
@@ -99,37 +99,41 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
         string name;
         List<StructurePart> parts;
         List<StructureWeld> welds;
+        List<StructureJoint> joints;
 
         StructureDamageCode damage;
 
         public bool IsRoot
         {
-            get { return bIsRoot; }
-            set { bIsRoot = true; }
+            get => bIsRoot;
+            set => bIsRoot = true;
         }
 
         public string Name
         {
-            get { return name; }
-            set { name = value; }
+            get => name;
+            set => name = value;
         }
 
         public List<StructurePart> Parts
         {
-            get { return parts; }
-            set { parts = value; }
+            get => parts;
+            set => parts = value;
         }
 
         public List<StructureWeld> Welds
         {
-            get { return welds; }
-            set { welds = value; }
+            get => welds;
+            set => welds = value;
         }
 
-        public StructureDamageCode DamageSettings
+        public List<StructureJoint> Joints
         {
-            get { return damage; }
+            get => joints;
+            set => joints = value;
         }
+
+        public StructureDamageCode DamageSettings => damage;
 
         public StructurePart()
         {
@@ -137,6 +141,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
             parts = new List<StructurePart>();
             welds = new List<StructureWeld>();
+            joints = new List<StructureJoint>();
         }
 
         public StructurePart(XmlNode node)
@@ -149,7 +154,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                 switch (attribute.Name)
                 {
                     case "name":
-                        this.name = attribute.Value;
+                        name = attribute.Value;
                         break;
 
                     default:
@@ -162,7 +167,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                 switch (data.NodeType)
                 {
                     case XmlNodeType.CDATA:
-                        this.damage = StructureDamageCode.Parse(data.InnerText);
+                        damage = StructureDamageCode.Parse(data.InnerText);
                         break;
 
                     case XmlNodeType.Element:
@@ -176,6 +181,10 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                                 welds.Add(new StructureWeld(data));
                                 break;
 
+                            case "JOINT":
+                                joints.Add(new StructureJoint(data));
+                                break;
+
                             default:
                                 throw new NotImplementedException("Unknown Element of PART: " + data.Name);
                         }
@@ -186,18 +195,18 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
         public XElement Write()
         {
-            var xe = new XElement((this.IsRoot ? "ROOT" : "PART"));
-            xe.Add(new XAttribute("name", this.name));
+            XElement xe = new XElement((IsRoot ? "ROOT" : "PART"));
+            xe.Add(new XAttribute("name", name));
 
             string damageCDATA = damage.ToString();
             if (damageCDATA.Trim() != "") { xe.Add(new XCData(damageCDATA)); }
 
-            foreach (var weld in welds)
+            foreach (StructureWeld weld in welds)
             {
                 xe.Add(weld.Write());
             }
 
-            foreach (var part in parts)
+            foreach (StructurePart part in parts)
             {
                 xe.Add(part.Write());
             }
@@ -210,37 +219,34 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
     {
         string name;
         string partner;
-        List<StructureWeldJoint> joints;
+        List<StructureJoint> joints;
         List<StructurePart> parts;
 
         StructureWeldCode weldSettings;
 
         public string Partner
         {
-            get { return partner; }
-            set { partner = value; }
+            get => partner;
+            set => partner = value;
         }
 
-        public List<StructureWeldJoint> Joints
+        public List<StructureJoint> Joints
         {
-            get { return joints; }
-            set { joints = value; }
+            get => joints;
+            set => joints = value;
         }
 
         public List<StructurePart> Parts
         {
-            get { return parts; }
-            set { parts = value; }
+            get => parts;
+            set => parts = value;
         }
 
-        public StructureWeldCode WeldSettings
-        {
-            get { return weldSettings; }
-        }
+        public StructureWeldCode WeldSettings => weldSettings;
 
         public StructureWeld()
         {
-            joints = new List<StructureWeldJoint>();
+            joints = new List<StructureJoint>();
             parts = new List<StructurePart>();
 
             weldSettings = new StructureWeldCode();
@@ -254,11 +260,11 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                 switch (attribute.Name)
                 {
                     case "name":
-                        this.name = attribute.Value;
+                        name = attribute.Value;
                         break;
 
                     case "partner":
-                        this.partner = attribute.Value;
+                        partner = attribute.Value;
                         break;
 
                     default:
@@ -271,14 +277,14 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                 switch (data.NodeType)
                 {
                     case XmlNodeType.CDATA:
-                        this.weldSettings = StructureWeldCode.Parse(data.InnerText);
+                        weldSettings = StructureWeldCode.Parse(data.InnerText);
                         break;
 
                     case XmlNodeType.Element:
                         switch (data.Name)
                         {
                             case "JOINT":
-                                joints.Add(new StructureWeldJoint(data));
+                                joints.Add(new StructureJoint(data));
                                 break;
 
                             case "PART":
@@ -295,19 +301,19 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
         public XElement Write()
         {
-            var xe = new XElement("WELD");
-            if (this.name != null) { xe.Add(new XAttribute("name", this.name)); }
-            if (this.partner != null) { xe.Add(new XAttribute("partner", this.partner)); }
+            XElement xe = new XElement("WELD");
+            if (name != null) { xe.Add(new XAttribute("name", name)); }
+            if (partner != null) { xe.Add(new XAttribute("partner", partner)); }
 
-            var weld = weldSettings.ToString();
+            string weld = weldSettings.ToString();
             if (weld.Trim() != "") { xe.Add(new XCData(weld)); }
 
-            foreach (var joint in joints)
+            foreach (StructureJoint joint in joints)
             {
                 xe.Add(joint.Write());
             }
 
-            foreach (var part in parts)
+            foreach (StructurePart part in parts)
             {
                 xe.Add(part.Write());
             }
@@ -316,22 +322,22 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
         }
     }
 
-    public class StructureWeldJoint
+    public class StructureJoint
     {
         StructureJointCode jointSettings;
 
         public StructureJointCode JointSettings
         {
-            get { return jointSettings; }
-            set { jointSettings = value; }
+            get => jointSettings;
+            set => jointSettings = value;
         }
 
-        public StructureWeldJoint()
+        public StructureJoint()
         {
             jointSettings = new StructureJointCode();
         }
 
-        public StructureWeldJoint(XmlNode node)
+        public StructureJoint(XmlNode node)
             : this()
         {
             foreach (XmlAttribute attribute in node.Attributes)
@@ -348,7 +354,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                 switch (data.NodeType)
                 {
                     case XmlNodeType.CDATA:
-                        this.jointSettings = StructureJointCode.Parse(data.InnerText);
+                        jointSettings = StructureJointCode.Parse(data.InnerText);
                         break;
 
                     case XmlNodeType.Element:
@@ -363,7 +369,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
         public XElement Write()
         {
-            var xe = new XElement("JOINT");
+            XElement xe = new XElement("JOINT");
 
             string jointCDATA = jointSettings.ToString();
             if (jointCDATA.Trim() != "") { xe.Add(new XCData(jointCDATA)); }
@@ -376,9 +382,9 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
     {
         public StructureWeldCode()
         {
-            this.blockPrefix = "CWeldParameters";
+            blockPrefix = "CWeldParameters";
 
-            this.AddMethod(
+            AddMethod(
                 LUACodeBlockMethodType.Set,
                 "VertexColour",
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "R", Value = 0 },
@@ -387,19 +393,19 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "A", Value = 0 }
             );
 
-            this.AddMethod(
+            AddMethod(
                 LUACodeBlockMethodType.Set,
                 "Weakness",
                 new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Float, Name = "Value", Value = -3 }
             );
 
-            this.AddMethod(
+            AddMethod(
                 LUACodeBlockMethodType.Set,
                 "AbsoluteLimit",
                 new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Float, Name = "Value" }
             );
 
-            this.AddMethod(
+            AddMethod(
                 LUACodeBlockMethodType.Add,
                 "PartSpaceVertex",
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "X" },
@@ -407,19 +413,19 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Z" }
             );
 
-            this.AddMethod(
+            AddMethod(
                 LUACodeBlockMethodType.Set,
                 "Break",
                 new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Float, Name = "Value" }
             );
 
-            this.AddMethod(
+            AddMethod(
                 LUACodeBlockMethodType.Set,
                 "ChanceOfFailure",
                 new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Int, Name = "Value" }
             );
 
-            this.AddMethod(
+            AddMethod(
                 LUACodeBlockMethodType.Add,
                 "GangedBreak",
                 new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.String, Name = "Name" }
@@ -436,15 +442,15 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
     {
         public StructureJointCode()
         {
-            this.blockPrefix = "CWeldJointParameters";
+            blockPrefix = "CWeldJointParameters";
 
-            this.AddMethod(
+            AddMethod(
                 LUACodeBlockMethodType.Set,
                 "Hinge",
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Boolean, Name = "Value" }
             );
 
-            this.AddMethod(
+            AddMethod(
                 LUACodeBlockMethodType.Set,
                 "JointAxis",
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "X" },
@@ -452,27 +458,27 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Z" }
             );
 
-            this.AddMethod(
+            AddMethod(
                 LUACodeBlockMethodType.Set,
                 "MaxLimit",
                 new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Float, Name = "Value" }
             );
 
             // TODO: Find out what the parameters are for Add_FlapSpring
-            this.AddMethod(
+            AddMethod(
                 LUACodeBlockMethodType.Add,
                 "FlapSpring",
                 new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Float, Name = "A" },
                 new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Float, Name = "B" }
             );
 
-            this.AddMethod(
+            AddMethod(
                 LUACodeBlockMethodType.Set,
                 "Weakness",
                 new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Float, Name = "Value" }
             );
 
-            this.AddMethod(
+            AddMethod(
                 LUACodeBlockMethodType.Set,
                 "JointLocation",
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "X" },
@@ -480,13 +486,13 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Z" }
             );
 
-            this.AddMethod(
+            AddMethod(
                 LUACodeBlockMethodType.Set,
                 "BallJoint",
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Boolean, Name = "Value" }
             );
 
-            this.AddMethod(
+            AddMethod(
                 LUACodeBlockMethodType.Set,
                 "JointNormal",
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "X" },
@@ -494,39 +500,45 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Z" }
             );
 
-            this.AddMethod(
+            AddMethod(
                 LUACodeBlockMethodType.Set,
                 "MinLimit",
                 new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Float, Name = "Value" }
             );
 
-            this.AddMethod(
+            AddMethod(
                 LUACodeBlockMethodType.Set,
                 "MaxLimit",
                 new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Float, Name = "Value" }
             );
 
-            this.AddMethod(
+            AddMethod(
                 LUACodeBlockMethodType.Set,
                 "MinLimit2",
                 new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Float, Name = "Value" }
             );
 
-            this.AddMethod(
+            AddMethod(
                 LUACodeBlockMethodType.Set,
                 "MaxLimit2",
                 new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Float, Name = "Value" }
             );
 
-            this.AddMethod(
+            AddMethod(
                 LUACodeBlockMethodType.Set,
                 "MinTwistLimit",
                 new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Float, Name = "Value" }
             );
 
-            this.AddMethod(
+            AddMethod(
                 LUACodeBlockMethodType.Set,
                 "MaxTwistLimit",
+                new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Float, Name = "Value" }
+            );
+
+            AddMethod(
+                LUACodeBlockMethodType.Set,
+                "TorqueWeakness",
                 new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Float, Name = "Value" }
             );
         }
@@ -541,21 +553,21 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
     {
         public StructureDamageCode()
         {
-            this.blockPrefix = "CDamageParameters";
+            blockPrefix = "CDamageParameters";
 
-            this.AddMethod(
+            AddMethod(
                 LUACodeBlockMethodType.Set,
                 "Crushability",
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Value", ForceOutput = true }
             );
 
-            this.AddMethod(
+            AddMethod(
                 LUACodeBlockMethodType.Set,
                 "Stiffness",
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Value", Value = 0.3f }
             );
 
-            this.AddMethod(
+            AddMethod(
                 LUACodeBlockMethodType.Add,
                 "DriverBoxVertexColour",
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "R", Value = 0 },
@@ -564,19 +576,19 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "A", Value = 0 }
             );
 
-            this.AddMethod(
+            AddMethod(
                 LUACodeBlockMethodType.Add,
                 "VehicleSimpleWeapon",
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.String, Name = "Name" }
             );
 
-            this.AddMethod(
+            AddMethod(
                 LUACodeBlockMethodType.Set,
                 "Resiliance",
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Value" }
             );
 
-            this.AddMethod(
+            AddMethod(
                 LUACodeBlockMethodType.Set,
                 new string[] {
                     "PreIK_StrutWishboneMountFL",
@@ -602,7 +614,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Z", PrettyName = "Pivot Z" }
             );
 
-            this.AddMethod(
+            AddMethod(
                 LUACodeBlockMethodType.Set,
                 new string[] {
                     "PreIK_StrutWishbone",
@@ -619,13 +631,13 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "OutboardZ", PrettyName = "Outboard Pivot Z" }
             );
 
-            this.AddMethod(
+            AddMethod(
                 LUACodeBlockMethodType.Add,
                 "PhysicsProperty",
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.String, Name = "Name" }
             );
 
-            this.AddMethod(
+            AddMethod(
                 LUACodeBlockMethodType.Set,
                 new string[] {
                     "PreIK_StrutHub",
@@ -644,19 +656,19 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "PositionZ", PrettyName = "Wheel Position Z" }
             );
 
-            this.AddMethod(
+            AddMethod(
                 LUACodeBlockMethodType.Set,
                 "ShapeType",
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.String, Name = "Shape" }
             );
 
-            this.AddMethod(
+            AddMethod(
                 LUACodeBlockMethodType.Set,
                 "Restitution",
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Value" }
             );
 
-            this.AddMethod(
+            AddMethod(
                 LUACodeBlockMethodType.Set,
                 "PreIK_StrutHub",
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Int, Name = "WheelIndex", PrettyName = "Wheel Index" },
@@ -672,7 +684,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "PositionZ", PrettyName = "Wheel Position Z" }
             );
 
-            this.AddMethod(
+            AddMethod(
                 LUACodeBlockMethodType.Set,
                 "PostIK_SnapPointToPointOnOtherPart",
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "ThisX", PrettyName = "This PartSpace X" },
@@ -684,7 +696,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "ThatZ", PrettyName = "That PartSpace Z" }
             );
 
-            this.AddMethod(
+            AddMethod(
                 LUACodeBlockMethodType.Set,
                 new string[] {
                     "PostIK_RotatePointToPointOnOtherPart",
@@ -699,7 +711,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "ThatZ", PrettyName = "That PartSpace Z" }
             );
 
-            this.AddMethod(
+            AddMethod(
                 LUACodeBlockMethodType.Set,
                 new string[] {
                     "PreIK_LiveAxle",
@@ -712,7 +724,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "MountZ", PrettyName = "Right Trailing Mount Point Z" }
             );
 
-            this.AddMethod(
+            AddMethod(
                 LUACodeBlockMethodType.Set,
                 new string[] {
                     "PostIK_RotateInX",
@@ -724,7 +736,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Factor" }
             );
 
-            this.AddMethod(
+            AddMethod(
                 LUACodeBlockMethodType.Set,
                 "PreIK_LiveAxle_TrailingArm",
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Int, Name = "WheelIndex", PrettyName = "Wheel Index" },
@@ -736,7 +748,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "AxleZ", PrettyName = "Axle Pivot Z" }
             );
 
-            this.AddMethod(
+            AddMethod(
                 LUACodeBlockMethodType.Set,
                 "PostIK_RotateVibrateZ",
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.String, Name = "Variable" },
@@ -751,7 +763,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "PointZ", PrettyName = "Vibrate Pivot Z" }
             );
 
-            this.AddMethod(
+            AddMethod(
                 LUACodeBlockMethodType.Add,
                 new string[] {
                     "PostIK_NamedRotateInX",
@@ -763,26 +775,26 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.String, Name = "Part" }
             );
 
-            this.AddMethod(
+            AddMethod(
                 LUACodeBlockMethodType.Set,
                 "Mass",
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Value" }
             );
 
-            this.AddMethod(
+            AddMethod(
                 LUACodeBlockMethodType.Set,
                 "CrushDamageSoundSubCat",
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.String, Name = "Category" }
             );
 
-            this.AddMethod(
+            AddMethod(
                 LUACodeBlockMethodType.Add,
                 "FunctionalLight",
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.String, Name = "Light" },
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.String, Name = "Part" }
             );
 
-            this.AddMethod(
+            AddMethod(
                 LUACodeBlockMethodType.Add,
                 "CrushDamageMaterial",
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Int, Name = "Level" },
@@ -790,7 +802,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.String, Name = "Texture" }
             );
 
-            this.AddMethod(
+            AddMethod(
                 LUACodeBlockMethodType.Add,
                 "CrushDamageEmitter",
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Int, Name = "Level" },
@@ -800,7 +812,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Z" }
             );
 
-            this.AddMethod(
+            AddMethod(
                 LUACodeBlockMethodType.Set,
                 "PostIK_RotatePointToLineOnOtherPart",
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "ThisX", PrettyName = "This PartSpace X" },
@@ -815,7 +827,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "LineZ", PrettyName = "Line Z" }
             );
 
-            this.AddMethod(
+            AddMethod(
                 LUACodeBlockMethodType.Set,
                 "PostIK_RockInX",
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.String, Name = "Variable" },
@@ -826,7 +838,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "RockZ", PrettyName = "Rock Centre Z" }
             );
 
-            this.AddMethod(
+            AddMethod(
                 LUACodeBlockMethodType.Add,
                 new string[] {
                     "PedWeapon",
@@ -840,19 +852,19 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Z" }
             );
 
-            this.AddMethod(
+            AddMethod(
                 LUACodeBlockMethodType.Set,
                 "DriverEjectionSmash",
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Boolean, Name = "Value" }
             );
 
-            this.AddMethod(
+            AddMethod(
                 LUACodeBlockMethodType.Set,
                 "SoundConfigFile",
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.String, Name = "File" }
             );
 
-            this.AddMethod(
+            AddMethod(
                 LUACodeBlockMethodType.Add,
                 new string[] {
                     "DetachPartEmitter",
@@ -865,13 +877,13 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Factor", PrettyName = "Snap-force factor" }
             );
 
-            this.AddMethod(
+            AddMethod(
                 LUACodeBlockMethodType.Set,
                 "AlwaysJointed",
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Boolean, Name = "Value" }
             );
 
-            this.AddMethod(
+            AddMethod(
                 LUACodeBlockMethodType.Set,
                 "PostIK_OscillateInZ",
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.String, Name = "Variable" },
@@ -879,20 +891,20 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "ForthFactor", PrettyName = "Forward Factor" }
             );
 
-            this.AddMethod(
+            AddMethod(
                 LUACodeBlockMethodType.Add,
                 "LumpRenderLevel",
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.String, Name = "Name" },
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Int, Name = "Level" }
             );
 
-            this.AddMethod(
+            AddMethod(
                 LUACodeBlockMethodType.Set,
                 "RenderLevel",
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Int, Name = "Level" }
             );
 
-            this.AddMethod(
+            AddMethod(
                 LUACodeBlockMethodType.Set,
                 "CollisionBoundsMultiplier",
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "X" },
@@ -900,10 +912,109 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Z" }
             );
 
-            this.AddMethod(
+            AddMethod(
                 LUACodeBlockMethodType.Set,
                 "ShapeTracking",
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Boolean, Name = "Value" }
+            );
+
+            AddMethod(
+                LUACodeBlockMethodType.Set,
+                "HiddenByCheat",
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Boolean, Name = "Value" }
+            );
+
+            AddMethod(
+                LUACodeBlockMethodType.Add,
+                "CaterpillarTrack_DriveWheel",
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Int, Name = "Index" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Unknown" }
+            );
+
+            AddMethod(
+                LUACodeBlockMethodType.Set,
+                "CaterpillarTrack_RoadWheel",
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Int, Name = "Index" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Unknown" }
+            );
+
+            AddMethod(
+                LUACodeBlockMethodType.Set,
+                "CaterpillarTrack_DefinesSpeed",
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Int, Name = "Index" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Int, Name = "Unknown" }
+            );
+
+            AddMethod(
+                LUACodeBlockMethodType.Add,
+                "IndexedPhysicsProperty",
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.String, Name = "Property" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Int, Name = "Index" }
+            );
+
+            AddMethod(
+                LUACodeBlockMethodType.Set,
+                "GangedWheelSteering",
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.String, Name = "Wheel" }
+            );
+
+            AddMethod(
+                LUACodeBlockMethodType.Set,
+                "GangedWheelRotation",
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.String, Name = "Wheel" }
+            );
+
+            AddMethod(
+                LUACodeBlockMethodType.Set,
+                "GangedWheelSuspension",
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.String, Name = "Wheel" }
+            );
+
+            AddMethod(
+                LUACodeBlockMethodType.Set,
+                "WheelTracksGround",
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Boolean, Name = "Value" }
+            );
+
+            AddMethod(
+                LUACodeBlockMethodType.Set,
+                "CentreOfMass",
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "X" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Y" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Z" }
+            );
+
+            AddMethod(
+                LUACodeBlockMethodType.Set,
+                "ShapeExcludesOpponents",
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Boolean, Name = "Value" }
+            );
+
+            AddMethod(
+                LUACodeBlockMethodType.Set,
+                "TrailerHitch",
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "X" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Y" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Z" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Unknown" }
+            );
+
+            AddMethod(
+                LUACodeBlockMethodType.Set,
+                "SteeringProportion",
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Value" }
+            );
+
+            AddMethod(
+                LUACodeBlockMethodType.Add,
+                "TrailerLegs_Down",
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.String, Name = "LumpName" }
+            );
+
+            AddMethod(
+                LUACodeBlockMethodType.Add,
+                "TrailerLegs_Up",
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.String, Name = "LumpName" }
             );
         }
 
@@ -917,162 +1028,276 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
     {
         public StructureCharacteristicsCode()
         {
-            this.blockPrefix = "CVehicleCharacteristics";
+            blockPrefix = "CVehicleCharacteristics";
 
-            this.AddMethod(
+            AddMethod(
                 LUACodeBlockMethodType.Set,
                 "DefenceGeneral",
                 new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Float, Name = "Factor", Value = 1.0f }
             );
 
-            this.AddMethod(
+            AddMethod(
                 LUACodeBlockMethodType.Set,
                 "DefenceAgainstCars",
                 new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Float, Name = "Factor", Value = 1.0f }
             );
 
-            this.AddMethod(
+            AddMethod(
                 LUACodeBlockMethodType.Set,
                 "Offence",
                 new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Float, Name = "Factor", Value = 1.0f }
             );
 
-            this.AddMethod(
+            AddMethod(
                 LUACodeBlockMethodType.Set,
                 "WholeBodyDeformationFactor",
                 new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Float, Name = "Factor" }
             );
 
-            this.AddMethod(
+            AddMethod(
                 LUACodeBlockMethodType.Set,
                 "ValueFactor",
                 new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Float, Name = "Factor" }
             );
 
-            this.AddMethod(
+            AddMethod(
                 LUACodeBlockMethodType.Add,
                 "PermanentPowerup",
                 new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.String, Name = "Name" }
             );
 
-            this.AddMethod(
+            AddMethod(
                 LUACodeBlockMethodType.Set,
                 "AerofoilOpenSound",
                 new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.String, Name = "Sound" }
             );
 
-            this.AddMethod(
+            AddMethod(
                 LUACodeBlockMethodType.Set,
                 "AerofoilCloseSound",
                 new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.String, Name = "Sound" }
             );
 
-            this.AddMethod(
+            AddMethod(
                 LUACodeBlockMethodType.Set,
                 "AerofoilSoundLump",
                 new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.String, Name = "Name" }
             );
 
-            this.AddMethod(
+            AddMethod(
                 LUACodeBlockMethodType.Set,
                 "AirBrakeMinSpeed",
                 new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Float, Name = "Value" }
             );
 
-            this.AddMethod(
+            AddMethod(
                 LUACodeBlockMethodType.Set,
                 "AirBrakeMaxSpeed",
                 new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Float, Name = "Value" }
             );
 
-            this.AddMethod(
+            AddMethod(
                 LUACodeBlockMethodType.Set,
                 "AirBrakeMinParametric",
                 new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Float, Name = "Value" }
             );
 
-            this.AddMethod(
+            AddMethod(
                 LUACodeBlockMethodType.Set,
                 "AirBrakeMovementUpTime",
                 new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Int, Name = "Value" }
             );
 
-            this.AddMethod(
+            AddMethod(
                 LUACodeBlockMethodType.Set,
                 "AirBrakeMovementDownTime",
                 new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Int, Name = "Value" }
             );
 
-            this.AddMethod(
+            AddMethod(
                 LUACodeBlockMethodType.Set,
                 "AirBrakeDropTime",
                 new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Int, Name = "Value" }
             );
 
-            this.AddMethod(
+            AddMethod(
                 LUACodeBlockMethodType.Set,
                 "AerofoilUpSpeed",
                 new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Float, Name = "Value" }
             );
 
-            this.AddMethod(
+            AddMethod(
                 LUACodeBlockMethodType.Set,
                 "AerofoilDownSpeed",
                 new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Float, Name = "Value" }
             );
 
-            this.AddMethod(
+            AddMethod(
                 LUACodeBlockMethodType.Set,
                 "AerofoilMovementUpTime",
                 new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Int, Name = "Value" }
             );
 
-            this.AddMethod(
+            AddMethod(
                 LUACodeBlockMethodType.Set,
                 "AerofoilMovementDownTime",
                 new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Int, Name = "Value" }
             );
 
-            this.AddMethod(
+            AddMethod(
                 LUACodeBlockMethodType.Set,
                 "Aerofoil2UpSpeed",
                 new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Float, Name = "Value" }
             );
 
-            this.AddMethod(
+            AddMethod(
                 LUACodeBlockMethodType.Set,
                 "Aerofoil2DownSpeed",
                 new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Float, Name = "Value" }
             );
 
-            this.AddMethod(
+            AddMethod(
                 LUACodeBlockMethodType.Set,
                 "Aerofoil2MovementUpTime",
                 new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Int, Name = "Value" }
             );
 
-            this.AddMethod(
+            AddMethod(
                 LUACodeBlockMethodType.Set,
                 "Aerofoil2MovementDownTime",
                 new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Int, Name = "Value" }
             );
 
-            this.AddMethod(
+            AddMethod(
                 LUACodeBlockMethodType.Set,
                 "ExtraFallingDamageThreshold",
                 new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Int, Name = "Value" }
             );
 
-            this.AddMethod(
+            AddMethod(
                 LUACodeBlockMethodType.Set,
                 "ExtraFallingDamageFactor",
                 new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Int, Name = "Value" }
             );
 
-            this.AddMethod(
+            AddMethod(
                 LUACodeBlockMethodType.Set,
                 "Damage_MaxDeflectionForDamageTexture",
                 new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Float, Name = "Value" }
+            );
+
+            AddMethod(
+                LUACodeBlockMethodType.Add,
+                "CaterpillarTrack_SegmentDefinition",
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Int, Name = "Index" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.String, Name = "Name" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Pitch" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "XOffset" }
+            );
+
+            AddMethod(
+                LUACodeBlockMethodType.Add,
+                "CaterpillarTrack_SagHeights",
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Int, Name = "Index" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "AmbientLow" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "AbsoluteLowest" }
+            );
+
+            AddMethod(
+                LUACodeBlockMethodType.Add,
+                "CaterpillarTrack_DamageMode",
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Int, Name = "Index" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Int, Name = "NumberOfParts" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Restitution" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "MassPerSegment" }
+            );
+
+            AddMethod(
+                LUACodeBlockMethodType.Add,
+                "CaterpillarTrack_DamageWobble",
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Int, Name = "Index" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "SpeedForMaxWobble" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "FreqOfMaxWobble" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "AmplitudeOfMaxWobble" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "RandomVariance" }
+            );
+
+            AddMethod(
+                LUACodeBlockMethodType.Set,
+                "Damage_CaterpillarTrack_SoundWhineVolume",
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "VolumeAtZero" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "SpeedAtSlopeChange" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "VolumeAtSlopeChange" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "SpeedAtMaxVolume" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "MaxVolume" }
+            );
+
+            AddMethod(
+                LUACodeBlockMethodType.Set,
+                "Damage_CaterpillarTrack_SoundWhinePitch",
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "PitchAtZero" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "MaxSpeed" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "PitchAtMaxSpeed" }
+            );
+
+            AddMethod(
+                LUACodeBlockMethodType.Add,
+                "Damage_CaterpillarTrack_SoundClunkVolume",
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Int, Name = "Index" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "VolumeAtZero" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "SpeedAtSlopeChange" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "VolumeAtSlopeChange" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "SpeedAtMaxVolume" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "MaxVolume" }
+            );
+
+            AddMethod(
+                LUACodeBlockMethodType.Add,
+                "Damage_CaterpillarTrack_SoundHighSpeedClunkVolume",
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Int, Name = "Index" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "VolumeAtZero" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "SpeedAtSlopeChange" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "VolumeAtSlopeChange" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "SpeedAtMaxVolume" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "MaxVolume" }
+            );
+
+            AddMethod(
+                LUACodeBlockMethodType.Set,
+                "CannotBeSplit",
+                new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Boolean, Name = "Value" }
+            );
+
+            AddMethod(
+                LUACodeBlockMethodType.Set,
+                "DownwardCrushingExtraOffence",
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "MultiplierAtZero" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "MaxDownwardSpeedForMultiplier" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "MultiplierAtThatSpeed" }
+            );
+
+            AddMethod(
+                LUACodeBlockMethodType.Set,
+                "TowingPowerMultiplier",
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Multiplier" }
+            );
+
+            AddMethod(
+                LUACodeBlockMethodType.Set,
+                "TowingTractionMultiplier",
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Multiplier" }
+            );
+
+            AddMethod(
+                LUACodeBlockMethodType.Set,
+                "TowingSteerSpeedMultiplier",
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Multiplier" }
+            );
+
+            AddMethod(
+                LUACodeBlockMethodType.Set,
+                "AllowCOMZOutsideOfWheelbase",
+                new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Boolean, Name = "Value" }
             );
         }
 

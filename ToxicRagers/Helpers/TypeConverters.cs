@@ -13,7 +13,7 @@ namespace ToxicRagers.Helpers
 
         public override object ConvertTo(ITypeDescriptorContext context, System.Globalization.CultureInfo culture, object value, Type destinationType)
         {
-            if (destinationType == typeof(System.String) && value is string[])
+            if (destinationType == typeof(string) && value is string[])
             {
                 string[] s = value as string[];
                 return string.Join(",", s);

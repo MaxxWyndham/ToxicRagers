@@ -24,46 +24,43 @@ namespace ToxicRagers.CarmageddonReincarnation.VirtualTextures
 
         public VTMap Map
         {
-            get { return map; }
-            set { map = value; }
-        }
-        public int PageNum
-        {
-            get { return pageNum; }
-            set { pageNum = value; }
-        }
-        public int Width
-        {
-            get { return width; }
-            set { width = value; }
-        }
-        public int Height
-        {
-            get { return height; }
-            set { height = value; }
-        }
-        public List<List<VTMapTileTDX>> Tiles
-        {
-            get { return tiles; }
-            set { tiles = value; }
+            get => map;
+            set => map = value;
         }
 
-        public int TileSize
+        public int PageNum
         {
-            get { return Map.TileSize; }
+            get => pageNum;
+            set => pageNum = value;
         }
-        public int TilePadding
+
+        public int Width
         {
-            get { return Map.TilePadding; }
+            get => width;
+            set => width = value;
         }
+
+        public int Height
+        {
+            get => height;
+            set => height = value;
+        }
+
+        public List<List<VTMapTileTDX>> Tiles
+        {
+            get => tiles;
+            set => tiles = value;
+        }
+
+        public int TileSize => Map.TileSize;
+        public int TilePadding => Map.TilePadding;
 
         public VTPage(int w, int h, int page, VTMap map)
         {
             this.map = map;
-            while (Pages.Count < page + 1)
-            {
-                Pages.Add(null);
-            }
+
+            while (Pages.Count < page + 1) { Pages.Add(null); }
+
             Pages[page] = this;
             PageNum = page;
             Width = w;
@@ -72,8 +69,8 @@ namespace ToxicRagers.CarmageddonReincarnation.VirtualTextures
             int oldnumTilesY = (int)Math.Ceiling((float)height / TileSize);
             int numTilesX = oldnumTilesX > maxTilesToStitch ? maxTilesToStitch : oldnumTilesX;
             int numTilesY = oldnumTilesY > maxTilesToStitch ? maxTilesToStitch : oldnumTilesY;
-            if (numTilesX < oldnumTilesX) Width = numTilesX * TileSize;
-            if (numTilesY < oldnumTilesY) Height = numTilesY * TileSize;
+            if (numTilesX < oldnumTilesX) { Width = numTilesX * TileSize; }
+            if (numTilesY < oldnumTilesY) { Height = numTilesY * TileSize; }
             //tiles = Enumerable.Repeat(Enumerable.Repeat<crTDXVTMapTileTDX>(null, (int)Math.Ceiling((float)width / 128)).ToList(), (int)Math.Ceiling((float)height / 128)).ToList();
             for (int i = 0; i < numTilesY; i++)
             {
@@ -84,17 +81,18 @@ namespace ToxicRagers.CarmageddonReincarnation.VirtualTextures
                 }
             }
         }
+
         public int GetDivisor()
         {
-
-            if (PageNum == 0) return 1;
+            if (PageNum == 0) { return 1; }
             int divisor = 1;
             for (int i = 1; i <= PageNum; i++, divisor *= 2) { }
             return divisor;
         }
+
         public List<VTMapTile> GetTiles(VTMapEntry textureEntry)
         {
-            var output = new List<VTMapTile>();
+            List<VTMapTile> output = new List<VTMapTile>();
 
             int divisor = GetDivisor();
             int xPos = PageNum == 0 ? textureEntry.Column : textureEntry.Column / divisor; //(int)Math.Floor(((double)textureEntry.Column / Pages[0].Width) * Width);
@@ -105,6 +103,7 @@ namespace ToxicRagers.CarmageddonReincarnation.VirtualTextures
             tileCol = tileCol < 0 ? 0 : tileCol;
             int numTilesX = (int)Math.Ceiling(textureEntry.GetWidth(PageNum) / (float)TileSize);
             int numTilesY = (int)Math.Ceiling(textureEntry.GetHeight(PageNum) / (float)TileSize);
+
             for (int row = tileRow; row < tiles.Count && row <= tileRow + numTilesY; row++)
             {
 
@@ -115,7 +114,7 @@ namespace ToxicRagers.CarmageddonReincarnation.VirtualTextures
                 //if (colStart >= 128 * maxTilesToStitch) break;
                 for (int col = tileCol; col < tiles[row].Count && col <= tileCol + numTilesX; col++)
                 {
-                    if (tiles[row][col] == null) continue;
+                    if (tiles[row][col] == null) { continue; }
                     //tiles[tileCol][tileRow].Texture.SaveAsDDS(@"E:\Games\Steam\SteamApps\common\Carmageddon_Reincarnation\ZAD_VT\outskirts\output\" + "tile_" + tileCol + "_" + tileRow);
                     int colStart = col * TileSize;
                     int colEnd = (col + 1) * TileSize;
@@ -124,8 +123,9 @@ namespace ToxicRagers.CarmageddonReincarnation.VirtualTextures
                     //if (xPos + bitmapwidth < colStart) break;
                     //if (rowStart >= 128 * maxTilesToStitch) break;
 
-                    if (tiles[row][col].Texture == null) tiles[row][col].GetTextureFromZAD();
-                    if (tiles[row][col].Texture == null) continue;
+                    if (tiles[row][col].Texture == null) { tiles[row][col].GetTextureFromZAD(); }
+                    if (tiles[row][col].Texture == null) { continue; }
+
                     output.Add((from tile in tiles[row][col].Coords where tile.Row == row && tile.Column == col select tile).First());
                     //stiched.UnlockBits(bmd);
                 }
@@ -133,9 +133,10 @@ namespace ToxicRagers.CarmageddonReincarnation.VirtualTextures
 
             return output;
         }
+
         public List<VTMapTileTDX> ImportTexture(Bitmap image, VTMapEntry textureEntry)
         {
-            var output = new List<VTMapTileTDX>();
+            List<VTMapTileTDX> output = new List<VTMapTileTDX>();
 
             int divisor = GetDivisor();
             int xPos = PageNum == 0 ? textureEntry.Column : textureEntry.Column / divisor; //(int)Math.Floor(((double)textureEntry.Column / Pages[0].Width) * Width);
@@ -152,7 +153,6 @@ namespace ToxicRagers.CarmageddonReincarnation.VirtualTextures
 
             for (int row = tileRow; row < tiles.Count && row <= tileRow + numTilesY; row++)
             {
-
                 int rowStart = row * TileSize;
                 int rowEnd = (row + 1) * TileSize;
                 //if (yPos + bitmapheight < rowStart) break;
@@ -164,41 +164,53 @@ namespace ToxicRagers.CarmageddonReincarnation.VirtualTextures
                     {
                         //Logger.LogToFile("this is row 70, col 67");
                     }
-                    if (tiles[row][col] == null) continue;
+
+                    if (tiles[row][col] == null) { continue; }
                     //tiles[tileCol][tileRow].Texture.SaveAsDDS(@"E:\Games\Steam\SteamApps\common\Carmageddon_Reincarnation\ZAD_VT\outskirts\output\" + "tile_" + tileCol + "_" + tileRow);
                     int colStart = col * TileSize;
                     int colEnd = (col + 1) * TileSize;
 
-                    
-                    if (tiles[row][col].Texture == null) tiles[row][col].GetTextureFromZAD();
-                    if (tiles[row][col].Texture == null) continue;
+                    if (tiles[row][col].Texture == null) { tiles[row][col].GetTextureFromZAD(); }
+                    if (tiles[row][col].Texture == null) { continue; }
 
                     Bitmap decompressed = tiles[row][col].Texture.Decompress(0, false);
-                    
 
                     int firstPixelRow = rowStart < yPos ? yPos - rowStart : 0;// TilePadding;
-                    int lastPixelRow = TileSize+TilePadding+TilePadding;// rowEnd >= yPos + bitmapheight ? rowEnd - (yPos + bitmapheight) : 124;
+                    int lastPixelRow = TileSize + TilePadding + TilePadding;// rowEnd >= yPos + bitmapheight ? rowEnd - (yPos + bitmapheight) : 124;
 
                     int firstPixelCol = colStart < xPos ? xPos - colStart : 0;// TilePadding;
-                    int lastPixelCol = TileSize+TilePadding+TilePadding;// colEnd > xPos + bitmapwidth ? colEnd - (xPos + bitmapwidth) : 124;
-                    
+                    int lastPixelCol = TileSize + TilePadding + TilePadding;// colEnd > xPos + bitmapwidth ? colEnd - (xPos + bitmapwidth) : 124;
+
                     for (int y = firstPixelRow; y < lastPixelRow; y++)
                     {
-                        if ((row * TileSize + (y - TilePadding)) - (yPos) >= bitmapheight+TilePadding) break;
+                        if ((row * TileSize + (y - TilePadding)) - (yPos) >= bitmapheight + TilePadding) { break; }
                         for (int x = firstPixelCol; x < lastPixelCol; x++)
                         {
-                            if ((col * TileSize + (x - TilePadding)) - xPos >= bitmapwidth + TilePadding) break;
-                            var originalX = (col * TileSize + (x - TilePadding)) - xPos;
-                            var originalY = (row * TileSize + (y - TilePadding)) - (yPos);
+                            if ((col * TileSize + (x - TilePadding)) - xPos >= bitmapwidth + TilePadding) { break; }
+                            int originalX = (col * TileSize + (x - TilePadding)) - xPos;
+                            int originalY = (row * TileSize + (y - TilePadding)) - (yPos);
 
-                            if (originalX < 0) originalX = 0;
-                            else if (originalX >= bitmapwidth) originalX = bitmapwidth - 1;
-                            if (originalY < 0) originalY = 0;
-                            else if (originalY >= bitmapheight) originalY = bitmapheight - 1;
+                            if (originalX < 0)
+                            {
+                                originalX = 0;
+                            }
+                            else if (originalX >= bitmapwidth)
+                            {
+                                originalX = bitmapwidth - 1;
+                            }
 
-                            Color colour = image.GetPixel(originalX, originalY );
+                            if (originalY < 0)
+                            {
+                                originalY = 0;
+                            }
+                            else if (originalY >= bitmapheight)
+                            {
+                                originalY = bitmapheight - 1;
+                            }
+
+                            Color colour = image.GetPixel(originalX, originalY);
                             decompressed.SetPixel(x, y, colour);
-                            
+
                         }
                     }
                     TDX newTileTDX = TDX.LoadFromBitmap(decompressed, tiles[row][col].Texture.Name, tiles[row][col].Texture.Format);
@@ -211,14 +223,17 @@ namespace ToxicRagers.CarmageddonReincarnation.VirtualTextures
 
             return output;
         }
+
         public void SaveTexture(VTMapEntry textureEntry, string outputPath)
         {
             SaveTexture(textureEntry, outputPath, ImageFormat.Png);
         }
+
         public void SaveTexture(VTMapEntry textureEntry, string outputPath, ImageFormat format)
         {
             SaveTexture(textureEntry, outputPath, false, false, true, format);
         }
+
         public void SaveTexture(VTMapEntry textureEntry, string outputPath, bool SaveTDX, bool SaveTGA, bool SaveOther, ImageFormat format)
         {
             int divisor = GetDivisor();
@@ -240,11 +255,11 @@ namespace ToxicRagers.CarmageddonReincarnation.VirtualTextures
             {
                 //Console.WriteLine("This is sw_Museum_moon");
             }
+
             D3DFormat guessedFormat = D3DFormat.DXT5;
             bool formatGuessed = false;
             for (int row = tileRow; row < tiles.Count && row <= tileRow + numTilesY; row++)
             {
-
                 int rowStart = row * TileSize;
                 int rowEnd = (row + 1) * TileSize;
                 //if (yPos + bitmapheight < rowStart) break;
@@ -256,7 +271,8 @@ namespace ToxicRagers.CarmageddonReincarnation.VirtualTextures
                     {
                         //Logger.LogToFile("this is row 70, col 67");
                     }
-                    if (tiles[row][col] == null) continue;
+
+                    if (tiles[row][col] == null) { continue; }
                     //tiles[tileCol][tileRow].Texture.SaveAsDDS(@"E:\Games\Steam\SteamApps\common\Carmageddon_Reincarnation\ZAD_VT\outskirts\output\" + "tile_" + tileCol + "_" + tileRow);
                     int colStart = col * TileSize;
                     int colEnd = (col + 1) * TileSize;
@@ -265,24 +281,24 @@ namespace ToxicRagers.CarmageddonReincarnation.VirtualTextures
                     //if (xPos + bitmapwidth < colStart) break;
                     //if (rowStart >= 128 * maxTilesToStitch) break;
 
-                    if (tiles[row][col].Texture == null) tiles[row][col].GetTextureFromZAD();
-                    if (tiles[row][col].Texture == null) continue;
-                    if (!formatGuessed) guessedFormat = tiles[row][col].Texture.Format;
+                    if (tiles[row][col].Texture == null) { tiles[row][col].GetTextureFromZAD(); }
+                    if (tiles[row][col].Texture == null) { continue; }
+                    if (!formatGuessed) { guessedFormat = tiles[row][col].Texture.Format; }
                     Bitmap decompressed = tiles[row][col].Texture.Decompress(0, false);
                     //decompressed.Save(tileprefix + "_tile_" + row + "_" + col + ".png");
 
                     int firstPixelRow = rowStart < yPos ? yPos - rowStart : TilePadding;
-                    int lastPixelRow = TileSize+ TilePadding;// rowEnd >= yPos + bitmapheight ? rowEnd - (yPos + bitmapheight) : 124;
+                    int lastPixelRow = TileSize + TilePadding;// rowEnd >= yPos + bitmapheight ? rowEnd - (yPos + bitmapheight) : 124;
 
                     int firstPixelCol = colStart < xPos ? xPos - colStart : TilePadding;
-                    int lastPixelCol = TileSize+ TilePadding;// colEnd > xPos + bitmapwidth ? colEnd - (xPos + bitmapwidth) : 124;
+                    int lastPixelCol = TileSize + TilePadding;// colEnd > xPos + bitmapwidth ? colEnd - (xPos + bitmapwidth) : 124;
                     //BitmapData bmd = stiched.LockBits(new Rectangle(colStart, rowStart, 128, 128), ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);
                     for (int y = firstPixelRow; y < lastPixelRow/*rowPair.Value.MipMaps[0].Height*/; y++)
                     {
-                        if ((row * TileSize + (y - TilePadding)) - (yPos) >= bitmapheight) break;
+                        if ((row * TileSize + (y - TilePadding)) - (yPos) >= bitmapheight) { break; }
                         for (int x = firstPixelCol; x < lastPixelCol /*rowPair.Value.MipMaps[0].Width*/; x++)
                         {
-                            if ((col * TileSize + (x - TilePadding)) - xPos >= bitmapwidth) break;
+                            if ((col * TileSize + (x - TilePadding)) - xPos >= bitmapwidth) { break; }
                             //int oldPixel = y * 128 + x;
                             //int newPixel = ((row * 120 + y-8) * Width - (yPos) * Width) + ((col * 120 + x-4) - xPos); //((rowStart + y) * (128 * maxTilesToStitch) + colStart + x);
                             Color pixelColour = decompressed.GetPixel(x, y);
@@ -298,71 +314,74 @@ namespace ToxicRagers.CarmageddonReincarnation.VirtualTextures
                 }
             }
 
-            if (!Directory.Exists(Path.GetDirectoryName(outputPath))) Directory.CreateDirectory(Path.GetDirectoryName(outputPath));
+            if (!Directory.Exists(Path.GetDirectoryName(outputPath))) { Directory.CreateDirectory(Path.GetDirectoryName(outputPath)); }
+
             if (SaveTDX)
             {
                 TDX newtdx = TDX.LoadFromBitmap(stitched, Path.GetFileNameWithoutExtension(outputPath), guessedFormat);
                 newtdx.Save(outputPath);
             }
+
             if (SaveTGA)
             {
-                if (File.Exists(outputPath)) File.Delete(outputPath);
+                if (File.Exists(outputPath)) { File.Delete(outputPath); }
 
-                using (var stream = new FileStream(outputPath, FileMode.OpenOrCreate))
+                using (FileStream stream = new FileStream(outputPath, FileMode.OpenOrCreate))
+                using (BinaryWriter writer = new BinaryWriter(stream))
                 {
-                    using (var writer = new BinaryWriter(stream))
-                    {
-                        int tgaWidth = bitmapwidth;
-                        int tgaHeight = bitmapheight;
-                        int tgaTileRowCount = tiles.Count - 1;
+                    int tgaWidth = bitmapwidth;
+                    int tgaHeight = bitmapheight;
+                    int tgaTileRowCount = tiles.Count - 1;
 
-                        writer.Write((byte)0);
-                        writer.Write((byte)0);
-                        writer.Write((byte)2);
-                        writer.Write((short)0);
-                        writer.Write((short)0);
-                        writer.Write((byte)0);
-                        writer.Write((short)0);
-                        writer.Write((short)0);
-                        writer.Write((short)bitmapwidth);
-                        writer.Write((short)bitmapheight);
-                        writer.Write((byte)32);
-                        writer.Write((byte)0);
-                        BitmapData data = stitched.LockBits(new Rectangle(0, 0, stitched.Width, stitched.Height), ImageLockMode.ReadOnly, stitched.PixelFormat);
-                        unsafe
+                    writer.Write((byte)0);
+                    writer.Write((byte)0);
+                    writer.Write((byte)2);
+                    writer.Write((short)0);
+                    writer.Write((short)0);
+                    writer.Write((byte)0);
+                    writer.Write((short)0);
+                    writer.Write((short)0);
+                    writer.Write((short)bitmapwidth);
+                    writer.Write((short)bitmapheight);
+                    writer.Write((byte)32);
+                    writer.Write((byte)0);
+                    BitmapData data = stitched.LockBits(new Rectangle(0, 0, stitched.Width, stitched.Height), ImageLockMode.ReadOnly, stitched.PixelFormat);
+                    unsafe
+                    {
+                        // important to use the BitmapData object's Width and Height
+                        // properties instead of the Bitmap's.
+                        for (int x = data.Height - 1; x >= 0; x--)
                         {
-                            // important to use the BitmapData object's Width and Height
-                            // properties instead of the Bitmap's.
-                            for (int x = data.Height - 1; x >= 0; x--)
+                            byte* row = (byte*)data.Scan0 + (x * data.Stride);
+                            for (int y = 0; y < data.Width; y++)
                             {
-                                byte* row = (byte*)data.Scan0 + (x * data.Stride);
-                                for (int y = 0; y < data.Width; y++)
-                                {
-                                    int columnOffset = y * 4;
-                                    byte B = row[columnOffset];
-                                    byte G = row[columnOffset + 1];
-                                    byte R = row[columnOffset + 2];
-                                    byte alpha = row[columnOffset + 3];
-                                    writer.Write(B);
-                                    writer.Write(G);
-                                    writer.Write(R);
-                                    writer.Write(alpha);
-                                }
+                                int columnOffset = y * 4;
+                                byte B = row[columnOffset];
+                                byte G = row[columnOffset + 1];
+                                byte R = row[columnOffset + 2];
+                                byte alpha = row[columnOffset + 3];
+                                writer.Write(B);
+                                writer.Write(G);
+                                writer.Write(R);
+                                writer.Write(alpha);
                             }
                         }
-                        stitched.UnlockBits(data);
                     }
+                    stitched.UnlockBits(data);
                 }
             }
+
             if (SaveOther)
             {
-                using (var str = File.OpenWrite(outputPath))
+                using (FileStream str = File.OpenWrite(outputPath))
                 {
                     stitched.Save(str, format);
                 }
             }
+
             stitched.Dispose();
         }
+
         public void SaveTextureTGA(VTMapEntry textureEntry, string outputPath)
         {
             int divisor = GetDivisor();
@@ -381,165 +400,162 @@ namespace ToxicRagers.CarmageddonReincarnation.VirtualTextures
 
             string tileprefix = Path.GetFullPath(outputPath) + Path.GetFileNameWithoutExtension(outputPath);
 
-            if (!Directory.Exists(Path.GetDirectoryName(outputPath))) Directory.CreateDirectory(Path.GetDirectoryName(outputPath));
-            if (File.Exists(outputPath)) File.Delete(outputPath);
+            if (!Directory.Exists(Path.GetDirectoryName(outputPath))) { Directory.CreateDirectory(Path.GetDirectoryName(outputPath)); }
+            if (File.Exists(outputPath)) { File.Delete(outputPath); }
             int pos;
-            using (var stream = new FileStream(outputPath, FileMode.OpenOrCreate))
+
+            using (FileStream stream = new FileStream(outputPath, FileMode.OpenOrCreate))
+            using (BinaryWriter writer = new BinaryWriter(stream))
             {
-                using (var writer = new BinaryWriter(stream))
+                int tgaWidth = Width;
+                int tgaHeight = Height;
+                int tgaTileRowCount = tiles.Count - 1;
+
+                writer.Write((byte)0);
+                writer.Write((byte)0);
+                writer.Write((byte)2);
+                writer.Write((short)0);
+                writer.Write((short)0);
+                writer.Write((byte)0);
+                writer.Write((short)0);
+                writer.Write((short)0);
+                writer.Write((short)bitmapwidth);
+                writer.Write((short)bitmapheight);
+                writer.Write((byte)32);
+                writer.Write((byte)0);
+
+                pos = (int)writer.BaseStream.Position;
+
+                List<byte[]> rowTiles = new List<byte[]>();
+
+                //writer.Seek(pos, SeekOrigin.Begin);
+                for (int row = tileRow + numTilesY; row >= tileRow && row >= 0; row--)
                 {
-                    int tgaWidth = Width;
-                    int tgaHeight = Height;
-                    int tgaTileRowCount = tiles.Count - 1;
+                    rowTiles.Clear();
+                    int rowStart = row * (TileSize + TilePadding + TilePadding) * tgaWidth * 4;
 
-                    writer.Write((byte)0);
-                    writer.Write((byte)0);
-                    writer.Write((byte)2);
-                    writer.Write((short)0);
-                    writer.Write((short)0);
-                    writer.Write((byte)0);
-                    writer.Write((short)0);
-                    writer.Write((short)0);
-                    writer.Write((short)bitmapwidth);
-                    writer.Write((short)bitmapheight);
-                    writer.Write((byte)32);
-                    writer.Write((byte)0);
+                    int tgaTileColCount = tiles[tileRow].Count;
 
-                    pos = (int)writer.BaseStream.Position;
-
-                    List<byte[]> rowTiles = new List<byte[]>();
-
-                    //writer.Seek(pos, SeekOrigin.Begin);
-                    for (int row = tileRow + numTilesY; row >= tileRow && row >= 0; row--)
+                    //if (colStart >= 128 * maxTilesToStitch) break;
+                    for (int y = (TileSize + TilePadding + TilePadding) - 1; y >= 0; y--)
                     {
-                        rowTiles.Clear();
-                        int rowStart = row * (TileSize+TilePadding+TilePadding) * tgaWidth * 4;
 
-                        int tgaTileColCount = tiles[tileRow].Count;
-
-                        //if (colStart >= 128 * maxTilesToStitch) break;
-                        for (int y = (TileSize+TilePadding+TilePadding)-1; y >= 0; y--)
+                        for (int col = tileCol; col < tiles[row].Count && col <= tileCol + numTilesX; col++)
                         {
-
-                            for (int col = tileCol; col < tiles[row].Count && col <= tileCol + numTilesX; col++)
+                            if (y == (TileSize + TilePadding + TilePadding) - 1)
                             {
-                                if (y == (TileSize + TilePadding + TilePadding)-1)
+                                if (tiles[row][col] == null)
                                 {
-                                    if (tiles[row][col] == null)
-                                    {
-                                        rowTiles.Add(Enumerable.Repeat((byte)0, 4 * (TileSize + TilePadding + TilePadding) * (TileSize + TilePadding + TilePadding)).ToArray());
-                                    }
-                                    else
-                                    {
-                                        //if (rowStart >= 128 * maxTilesToStitch) break;
-                                        if (tiles[row][col].Texture == null) tiles[row][col].GetTextureFromZAD();
-                                        rowTiles.Add(tiles[row][col].Texture.Decompress(tiles[row][col].Texture.MipMaps[0]));
-                                    }
+                                    rowTiles.Add(Enumerable.Repeat((byte)0, 4 * (TileSize + TilePadding + TilePadding) * (TileSize + TilePadding + TilePadding)).ToArray());
                                 }
-                                int colStart = col * (TileSize + TilePadding + TilePadding) * 4 + rowStart;
-                                //for (int y = 0; y < tiles[tileRow][tileCol].Texture.MipMaps[0].Height; y++)
+                                else
                                 {
-                                    var decompressed = rowTiles[col];
+                                    //if (rowStart >= 128 * maxTilesToStitch) break;
+                                    if (tiles[row][col].Texture == null) { tiles[row][col].GetTextureFromZAD(); }
+                                    rowTiles.Add(tiles[row][col].Texture.Decompress(tiles[row][col].Texture.MipMaps[0]));
+                                }
+                            }
+                            int colStart = col * (TileSize + TilePadding + TilePadding) * 4 + rowStart;
+                            //for (int y = 0; y < tiles[tileRow][tileCol].Texture.MipMaps[0].Height; y++)
+                            {
+                                byte[] decompressed = rowTiles[col];
 
-                                    for (int x = 0; x < (TileSize + TilePadding + TilePadding); x++)
-                                    {
-                                        int pixel = y * (TileSize + TilePadding + TilePadding) * 4 + x * 4;
+                                for (int x = 0; x < (TileSize + TilePadding + TilePadding); x++)
+                                {
+                                    int pixel = y * (TileSize + TilePadding + TilePadding) * 4 + x * 4;
 
-                                        writer.Write((byte)decompressed[pixel + 0]);
-                                        writer.Write((byte)decompressed[pixel + 1]);
-                                        writer.Write((byte)decompressed[pixel + 2]);
-                                        writer.Write((byte)decompressed[pixel + 3]);
+                                    writer.Write((byte)decompressed[pixel + 0]);
+                                    writer.Write((byte)decompressed[pixel + 1]);
+                                    writer.Write((byte)decompressed[pixel + 2]);
+                                    writer.Write((byte)decompressed[pixel + 3]);
 
-                                    }
                                 }
                             }
                         }
                     }
                 }
             }
-
 
             //stitched.Save(File.OpenWrite(outputPath), format);
         }
+
         public void SaveTGA(string outputPath, bool limitSize = false, int maxTileLimit = 100)
         {
-            if (File.Exists(outputPath)) File.Delete(outputPath);
+            if (File.Exists(outputPath)) { File.Delete(outputPath); }
             int pos;
-            using (var stream = new FileStream(outputPath, FileMode.OpenOrCreate))
+
+            using (FileStream stream = new FileStream(outputPath, FileMode.OpenOrCreate))
+            using (BinaryWriter writer = new BinaryWriter(stream))
             {
-                using (var writer = new BinaryWriter(stream))
+                int tgaWidth = Width;
+                int tgaHeight = Height;
+                int tgaTileRowCount = tiles.Count - 1;
+                if (limitSize)
                 {
-                    int tgaWidth = Width;
-                    int tgaHeight = Height;
-                    int tgaTileRowCount = tiles.Count - 1;
-                    if (limitSize)
+                    if (maxTileLimit * (TileSize + TilePadding + TilePadding) < tgaWidth) { tgaWidth = maxTileLimit * (TileSize + TilePadding + TilePadding); }
+                    if (maxTileLimit * (TileSize + TilePadding + TilePadding) < tgaHeight)
                     {
-                        if (maxTileLimit * (TileSize + TilePadding + TilePadding) < tgaWidth) tgaWidth = maxTileLimit * (TileSize + TilePadding + TilePadding);
-                        if (maxTileLimit * (TileSize + TilePadding + TilePadding) < tgaHeight)
-                        {
-                            tgaTileRowCount = maxTileLimit;
-                            tgaHeight = maxTileLimit * (TileSize + TilePadding + TilePadding);
-                        }
+                        tgaTileRowCount = maxTileLimit;
+                        tgaHeight = maxTileLimit * (TileSize + TilePadding + TilePadding);
                     }
-                    writer.Write((byte)0);
-                    writer.Write((byte)0);
-                    writer.Write((byte)2);
-                    writer.Write((short)0);
-                    writer.Write((short)0);
-                    writer.Write((byte)0);
-                    writer.Write((short)0);
-                    writer.Write((short)0);
-                    writer.Write((short)tgaWidth);
-                    writer.Write((short)tgaHeight);
-                    writer.Write((byte)32);
-                    writer.Write((byte)0);
+                }
+                writer.Write((byte)0);
+                writer.Write((byte)0);
+                writer.Write((byte)2);
+                writer.Write((short)0);
+                writer.Write((short)0);
+                writer.Write((byte)0);
+                writer.Write((short)0);
+                writer.Write((short)0);
+                writer.Write((short)tgaWidth);
+                writer.Write((short)tgaHeight);
+                writer.Write((byte)32);
+                writer.Write((byte)0);
 
-                    pos = (int)writer.BaseStream.Position;
+                pos = (int)writer.BaseStream.Position;
 
-                    List<byte[]> rowTiles = new List<byte[]>();
+                List<byte[]> rowTiles = new List<byte[]>();
 
-                    //writer.Seek(pos, SeekOrigin.Begin);
-                    for (int tileRow = tgaTileRowCount - 1; tileRow >= 0; tileRow--)
+                //writer.Seek(pos, SeekOrigin.Begin);
+                for (int tileRow = tgaTileRowCount - 1; tileRow >= 0; tileRow--)
+                {
+                    rowTiles.Clear();
+                    int rowStart = tileRow * (TileSize + TilePadding + TilePadding) * tgaWidth * 4;
+
+                    int tgaTileColCount = tiles[tileRow].Count;
+                    if (tgaWidth < Width) { tgaTileColCount = maxTileLimit; }
+                    //if (colStart >= 128 * maxTilesToStitch) break;
+                    for (int y = (TileSize + TilePadding + TilePadding) - 1; y >= 0; y--)
                     {
-                        rowTiles.Clear();
-                        int rowStart = tileRow * (TileSize + TilePadding + TilePadding) * tgaWidth * 4;
-
-                        int tgaTileColCount = tiles[tileRow].Count;
-                        if (tgaWidth < Width) tgaTileColCount = maxTileLimit;
-                        //if (colStart >= 128 * maxTilesToStitch) break;
-                        for (int y = (TileSize + TilePadding + TilePadding)-1; y >= 0; y--)
+                        for (int tileCol = 0; tileCol < tgaTileColCount; tileCol++)
                         {
-
-                            for (int tileCol = 0; tileCol < tgaTileColCount; tileCol++)
+                            if (y == (TileSize + TilePadding + TilePadding) - 1)
                             {
-                                if (y == (TileSize + TilePadding + TilePadding)-1)
+                                if (tiles[tileRow][tileCol] == null)
                                 {
-                                    if (tiles[tileRow][tileCol] == null)
-                                    {
-                                        rowTiles.Add(Enumerable.Repeat((byte)0, 4 * (TileSize + TilePadding + TilePadding) * (TileSize + TilePadding + TilePadding)).ToArray());
-                                    }
-                                    else
-                                    {
-                                        //if (rowStart >= 128 * maxTilesToStitch) break;
-                                        if (tiles[tileRow][tileCol].Texture == null) tiles[tileRow][tileCol].GetTextureFromZAD();
-                                        rowTiles.Add(tiles[tileRow][tileCol].Texture.Decompress(tiles[tileRow][tileCol].Texture.MipMaps[0]));
-                                    }
+                                    rowTiles.Add(Enumerable.Repeat((byte)0, 4 * (TileSize + TilePadding + TilePadding) * (TileSize + TilePadding + TilePadding)).ToArray());
                                 }
-                                int colStart = tileCol * (TileSize + TilePadding + TilePadding) * 4 + rowStart;
-                                //for (int y = 0; y < tiles[tileRow][tileCol].Texture.MipMaps[0].Height; y++)
+                                else
                                 {
-                                    var decompressed = rowTiles[tileCol];
+                                    //if (rowStart >= 128 * maxTilesToStitch) break;
+                                    if (tiles[tileRow][tileCol].Texture == null) { tiles[tileRow][tileCol].GetTextureFromZAD(); }
+                                    rowTiles.Add(tiles[tileRow][tileCol].Texture.Decompress(tiles[tileRow][tileCol].Texture.MipMaps[0]));
+                                }
+                            }
 
-                                    for (int x = 0; x < (TileSize + TilePadding + TilePadding); x++)
-                                    {
-                                        int pixel = y * (TileSize + TilePadding + TilePadding) * 4 + x * 4;
+                            int colStart = tileCol * (TileSize + TilePadding + TilePadding) * 4 + rowStart;
+                            //for (int y = 0; y < tiles[tileRow][tileCol].Texture.MipMaps[0].Height; y++)
+                            {
+                                byte[] decompressed = rowTiles[tileCol];
 
-                                        writer.Write((byte)decompressed[pixel + 0]);
-                                        writer.Write((byte)decompressed[pixel + 1]);
-                                        writer.Write((byte)decompressed[pixel + 2]);
-                                        writer.Write((byte)decompressed[pixel + 3]);
+                                for (int x = 0; x < (TileSize + TilePadding + TilePadding); x++)
+                                {
+                                    int pixel = y * (TileSize + TilePadding + TilePadding) * 4 + x * 4;
 
-                                    }
+                                    writer.Write((byte)decompressed[pixel + 0]);
+                                    writer.Write((byte)decompressed[pixel + 1]);
+                                    writer.Write((byte)decompressed[pixel + 2]);
+                                    writer.Write((byte)decompressed[pixel + 3]);
                                 }
                             }
                         }
@@ -547,6 +563,7 @@ namespace ToxicRagers.CarmageddonReincarnation.VirtualTextures
                 }
             }
         }
+
         public Bitmap MergeTiles()
         {
             /*TDX tdx = new TDX();
@@ -565,16 +582,16 @@ namespace ToxicRagers.CarmageddonReincarnation.VirtualTextures
 
             for (int tileCol = 0; tileCol < tiles.Count; tileCol++)
             {
-
                 int colStart = tileCol * (TileSize + TilePadding + TilePadding);
-                if (colStart >= (TileSize + TilePadding + TilePadding) * maxTilesToStitch) break;
+                if (colStart >= (TileSize + TilePadding + TilePadding) * maxTilesToStitch) { break; }
+
                 for (int tileRow = 0; tileRow < tiles[tileCol].Count; tileRow++)
                 {
-                    if (tiles[tileCol][tileRow] == null) continue;
+                    if (tiles[tileCol][tileRow] == null) { continue; }
                     //tiles[tileCol][tileRow].Texture.SaveAsDDS(@"E:\Games\Steam\SteamApps\common\Carmageddon_Reincarnation\ZAD_VT\outskirts\output\" + "tile_" + tileCol + "_" + tileRow);
                     int rowStart = tileRow * (TileSize + TilePadding + TilePadding);
-                    if (rowStart >= (TileSize + TilePadding + TilePadding) * maxTilesToStitch) break;
-                    if (tiles[tileCol][tileRow].Texture == null) tiles[tileCol][tileRow].GetTextureFromZAD();
+                    if (rowStart >= (TileSize + TilePadding + TilePadding) * maxTilesToStitch) { break; }
+                    if (tiles[tileCol][tileRow].Texture == null) { tiles[tileCol][tileRow].GetTextureFromZAD(); }
                     Bitmap decompressed = tiles[tileCol][tileRow].Texture.Decompress(0);
                     //BitmapData bmd = stiched.LockBits(new Rectangle(colStart, rowStart, 128, 128), ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);
                     for (int y = 0; y < decompressed.Height/*rowPair.Value.MipMaps[0].Height*/; y++)
@@ -597,6 +614,7 @@ namespace ToxicRagers.CarmageddonReincarnation.VirtualTextures
             }
             return stitched;
         }
+
         public override string ToString()
         {
             return "Page " + PageNum;

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -18,8 +17,8 @@ namespace ToxicRagers.Carmageddon.Formats
 
         public List<PIXIE> Pixies
         {
-            get { return pixies; }
-            set { pixies = value; }
+            get => pixies;
+            set => pixies = value;
         }
 
         public static Color[] Palette
@@ -50,7 +49,7 @@ namespace ToxicRagers.Carmageddon.Formats
             FileInfo fi = new FileInfo(path);
             PIX pix = new PIX();
 
-            using (var br = new BEBinaryReader(fi.OpenRead(), Encoding.Default))
+            using (BEBinaryReader br = new BEBinaryReader(fi.OpenRead(), Encoding.Default))
             {
                 if (br.ReadUInt32() != 0x12 ||
                     br.ReadUInt32() != 0x08 ||
@@ -71,15 +70,16 @@ namespace ToxicRagers.Carmageddon.Formats
                     switch (tag)
                     {
                         case 0x03:
-                            pixelmap = new PIXIE();
-
-                            pixelmap.Format = (PIXIE.PixelmapFormat)br.ReadByte();
-                            pixelmap.RowSize = br.ReadUInt16();
-                            pixelmap.Width = br.ReadUInt16();
-                            pixelmap.Height = br.ReadUInt16();
-                            pixelmap.HalfWidth = br.ReadUInt16();
-                            pixelmap.HalfHeight = br.ReadUInt16();
-                            pixelmap.Name = br.ReadString();
+                            pixelmap = new PIXIE()
+                            {
+                                Format = (PIXIE.PixelmapFormat)br.ReadByte(),
+                                RowSize = br.ReadUInt16(),
+                                Width = br.ReadUInt16(),
+                                Height = br.ReadUInt16(),
+                                HalfWidth = br.ReadUInt16(),
+                                HalfHeight = br.ReadUInt16(),
+                                Name = br.ReadString()
+                            };
                             break;
 
                         case 0x21:
@@ -93,12 +93,13 @@ namespace ToxicRagers.Carmageddon.Formats
                             break;
 
                         case 0x3d:
-                            pixelmap = new PIXIE();
-
-                            pixelmap.Format = (PIXIE.PixelmapFormat)br.ReadByte();
-                            pixelmap.RowSize = br.ReadUInt16();
-                            pixelmap.Width = br.ReadUInt16();
-                            pixelmap.Height = br.ReadUInt16();
+                            pixelmap = new PIXIE()
+                            {
+                                Format = (PIXIE.PixelmapFormat)br.ReadByte(),
+                                RowSize = br.ReadUInt16(),
+                                Width = br.ReadUInt16(),
+                                Height = br.ReadUInt16()
+                            };
                             br.ReadBytes(6);
                             pixelmap.Name = br.ReadString();
                             break;
@@ -136,38 +137,38 @@ namespace ToxicRagers.Carmageddon.Formats
 
         public PixelmapFormat Format
         {
-            get { return format; }
-            set { format = value; }
+            get => format;
+            set => format = value;
         }
 
         public int Width
         {
-            get { return width; }
-            set { width = value; }
+            get => width;
+            set => width = value;
         }
 
         public int Height
         {
-            get { return height; }
-            set { height = value; }
+            get => height;
+            set => height = value;
         }
 
         public int HalfWidth
         {
-            get { return halfWidth; }
-            set { halfWidth = value; }
+            get => halfWidth;
+            set => halfWidth = value;
         }
 
         public int HalfHeight
         {
-            get { return halfHeight; }
-            set { halfHeight = value; }
+            get => halfHeight;
+            set => halfHeight = value;
         }
 
         public int RowSize
         {
-            get { return rowSize; }
-            set { rowSize = value; }
+            get => rowSize;
+            set => rowSize = value;
         }
 
         public int ActualRowSize
@@ -187,26 +188,23 @@ namespace ToxicRagers.Carmageddon.Formats
 
         public int PixelCount
         {
-            get { return pixelCount; }
-            set { pixelCount = value; }
+            get => pixelCount;
+            set => pixelCount = value;
         }
 
         public int PixelSize
         {
-            get { return pixelSize; }
-            set { pixelSize = value; }
+            get => pixelSize;
+            set => pixelSize = value;
         }
 
         public string Name
         {
-            get { return name; }
-            set { name = value; }
+            get => name;
+            set => name = value;
         }
 
-        public int DataLength
-        {
-            get { return height * ActualRowSize * pixelSize; }
-        }
+        public int DataLength => height * ActualRowSize * pixelSize;
 
         public void SetData(byte[] data)
         {
@@ -232,17 +230,17 @@ namespace ToxicRagers.Carmageddon.Formats
 
         public Bitmap GetBitmap()
         {
-            var bmp = new Bitmap(width, height, PixelFormat.Format32bppArgb);
+            Bitmap bmp = new Bitmap(width, height, PixelFormat.Format32bppArgb);
             {
                 BitmapData bmpdata = bmp.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.ReadWrite, PixelFormat.Format32bppArgb);
 
-                using (var nms = new MemoryStream())
+                using (MemoryStream nms = new MemoryStream())
                 {
                     for (int y = 0; y < height; y++)
                     {
                         for (int x = 0; x < ActualRowSize; x++)
                         {
-                            var c = GetColourAtPixel(x * pixelSize, y);
+                            Color c = GetColourAtPixel(x * pixelSize, y);
                             nms.WriteByte(c.B);
                             nms.WriteByte(c.G);
                             nms.WriteByte(c.R);
@@ -250,7 +248,7 @@ namespace ToxicRagers.Carmageddon.Formats
                         }
                     }
 
-                    var contentBuffer = new byte[nms.Length];
+                    byte[] contentBuffer = new byte[nms.Length];
                     nms.Position = 0;
                     nms.Read(contentBuffer, 0, contentBuffer.Length);
 

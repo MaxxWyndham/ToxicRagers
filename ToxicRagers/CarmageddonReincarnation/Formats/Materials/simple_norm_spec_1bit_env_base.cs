@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Xml.Linq;
 
 using ToxicRagers.Helpers;
@@ -20,29 +19,36 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats.Materials
 
         public string Normal_Map
         {
-            get { return normal; }
-            set { normal = value; }
+            get => normal;
+            set => normal = value;
         }
 
         public string Spec_Map
         {
-            get { return specular; }
-            set { specular = value; }
+            get => specular;
+            set => specular = value;
         }
 
-        public Single TransmissiveFactor
+        public float TransmissiveFactor
         {
-            get { return transmissiveFactor.X; }
-            set { transmissiveFactor.X = value; }
+            get => transmissiveFactor.X;
+            set => transmissiveFactor.X = value;
         }
+
+        public simple_norm_spec_1bit_env_base() { }
 
         public simple_norm_spec_1bit_env_base(XElement xml)
             : base(xml)
         {
-            var diff = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "DiffuseColour").FirstOrDefault();
-            var norm = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "Normal_Map").FirstOrDefault();
-            var spec = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "Spec_Map").FirstOrDefault();
-            var tran = xml.Descendants("Constant").Where(e => e.Attribute("Alias").Value == "TransmissiveFactor").FirstOrDefault();
+            coreDefaults = new simple_norm_spec_1bit_env_base
+            {
+
+            };
+
+            XElement diff = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "DiffuseColour").FirstOrDefault();
+            XElement norm = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "Normal_Map").FirstOrDefault();
+            XElement spec = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "Spec_Map").FirstOrDefault();
+            XElement tran = xml.Descendants("Constant").Where(e => e.Attribute("Alias").Value == "TransmissiveFactor").FirstOrDefault();
 
             if (diff != null) { diffuse = diff.Attribute("FileName").Value; }
             if (norm != null) { normal = norm.Attribute("FileName").Value; }

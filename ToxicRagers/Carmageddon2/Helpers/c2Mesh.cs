@@ -1,28 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+
 using ToxicRagers.Helpers;
-//using Microsoft.Xna.Framework;
 
 namespace ToxicRagers.Carmageddon2.Helpers
 {
-    public class c2Mesh
+    public class C2Mesh
     {
         public List<string> Materials;
         public List<Vector3> Verts;
         public Dictionary<int, Vector3> Normals;
         public List<Vector2> UVs;
-        public List<c2Face> Faces;
+        public List<C2Face> Faces;
         public MeshExtents Extents;
 
-        public bool HasUVs { get { return (UVs.Count > 0); } }
+        public bool HasUVs => (UVs.Count > 0);
 
-        public c2Mesh()
+        public C2Mesh()
         {
             Verts = new List<Vector3>();
             UVs = new List<Vector2>();
-            Faces = new List<c2Face>();
+            Faces = new List<C2Face>();
             Materials = new List<string>();
         }
 
@@ -32,7 +30,7 @@ namespace ToxicRagers.Carmageddon2.Helpers
             Verts.Add(V);
         }
 
-        public void AddListVertex(Single X, Single Y, Single Z)
+        public void AddListVertex(float X, float Y, float Z)
         {
             Verts.Add(new Vector3(X, Y, Z));
         }
@@ -42,7 +40,7 @@ namespace ToxicRagers.Carmageddon2.Helpers
             UVs.Add(UV);
         }
 
-        public void AddListUV(Single U, Single V)
+        public void AddListUV(float U, float V)
         {
             UVs.Add(new Vector2(U, V));
         }
@@ -54,14 +52,14 @@ namespace ToxicRagers.Carmageddon2.Helpers
 
         public int AddFace(int v1, int v2, int v3, int MaterialID = -1)
         {
-            Faces.Add(new c2Face(v1, v2, v3, MaterialID));
+            Faces.Add(new C2Face(v1, v2, v3, MaterialID));
 
             return Faces.Count - 1;
         }
 
         public void AddFace(int v1, int v2, int v3, int uv1, int uv2, int uv3, int MaterialID)
         {
-            Faces.Add(new c2Face(v1, v2, v3, uv1, uv2, uv3, MaterialID));
+            Faces.Add(new C2Face(v1, v2, v3, uv1, uv2, uv3, MaterialID));
         }
         // =========================================
 
@@ -147,8 +145,8 @@ namespace ToxicRagers.Carmageddon2.Helpers
         public void ProcessMesh()
         {
             Vector3 min, max;
-            min = new Vector3(Single.MaxValue, Single.MaxValue, Single.MaxValue);
-            max = new Vector3(Single.MinValue, Single.MinValue, Single.MinValue);
+            min = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
+            max = new Vector3(float.MinValue, float.MinValue, float.MinValue);
 
             for (int i = 0; i < Verts.Count; i++)
             {
@@ -208,7 +206,7 @@ namespace ToxicRagers.Carmageddon2.Helpers
 
         public void GenerateNormals()
         {
-            foreach (var face in Faces)
+            foreach (C2Face face in Faces)
             {
                 Vector3 v0 = Verts[face.V1];
                 Vector3 v1 = Verts[face.V2];
@@ -224,7 +222,7 @@ namespace ToxicRagers.Carmageddon2.Helpers
 
             for (int i = 0; i < Verts.Count; i++)
             {
-                foreach (var face in Faces)
+                foreach (C2Face face in Faces)
                 {
                     int index = (face.SmoothingGroup << 8);
 
@@ -246,7 +244,7 @@ namespace ToxicRagers.Carmageddon2.Helpers
         {
             if (!HasUVs) { return; }
 
-            foreach (var face in Faces)
+            foreach (C2Face face in Faces)
             {
                 face.UVs[0] = face.V1;
                 face.UVs[1] = face.V2;
@@ -254,13 +252,7 @@ namespace ToxicRagers.Carmageddon2.Helpers
             }
         }
 
-        public Vector3 Centre
-        {
-            get
-            {
-                return (Extents.Min + Extents.Max) / 2;
-            }
-        }
+        public Vector3 Centre => (Extents.Min + Extents.Max) / 2;
 
         // Helper functions
         public void Translate(Vector3 by)
@@ -271,7 +263,7 @@ namespace ToxicRagers.Carmageddon2.Helpers
             }
         }
 
-        public void Scale(Single by)
+        public void Scale(float by)
         {
             for (int i = 0; i < Verts.Count; i++)
             {
@@ -281,13 +273,13 @@ namespace ToxicRagers.Carmageddon2.Helpers
 
         public void Optimise()
         {
-            List<c2Vertex> points = new List<c2Vertex>();
+            List<C2Vertex> points = new List<C2Vertex>();
             List<Vector3> verts = new List<Vector3>();
             List<Vector2> uvs = new List<Vector2>();
 
             for (int i = 0; i < Verts.Count; i++)
             {
-                c2Vertex p = new c2Vertex(Verts[i], UVs[i]);
+                C2Vertex p = new C2Vertex(Verts[i], UVs[i]);
 
                 //Console.WriteLine("Vert " + i);
                 int newID = points.IndexOf(p);
@@ -365,11 +357,11 @@ namespace ToxicRagers.Carmageddon2.Helpers
 
             for (int i = 0; i < min.Length; i++)
             {
-                min[i] = new Plane(Vector3.Zero, bounds[i], Single.MaxValue);
-                max[i] = new Plane(Vector3.Zero, bounds[i], Single.MinValue);
+                min[i] = new Plane(Vector3.Zero, bounds[i], float.MaxValue);
+                max[i] = new Plane(Vector3.Zero, bounds[i], float.MinValue);
             }
 
-            Single value = 0;
+            float value = 0;
             for (int i = 0; i < Verts.Count; i++)
             {
                 for (int j = 0; j < bounds.Length; j++)
@@ -402,8 +394,6 @@ namespace ToxicRagers.Carmageddon2.Helpers
                 Console.WriteLine(planes[i]);
             }
 
-            Vector3 v;
-
             //for (int a = 0; a < planes.Length; a++)
             //{
             //    for (int b = a; b < planes.Length; b++)
@@ -419,7 +409,7 @@ namespace ToxicRagers.Carmageddon2.Helpers
             //    }
             //}
 
-            PlanePlanePlaneIntersect(planes[3], planes[7], planes[11], out v);
+            PlanePlanePlaneIntersect(planes[3], planes[7], planes[11], out Vector3 v);
             intersectionPoints.Add(v);
             PlanePlanePlaneIntersect(planes[3], planes[11], planes[12], out v);
             intersectionPoints.Add(v);
@@ -469,13 +459,13 @@ namespace ToxicRagers.Carmageddon2.Helpers
             Vector3 m3 = new Vector3(p1.Normal.Z, p2.Normal.Z, p3.Normal.Z);
 
             Vector3 u = Vector3.Cross(m2, m3);
-            Single denom = Vector3.Dot(m1, u);
+            float denom = Vector3.Dot(m1, u);
 
             if (Math.Abs(denom) < SMALL_NUM) { return false; }
 
             Vector3 d = new Vector3(p1.Distance, p2.Distance, p3.Distance);
             Vector3 v = Vector3.Cross(m1, d);
-            Single ood = 1.0f / denom;
+            float ood = 1.0f / denom;
 
             r.X = Vector3.Dot(d, u) * ood;
             r.Y = Vector3.Dot(m3, v) * ood;
@@ -484,7 +474,7 @@ namespace ToxicRagers.Carmageddon2.Helpers
             return true;
         }
 
-        Single SMALL_NUM = 0.00000001f;
+        float SMALL_NUM = 0.00000001f;
 
         //public int PlanePlaneIntersect(Plane p1, Plane p2, out Line L)
         //{

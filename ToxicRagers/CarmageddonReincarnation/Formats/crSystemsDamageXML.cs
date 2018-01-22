@@ -18,7 +18,28 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
         rl_wheel,
         rr_wheel,
         steering,
-        transmission
+        transmission,
+
+        rl_wheel_001,
+        rr_wheel_001,
+        fl_wheel_001,
+        fr_wheel_001,
+        rl_wheel_002,
+        rr_wheel_002,
+        fl_wheel_002,
+        fr_wheel_002,
+        rl_wheel_003,
+        rr_wheel_003,
+        rl_wheel_004,
+        rr_wheel_004,
+        left_front_track,
+        right_front_track,
+        left_rear_track,
+        right_rear_track,
+        left_track,
+        right_track,
+
+        Joint
     }
 
     public class SystemsDamage
@@ -27,8 +48,8 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
         public List<SystemsDamageSystemUnit> Units
         {
-            get { return systemUnits; }
-            set { systemUnits = value; }
+            get => systemUnits;
+            set => systemUnits = value;
         }
 
         public SystemsDamage()
@@ -40,9 +61,9 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
         {
             SystemsDamage systemsDamage = new SystemsDamage();
 
-            using (var xml = new XMLParser(path, "STRUCTURE"))
+            using (XMLParser xml = new XMLParser(path, "STRUCTURE"))
             {
-                var systems = xml.GetNode("SYSTEMS");
+                XmlNode systems = xml.GetNode("SYSTEMS");
 
                 foreach (XmlNode system in systems.ChildNodes)
                 {
@@ -55,10 +76,10 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
         public void Save(string path)
         {
-            var xml = new XDocument();
+            XDocument xml = new XDocument();
 
-            var systems = new XElement("SYSTEMS");
-            foreach (var unit in systemUnits)
+            XElement systems = new XElement("SYSTEMS");
+            foreach (SystemsDamageSystemUnit unit in systemUnits)
             {
                 systems.Add(unit.Write());
             }
@@ -76,14 +97,14 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
         public SystemsDamageSystemUnitType UnitType
         {
-            get { return unitType; }
-            set { unitType = value; }
+            get => unitType;
+            set => unitType = value;
         }
 
         public SystemsDamageUnitCode Settings
         {
-            get { return unitSettings; }
-            set { unitSettings = value; }
+            get => unitSettings;
+            set => unitSettings = value;
         }
 
         public SystemsDamageSystemUnit() { }
@@ -95,7 +116,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                 switch (attribute.Name)
                 {
                     case "name":
-                        this.unitType = attribute.Value.ToEnum<SystemsDamageSystemUnitType>();
+                        unitType = attribute.Value.ToEnum<SystemsDamageSystemUnitType>();
                         break;
 
                     default:
@@ -108,7 +129,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                 switch (data.NodeType)
                 {
                     case XmlNodeType.CDATA:
-                        this.unitSettings = SystemsDamageUnitCode.Parse(data.InnerText);
+                        unitSettings = SystemsDamageUnitCode.Parse(data.InnerText);
                         break;
 
                     case XmlNodeType.Element:
@@ -123,8 +144,8 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
         public XElement Write()
         {
-            var xe = new XElement("UNIT");
-            xe.Add(new XAttribute("name", this.unitType));
+            XElement xe = new XElement("UNIT");
+            xe.Add(new XAttribute("name", unitType));
 
             string unitCDATA = unitSettings.ToString();
             if (unitCDATA.Trim() != "") { xe.Add(new XCData(unitCDATA)); }
@@ -137,10 +158,10 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
     {
         public SystemsDamageUnitCode()
         {
-            this.blockPrefix = "CUnitParameters";
+            blockPrefix = "CUnitParameters";
 
             // TODO: Find out what these parameters are
-            this.AddMethod(
+            AddMethod(
                 LUACodeBlockMethodType.Add,
                 "CrushablePart",
                 new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.String, Name = "Part" },
@@ -148,7 +169,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                 new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Float, Name = "B" }
             );
 
-            this.AddMethod(
+            AddMethod(
                 LUACodeBlockMethodType.Add,
                 "SolidPart",
                 new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.String, Name = "Part" },
@@ -156,20 +177,20 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                 new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Float, Name = "B" }
             );
 
-            this.AddMethod(
+            AddMethod(
                 LUACodeBlockMethodType.Add,
                 "ComplicatedWheel",
                 new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.String, Name = "Wheel" },
                 new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Float, Name = "A" }
             );
 
-            this.AddMethod(
+            AddMethod(
                 LUACodeBlockMethodType.Set,
                 "WastedContribution",
                 new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Float, Name = "Factor" }
             );
 
-            this.AddMethod(
+            AddMethod(
                 LUACodeBlockMethodType.Add,
                 "WastedLinearContribution",
                 new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Float, Name = "A" },
@@ -177,22 +198,54 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                 new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Float, Name = "C" }
             );
 
-            this.AddMethod(
+            AddMethod(
                 LUACodeBlockMethodType.Set,
                 "DamageEffect_Drive",
                 new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Float, Name = "Factor" }
             );
 
-            this.AddMethod(
+            AddMethod(
                 LUACodeBlockMethodType.Set,
                 "DamageEffect_Steering",
                 new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Float, Name = "Factor" }
             );
 
-            this.AddMethod(
+            AddMethod(
                 LUACodeBlockMethodType.Set,
                 "DamageEffect_Brakes",
                 new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Float, Name = "Factor" }
+            );
+
+            AddMethod(
+                LUACodeBlockMethodType.Add,
+                "IndexedComplicatedWheel",
+                new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Int, Name = "Index" },
+                new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Float, Name = "Factor" }
+            );
+
+            AddMethod(
+                LUACodeBlockMethodType.Add,
+                "CaterpillarTrack",
+                new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Int, Name = "Index" },
+                new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Float, Name = "Factor" }
+            );
+
+            AddMethod(
+                LUACodeBlockMethodType.Set,
+                "Trailer",
+                new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Boolean, Name = "Value" }
+            );
+
+            AddMethod(
+                LUACodeBlockMethodType.Set,
+                "AIWastedContribution",
+                new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Float, Name = "Value" }
+            );
+
+            AddMethod(
+                LUACodeBlockMethodType.Set,
+                "HumanWastedContribution",
+                new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Float, Name = "Value" }
             );
         }
 

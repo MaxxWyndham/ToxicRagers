@@ -2,30 +2,38 @@
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
+
 using ToxicRagers.Helpers;
 
 namespace ToxicRagers.Core.Formats
 {
     public class FBX
     {
-        public static int BLOCK_SENTINEL_LENGTH = 13;
         private static bool bDebug = false;
 
         int version;
+        bool b64bit = false;
         List<FBXElem> elements = new List<FBXElem>();
 
         public int Version
         {
-            get { return version; }
-            set { version = value; }
+            get => version;
+            set
+            {
+                version = value;
+                b64bit = (version > 7400);
+            }
         }
 
-        public List<FBXElem> Elements { get { return elements; } }
-
-        public FBXElem FBXHeaderExtension
+        public bool Is64bit
         {
-            get { return elements.Find(e => e.ID == "FBXHeaderExtension"); }
+            get => b64bit;
+            set => b64bit = value;
         }
+
+        public int BlockSentinelLength => (b64bit ? 25 : 13);
+        public List<FBXElem> Elements => elements;
+        public FBXElem FBXHeaderExtension => elements.Find(e => e.ID == "FBXHeaderExtension");
 
         public static FBX Load(string path)
         {
@@ -35,17 +43,17 @@ namespace ToxicRagers.Core.Formats
             using (MemoryStream ms = new MemoryStream(File.ReadAllBytes(path)))
             using (BinaryReader br = new BinaryReader(ms))
             {
-                if (br.ReadString(20) != "Kaydara FBX Binary  " || br.ReadByte() != 0 || br.ReadByte() != 26 || br.ReadByte() != 0) 
+                if (br.ReadString(20) != "Kaydara FBX Binary  " || br.ReadByte() != 0 || br.ReadByte() != 26 || br.ReadByte() != 0)
                 {
                     Logger.LogToFile(Logger.LogLevel.Error, "Invalid Binary FBX detected, error!");
                     return null;
                 }
 
-                fbx.version = (int)br.ReadUInt32();
+                fbx.Version = (int)br.ReadUInt32();
 
                 while (true)
                 {
-                    var elem = read_elem(br);
+                    FBXElem elem = readElem(br, fbx);
                     if (elem == null) { break; }
                     fbx.elements.Add(elem);
                 }
@@ -58,7 +66,7 @@ namespace ToxicRagers.Core.Formats
 
                 Logger.Level = Logger.LogLevel.All;
 
-                foreach (var elem in fbx.elements)
+                foreach (FBXElem elem in fbx.elements)
                 {
                     debug(elem, ref depth);
                 }
@@ -76,7 +84,7 @@ namespace ToxicRagers.Core.Formats
             depth++;
             string padding = new string('\t', depth);
 
-            foreach (var prop in elem.Properties)
+            foreach (FBXProperty prop in elem.Properties)
             {
                 Logger.LogToFile(Logger.LogLevel.Debug, "{0}{1}", padding, prop.Type);
 
@@ -118,7 +126,7 @@ namespace ToxicRagers.Core.Formats
 
             if (elem.Properties.Count > 0) { Logger.LogToFile(Logger.LogLevel.Debug, ""); }
 
-            foreach (var child in elem.Children)
+            foreach (FBXElem child in elem.Children)
             {
                 debug(child, ref depth);
             }
@@ -128,31 +136,31 @@ namespace ToxicRagers.Core.Formats
             depth--;
         }
 
-        private static FBXElem read_elem(BinaryReader br)
+        private static FBXElem readElem(BinaryReader br, FBX fbx)
         {
-            int endOffset = (int)br.ReadUInt32();
+            int endOffset = (fbx.Is64bit ? (int)br.ReadUInt64() : (int)br.ReadUInt32());
             if (endOffset == 0) { return null; }
 
-            var elem = new FBXElem();
+            FBXElem elem = new FBXElem();
 
-            int propCount = (int)br.ReadUInt32();
-            int propLength = (int)br.ReadUInt32();
+            int propCount = (fbx.Is64bit ? (int)br.ReadUInt64() : (int)br.ReadUInt32());
+            int propLength = (fbx.Is64bit ? (int)br.ReadUInt64() : (int)br.ReadUInt32());
 
             elem.ID = br.ReadString();
 
             for (int i = 0; i < propCount; i++)
             {
-                elem.Properties.Add(read_data_dict(br, br.ReadByte()));
+                elem.Properties.Add(readDataDictionary(br, br.ReadByte(), fbx));
             }
 
             if (br.BaseStream.Position < endOffset)
             {
-                while (br.BaseStream.Position < (endOffset - BLOCK_SENTINEL_LENGTH))
+                while (br.BaseStream.Position < (endOffset - fbx.BlockSentinelLength))
                 {
-                    elem.Children.Add(read_elem(br));
+                    elem.Children.Add(readElem(br, fbx));
                 }
 
-                for (int i = 0; i < BLOCK_SENTINEL_LENGTH; i++)
+                for (int i = 0; i < fbx.BlockSentinelLength; i++)
                 {
                     if (br.ReadByte() != 0)
                     {
@@ -164,11 +172,9 @@ namespace ToxicRagers.Core.Formats
             return elem;
         }
 
-        private static FBXProperty read_data_dict(BinaryReader br, byte dataType)
+        private static FBXProperty readDataDictionary(BinaryReader br, byte dataType, FBX fbx)
         {
-            var property = new FBXProperty();
-            property.Type = dataType;
-
+            FBXProperty property = new FBXProperty() { Type = dataType };
             int encoding;
             int comLength;
 
@@ -204,7 +210,7 @@ namespace ToxicRagers.Core.Formats
 
                 case 98: // bool array
                     {
-                        var array = new bool[(int)br.ReadUInt32()];
+                        bool[] array = new bool[(int)br.ReadUInt32()];
                         encoding = (int)br.ReadUInt32();
                         comLength = (int)br.ReadUInt32();
 
@@ -219,10 +225,10 @@ namespace ToxicRagers.Core.Formats
                         {
                             br.BaseStream.Seek(2, SeekOrigin.Current);
 
-                            using (var ms = new MemoryStream(br.ReadBytes(comLength - 2)))
-                            using (var ds = new DeflateStream(ms, CompressionMode.Decompress))
+                            using (MemoryStream ms = new MemoryStream(br.ReadBytes(comLength - 2)))
+                            using (DeflateStream ds = new DeflateStream(ms, CompressionMode.Decompress))
                             {
-                                var data = new byte[1 * array.Length];
+                                byte[] data = new byte[1 * array.Length];
                                 ds.Read(data, 0, 1 * array.Length);
                                 Buffer.BlockCopy(data, 0, array, 0, array.Length * 1);
                             }
@@ -234,7 +240,7 @@ namespace ToxicRagers.Core.Formats
 
                 case 100: // Double array
                     {
-                        var array = new double[(int)br.ReadUInt32()];
+                        double[] array = new double[(int)br.ReadUInt32()];
                         encoding = (int)br.ReadUInt32();
                         comLength = (int)br.ReadUInt32();
 
@@ -249,10 +255,10 @@ namespace ToxicRagers.Core.Formats
                         {
                             br.BaseStream.Seek(2, SeekOrigin.Current);
 
-                            using (var ms = new MemoryStream(br.ReadBytes(comLength - 2)))
-                            using (var ds = new DeflateStream(ms, CompressionMode.Decompress))
+                            using (MemoryStream ms = new MemoryStream(br.ReadBytes(comLength - 2)))
+                            using (DeflateStream ds = new DeflateStream(ms, CompressionMode.Decompress))
                             {
-                                var data = new byte[8 * array.Length];
+                                byte[] data = new byte[8 * array.Length];
                                 ds.Read(data, 0, 8 * array.Length);
                                 Buffer.BlockCopy(data, 0, array, 0, array.Length * 8);
                             }
@@ -264,7 +270,7 @@ namespace ToxicRagers.Core.Formats
 
                 case 102: // float array
                     {
-                        var array = new float[(int)br.ReadUInt32()];
+                        float[] array = new float[(int)br.ReadUInt32()];
                         encoding = (int)br.ReadUInt32();
                         comLength = (int)br.ReadUInt32();
 
@@ -279,10 +285,10 @@ namespace ToxicRagers.Core.Formats
                         {
                             br.BaseStream.Seek(2, SeekOrigin.Current);
 
-                            using (var ms = new MemoryStream(br.ReadBytes(comLength - 2)))
-                            using (var ds = new DeflateStream(ms, CompressionMode.Decompress))
+                            using (MemoryStream ms = new MemoryStream(br.ReadBytes(comLength - 2)))
+                            using (DeflateStream ds = new DeflateStream(ms, CompressionMode.Decompress))
                             {
-                                var data = new byte[4 * array.Length];
+                                byte[] data = new byte[4 * array.Length];
                                 ds.Read(data, 0, 4 * array.Length);
                                 Buffer.BlockCopy(data, 0, array, 0, array.Length * 4);
                             }
@@ -294,7 +300,7 @@ namespace ToxicRagers.Core.Formats
 
                 case 105: // int array
                     {
-                        var array = new int[(int)br.ReadUInt32()];
+                        int[] array = new int[(int)br.ReadUInt32()];
                         encoding = (int)br.ReadUInt32();
                         comLength = (int)br.ReadUInt32();
 
@@ -309,10 +315,10 @@ namespace ToxicRagers.Core.Formats
                         {
                             br.BaseStream.Seek(2, SeekOrigin.Current);
 
-                            using (var ms = new MemoryStream(br.ReadBytes(comLength - 2)))
-                            using (var ds = new DeflateStream(ms, CompressionMode.Decompress))
+                            using (MemoryStream ms = new MemoryStream(br.ReadBytes(comLength - 2)))
+                            using (DeflateStream ds = new DeflateStream(ms, CompressionMode.Decompress))
                             {
-                                var data = new byte[4 * array.Length];
+                                byte[] data = new byte[4 * array.Length];
                                 ds.Read(data, 0, 4 * array.Length);
                                 Buffer.BlockCopy(data, 0, array, 0, array.Length * 4);
                             }
@@ -324,7 +330,7 @@ namespace ToxicRagers.Core.Formats
 
                 case 108: // long array
                     {
-                        var array = new long[(int)br.ReadUInt32()];
+                        long[] array = new long[(int)br.ReadUInt32()];
                         encoding = (int)br.ReadUInt32();
                         comLength = (int)br.ReadUInt32();
 
@@ -339,10 +345,10 @@ namespace ToxicRagers.Core.Formats
                         {
                             br.BaseStream.Seek(2, SeekOrigin.Current);
 
-                            using (var ms = new MemoryStream(br.ReadBytes(comLength - 2)))
-                            using (var ds = new DeflateStream(ms, CompressionMode.Decompress))
+                            using (MemoryStream ms = new MemoryStream(br.ReadBytes(comLength - 2)))
+                            using (DeflateStream ds = new DeflateStream(ms, CompressionMode.Decompress))
                             {
-                                var data = new byte[8 * array.Length];
+                                byte[] data = new byte[8 * array.Length];
                                 ds.Read(data, 0, 8 * array.Length);
                                 Buffer.BlockCopy(data, 0, array, 0, array.Length * 8);
                             }
@@ -359,31 +365,31 @@ namespace ToxicRagers.Core.Formats
             return property;
         }
 
-        protected int calc_offsets_children_root(int offset, bool isLast)
+        protected int CalcOffsetsChildrenRoot(int offset, bool isLast)
         {
-            if (this.elements.Count > 0)
+            if (elements.Count > 0)
             {
-                for (int i = 0; i < this.elements.Count; i++)
+                for (int i = 0; i < elements.Count; i++)
                 {
-                    offset = this.elements[i].calc_offsets(offset, (i + 1 == this.elements.Count));
+                    offset = elements[i].CalcOffsets(offset, (i + 1 == elements.Count), this);
                 }
 
-                offset += BLOCK_SENTINEL_LENGTH;
+                offset += BlockSentinelLength;
             }
 
             return offset;
         }
 
-        protected void write_children_root(BinaryWriter bw, bool isLast)
+        protected void WriteChildrenRoot(BinaryWriter bw, bool isLast)
         {
-            if (this.elements.Count > 0)
+            if (elements.Count > 0)
             {
-                for (int i = 0; i < this.elements.Count; i++)
+                for (int i = 0; i < elements.Count; i++)
                 {
-                    this.elements[i].write(bw, (i + 1 == this.elements.Count));
+                    elements[i].Write(bw, (i + 1 == elements.Count), this);
                 }
 
-                bw.Write(new byte[BLOCK_SENTINEL_LENGTH]);
+                bw.Write(new byte[BlockSentinelLength]);
             }
         }
 
@@ -391,12 +397,15 @@ namespace ToxicRagers.Core.Formats
         {
             using (BinaryWriter bw = new BinaryWriter(new FileStream(path, FileMode.Create)))
             {
+                b64bit = false;
+                version = 7400;
+
                 bw.WriteString("Kaydara FBX Binary");
                 bw.Write(new byte[] { 0x20, 0x20, 0x0, 0x1A, 0x0 });
-                bw.Write(this.version);
+                bw.Write(version);
 
-                this.calc_offsets_children_root((int)bw.BaseStream.Position, false);
-                this.write_children_root(bw, false);
+                CalcOffsetsChildrenRoot((int)bw.BaseStream.Position, false);
+                WriteChildrenRoot(bw, false);
 
                 bw.Write(new byte[] { 0xfa, 0xbc, 0xab, 0x09, 0xd0, 0xc8, 0xd4, 0x66, 0xb1, 0x76, 0xfb, 0x83, 0x1c, 0xf7, 0x26, 0x7e });
                 bw.Write(new byte[4]);
@@ -406,7 +415,7 @@ namespace ToxicRagers.Core.Formats
                 if (pad == 0) { pad = 16; }
                 bw.Write(new byte[pad]);
 
-                bw.Write(this.version);
+                bw.Write(version);
                 bw.Write(new byte[120]);
                 bw.Write(new byte[] { 0xf8, 0x5a, 0x8c, 0x6a, 0xde, 0xf5, 0xd9, 0x7e, 0xec, 0xe9, 0x0c, 0xe3, 0x75, 0x8f, 0x29, 0x0b });
             }
@@ -423,23 +432,23 @@ namespace ToxicRagers.Core.Formats
 
         public string ID
         {
-            get { return id; }
-            set { id = value; }
+            get => id;
+            set => id = value;
         }
 
         public List<FBXProperty> Properties
         {
-            get { return elemProps; }
-            set { elemProps = value; }
+            get => elemProps;
+            set => elemProps = value;
         }
 
         public List<FBXElem> Children
         {
-            get { return elemSubtree; }
-            set { elemSubtree = value; }
+            get => elemSubtree;
+            set => elemSubtree = value;
         }
 
-        public void write(BinaryWriter bw, bool isLast)
+        public void Write(BinaryWriter bw, bool isLast, FBX fbx)
         {
             bw.Write(endOffset);
             bw.Write(elemProps.Count);
@@ -449,29 +458,29 @@ namespace ToxicRagers.Core.Formats
 
             for (int i = 0; i < elemProps.Count; i++) { elemProps[i].Write(bw); }
 
-            write_children(bw, isLast);
+            WriteChildren(bw, isLast, fbx);
 
             if (bw.BaseStream.Position != endOffset) { throw new DataMisalignedException(); }
         }
 
-        protected void write_children(BinaryWriter bw, bool isLast)
+        protected void WriteChildren(BinaryWriter bw, bool isLast, FBX fbx)
         {
-            if (this.elemSubtree.Count > 0)
+            if (elemSubtree.Count > 0)
             {
-                for (int i = 0; i < this.elemSubtree.Count; i++)
+                for (int i = 0; i < elemSubtree.Count; i++)
                 {
-                    this.elemSubtree[i].write(bw, (i + 1 == this.elemSubtree.Count));
+                    elemSubtree[i].Write(bw, (i + 1 == elemSubtree.Count), fbx);
                 }
 
-                bw.Write(new byte[FBX.BLOCK_SENTINEL_LENGTH]);
+                bw.Write(new byte[fbx.BlockSentinelLength]);
             }
-            else if (this.elemProps.Count == 0 && !isLast)
+            else if (elemProps.Count == 0 && !isLast)
             {
-                bw.Write(new byte[FBX.BLOCK_SENTINEL_LENGTH]);
+                bw.Write(new byte[fbx.BlockSentinelLength]);
             }
         }
 
-        public int calc_offsets(int offset, bool isLast)
+        public int CalcOffsets(int offset, bool isLast, FBX fbx)
         {
             offset += 12;
             offset += 1 + id.Length;
@@ -483,26 +492,26 @@ namespace ToxicRagers.Core.Formats
             }
             offset += propsLength;
 
-            offset = calc_offsets_children(offset, isLast);
+            offset = CalcOffsetsChildren(offset, isLast, fbx);
 
             endOffset = offset;
             return offset;
         }
 
-        protected int calc_offsets_children(int offset, bool isLast)
+        protected int CalcOffsetsChildren(int offset, bool isLast, FBX fbx)
         {
-            if (this.elemSubtree.Count > 0)
+            if (elemSubtree.Count > 0)
             {
-                for (int i = 0; i < this.elemSubtree.Count; i++)
+                for (int i = 0; i < elemSubtree.Count; i++)
                 {
-                    offset = this.elemSubtree[i].calc_offsets(offset, (i + 1 == this.elemSubtree.Count));
+                    offset = elemSubtree[i].CalcOffsets(offset, (i + 1 == elemSubtree.Count), fbx);
                 }
 
-                offset += FBX.BLOCK_SENTINEL_LENGTH;
+                offset += fbx.BlockSentinelLength;
             }
-            else if (this.elemProps.Count == 0 && !isLast)
+            else if (elemProps.Count == 0 && !isLast)
             {
-                offset += FBX.BLOCK_SENTINEL_LENGTH;
+                offset += fbx.BlockSentinelLength;
             }
 
             return offset;
@@ -519,20 +528,20 @@ namespace ToxicRagers.Core.Formats
 
         public byte Type
         {
-            get { return propertyType; }
-            set { propertyType = value; }
+            get => propertyType;
+            set => propertyType = value;
         }
 
         public object Value
         {
-            get { return propertyValue; }
-            set { propertyValue = value; }
+            get => propertyValue;
+            set => propertyValue = value;
         }
 
         public bool Compressed
         {
-            get { return compressed; }
-            set { compressed = value; }
+            get => compressed;
+            set => compressed = value;
         }
 
         public int Size
@@ -568,7 +577,7 @@ namespace ToxicRagers.Core.Formats
                         {
                             rawData = new byte[((bool[])propertyValue).Length * sizeof(bool)];
                             Buffer.BlockCopy((bool[])propertyValue, 0, rawData, 0, rawData.Length);
-                            if (compressed) { rawData = Compress(rawData); }
+                            if (compressed) { rawData = compress(rawData); }
                         }
 
                         return 12 + rawData.Length;
@@ -578,7 +587,7 @@ namespace ToxicRagers.Core.Formats
                         {
                             rawData = new byte[((double[])propertyValue).Length * sizeof(double)];
                             Buffer.BlockCopy((double[])propertyValue, 0, rawData, 0, rawData.Length);
-                            if (compressed) { rawData = Compress(rawData); }
+                            if (compressed) { rawData = compress(rawData); }
                         }
 
                         return 12 + rawData.Length;
@@ -588,7 +597,7 @@ namespace ToxicRagers.Core.Formats
                         {
                             rawData = new byte[((float[])propertyValue).Length * sizeof(float)];
                             Buffer.BlockCopy((float[])propertyValue, 0, rawData, 0, rawData.Length);
-                            if (compressed) { rawData = Compress(rawData); }
+                            if (compressed) { rawData = compress(rawData); }
                         }
 
                         return 12 + rawData.Length;
@@ -598,7 +607,7 @@ namespace ToxicRagers.Core.Formats
                         {
                             rawData = new byte[((int[])propertyValue).Length * sizeof(int)];
                             Buffer.BlockCopy((int[])propertyValue, 0, rawData, 0, rawData.Length);
-                            if (compressed) { rawData = Compress(rawData); }
+                            if (compressed) { rawData = compress(rawData); }
                         }
 
                         return 12 + rawData.Length;
@@ -608,7 +617,7 @@ namespace ToxicRagers.Core.Formats
                         {
                             rawData = new byte[((long[])propertyValue).Length * sizeof(long)];
                             Buffer.BlockCopy((long[])propertyValue, 0, rawData, 0, rawData.Length);
-                            if (compressed) { rawData = Compress(rawData); }
+                            if (compressed) { rawData = compress(rawData); }
                         }
 
                         return 12 + rawData.Length;
@@ -646,19 +655,19 @@ namespace ToxicRagers.Core.Formats
                     break;
 
                 case 82: // Byte array
-                    var b = (byte[])propertyValue;
+                    byte[] b = (byte[])propertyValue;
                     bw.Write(b.Length);
                     bw.Write(b);
                     break;
 
                 case 83: // String
-                    var s = (string)propertyValue;
+                    string s = (string)propertyValue;
                     bw.Write(s.Length);
                     bw.WritePropertyString(s);
                     break;
 
                 case 98: // bool array
-                    var bo = (bool[])propertyValue;
+                    bool[] bo = (bool[])propertyValue;
                     bw.Write(bo.Length);
                     bw.Write((compressed ? 1 : 0));
                     bw.Write(rawData.Length);
@@ -666,7 +675,7 @@ namespace ToxicRagers.Core.Formats
                     break;
 
                 case 100: // Double array
-                    var d = (double[])propertyValue;
+                    double[] d = (double[])propertyValue;
                     bw.Write(d.Length);
                     bw.Write((compressed ? 1 : 0));
                     bw.Write(rawData.Length);
@@ -674,7 +683,7 @@ namespace ToxicRagers.Core.Formats
                     break;
 
                 case 102: // float array
-                    var f = (float[])propertyValue;
+                    float[] f = (float[])propertyValue;
                     bw.Write(f.Length);
                     bw.Write((compressed ? 1 : 0));
                     bw.Write(rawData.Length);
@@ -682,7 +691,7 @@ namespace ToxicRagers.Core.Formats
                     break;
 
                 case 105: // int array
-                    var i = (int[])propertyValue;
+                    int[] i = (int[])propertyValue;
                     bw.Write(i.Length);
                     bw.Write((compressed ? 1 : 0));
                     bw.Write(rawData.Length);
@@ -690,7 +699,7 @@ namespace ToxicRagers.Core.Formats
                     break;
 
                 case 108: // long array
-                    var l = (long[])propertyValue;
+                    long[] l = (long[])propertyValue;
                     bw.Write(l.Length);
                     bw.Write((compressed ? 1 : 0));
                     bw.Write(rawData.Length);
@@ -702,16 +711,16 @@ namespace ToxicRagers.Core.Formats
             }
         }
 
-        private static byte[] Compress(byte[] input)
+        private static byte[] compress(byte[] input)
         {
-            using (var compressStream = new MemoryStream())
-            using (var compressor = new DeflateStream(compressStream, CompressionMode.Compress))
+            using (MemoryStream compressStream = new MemoryStream())
+            using (DeflateStream compressor = new DeflateStream(compressStream, CompressionMode.Compress))
             {
                 compressor.Write(input, 0, input.Length);
                 compressor.Flush();
                 compressor.Close();
 
-                var data = compressStream.ToArray();
+                byte[] data = compressStream.ToArray();
                 byte[] compressed = new byte[2 + data.Length + 4];
                 compressed[0] = 0x58;
                 compressed[1] = 0x85;
@@ -722,7 +731,7 @@ namespace ToxicRagers.Core.Formats
             }
         }
 
-        public static UInt32 ReverseBytes(UInt32 value)
+        public static uint ReverseBytes(uint value)
         {
             return (value & 0x000000FFU) << 24 | (value & 0x0000FF00U) << 8 |
                    (value & 0x00FF0000U) >> 8 | (value & 0xFF000000U) >> 24;
@@ -736,8 +745,7 @@ namespace ToxicRagers.Core.Formats
 
         public static uint Generate(ref byte[] buffer, int index, int length)
         {
-            if (buffer == null || length - index <= 0)
-                return 0;
+            if (buffer == null || length - index <= 0) { return 0; }
 
             uint unSum1 = AdlerStart & 0xFFFF;
             uint unSum2 = (AdlerStart >> 16) & 0xFFFF;

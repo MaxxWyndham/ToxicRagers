@@ -29,20 +29,20 @@ namespace ToxicRagers.CarmageddonReincarnation.VirtualTextures
 
         public TDX Texture
         {
-            get { return texture; }
-            set { texture = value; }
+            get => texture;
+            set => texture = value;
         }
 
         public List<VTMapTile> Coords
         {
-            get { return coords; }
-            set { coords = value; }
+            get => coords;
+            set => coords = value;
         }
 
         public string TileName
         {
-            get { return tileName; }
-            set { tileName = value; }
+            get => tileName;
+            set => tileName = value;
         }
 
         public void GetTextureFromZAD()
@@ -50,14 +50,16 @@ namespace ToxicRagers.CarmageddonReincarnation.VirtualTextures
             if (File.Exists(ZADFile))
             {
                 ZAD currentZAD = ZAD.Load(ZADFile);
-                var zadEntry = (from entry in currentZAD.Contents where entry.Name == ZADEntryLocation || entry.Name == ZADEntryLocation.Replace("\\", "/") select entry).First();
-                
-                var buffer = currentZAD.ExtractToBuffer(zadEntry);
+                ZADEntry zadEntry = (from entry in currentZAD.Contents where entry.Name == ZADEntryLocation || entry.Name == ZADEntryLocation.Replace("\\", "/") select entry).First();
+
+                byte[] buffer = currentZAD.ExtractToBuffer(zadEntry);
                 if (buffer != null)
+                {
                     using (MemoryStream stream = new MemoryStream(buffer))
                     {
                         texture = TDX.Load(stream, zadEntry.Name);
                     }
+                }
             }
         }
     }

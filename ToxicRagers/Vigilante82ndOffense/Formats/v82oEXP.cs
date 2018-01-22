@@ -19,8 +19,8 @@ namespace ToxicRagers.Vigilante82ndOffense.Formats
         int entryCount;
         List<EXPEntry> contents;
 
-        public string Name { get { return name; } }
-        public List<EXPEntry> Contents { get { return contents; } }
+        public string Name => name;
+        public List<EXPEntry> Contents => contents;
 
         public EXP()
         {
@@ -31,12 +31,13 @@ namespace ToxicRagers.Vigilante82ndOffense.Formats
         {
             FileInfo fi = new FileInfo(path);
             Logger.LogToFile(Logger.LogLevel.Info, "{0}", path);
-            EXP exp = new EXP();
+            EXP exp = new EXP()
+            {
+                name = Path.GetFileNameWithoutExtension(path),
+                location = Path.GetDirectoryName(path) + "\\"
+            };
 
-            exp.name = Path.GetFileNameWithoutExtension(path);
-            exp.location = Path.GetDirectoryName(path) + "\\";
-
-            using (var br = new BEBinaryReader(fi.OpenRead()))
+            using (BEBinaryReader br = new BEBinaryReader(fi.OpenRead()))
             {
                 while (br.BaseStream.Position < br.BaseStream.Length)
                 {
@@ -106,17 +107,15 @@ namespace ToxicRagers.Vigilante82ndOffense.Formats
         {
             if (!Directory.Exists(destination)) { Directory.CreateDirectory(destination); }
 
-            using (var bw = new BinaryWriter(new FileStream(destination + "\\" + file.Filename, FileMode.Create)))
+            using (BinaryWriter bw = new BinaryWriter(new FileStream(destination + "\\" + file.Filename, FileMode.Create)))
+            using (FileStream fs = new FileStream(location + name + ".exp", FileMode.Open))
             {
-                using (var fs = new FileStream(this.location + this.name + ".exp", FileMode.Open))
-                {
-                    fs.Seek(file.Offset, SeekOrigin.Begin);
+                fs.Seek(file.Offset, SeekOrigin.Begin);
 
-                    var buff = new byte[file.Size];
-                    fs.Read(buff, 0, file.Size);
-                    bw.Write(buff);
-                    buff = null;
-                }
+                byte[] buff = new byte[file.Size];
+                fs.Read(buff, 0, file.Size);
+                bw.Write(buff);
+                buff = null;
             }
         }
     }
@@ -129,22 +128,22 @@ namespace ToxicRagers.Vigilante82ndOffense.Formats
 
         public int Offset
         {
-            get { return offset; }
-            set { offset = value; }
+            get => offset;
+            set => offset = value;
         }
 
         public int Size
         {
-            get { return size; }
-            set { size = value; }
+            get => size;
+            set => size = value;
         }
 
         public EXPEntryType EntryType
         {
-            get { return type; }
-            set { type = value; }
+            get => type;
+            set => type = value;
         }
 
-        public string Filename { get { return string.Format("{0}.{1}", offset, type.ToString().Substring(0, 3).ToLower()); } }
+        public string Filename => string.Format("{0}.{1}", offset, type.ToString().Substring(0, 3).ToLower());
     }
 }

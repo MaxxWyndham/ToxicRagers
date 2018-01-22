@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 
-using ToxicRagers.Helpers;
 using ToxicRagers.CarmageddonReincarnation.Helpers;
+using ToxicRagers.Helpers;
 
 namespace ToxicRagers.CarmageddonReincarnation.Formats
 {
@@ -22,7 +22,9 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
         RockingAccessory,
         RotatingAccessory,
         StandardAccessory,
-        StartingGrid
+        StartingGrid,
+        TrailerSpawn,
+        Bicycle
     }
 
     public class Accessory
@@ -34,53 +36,62 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
         public CustomAccessoryType CustomAccessoryType
         {
-            get { return customAccessoryType; }
-            set { customAccessoryType = value; }
+            get => customAccessoryType;
+            set => customAccessoryType = value;
         }
 
-        public Dictionary<string, string> CustomAccessoryProperties { get { return customAccessoryProperties; } }
+        public Dictionary<string, string> CustomAccessoryProperties => customAccessoryProperties;
 
         public string CustomAccessoryAudio
         {
-            get { return customAccessoryAudio; }
-            set { customAccessoryAudio = value; }
+            get => customAccessoryAudio;
+            set => customAccessoryAudio = value;
         }
 
         // ACOLYTE / ACOLYTE
         bool bPowerup;
         bool bHidden;
 
-        public bool Powerup { get { return bPowerup; } set { bPowerup = value; } }
-        public bool Hidden { get { return bHidden; } set { bHidden = value; } }
+        public bool Powerup
+        {
+            get => bPowerup;
+            set => bPowerup = value;
+        }
+
+        public bool Hidden
+        {
+            get => bHidden;
+            set => bHidden = value;
+        }
 
         // ANIMATION
         string animationType;
         string animationFile;
-        Single animationSpeed;
-        Single animationPhase;
+        float animationSpeed;
+        float animationPhase;
 
         public string AnimationType
         {
-            get { return animationType; }
-            set { animationType = value; }
+            get => animationType;
+            set => animationType = value;
         }
 
         public string AnimationFile
         {
-            get { return animationFile; }
-            set { animationFile = value; }
+            get => animationFile;
+            set => animationFile = value;
         }
 
-        public Single AnimationSpeed
+        public float AnimationSpeed
         {
-            get { return animationSpeed; }
-            set { animationSpeed = value; }
+            get => animationSpeed;
+            set => animationSpeed = value;
         }
 
-        public Single AnimationPhase
+        public float AnimationPhase
         {
-            get { return animationPhase; }
-            set { animationPhase = value; }
+            get => animationPhase;
+            set => animationPhase = value;
         }
 
         // DYNAMICS
@@ -95,7 +106,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
         {
             Accessory accessory = new Accessory();
 
-            using (var doc = new DocumentParser(pathToFile))
+            using (DocumentParser doc = new DocumentParser(pathToFile))
             {
                 string line = doc.ReadNextLine();
 
@@ -124,10 +135,9 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                         case "[APP_DATA]":
                             if (TestLine("<CustomAccessoryType>", doc.ReadNextLine(), out line))
                             {
-                                CustomAccessoryType accessoryType;
                                 line = doc.ReadNextLine();
 
-                                if (!Enum.TryParse<CustomAccessoryType>(line, out accessoryType)) { throw new NotImplementedException("Unknown CustomAccessoryType: " + line); }
+                                if (!Enum.TryParse<CustomAccessoryType>(line, out CustomAccessoryType accessoryType)) { throw new NotImplementedException("Unknown CustomAccessoryType: " + line); }
                                 accessory.CustomAccessoryType = accessoryType;
 
                                 switch (accessoryType)
@@ -146,6 +156,8 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                                     case CustomAccessoryType.RigidBodyAnimation:
                                     case CustomAccessoryType.RockingAccessory:
                                     case CustomAccessoryType.RotatingAccessory:
+                                    case CustomAccessoryType.TrailerSpawn:
+                                    case CustomAccessoryType.Bicycle:
                                         while (!doc.NextLineIsASection() && !doc.EOF())
                                         {
                                             accessory.customAccessoryProperties.Add(doc.ReadNextLine().Split(' '));
@@ -252,129 +264,134 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
         public string Lump
         {
-            get { return lump; }
-            set { lump = value; }
+            get => lump;
+            set => lump = value;
         }
 
-        public Single Mass
+        public float Mass
         {
-            get { return mass; }
-            set { mass = value; }
+            get => mass;
+            set => mass = value;
         }
 
         public bool DrivableOn
         {
-            get { return bDrivableOn; }
-            set { bDrivableOn = value; }
+            get => bDrivableOn;
+            set => bDrivableOn = value;
         }
 
         public bool Solid
         {
-            get { return bSolid; }
-            set { bSolid = value; }
-        }
-        public bool StopSinkingIntoGround
-        {
-            get { return bStopSinkingIntoGround; }
-            set { bStopSinkingIntoGround = value; }
-        }
-        public bool PartOfWorld
-        {
-            get { return bPartOfWorld; }
-            set { bPartOfWorld = value; }
-        }
-        public bool Buoyant
-        {
-            get { return bBuouyant; }
-            set { bBuouyant = value; }
-        }
-        public bool BuoyancyRelativeToCOM
-        {
-            get { return bBuoyancyRelativeToCOM; }
-            set { bBuoyancyRelativeToCOM = value; }
+            get => bSolid;
+            set => bSolid = value;
         }
 
-        public Single BuoyancyCount
+        public bool StopSinkingIntoGround
         {
-            get { return buoyancyCount; }
-            set { buoyancyCount = value; }
+            get => bStopSinkingIntoGround;
+            set => bStopSinkingIntoGround = value;
+        }
+
+        public bool PartOfWorld
+        {
+            get => bPartOfWorld;
+            set => bPartOfWorld = value;
+        }
+
+        public bool Buoyant
+        {
+            get => bBuouyant;
+            set => bBuouyant = value;
+        }
+
+        public bool BuoyancyRelativeToCOM
+        {
+            get => bBuoyancyRelativeToCOM;
+            set => bBuoyancyRelativeToCOM = value;
+        }
+
+        public float BuoyancyCount
+        {
+            get => buoyancyCount;
+            set => buoyancyCount = value;
         }
 
         public Vector3 BuoyancyVector
         {
-            get { return buoyancyVector; }
-            set { buoyancyVector = value; }
+            get => buoyancyVector;
+            set => buoyancyVector = value;
         }
 
         public Vector3 Moments
         {
-            get { return moments; }
-            set { moments = value; }
+            get => moments;
+            set => moments = value;
         }
 
         public Vector3 CentreOfMass
         {
-            get { return centreOfMass; }
-            set { centreOfMass = value; }
+            get => centreOfMass;
+            set => centreOfMass = value;
         }
 
         public AccessoryShape Shape
         {
-            get { return shape; }
-            set { shape = value; }
+            get => shape;
+            set => shape = value;
         }
 
         public AccessoryBreak Break
         {
-            get { return breakable; }
-            set { breakable = value; }
+            get => breakable;
+            set => breakable = value;
         }
 
         public AccessoryJoint WorldJoint
         {
-            get { return worldJoint; }
-            set { worldJoint = value; }
+            get => worldJoint;
+            set => worldJoint = value;
         }
 
         public AccessoryJoint ChildJoint
         {
-            get { return childJoint; }
-            set { childJoint = value; }
+            get => childJoint;
+            set => childJoint = value;
         }
 
         public bool IgnoreWorld
         {
-            get { return bIgnoreWorld; }
-            set { bIgnoreWorld = value; }
+            get => bIgnoreWorld;
+            set => bIgnoreWorld = value;
         }
 
         public int Substance
         {
-            get { return substance; }
-            set { substance = value; }
+            get => substance;
+            set => substance = value;
         }
 
         public int Group
         {
-            get { return group; }
-            set { group = value; }
+            get => group;
+            set => group = value;
         }
 
         public int IgnoreGroup
         {
-            get { return ignoreGroup; }
-            set { ignoreGroup = value; }
+            get => ignoreGroup;
+            set => ignoreGroup = value;
         }
 
         public bool InfMass
         {
-            get { return bInfMass; }
-            set { bInfMass = value; }
+            get => bInfMass;
+            set => bInfMass = value;
         }
+
         public bool InfMi
         {
-            get { return bInfMi; }
-            set { bInfMi = value; }
+            get => bInfMi;
+            set => bInfMi = value;
         }
 
         public AccessoryDynamics(DocumentParser doc)
@@ -486,14 +503,14 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
         public string Name
         {
-            get { return name; }
-            set { name = value; }
+            get => name;
+            set => name = value;
         }
 
         public int Count
         {
-            get { return boxCount; }
-            set { boxCount = value; }
+            get => boxCount;
+            set => boxCount = value;
         }
 
         public AccessoryShape(DocumentParser sr)
@@ -525,25 +542,25 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
         ComponentType componentType;
         List<Vector3> points;
-        Single radius;
+        float radius;
         int group;
 
         public ComponentType Type
         {
-            get { return componentType; }
-            set { componentType = value; }
+            get => componentType;
+            set => componentType = value;
         }
 
         public int Group
         {
-            get { return group; }
-            set { group = value; }
+            get => group;
+            set => group = value;
         }
 
-        public Single Radius
+        public float Radius
         {
-            get { return radius; }
-            set { radius = value; }
+            get => radius;
+            set => radius = value;
         }
 
         public AccessoryShapeComponent(DocumentParser sr)
@@ -556,19 +573,19 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             switch (s)
             {
                 case "AlignedCuboid":
-                    this.componentType = ComponentType.AlignedCuboid;
+                    componentType = ComponentType.AlignedCuboid;
                     points.Add(sr.ReadVector3());
                     points.Add(sr.ReadVector3());
                     break;
 
                 case "Polyhedron":
-                    this.componentType = ComponentType.Polyhedron;
+                    componentType = ComponentType.Polyhedron;
                     pointCount = sr.ReadInt();
                     for (int i = 0; i < pointCount; i++) { points.Add(sr.ReadVector3()); }
                     break;
 
                 case "RoundedPolyhedron":
-                    this.componentType = ComponentType.RoundedPolyhedron;
+                    componentType = ComponentType.RoundedPolyhedron;
                     radius = sr.ReadFloat();
                     pointCount = sr.ReadInt();
                     for (int i = 0; i < pointCount; i++) { points.Add(sr.ReadVector3()); }
@@ -611,23 +628,22 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
         public int BreakImpulse
         {
-            get { return breakImpulse; }
-            set { breakImpulse = value; }
+            get => breakImpulse;
+            set => breakImpulse = value;
         }
 
         public List<AccessoryBreakReplacement> Replacements
         {
-            get { return replacements; }
-            set { replacements = value; }
+            get => replacements;
+            set => replacements = value;
         }
 
         public AccessoryBreak(DocumentParser sr)
         {
             bool bBreak = true;
             string[] settings;
-            string line;
 
-            if (!Accessory.TestLine("Breakable", sr.ReadNextLine(), out line)) { Console.WriteLine("Unexpected value: {0}", line); }
+            if (!Accessory.TestLine("Breakable", sr.ReadNextLine(), out string line)) { Console.WriteLine("Unexpected value: {0}", line); }
 
             while (bBreak)
             {
@@ -706,6 +722,14 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                 }
             }
         }
+
+        public void Save()
+        {
+            // Pointless code makes visual studio warnings go away
+            bool b = bDetatchChildren &
+                bDestroyChildren &
+                bTriggerParticles;
+        }
     }
 
     public class AccessoryBreakReplacement
@@ -728,48 +752,47 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
         public AccessoryJoint(DocumentParser sr)
         {
-            string line;
-            if (!Accessory.TestLine("joint", sr.ReadNextLine(), out line)) { Console.WriteLine("Unexpected value: {0}", line); }
+            if (!Accessory.TestLine("joint", sr.ReadNextLine(), out string line)) { Console.WriteLine("Unexpected value: {0}", line); }
 
             vertexNum = sr.ReadInt();
-            var f1 = sr.ReadFloat();
-            var v1 = sr.ReadVector3();
-            var v2 = sr.ReadVector3();
-            var v3 = sr.ReadVector3();
-            var v4 = sr.ReadVector3();
-            var v5 = sr.ReadVector3();
-            var v6 = sr.ReadVector3();
-            var v7 = sr.ReadVector3();
-            var v8 = sr.ReadVector3();
-            var i1 = sr.ReadInt();
+            float f1 = sr.ReadFloat();
+            Vector3 v1 = sr.ReadVector3();
+            Vector3 v2 = sr.ReadVector3();
+            Vector3 v3 = sr.ReadVector3();
+            Vector3 v4 = sr.ReadVector3();
+            Vector3 v5 = sr.ReadVector3();
+            Vector3 v6 = sr.ReadVector3();
+            Vector3 v7 = sr.ReadVector3();
+            Vector3 v8 = sr.ReadVector3();
+            int i1 = sr.ReadInt();
             for (int i = 0; i < i1; i++)
             {
-                var i2 = sr.ReadInt();
-                var f2 = sr.ReadFloat();
-                var f3 = sr.ReadFloat();
-                var v9 = sr.ReadVector3();
-                var v10 = sr.ReadVector3();
-                var f4 = sr.ReadFloat();
-                var s1 = sr.ReadNextLine();
-                var v11 = sr.ReadVector3();
-                var v12 = sr.ReadVector3();
+                int i2 = sr.ReadInt();
+                float f2 = sr.ReadFloat();
+                float f3 = sr.ReadFloat();
+                Vector3 v9 = sr.ReadVector3();
+                Vector3 v10 = sr.ReadVector3();
+                float f4 = sr.ReadFloat();
+                string s1 = sr.ReadNextLine();
+                Vector3 v11 = sr.ReadVector3();
+                Vector3 v12 = sr.ReadVector3();
             }
             if (!Accessory.TestLine("(no_weakness)", sr.ReadNextLine(), out line))
             {
-                var s3 = sr.ReadNextLine();
-                var v13 = sr.ReadVector3();
-                var f5 = sr.ReadFloat();
-                var s4 = sr.ReadNextLine();
-                var v15 = sr.ReadVector3();
+                string s3 = sr.ReadNextLine();
+                Vector3 v13 = sr.ReadVector3();
+                float f5 = sr.ReadFloat();
+                string s4 = sr.ReadNextLine();
+                Vector3 v15 = sr.ReadVector3();
 
-                var t = sr.ReadNextLine();
+                string t = sr.ReadNextLine();
                 if (t.Contains(","))
                 {
-                    var v_1 = Vector2.Parse(t);
+                    Vector2 v_1 = Vector2.Parse(t);
                 }
                 else
                 {
-                    var f6 = t.ToSingle();
+                    float f6 = t.ToSingle();
                 }
             }
         }

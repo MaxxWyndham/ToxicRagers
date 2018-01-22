@@ -2,14 +2,14 @@
 
 namespace ToxicRagers.CarmageddonReincarnation.Formats.Materials
 {
-    public class repulse_base : MT2
+    public class car_shader_glass : MT2
     {
-        public repulse_base() { }
+        public car_shader_glass() { }
 
-        public repulse_base(XElement xml)
+        public car_shader_glass(XElement xml)
             : base(xml)
         {
-            coreDefaults = new repulse_base
+            coreDefaults = new car_shader_glass()
             {
 
             };

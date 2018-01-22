@@ -1,9 +1,8 @@
-﻿using System;
-using ToxicRagers.Helpers;
+﻿using ToxicRagers.Helpers;
 
 namespace ToxicRagers.Carmageddon2.Helpers
 {
-    public class c2Face
+    public class C2Face
     {
         public int[] Verts = new int[3];
         public int[] UVs = new int[3];
@@ -11,17 +10,17 @@ namespace ToxicRagers.Carmageddon2.Helpers
         public Vector3 Normal = Vector3.Up;
         public int SmoothingGroup = 0;
 
-        public c2Face(int V1, int V2, int V3, int MaterialID)
+        public C2Face(int V1, int V2, int V3, int MaterialID)
             : this(V1, V2, V3, -1, -1, -1, MaterialID)
         {
         }
 
-        public c2Face(int V1, int V2, int V3, int UV1, int UV2, int UV3)
+        public C2Face(int V1, int V2, int V3, int UV1, int UV2, int UV3)
             : this(V1, V2, V3, UV1, UV2, UV3, -1)
         {
         }
 
-        public c2Face(int V1, int V2, int V3, int UV1, int UV2, int UV3, int MaterialID)
+        public C2Face(int V1, int V2, int V3, int UV1, int UV2, int UV3, int MaterialID)
         {
             Verts[0] = V1;
             Verts[1] = V2;
@@ -34,13 +33,12 @@ namespace ToxicRagers.Carmageddon2.Helpers
             this.MaterialID = MaterialID;
         }
 
-        public int V1 { get { return Verts[0]; } }
-        public int V2 { get { return Verts[1]; } }
-        public int V3 { get { return Verts[2]; } }
-
-        public int UV1 { get { return UVs[0]; } }
-        public int UV2 { get { return UVs[1]; } }
-        public int UV3 { get { return UVs[2]; } }
+        public int V1 => Verts[0];
+        public int V2 => Verts[1];
+        public int V3 => Verts[2];
+        public int UV1 => UVs[0];
+        public int UV2 => UVs[1];
+        public int UV3 => UVs[2];
 
         public void SetMaterialID(int MaterialID)
         {

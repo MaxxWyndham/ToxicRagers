@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-
-using ToxicRagers.Helpers;
-using ToxicRagers.CarmageddonReincarnation.Helpers;
 using System.Text;
+
+using ToxicRagers.CarmageddonReincarnation.Helpers;
+using ToxicRagers.Helpers;
 
 namespace ToxicRagers.CarmageddonReincarnation.Formats
 {
@@ -13,6 +13,8 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
         List<string> drivers;
         string aiScript;
         bool bEjectDriver = true;
+        Vector3 incarCamOffset = Vector3.Zero;
+        Vector3 garageCamOffset = Vector3.Zero;
         List<VehicleAttachment> attachments;
         List<VehicleWheelModule> wheelModules;
         List<VehicleMaterialMap> materialMaps;
@@ -20,65 +22,112 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
         List<Vector3> decalPoints;
         VehicleSuspensionFactors suspensionFactors;
         VehicleStats stats;
+        bool bSmallDriver = false;
+        string driverSuffix;
+        List<string> humanTrailers;
+        List<string> aiTrailers;
+        List<string> mpTrailers;
 
         public List<string> Drivers
         {
-            get { return drivers; }
-            set { drivers = value; }
+            get => drivers;
+            set => drivers = value;
+        }
+
+        public string DriverSuffix
+        {
+            get => driverSuffix;
+            set => driverSuffix = value;
         }
 
         public string AIScript
         {
-            get { return aiScript; }
-            set { aiScript = value; }
+            get => aiScript;
+            set => aiScript = value;
         }
 
         public bool EjectDriver
         {
-            get { return bEjectDriver; }
-            set { bEjectDriver = value; }
+            get => bEjectDriver;
+            set => bEjectDriver = value;
+        }
+
+        public Vector3 InCarCamOffset
+        {
+            get => incarCamOffset;
+            set => incarCamOffset = value;
+        }
+
+        public Vector3 GarageCameraOffset
+        {
+            get => garageCamOffset;
+            set => garageCamOffset = value;
+        }
+
+        public bool SmallDriver
+        {
+            get => bSmallDriver;
+            set => bSmallDriver = value;
         }
 
         public List<VehicleAttachment> Attachments
         {
-            get { return attachments; }
-            set { attachments = value; }
+            get => attachments;
+            set => attachments = value;
         }
 
         public List<VehicleWheelModule> WheelModules
         {
-            get { return wheelModules; }
-            set { wheelModules = value; }
+            get => wheelModules;
+            set => wheelModules = value;
         }
 
         public List<VehicleMaterialMap> MaterialMaps
         {
-            get { return materialMaps; }
-            set { materialMaps = value; }
+            get => materialMaps;
+            set => materialMaps = value;
         }
 
         public List<VehicleWheelMap> WheelMaps
         {
-            get { return wheelMaps; }
-            set { wheelMaps = value; }
+            get => wheelMaps;
+            set => wheelMaps = value;
         }
 
         public List<Vector3> DecalPoints
         {
-            get { return decalPoints; }
-            set { decalPoints = value; }
+            get => decalPoints;
+            set => decalPoints = value;
         }
 
         public VehicleSuspensionFactors SuspensionFactors
         {
-            get { return suspensionFactors; }
-            set { suspensionFactors = value; }
+            get => suspensionFactors;
+            set => suspensionFactors = value;
         }
 
         public VehicleStats Stats
         {
-            get { return stats; }
-            set { stats = value; }
+            get => stats;
+            set => stats = value;
+        }
+
+        public List<string> HumanTrailer
+        {
+            get => humanTrailers;
+            set => humanTrailers = value;
+        }
+
+        public List<string> AITrailer
+        {
+            get => aiTrailers;
+            set => aiTrailers = value;
+        }
+
+        public List<string> MPTrailer
+        {
+            get => mpTrailers;
+            set => mpTrailers = value;
         }
 
         public VehicleSetupConfig()
@@ -90,13 +139,16 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             wheelMaps = new List<VehicleWheelMap>();
             decalPoints = new List<Vector3>();
             stats = new VehicleStats();
+            humanTrailers = new List<string>();
+            aiTrailers = new List<string>();
+            mpTrailers = new List<string>();
         }
 
         public static VehicleSetupConfig Load(string pathToFile)
         {
             VehicleSetupConfig setup = new VehicleSetupConfig();
 
-            using (var doc = new DocumentParser(pathToFile))
+            using (DocumentParser doc = new DocumentParser(pathToFile))
             {
                 string line = doc.ReadFirstLine();
 
@@ -109,6 +161,10 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                             {
                                 setup.Drivers.Add(doc.ReadNextLine());
                             }
+                            break;
+
+                        case "[driver_suffix]":
+                            setup.DriverSuffix = doc.ReadNextLine();
                             break;
 
                         case "[attachment]":
@@ -154,6 +210,39 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                             }
                             break;
 
+                        case "[in_car_cam_offset]":
+                            setup.InCarCamOffset = doc.ReadVector3();
+                            break;
+
+                        case "[garage_camera_offset]":
+                            setup.GarageCameraOffset = doc.ReadVector3();
+                            break;
+
+                        case "[small_driver]":
+                            setup.SmallDriver = true;
+                            break;
+
+                        case "[Human_Trailer]":
+                            while (!doc.NextLineIsASection() && !doc.EOF())
+                            {
+                                setup.HumanTrailer.Add(doc.ReadNextLine());
+                            }
+                            break;
+
+                        case "[AI_Trailer]":
+                            while (!doc.NextLineIsASection() && !doc.EOF())
+                            {
+                                setup.AITrailer.Add(doc.ReadNextLine());
+                            }
+                            break;
+
+                        case "[MP_Trailer]":
+                            while (!doc.NextLineIsASection() && !doc.EOF())
+                            {
+                                setup.MPTrailer.Add(doc.ReadNextLine());
+                            }
+                            break;
+
                         default:
                             Console.WriteLine(pathToFile);
                             throw new NotImplementedException("Unexpected [SECTION]: " + line);
@@ -168,7 +257,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
         public void Save(string path)
         {
-            using (var sw = new StreamWriter(path + "\\vehicle_setup.cfg"))
+            using (StreamWriter sw = new StreamWriter(path + "\\vehicle_setup.cfg"))
             {
                 if (drivers.Count > 0)
                 {
@@ -177,24 +266,24 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                     sw.WriteLine();
                 }
 
-                foreach (var attachment in attachments)
+                foreach (VehicleAttachment attachment in attachments)
                 {
                     sw.WriteLine(attachment.Write());
                 }
 
-                foreach (var wheelModule in wheelModules)
+                foreach (VehicleWheelModule wheelModule in wheelModules)
                 {
                     sw.WriteLine(wheelModule.Write());
                 }
 
                 if (suspensionFactors != null) { sw.WriteLine(suspensionFactors.Write()); }
 
-                foreach (var materialMap in materialMaps)
+                foreach (VehicleMaterialMap materialMap in materialMaps)
                 {
                     sw.WriteLine(materialMap.Write());
                 }
 
-                foreach (var wheelMap in wheelMaps)
+                foreach (VehicleWheelMap wheelMap in wheelMaps)
                 {
                     sw.WriteLine(wheelMap.Write());
                 }
@@ -228,38 +317,38 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
         public AttachmentType Type
         {
-            get { return attachmentType; }
-            set { attachmentType = value; }
+            get => attachmentType;
+            set => attachmentType = value;
         }
 
         public VehicleAttachmentFModEngine FModEngine
         {
-            get { return engine; }
-            set { engine = value; }
+            get => engine;
+            set => engine = value;
         }
 
         public VehicleAttachmentComplicatedWheels Wheels
         {
-            get { return wheels; }
-            set { wheels = value; }
+            get => wheels;
+            set => wheels = value;
         }
 
         public VehicleAttachmentExhaust Exhaust
         {
-            get { return exhaust; }
-            set { exhaust = value; }
+            get => exhaust;
+            set => exhaust = value;
         }
 
         public string Horn
         {
-            get { return horn; }
-            set { horn = value; }
+            get => horn;
+            set => horn = value;
         }
 
         public string ReverseLightSound
         {
-            get { return reverseLightSound; }
-            set { reverseLightSound = value; }
+            get => reverseLightSound;
+            set => reverseLightSound = value;
         }
 
         public VehicleAttachment()
@@ -273,40 +362,40 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             switch (s)
             {
                 case "DynamicsWheels":
-                    this.attachmentType = AttachmentType.DynamicsWheels;
+                    attachmentType = AttachmentType.DynamicsWheels;
                     break;
 
                 case "ComplicatedWheels":
-                    this.attachmentType = AttachmentType.ComplicatedWheels;
-                    this.wheels = new VehicleAttachmentComplicatedWheels();
+                    attachmentType = AttachmentType.ComplicatedWheels;
+                    wheels = new VehicleAttachmentComplicatedWheels();
 
                     while (!doc.NextLineIsASection())
                     {
-                        var cw = doc.ReadStringArray(2);
+                        string[] cw = doc.ReadStringArray(2);
 
                         switch (cw[0])
                         {
                             case "fl_wheel_folder_name":
-                                this.wheels.FLWheel = cw[1];
+                                wheels.FLWheel = cw[1];
                                 break;
 
                             case "fr_wheel_folder_name":
-                                this.wheels.FRWheel = cw[1];
+                                wheels.FRWheel = cw[1];
                                 break;
 
                             case "rl_wheel_folder_name":
-                                this.wheels.RLWheel = cw[1];
+                                wheels.RLWheel = cw[1];
                                 break;
 
                             case "rr_wheel_folder_name":
-                                this.wheels.RRWheel = cw[1];
+                                wheels.RRWheel = cw[1];
                                 break;
 
                             case "wheel_folder_name":
-                                this.wheels.FLWheel = cw[1];
-                                this.wheels.FRWheel = cw[1];
-                                this.wheels.RLWheel = cw[1];
-                                this.wheels.RRWheel = cw[1];
+                                wheels.FLWheel = cw[1];
+                                wheels.FRWheel = cw[1];
+                                wheels.RLWheel = cw[1];
+                                wheels.RRWheel = cw[1];
                                 break;
 
                             default:
@@ -316,37 +405,45 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                     break;
 
                 case "DynamicsFmodEngine":
-                    this.attachmentType = AttachmentType.DynamicsFmodEngine;
-                    this.engine = new VehicleAttachmentFModEngine();
+                    attachmentType = AttachmentType.DynamicsFmodEngine;
+                    engine = new VehicleAttachmentFModEngine();
 
                     while (!doc.NextLineIsASection())
                     {
-                        var dfe = doc.ReadStringArray(2);
+                        string[] dfe = doc.ReadStringArray(2);
 
                         switch (dfe[0])
                         {
                             case "engine":
-                                this.engine.Engine = dfe[1];
+                                engine.Engine = dfe[1];
                                 break;
 
                             case "rpmsmooth":
-                                this.engine.RPMSmooth = Single.Parse(dfe[1], ToxicRagers.Culture);
+                                engine.RPMSmooth = float.Parse(dfe[1], ToxicRagers.Culture);
                                 break;
 
                             case "onloadsmooth":
-                                this.engine.OnLoadSmooth = Single.Parse(dfe[1], ToxicRagers.Culture);
+                                engine.OnLoadSmooth = float.Parse(dfe[1], ToxicRagers.Culture);
                                 break;
 
                             case "offloadsmooth":
-                                this.engine.OffLoadSmooth = Single.Parse(dfe[1], ToxicRagers.Culture);
+                                engine.OffLoadSmooth = float.Parse(dfe[1], ToxicRagers.Culture);
                                 break;
 
                             case "max_revs":
-                                this.engine.MaxRevs = int.Parse(dfe[1]);
+                                engine.MaxRevs = int.Parse(dfe[1]);
                                 break;
 
                             case "min_revs":
-                                this.engine.MinRevs = int.Parse(dfe[1]);
+                                engine.MinRevs = int.Parse(dfe[1]);
+                                break;
+
+                            case "max_speed":
+                                engine.MaxSpeed = int.Parse(dfe[1]);
+                                break;
+
+                            case "loadmin":
+                                engine.LoadMin = float.Parse(dfe[1], ToxicRagers.Culture);
                                 break;
 
                             default:
@@ -356,32 +453,40 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                     break;
 
                 case "Horn":
-                    this.attachmentType = AttachmentType.Horn;
+                    attachmentType = AttachmentType.Horn;
 
-                    var h = doc.ReadStringArray(2);
-                    this.horn = h[1];
+                    string[] h = doc.ReadStringArray(2);
+                    horn = h[1];
                     break;
 
                 case "ExhaustParticles":
-                    this.attachmentType = AttachmentType.ExhaustParticles;
-                    this.exhaust = new VehicleAttachmentExhaust();
+                    attachmentType = AttachmentType.ExhaustParticles;
+                    exhaust = new VehicleAttachmentExhaust();
 
                     while (!doc.NextLineIsASection())
                     {
-                        var ep = doc.ReadStringArray(2);
+                        string[] ep = doc.ReadStringArray(2);
 
                         switch (ep[0])
                         {
                             case "vfx":
-                                this.exhaust.VFX = ep[1];
+                                exhaust.VFX = ep[1];
                                 break;
 
                             case "underwater_vfx":
-                                this.exhaust.UnderwaterVFX = ep[1];
+                                exhaust.UnderwaterVFX = ep[1];
                                 break;
 
                             case "anchor":
-                                this.exhaust.Anchor = ep[1];
+                                exhaust.Anchor = ep[1];
+                                break;
+
+                            case "multiplier":
+                                exhaust.Multiplier = float.Parse(ep[1], ToxicRagers.Culture);
+                                break;
+
+                            case "neutral_multiplier":
+                                exhaust.NeutralMultiplier = float.Parse(ep[1], ToxicRagers.Culture);
                                 break;
 
                             default:
@@ -391,27 +496,27 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                     break;
 
                 case "ReverseLightSound":
-                    this.attachmentType = AttachmentType.ReverseLightSound;
+                    attachmentType = AttachmentType.ReverseLightSound;
 
-                    var rl = doc.ReadStringArray(2);
-                    this.reverseLightSound = rl[1];
+                    string[] rl = doc.ReadStringArray(2);
+                    reverseLightSound = rl[1];
                     break;
 
                 case "ContinuousSound":
-                    this.attachmentType = AttachmentType.ContinuousSound;
+                    attachmentType = AttachmentType.ContinuousSound;
 
                     while (!doc.NextLineIsASection())
                     {
-                        var cs = doc.ReadStringArray(2);
+                        string[] cs = doc.ReadStringArray(2);
 
                         switch (cs[0])
                         {
                             case "sound":
-                                this.continuousSound = cs[1];
+                                continuousSound = cs[1];
                                 break;
 
                             case "lump":
-                                this.continuousSoundLump = cs[1];
+                                continuousSoundLump = cs[1];
                                 break;
 
                             default:
@@ -427,7 +532,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
         public string Write()
         {
-            var sb = new StringBuilder();
+            StringBuilder sb = new StringBuilder();
             sb.AppendLine("[attachment]");
             sb.AppendLine(attachmentType.ToString());
 
@@ -453,55 +558,69 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
     public class VehicleAttachmentFModEngine
     {
         string engine;
-        Single rpmSmooth;
-        Single onLoadSmooth;
-        Single offLoadSmooth;
+        float rpmSmooth;
+        float onLoadSmooth;
+        float offLoadSmooth;
         int maxRevs;
         int minRevs;
+        int maxSpeed;
+        float loadMin;
 
         public string Engine
         {
-            get { return engine; }
-            set { engine = value; }
+            get => engine;
+            set => engine = value;
         }
 
-        public Single RPMSmooth
+        public float RPMSmooth
         {
-            get { return rpmSmooth; }
-            set { rpmSmooth = value; }
+            get => rpmSmooth;
+            set => rpmSmooth = value;
         }
 
-        public Single OnLoadSmooth
+        public float OnLoadSmooth
         {
-            get { return onLoadSmooth; }
-            set { onLoadSmooth = value; }
+            get => onLoadSmooth;
+            set => onLoadSmooth = value;
         }
 
-        public Single OffLoadSmooth
+        public float OffLoadSmooth
         {
-            get { return offLoadSmooth; }
-            set { offLoadSmooth = value; }
+            get => offLoadSmooth;
+            set => offLoadSmooth = value;
         }
 
         public int MaxRevs
         {
-            get { return maxRevs; }
-            set { maxRevs = value; }
+            get => maxRevs;
+            set => maxRevs = value;
         }
 
         public int MinRevs
         {
-            get { return minRevs; }
-            set { minRevs = value; }
+            get => minRevs;
+            set => minRevs = value;
+        }
+
+        public int MaxSpeed
+        {
+            get => maxSpeed;
+            set => maxSpeed = value;
+        }
+
+        public float LoadMin
+        {
+            get => loadMin;
+            set => loadMin = value;
         }
 
         public override string ToString()
         {
-            var sb = new StringBuilder();
+            StringBuilder sb = new StringBuilder();
             sb.AppendFormat("engine {0}\r\n", engine);
-            if (rpmSmooth != default(Single)) { sb.AppendFormat("rpmsmooth {0}\r\n", rpmSmooth); }
-            if (onLoadSmooth != default(Single)) { sb.AppendFormat("onloadsmooth {0}\r\n", onLoadSmooth); }
-            if (offLoadSmooth != default(Single)) { sb.AppendFormat("offloadsmooth {0}\r\n", offLoadSmooth); }
+            if (rpmSmooth != default(float)) { sb.AppendFormat("rpmsmooth {0}\r\n", rpmSmooth); }
+            if (onLoadSmooth != default(float)) { sb.AppendFormat("onloadsmooth {0}\r\n", onLoadSmooth); }
+            if (offLoadSmooth != default(float)) { sb.AppendFormat("offloadsmooth {0}\r\n", offLoadSmooth); }
             return sb.ToString();
         }
     }
@@ -511,23 +630,37 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
         string vfx;
         string underwaterVFX;
         string anchor;
+        float multiplier;
+        float neutralMultiplier;
 
         public string VFX
         {
-            get { return vfx; }
-            set { vfx = value; }
+            get => vfx;
+            set => vfx = value;
         }
 
         public string UnderwaterVFX
         {
-            get { return underwaterVFX; }
-            set { underwaterVFX = value; }
+            get => underwaterVFX;
+            set => underwaterVFX = value;
         }
 
         public string Anchor
         {
-            get { return anchor; }
-            set { anchor = value; }
+            get => anchor;
+            set => anchor = value;
+        }
+
+        public float Multiplier
+        {
+            get => multiplier;
+            set => multiplier = value;
+        }
+
+        public float NeutralMultiplier
+        {
+            get => neutralMultiplier;
+            set => neutralMultiplier = value;
         }
     }
 
@@ -537,11 +670,36 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
         string frWheel;
         string rlWheel;
         string rrWheel;
+        string d4;
+        string d5;
+        string d6;
+        string d7;
+        string d8;
+        string d9;
+        string d10;
+        string d11;
+        string garageSet;
 
-        public string FLWheel { get { return flWheel; } set { flWheel = value; } }
-        public string FRWheel { get { return frWheel; } set { frWheel = value; } }
-        public string RLWheel { get { return rlWheel; } set { rlWheel = value; } }
-        public string RRWheel { get { return rrWheel; } set { rrWheel = value; } }
+        public string FLWheel { get => flWheel; set => flWheel = value; }
+        public string FRWheel { get => frWheel; set => frWheel = value; }
+        public string RLWheel { get => rlWheel; set => rlWheel = value; }
+        public string RRWheel { get => rrWheel; set => rrWheel = value; }
+
+
+        public string D4 { get => d4; set => d4 = value; }
+        public string D5 { get => d5; set => d5 = value; }
+        public string D6 { get => d6; set => d6 = value; }
+        public string D7 { get => d7; set => d7 = value; }
+        public string D8 { get => d8; set => d8 = value; }
+        public string D9 { get => d9; set => d9 = value; }
+        public string D10 { get => d10; set => d10 = value; }
+        public string D11 { get => d11; set => d11 = value; }
+
+        public string GarageSet
+        {
+            get => garageSet;
+            set => garageSet = value;
+        }
 
         public override string ToString()
         {
@@ -569,29 +727,57 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
         string skidMarkImage;
         string skidNoiseSound;
         string tyreParticleVFX;
+        bool bOnlyTrails;
+        bool bUseScrapeSounds;
+        int scrapeSoundIndex;
+        int volume;
 
         public WheelModuleType Type
         {
-            get { return wheelModuleType; }
-            set { wheelModuleType = value; }
+            get => wheelModuleType;
+            set => wheelModuleType = value;
         }
 
         public string SkidMarkImage
         {
-            get { return skidMarkImage; }
-            set { skidMarkImage = value; }
+            get => skidMarkImage;
+            set => skidMarkImage = value;
         }
 
         public string SkidNoiseSound
         {
-            get { return skidNoiseSound; }
-            set { skidNoiseSound = value; }
+            get => skidNoiseSound;
+            set => skidNoiseSound = value;
         }
 
         public string TyreParticleVFX
         {
-            get { return tyreParticleVFX; }
-            set { tyreParticleVFX = value; }
+            get => tyreParticleVFX;
+            set => tyreParticleVFX = value;
+        }
+
+        public bool OnlyTrails
+        {
+            get => bOnlyTrails;
+            set => bOnlyTrails = value;
+        }
+
+        public bool UseScrapeSounds
+        {
+            get => bUseScrapeSounds;
+            set => bUseScrapeSounds = value;
+        }
+
+        public int ScrapeSoundIndex
+        {
+            get => scrapeSoundIndex;
+            set => scrapeSoundIndex = value;
+        }
+
+        public int Volume
+        {
+            get => volume;
+            set => volume = value;
         }
 
         public VehicleWheelModule()
@@ -605,19 +791,31 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             switch (s)
             {
                 case "SkidMarks":
-                    this.wheelModuleType = WheelModuleType.SkidMarks;
-                    this.skidMarkImage = doc.ReadStringArray(2)[1];
+                    wheelModuleType = WheelModuleType.SkidMarks;
+                    skidMarkImage = doc.ReadStringArray(2)[1];
+                    if (doc.ReadNextLine() == "only_trails") { bOnlyTrails = true; } else { doc.Rewind(); }
                     break;
 
                 case "TyreParticles":
                 case "TyreSmokeVFX":
-                    this.wheelModuleType = WheelModuleType.TyreParticles;
-                    this.tyreParticleVFX = doc.ReadStringArray(2)[1];
+                    wheelModuleType = WheelModuleType.TyreParticles;
+                    tyreParticleVFX = doc.ReadStringArray(2)[1];
                     break;
 
                 case "SkidNoise":
-                    this.wheelModuleType = WheelModuleType.SkidNoise;
-                    this.skidNoiseSound = doc.ReadStringArray(2)[1];
+                    wheelModuleType = WheelModuleType.SkidNoise;
+                    if (doc.ReadNextLine() == "use_scrape_sounds")
+                    {
+                        bUseScrapeSounds = true;
+                        scrapeSoundIndex = int.Parse(doc.ReadStringArray(2)[1]);
+                        volume = int.Parse(doc.ReadStringArray(2)[1]);
+                    }
+                    else
+                    {
+                        doc.Rewind();
+                        skidNoiseSound = doc.ReadStringArray(2)[1];
+                    }
+
                     break;
 
                 default:
@@ -627,7 +825,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
         public string Write()
         {
-            var sb = new StringBuilder();
+            StringBuilder sb = new StringBuilder();
             sb.AppendLine("[wheel_module]");
             sb.AppendLine(wheelModuleType.ToString());
 
@@ -657,61 +855,70 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
         string localName;
         string paint;
         int appID;
+        string[] paintFibreDam = new string[5];
 
         public string Name
         {
-            get { return name; }
-            set { name = value; }
+            get => name;
+            set => name = value;
         }
 
         public Vector3 Shrapnel
         {
-            get { return shrapnel; }
-            set { shrapnel = value; }
+            get => shrapnel;
+            set => shrapnel = value;
         }
 
         public string Localisation
         {
-            get { return localName; }
-            set { localName = value; }
+            get => localName;
+            set => localName = value;
         }
 
         public string Paint
         {
-            get { return paint; }
-            set { paint = value; }
+            get => paint;
+            set => paint = value;
         }
 
         public int MaterialMapProductID
         {
-            get { return appID; }
-            set { appID = value; }
+            get => appID;
+            set => appID = value;
         }
 
         public VehicleMaterialMap(DocumentParser doc)
         {
-            this.name = doc.ReadNextLine();
+            name = doc.ReadNextLine();
 
             while (!doc.NextLineIsASection())
             {
-                var mm = doc.ReadStringArray();
+                string[] mm = doc.ReadStringArray();
 
                 switch (mm[0].ToLower())
                 {
                     case "shrapnel":
-                        this.shrapnel = Vector3.Parse(mm[1]);
+                        shrapnel = Vector3.Parse(mm[1]);
                         break;
 
                     case "localise":
-                        this.localName = mm[1];
+                        localName = mm[1];
                         break;
 
                     case "paint":
-                        this.paint = mm[2];
+                        paint = mm[2];
                         break;
 
                     case "material_map_product_id":
-                        this.appID = mm[1].ToInt();
+                        appID = mm[1].ToInt();
+                        break;
+
+                    case "paintfiberdam_1":
+                    case "paintfiberdam_2":
+                    case "paintfiberdam_3":
+                    case "paintfiberdam_4":
+                    case "paintfiberdam_5":
+                        paintFibreDam[int.Parse(mm[0].Substring(mm[0].Length - 1)) - 1] = mm[2];
                         break;
 
                     default:
@@ -722,7 +929,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
         public string Write()
         {
-            var sb = new StringBuilder();
+            StringBuilder sb = new StringBuilder();
             sb.AppendLine("[material_map]");
             sb.AppendLine();
             return sb.ToString();
@@ -737,20 +944,20 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
         public string Name
         {
-            get { return name; }
-            set { name = value; }
+            get => name;
+            set => name = value;
         }
 
         public string Localisation
         {
-            get { return localName; }
-            set { localName = value; }
+            get => localName;
+            set => localName = value;
         }
 
         public VehicleAttachmentComplicatedWheels Wheels
         {
-            get { return wheels; }
-            set { wheels = value; }
+            get => wheels;
+            set => wheels = value;
         }
 
         public VehicleWheelMap()
@@ -759,40 +966,76 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
         public VehicleWheelMap(DocumentParser doc)
         {
-            this.name = doc.ReadNextLine();
-            this.wheels = new VehicleAttachmentComplicatedWheels();
+            name = doc.ReadNextLine();
+            wheels = new VehicleAttachmentComplicatedWheels();
 
             while (!doc.NextLineIsASection() && !doc.EOF())
             {
-                var wm = doc.ReadStringArray(2);
+                string[] wm = doc.ReadStringArray(2);
 
                 switch (wm[0])
                 {
                     case "localise":
-                        this.localName = wm[1];
+                        localName = wm[1];
                         break;
 
                     case "fl_wheel_folder_name":
-                        this.wheels.FLWheel = wm[1];
+                        wheels.FLWheel = wm[1];
                         break;
 
                     case "fr_wheel_folder_name":
-                        this.wheels.FRWheel = wm[1];
+                        wheels.FRWheel = wm[1];
                         break;
 
                     case "rl_wheel_folder_name":
-                        this.wheels.RLWheel = wm[1];
+                        wheels.RLWheel = wm[1];
                         break;
 
                     case "rr_wheel_folder_name":
-                        this.wheels.RRWheel = wm[1];
+                        wheels.RRWheel = wm[1];
                         break;
 
                     case "wheel_folder_name":
-                        this.wheels.FLWheel = wm[1];
-                        this.wheels.FRWheel = wm[1];
-                        this.wheels.RLWheel = wm[1];
-                        this.wheels.RRWheel = wm[1];
+                        wheels.FLWheel = wm[1];
+                        wheels.FRWheel = wm[1];
+                        wheels.RLWheel = wm[1];
+                        wheels.RRWheel = wm[1];
+                        break;
+
+                    case "D4_wheel_folder_name":
+                        wheels.D4 = wm[1];
+                        break;
+
+                    case "D5_wheel_folder_name":
+                        wheels.D5 = wm[1];
+                        break;
+
+                    case "D6_wheel_folder_name":
+                        wheels.D6 = wm[1];
+                        break;
+
+                    case "D7_wheel_folder_name":
+                        wheels.D7 = wm[1];
+                        break;
+
+                    case "D8_wheel_folder_name":
+                        wheels.D8 = wm[1];
+                        break;
+
+                    case "D9_wheel_folder_name":
+                        wheels.D9 = wm[1];
+                        break;
+
+                    case "D10_wheel_folder_name":
+                        wheels.D10 = wm[1];
+                        break;
+
+                    case "D11_wheel_folder_name":
+                        wheels.D11 = wm[1];
+                        break;
+
+                    case "garage_set":
+                        wheels.GarageSet = wm[1];
                         break;
 
                     default:
@@ -803,7 +1046,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
         public string Write()
         {
-            var sb = new StringBuilder();
+            StringBuilder sb = new StringBuilder();
             sb.AppendLine("[wheel_map]");
             sb.AppendLine(name);
             sb.AppendLine(string.Format("localise {0}", localName));
@@ -815,57 +1058,57 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
     public class VehicleSuspensionFactors
     {
-        Single maxCompression;
-        Single rideHeight;
+        float maxCompression;
+        float rideHeight;
         int maxSteeringLock;
-        Single maxExtension;
+        float maxExtension;
 
-        public Single MaxCompression
+        public float MaxCompression
         {
-            get { return maxCompression; }
-            set { maxCompression = value; }
+            get => maxCompression;
+            set => maxCompression = value;
         }
 
-        public Single RightHeight
+        public float RightHeight
         {
-            get { return rideHeight; }
-            set { rideHeight = value; }
+            get => rideHeight;
+            set => rideHeight = value;
         }
 
         public int MaxSteeringLock
         {
-            get { return maxSteeringLock; }
-            set { maxSteeringLock = value; }
+            get => maxSteeringLock;
+            set => maxSteeringLock = value;
         }
 
-        public Single MaxExtension
+        public float MaxExtension
         {
-            get { return maxExtension; }
-            set { maxExtension = value; }
+            get => maxExtension;
+            set => maxExtension = value;
         }
 
         public VehicleSuspensionFactors(DocumentParser doc)
         {
             while (!doc.NextLineIsASection())
             {
-                var sf = doc.ReadStringArray(2);
+                string[] sf = doc.ReadStringArray(2);
 
                 switch (sf[0])
                 {
                     case "max_compression":
-                        this.maxCompression = sf[1].ToSingle();
+                        maxCompression = sf[1].ToSingle();
                         break;
 
                     case "ride_height":
-                        this.rideHeight = sf[1].ToSingle();
+                        rideHeight = sf[1].ToSingle();
                         break;
 
                     case "max_steering_lock":
-                        this.maxSteeringLock = sf[1].ToInt();
+                        maxSteeringLock = sf[1].ToInt();
                         break;
 
                     case "max_extension":
-                        this.maxExtension = sf[1].ToSingle();
+                        maxExtension = sf[1].ToSingle();
                         break;
 
                     default:
@@ -876,7 +1119,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
         public string Write()
         {
-            var sb = new StringBuilder();
+            StringBuilder sb = new StringBuilder();
             sb.AppendLine("[suspension_factors]");
             sb.AppendLine();
             return sb.ToString();
@@ -886,44 +1129,44 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
     public class VehicleStats
     {
         int topSpeed;
-        Single time;
-        Single weight;
-        Single toughness;
-        Single unlockLevel = -1;
+        float time;
+        float weight;
+        float toughness;
+        float unlockLevel = -1;
 
         public int TopSpeed
         {
-            get { return topSpeed; }
-            set { topSpeed = value; }
+            get => topSpeed;
+            set => topSpeed = value;
         }
 
-        public Single Time
+        public float Time
         {
-            get { return time; }
-            set { time = value; }
+            get => time;
+            set => time = value;
         }
 
-        public Single Weight
+        public float Weight
         {
-            get { return weight; }
-            set { weight = value; }
+            get => weight;
+            set => weight = value;
         }
 
-        public Single Toughness
+        public float Toughness
         {
-            get { return toughness; }
-            set { toughness = value; }
+            get => toughness;
+            set => toughness = value;
         }
 
-        public Single UnlockLevel
+        public float UnlockLevel
         {
-            get { return unlockLevel; }
-            set { unlockLevel = value; }
+            get => unlockLevel;
+            set => unlockLevel = value;
         }
 
         public string Write()
         {
-            var sb = new StringBuilder();
+            StringBuilder sb = new StringBuilder();
             sb.AppendLine("[stats]");
             sb.AppendLine(string.Format("{0}// top speed; they must be in this order and not have spaces before the comments", topSpeed));
             sb.AppendLine(string.Format("{0}// time 0 -60", time));

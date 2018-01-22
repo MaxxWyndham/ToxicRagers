@@ -1,36 +1,69 @@
 ﻿using System;
 using System.Collections.Generic;
-using ToxicRagers.Helpers;
+
 using ToxicRagers.CarmageddonReincarnation.Helpers;
+using ToxicRagers.Helpers;
 
 namespace ToxicRagers.CarmageddonReincarnation.Formats
 {
     public class Routes
     {
+        List<string> raceNames;
+        List<string> raceWriteups;
+        List<string> raceImages;
+        List<string> raceBackgrounds;
         List<string> races;
         List<AINode> nodes;
         List<AILink> links;
 
+        public List<string> RaceNames
+        {
+            get => raceNames;
+            set => raceNames = value;
+        }
+
+        public List<string> RaceWriteups
+        {
+            get => raceWriteups;
+            set => raceWriteups = value;
+        }
+
+        public List<string> RaceImages
+        {
+            get => raceImages;
+            set => raceImages = value;
+        }
+
+        public List<string> RaceBackgrounds
+        {
+            get => raceBackgrounds;
+            set => raceBackgrounds = value;
+        }
+
         public List<string> Races
         {
-            get { return races; }
-            set { races = value; }
+            get => races;
+            set => races = value;
         }
 
         public List<AINode> Nodes
         {
-            get { return nodes; }
-            set { nodes = value; }
+            get => nodes;
+            set => nodes = value;
         }
 
         public List<AILink> Links
         {
-            get { return links; }
-            set { links = value; }
+            get => links;
+            set => links = value;
         }
 
         public Routes()
         {
+            raceNames = new List<string>();
+            raceWriteups = new List<string>();
+            raceImages = new List<string>();
+            raceBackgrounds = new List<string>();
             races = new List<string>();
             nodes = new List<AINode>();
             links = new List<AILink>();
@@ -40,7 +73,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
         {
             Routes routes = new Routes();
 
-            using (var doc = new DocumentParser(pathToFile))
+            using (DocumentParser doc = new DocumentParser(pathToFile))
             {
                 string line = doc.ReadNextLine();
 
@@ -50,6 +83,47 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                     {
                         case "[LUMP]":
                             doc.ReadNextLine();  // level
+                            line = doc.ReadNextLine();
+                            break;
+
+                        case "[ENVIRONMENT]":
+                            doc.ReadNextLine();
+                            line = doc.ReadNextLine();
+                            break;
+
+                        case "[RACE_NAMES]":
+                            while (!doc.NextLineIsASection())
+                            {
+                                routes.raceNames.Add(doc.ReadNextLine());
+                            }
+
+                            line = doc.ReadNextLine();
+                            break;
+
+                        case "[RACE_WRITEUP]":
+                            while (!doc.NextLineIsASection())
+                            {
+                                routes.raceWriteups.Add(doc.ReadNextLine());
+                            }
+
+                            line = doc.ReadNextLine();
+                            break;
+
+                        case "[RACE_IMAGES]":
+                            while (!doc.NextLineIsASection())
+                            {
+                                routes.raceImages.Add(doc.ReadNextLine());
+                            }
+
+                            line = doc.ReadNextLine();
+                            break;
+
+                        case "[RACE_BACKGROUNDS]":
+                            while (!doc.NextLineIsASection())
+                            {
+                                routes.raceBackgrounds.Add(doc.ReadNextLine());
+                            }
+
                             line = doc.ReadNextLine();
                             break;
 
@@ -77,7 +151,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
                         case "[AINODE]":
                             bool bAINode = true;
-                            var node = new AINode();
+                            AINode node = new AINode();
 
                             while (bAINode)
                             {
@@ -120,7 +194,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
                         case "[AILINK]":
                             bool bAILink = true;
-                            var link = new AILink();
+                            AILink link = new AILink();
 
                             while (bAILink)
                             {
@@ -188,38 +262,38 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
         public int Index
         {
-            get { return index; }
-            set { index = value; }
+            get => index;
+            set => index = value;
         }
 
         public int Type
         {
-            get { return type; }
-            set { type = value; }
+            get => type;
+            set => type = value;
         }
 
         public float Radius
         {
-            get { return radius; }
-            set { radius = value; }
+            get => radius;
+            set => radius = value;
         }
 
         public Vector3 Position
         {
-            get { return position; }
-            set { position = value; }
+            get => position;
+            set => position = value;
         }
 
         public Vector3 RaceLine
         {
-            get { return raceLine; }
-            set { raceLine = value; }
+            get => raceLine;
+            set => raceLine = value;
         }
 
         public float RaceLineOffset
         {
-            get { return raceLineOffset; }
-            set { raceLineOffset = value; }
+            get => raceLineOffset;
+            set => raceLineOffset = value;
         }
     }
 
@@ -242,50 +316,50 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
         public int NodeA
         {
-            get { return nodeA; }
-            set { nodeA = value; }
+            get => nodeA;
+            set => nodeA = value;
         }
 
         public int NodeB
         {
-            get { return nodeB; }
-            set { nodeB = value; }
+            get => nodeB;
+            set => nodeB = value;
         }
 
         public string Value
         {
-            get { return name; }
-            set { name = value; }
+            get => name;
+            set => name = value;
         }
 
         public float Width
         {
-            get { return width; }
-            set { width = value; }
+            get => width;
+            set => width = value;
         }
 
         public int RaceValueAmount
         {
-            get { return raceValueAmount; }
-            set { raceValueAmount = value; }
+            get => raceValueAmount;
+            set => raceValueAmount = value;
         }
 
-        public  string RaceValue
+        public string RaceValue
         {
-            get { return raceValue; }
-            set { raceValue = value; }
+            get => raceValue;
+            set => raceValue = value;
         }
 
         public List<int> Types
         {
-            get { return types; }
-            set { types = value; }
+            get => types;
+            set => types = value;
         }
 
         public bool OneWay
         {
-            get { return oneWay; }
-            set { oneWay = value; }
+            get => oneWay;
+            set => oneWay = value;
         }
     }
 }

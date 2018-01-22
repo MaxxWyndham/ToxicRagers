@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 
-using ToxicRagers.Helpers;
 using ToxicRagers.Carmageddon.Helpers;
+using ToxicRagers.Helpers;
 
 namespace ToxicRagers.Carmageddon.Formats
 {
@@ -125,8 +125,8 @@ namespace ToxicRagers.Carmageddon.Formats
         int[] rightRearSuspension;
         int[] drivenWheels;
         int[] nonDrivenWheels;
-        Single drivenWheelDiameter;
-        Single nonDrivenWheelDiameter;
+        float drivenWheelDiameter;
+        float nonDrivenWheelDiameter;
         List<Funk> funks;
         List<Groove> grooves;
         List<Crush> crushes;
@@ -137,53 +137,53 @@ namespace ToxicRagers.Carmageddon.Formats
         Vector3 centreOfMass;
         List<BoundingBox> boundingBoxes;
         List<Vector3> additionalPoints;
-        Single turningCircleRadius;
+        float turningCircleRadius;
         Vector2 suspensionGive; // Forward, Back
-        Single rideHeight;
-        Single dampingFactor;
-        Single massInTonnes;
-        Single fReduction;
+        float rideHeight;
+        float dampingFactor;
+        float massInTonnes;
+        float fReduction;
         Vector2 frictionAngle;
         Vector3 widthHeightLength;
-        Single tractionFractionalMultiplier;
-        Single downforceSpeed;
-        Single brakeMultiplier;
-        Single increaseInBrakesPerSecond;
+        float tractionFractionalMultiplier;
+        float downforceSpeed;
+        float brakeMultiplier;
+        float increaseInBrakesPerSecond;
         Vector2 rollingResistance; // Front, Back
         int numberOfGears;
         int redLineSpeed;
-        Single accelerationInHighestGear;
+        float accelerationInHighestGear;
         List<string> shrapnel;
         List<int> firePoints;
 
         public string Name
         {
-            get { return name; }
-            set { name = value; }
+            get => name;
+            set => name = value;
         }
 
         public List<string>[] Pixelmaps
         {
-            get { return pixelmaps; }
-            set { pixelmaps = value; }
+            get => pixelmaps;
+            set => pixelmaps = value;
         }
 
         public List<string> Models
         {
-            get { return models; }
-            set { models = value; }
+            get => models;
+            set => models = value;
         }
 
         public List<string> Actors
         {
-            get { return actors; }
-            set { actors = value; }
+            get => actors;
+            set => actors = value;
         }
 
         public List<int> ActorLODs
         {
-            get { return actorLOD; }
-            set { actorLOD = value; }
+            get => actorLOD;
+            set => actorLOD = value;
         }
 
         public Car()
@@ -205,16 +205,14 @@ namespace ToxicRagers.Carmageddon.Formats
             for (int i = 0; i < 3; i++)
             {
                 pixelmaps[i] = new List<string>();
-                materials[i] = new List<string>(); 
+                materials[i] = new List<string>();
             }
         }
 
         public static Car Load(string path)
         {
-            var file = new DocumentParser(path);
-            var car = new Car();
-
-            car.name = file.ReadLine();
+            DocumentParser file = new DocumentParser(path);
+            Car car = new Car() { name = file.ReadLine() };
 
             if (string.Compare(Path.GetFileName(path).ToUpper(), car.name) != 0)
             {
@@ -287,7 +285,7 @@ namespace ToxicRagers.Carmageddon.Formats
             int actorCount = file.ReadInt();
             for (int j = 0; j < modelCount; j++)
             {
-                var s = file.ReadStrings();
+                string[] s = file.ReadStrings();
                 car.actorLOD.Add(s[0].ToInt());
                 car.actors.Add(s[1]);
             }
@@ -320,7 +318,8 @@ namespace ToxicRagers.Carmageddon.Formats
             {
                 car.funks.Add(new Funk(file));
                 if (file.PeekLine() == "NEXT FUNK") { file.ReadLine(); }
-            } file.ReadLine();
+            }
+            file.ReadLine();
 
             if (file.ReadLine() != "START OF GROOVE")
             {
@@ -332,7 +331,8 @@ namespace ToxicRagers.Carmageddon.Formats
             {
                 car.grooves.Add(new Groove(file));
                 if (file.PeekLine() == "NEXT GROOVE") { file.ReadLine(); }
-            } file.ReadLine();
+            }
+            file.ReadLine();
 
             for (int i = 0; i < car.models.Count; i++)
             {
@@ -351,7 +351,7 @@ namespace ToxicRagers.Carmageddon.Formats
             switch (mechanicsVersion)
             {
                 case 2:
-                    var boundingBoxCount = file.ReadInt();
+                    int boundingBoxCount = file.ReadInt();
                     for (int i = 0; i < boundingBoxCount; i++)
                     {
                         car.boundingBoxes.Add(new BoundingBox { Min = file.ReadVector3(), Max = file.ReadVector3() });
@@ -362,7 +362,7 @@ namespace ToxicRagers.Carmageddon.Formats
                 case 4:
                     car.boundingBoxes.Add(new BoundingBox { Min = file.ReadVector3(), Max = file.ReadVector3() });
 
-                    var additionalPointsCount = file.ReadInt();
+                    int additionalPointsCount = file.ReadInt();
                     for (int i = 0; i < additionalPointsCount; i++)
                     {
                         car.additionalPoints.Add(file.ReadVector3());
@@ -420,7 +420,7 @@ namespace ToxicRagers.Carmageddon.Formats
     {
         List<ImpactSpecClause> clauses;
 
-        public ImpactSpec() 
+        public ImpactSpec()
         {
             clauses = new List<ImpactSpecClause>();
         }
@@ -464,7 +464,7 @@ namespace ToxicRagers.Carmageddon.Formats
     public class ImpactSpecClauseSystem
     {
         ImpactSpecClauseSystemPart part;
-        Single damage;
+        float damage;
 
         public ImpactSpecClauseSystem(string[] parts)
         {
@@ -479,7 +479,7 @@ namespace ToxicRagers.Carmageddon.Formats
         FunkMode mode;
         FunkMatrixMode matrixModType;
         GroovePathMode matrixModMode;
-        Single spinPeriod;
+        float spinPeriod;
         Vector2 rollPeriods;
         GroovePathMode lightingMode;
         FunkAnimationType animationType;
@@ -531,14 +531,14 @@ namespace ToxicRagers.Carmageddon.Formats
         GroovePathNames pathType;
         GroovePathMode pathMode;
         Vector3 pathCentre;
-        Single pathPeriod;
+        float pathPeriod;
         Vector3 pathDelta;
         GrooveAnimation animationType;
         GroovePathMode animationMode;
-        Single animationPeriod;
+        float animationPeriod;
         Vector3 animationCentre;
         GrooveAnimationAxis animationAxis;
-        Single rockMaxAngle;
+        float rockMaxAngle;
         Vector3 shearPeriod;
         Vector3 shearMagnitude;
 
@@ -602,48 +602,48 @@ namespace ToxicRagers.Carmageddon.Formats
 
     public class Crush
     {
-        Single softnessFactor;
+        float softnessFactor;
         Vector2 foldFactor; // min, max
-        Single wibbleFactor;
-        Single limitDeviant;
-        Single splitChance;
-        Single minYFoldDown;
+        float wibbleFactor;
+        float limitDeviant;
+        float splitChance;
+        float minYFoldDown;
         List<CrushPoint> points;
 
-        public Single SoftnessFactor
+        public float SoftnessFactor
         {
-            get { return softnessFactor; }
-            set { softnessFactor = value; }
+            get => softnessFactor;
+            set => softnessFactor = value;
         }
 
         public Vector2 FoldFactor
         {
-            get { return foldFactor; }
-            set { foldFactor = value; }
+            get => foldFactor;
+            set => foldFactor = value;
         }
 
-        public Single WibbleFactor
+        public float WibbleFactor
         {
-            get { return wibbleFactor; }
-            set { wibbleFactor = value; }
+            get => wibbleFactor;
+            set => wibbleFactor = value;
         }
 
-        public Single LimitDeviant
+        public float LimitDeviant
         {
-            get { return limitDeviant; }
-            set { limitDeviant = value; }
+            get => limitDeviant;
+            set => limitDeviant = value;
         }
 
-        public Single SplitChance
+        public float SplitChance
         {
-            get { return splitChance; }
-            set { splitChance = value; }
+            get => splitChance;
+            set => splitChance = value;
         }
 
-        public Single MinYFoldDown
+        public float MinYFoldDown
         {
-            get { return minYFoldDown; }
-            set { minYFoldDown = value; }
+            get => minYFoldDown;
+            set => minYFoldDown = value;
         }
 
         public Crush()
@@ -703,7 +703,7 @@ namespace ToxicRagers.Carmageddon.Formats
     public class CrushPointNeighbour
     {
         int vertexIndex;
-        Single factor;
+        float factor;
 
         public CrushPointNeighbour() { }
         public CrushPointNeighbour(DocumentParser file)
@@ -721,14 +721,14 @@ namespace ToxicRagers.Carmageddon.Formats
 
         public Vector3 Min
         {
-            get { return min; }
-            set { min = value; }
+            get => min;
+            set => min = value;
         }
 
         public Vector3 Max
         {
-            get { return max; }
-            set { max = value; }
+            get => max;
+            set => max = value;
         }
     }
 }

@@ -8,26 +8,29 @@ namespace ToxicRagers.CarmageddonReincarnation.VirtualTextures
         int maxTilesX = 0;
         int maxTilesY = 0;
 
-        public int PageNumber
+        public int PageNumber { get; set; }
+
+        public int MaxTilesX
         {
-            get;
-            set;
+            get => maxTilesX;
+            set => maxTilesX = value;
         }
-        public int MaxTilesX { get { return maxTilesX; } set { maxTilesX = value; } }
-        public int MaxTilesY { get { return maxTilesY; } set { maxTilesY = value; } }
+
+        public int MaxTilesY
+        {
+            get => maxTilesY;
+            set => maxTilesY = value;
+        }
+
         public List<List<VTMapTile>> Tiles
         {
-            get { return tiles; }
-            set { tiles = value; }
+            get => tiles;
+            set => tiles = value;
         }
-        public int Width
-        {
-            get { return (MaxTilesX + 1) * 120; }
-        }
-        public int Height
-        {
-            get { return (MaxTilesY + 1) * 120; }
-        }
+
+        public int Width => (MaxTilesX + 1) * 120;
+        public int Height => (MaxTilesY + 1) * 120;
+
         public void AddTile(VTMapTile tile)
         {
             if (Tiles.Count <= tile.Row)
@@ -37,6 +40,7 @@ namespace ToxicRagers.CarmageddonReincarnation.VirtualTextures
                     Tiles.Add(new List<VTMapTile>());
                 }
             }
+
             if (Tiles[tile.Row].Count <= tile.Column)
             {
                 for (int x = Tiles[tile.Row].Count; x <= tile.Column; x++)
@@ -44,6 +48,7 @@ namespace ToxicRagers.CarmageddonReincarnation.VirtualTextures
                     Tiles[tile.Row].Add(null);
                 }
             }
+
             if (Tiles[tile.Row][tile.Column] == null)
             {
                 Tiles[tile.Row].Insert(tile.Column, tile);
@@ -52,10 +57,9 @@ namespace ToxicRagers.CarmageddonReincarnation.VirtualTextures
             {
                 //Logger.LogToFile("Tile already exists at [{0}, {1}] in Tiles Page #{2} \"{3}\" ( other tile: {4})", tile.Row, tile.Column, PageNumber, tile.TileNameString, Tiles[tile.Row][tile.Column].TileNameString);
             }
-            if (tile.Row > MaxTilesY) MaxTilesY = tile.Row;
-            if (tile.Column > MaxTilesX) MaxTilesX = tile.Column;
 
-
+            if (tile.Row > MaxTilesY) { MaxTilesY = tile.Row; }
+            if (tile.Column > MaxTilesX) { MaxTilesX = tile.Column; }
         }
     }
 }

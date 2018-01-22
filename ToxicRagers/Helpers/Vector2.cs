@@ -3,34 +3,31 @@ using System.ComponentModel;
 
 namespace ToxicRagers.Helpers
 {
-    [TypeConverterAttribute(typeof(Vector2Converter))]
+    [TypeConverter(typeof(Vector2Converter))]
     public class Vector2 : IEquatable<Vector2>
     {
-        Single _x;
-        Single _y;
+        float _x;
+        float _y;
 
-        public Vector2(Single x, Single y)
+        public Vector2(float x, float y)
         {
             _x = x;
             _y = y;
         }
 
-        public Single X
+        public float X
         {
-            get { return _x; }
-            set { _x = value; }
+            get => _x;
+            set => _x = value;
         }
 
-        public Single Y
+        public float Y
         {
-            get { return _y; }
-            set { _y = value; }
+            get => _y;
+            set => _y = value;
         }
 
-        public static Vector2 Zero
-        {
-            get { return new Vector2(0, 0); }
-        }
+        public static Vector2 Zero => new Vector2(0, 0);
 
         public static Vector2 Parse(string v)
         {
@@ -62,12 +59,12 @@ namespace ToxicRagers.Helpers
 
         public bool Equals(Vector2 other)
         {
-            return (this.X == other.X && this.Y == other.Y);
+            return (X == other.X && Y == other.Y);
         }
 
         public override int GetHashCode()
         {
-            return this.X.GetHashCode() ^ this.Y.GetHashCode();
+            return X.GetHashCode() ^ Y.GetHashCode();
         }
 
         public override bool Equals(object obj)
@@ -76,10 +73,10 @@ namespace ToxicRagers.Helpers
             return Equals(obj as Vector2);
         }
 
-        public Single Length { get { return (Single)Math.Sqrt(Dot(this, this)); } }
-        public Vector2 Normalised { get { return new Vector2(this.X / this.Length, this.Y / this.Length); } }
+        public float Length => (float)Math.Sqrt(Dot(this, this));
+        public Vector2 Normalised => new Vector2(X / Length, Y / Length);
 
-        public static Single Dot(Vector2 v1, Vector2 v2)
+        public static float Dot(Vector2 v1, Vector2 v2)
         {
             return v1.X * v2.X + v1.Y * v2.Y;
         }
@@ -95,7 +92,7 @@ namespace ToxicRagers.Helpers
 
         public override object ConvertTo(ITypeDescriptorContext context, System.Globalization.CultureInfo culture, object value, Type destinationType)
         {
-            if (destinationType == typeof(System.String) && value is Vector2)
+            if (destinationType == typeof(string) && value is Vector2)
             {
                 Vector2 v = value as Vector2;
 

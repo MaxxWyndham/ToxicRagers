@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+
 using ToxicRagers.Helpers;
 
 namespace ToxicRagers.Carmageddon2.Helpers
@@ -20,12 +21,14 @@ namespace ToxicRagers.Carmageddon2.Helpers
             string s = getNextLine(sr);
             while (s != "END OF GROOVE" && s != null)
             {
-                Groove groove = new Groove();
-                groove.File = pathToFile;
-                groove.Actor = s;
-                groove.Lollipop = s = getNextLine(sr);
-                groove.Distance = s = getNextLine(sr);
-                groove.Path = s = getNextLine(sr);
+                Groove groove = new Groove()
+                {
+                    File = pathToFile,
+                    Actor = s,
+                    Lollipop = s = getNextLine(sr),
+                    Distance = s = getNextLine(sr),
+                    Path = s = getNextLine(sr)
+                };
 
                 if (groove.Path != "")
                 {
@@ -130,13 +133,13 @@ namespace ToxicRagers.Carmageddon2.Helpers
         public string File;
         public string Actor;
         public Vector3 PathMovementCentre;
-        public Single PathMovementCyclesPerSecond;
+        public float PathMovementCyclesPerSecond;
         public Vector3 PathMovementAmount;
         public int MovementGroovyFunkRef;
-        public Single MovementCyclesPerSecond;
+        public float MovementCyclesPerSecond;
         public Vector3 MovementCentre;
         public string MovementAxis;
-        public Single MovementDegrees;
+        public float MovementDegrees;
 
         public Vector3 ShearStart;
         public Vector3 ShearCentre;
@@ -144,7 +147,7 @@ namespace ToxicRagers.Carmageddon2.Helpers
 
         public string Lollipop
         {
-            get { return lollipop; }
+            get => lollipop;
             set
             {
                 switch (value.ToLower())
@@ -164,7 +167,7 @@ namespace ToxicRagers.Carmageddon2.Helpers
 
         public string Distance
         {
-            get { return distance; }
+            get => distance;
             set
             {
                 switch (value.ToLower())
@@ -183,7 +186,7 @@ namespace ToxicRagers.Carmageddon2.Helpers
 
         public string Path
         {
-            get { return path; }
+            get => path;
             set
             {
                 switch (value.ToLower())
@@ -210,7 +213,7 @@ namespace ToxicRagers.Carmageddon2.Helpers
 
         public string PathMovement
         {
-            get { return pathmovement; }
+            get => pathmovement;
             set
             {
                 switch (value)
@@ -230,7 +233,7 @@ namespace ToxicRagers.Carmageddon2.Helpers
 
         public string Movement
         {
-            get { return movement; }
+            get => movement;
             set
             {
                 switch (value)
@@ -257,7 +260,7 @@ namespace ToxicRagers.Carmageddon2.Helpers
 
         public string MovementMovement
         {
-            get { return movementmovement; }
+            get => movementmovement;
             set
             {
                 switch (value.ToLower())

@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 
-using ToxicRagers.Helpers;
 using ToxicRagers.Carmageddon.Helpers;
 using ToxicRagers.Carmageddon2.Helpers;
+using ToxicRagers.Helpers;
 
 namespace ToxicRagers.Carmageddon2.Formats
 {
@@ -102,10 +101,7 @@ namespace ToxicRagers.Carmageddon2.Formats
             int checkpointCount = file.ReadInt();
             for (int i = 0; i < checkpointCount; i++)
             {
-                Checkpoint cp = new Checkpoint();
-
-                cp.TimerIncrements = file.ReadVector3();
-
+                Checkpoint cp = new Checkpoint() { TimerIncrements = file.ReadVector3() };
                 int quadCount = file.ReadInt();
 
                 for (int j = 0; j < quadCount; j++)
@@ -191,12 +187,13 @@ namespace ToxicRagers.Carmageddon2.Formats
 
             for (int i = 0; i < pedSpecs; i++)
             {
-                PedSpec ps = new PedSpec();
-
-                ps.MaterialName = file.ReadLine();
-                ps.MovementIndex = file.ReadInt();
-                ps.GroupIndex = file.ReadInt();
-                ps.PedsPer100SquareMetres = file.ReadInt();
+                PedSpec ps = new PedSpec()
+                {
+                    MaterialName = file.ReadLine(),
+                    MovementIndex = file.ReadInt(),
+                    GroupIndex = file.ReadInt(),
+                    PedsPer100SquareMetres = file.ReadInt()
+                };
 
                 int exclusionCount = file.ReadInt();
                 for (int j = 0; j < exclusionCount; j++)
@@ -229,10 +226,7 @@ namespace ToxicRagers.Carmageddon2.Formats
 
             for (int i = 0; i < specialEffectVolumeCount; i++)
             {
-                SpecialEffectVolume sev = new SpecialEffectVolume();
-
-                sev.Name = file.ReadLine();
-
+                SpecialEffectVolume sev = new SpecialEffectVolume() { Name = file.ReadLine() };
                 if (i > 0)
                 {
                     sev.Corners.Add(file.ReadVector3());
@@ -279,8 +273,8 @@ namespace ToxicRagers.Carmageddon2.Formats
 
             Console.WriteLine(map.worldMapTransform);
 
-            while (file.ReadLine() != "END OF FUNK") ;
-            while (file.ReadLine() != "END OF GROOVE") ;
+            while (file.ReadLine() != "END OF FUNK") { }
+            while (file.ReadLine() != "END OF GROOVE") { }
 
             if (file.ReadLine() != "START OF OPPONENT PATHS")
             {
@@ -493,14 +487,14 @@ namespace ToxicRagers.Carmageddon2.Formats
 
         public Vector3 TimerIncrements
         {
-            get { return timerIncrement; }
-            set { timerIncrement = value; }
+            get => timerIncrement;
+            set => timerIncrement = value;
         }
 
         public List<Vector3> Points
         {
-            get { return points; }
-            set { points = value; }
+            get => points;
+            set => points = value;
         }
 
         public Checkpoint()
@@ -520,38 +514,38 @@ namespace ToxicRagers.Carmageddon2.Formats
 
         public string MaterialName
         {
-            get { return materialName; }
-            set { materialName = value; }
+            get => materialName;
+            set => materialName = value;
         }
 
-        public int MovementIndex 
+        public int MovementIndex
         {
-            get { return movementIndex; }
-            set { movementIndex = value; }
+            get => movementIndex;
+            set => movementIndex = value;
         }
 
         public int GroupIndex
         {
-            get { return groupIndex; }
-            set { groupIndex = value; }
+            get => groupIndex;
+            set => groupIndex = value;
         }
 
         public int PedsPer100SquareMetres
         {
-            get { return pedsPer100SquareMetres; }
-            set { pedsPer100SquareMetres = value; }
+            get => pedsPer100SquareMetres;
+            set => pedsPer100SquareMetres = value;
         }
 
         public List<string> ExclusionMaterials
         {
-            get { return exclusionMaterials; }
-            set { exclusionMaterials = value; }
+            get => exclusionMaterials;
+            set => exclusionMaterials = value;
         }
 
         public List<string> ExceptionMaterials
         {
-            get { return exceptionMaterials; }
-            set { exceptionMaterials = value; }
+            get => exceptionMaterials;
+            set => exceptionMaterials = value;
         }
 
         public PedSpec()
@@ -564,10 +558,10 @@ namespace ToxicRagers.Carmageddon2.Formats
     public class SpecialEffectVolume
     {
         string name;
-        Single gravityMultiplier;
-        Single viscosityMultiplier;
-        Single carDamagePerMillisecond;
-        Single pedDamagePerMillisecond;
+        float gravityMultiplier;
+        float viscosityMultiplier;
+        float carDamagePerMillisecond;
+        float pedDamagePerMillisecond;
         int cameraEffectIndex;
         int skyColour;
         string windscreenMaterial;
@@ -579,80 +573,80 @@ namespace ToxicRagers.Carmageddon2.Formats
 
         public string Name
         {
-            get { return name; }
-            set { name = value; }
+            get => name;
+            set => name = value;
         }
 
-        public Single GravityMultiplier
+        public float GravityMultiplier
         {
-            get { return gravityMultiplier; }
-            set { gravityMultiplier = value; }
+            get => gravityMultiplier;
+            set => gravityMultiplier = value;
         }
 
-        public Single ViscosityMultiplier
+        public float ViscosityMultiplier
         {
-            get { return viscosityMultiplier; }
-            set { viscosityMultiplier = value; }
+            get => viscosityMultiplier;
+            set => viscosityMultiplier = value;
         }
 
-        public Single CarDamagePerMillisecond
+        public float CarDamagePerMillisecond
         {
-            get { return carDamagePerMillisecond; }
-            set { carDamagePerMillisecond = value; }
+            get => carDamagePerMillisecond;
+            set => carDamagePerMillisecond = value;
         }
 
-        public Single PedDamagePerMillisecond
+        public float PedDamagePerMillisecond
         {
-            get { return pedDamagePerMillisecond; }
-            set { pedDamagePerMillisecond = value; }
+            get => pedDamagePerMillisecond;
+            set => pedDamagePerMillisecond = value;
         }
 
         public int CameraEffectIndex
         {
-            get { return cameraEffectIndex; }
-            set { cameraEffectIndex = value; }
+            get => cameraEffectIndex;
+            set => cameraEffectIndex = value;
         }
 
         public int SkyColour
         {
-            get { return skyColour; }
-            set { skyColour = value; }
+            get => skyColour;
+            set => skyColour = value;
         }
 
         public string WindscreenMaterial
         {
-            get { return windscreenMaterial; }
-            set { windscreenMaterial = value; }
+            get => windscreenMaterial;
+            set => windscreenMaterial = value;
         }
 
         public int EntrySoundID
         {
-            get { return entrySoundID; }
-            set { entrySoundID = value; }
+            get => entrySoundID;
+            set => entrySoundID = value;
         }
 
         public int ExitSoundID
         {
-            get { return exitSoundID; }
-            set { exitSoundID = value; }
+            get => exitSoundID;
+            set => exitSoundID = value;
         }
 
         public int EngineNoiseIndex
         {
-            get { return engineNoiseIndex; }
-            set { engineNoiseIndex = value; }
+            get => engineNoiseIndex;
+            set => engineNoiseIndex = value;
         }
 
         public int MaterialIndex
         {
-            get { return materialIndex; }
-            set { materialIndex = value; }
+            get => materialIndex;
+            set => materialIndex = value;
         }
 
         public List<Vector3> Corners
         {
-            get { return corners; }
-            set { corners = value; }
+            get => corners;
+            set => corners = value;
         }
 
         public SpecialEffectVolume()

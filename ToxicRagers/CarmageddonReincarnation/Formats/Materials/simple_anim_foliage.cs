@@ -2,14 +2,14 @@
 
 namespace ToxicRagers.CarmageddonReincarnation.Formats.Materials
 {
-    public class repulse_base : MT2
+    public class simple_anim_foliage : MT2
     {
-        public repulse_base() { }
+        public simple_anim_foliage() { }
 
-        public repulse_base(XElement xml)
+        public simple_anim_foliage(XElement xml)
             : base(xml)
         {
-            coreDefaults = new repulse_base
+            coreDefaults = new simple_anim_foliage
             {
 
             };

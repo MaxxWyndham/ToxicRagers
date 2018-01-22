@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace ToxicRagers.Helpers
+﻿namespace ToxicRagers.Helpers
 {
     public class Line
     {
@@ -19,10 +17,7 @@ namespace ToxicRagers.Helpers
             Point1 = p1;
         }
 
-        public Vector3 Direction
-        {
-            get { return (Point1 - Point0).Normalised; }
-        }
+        public Vector3 Direction => (Point1 - Point0).Normalised;
 
         public override string ToString()
         {

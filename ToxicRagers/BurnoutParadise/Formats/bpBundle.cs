@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
+
 using ToxicRagers.Helpers;
 
 namespace ToxicRagers.BurnoutParadise.Formats
@@ -17,9 +18,9 @@ namespace ToxicRagers.BurnoutParadise.Formats
 
         List<BUNDLEEntry> contents;
 
-        public string Name { get { return name; } }
-        public string Extension { get { return extension; } }
-        public List<BUNDLEEntry> Contents { get { return contents; } }
+        public string Name => name;
+        public string Extension => extension;
+        public List<BUNDLEEntry> Contents => contents;
 
         public BUNDLE()
         {
@@ -30,13 +31,14 @@ namespace ToxicRagers.BurnoutParadise.Formats
         {
             FileInfo fi = new FileInfo(path);
             Logger.LogToFile(Logger.LogLevel.Info, "{0}", path);
-            BUNDLE bundle = new BUNDLE();
+            BUNDLE bundle = new BUNDLE()
+            {
+                name = Path.GetFileNameWithoutExtension(path),
+                extension = Path.GetExtension(path),
+                location = Path.GetDirectoryName(path) + "\\"
+            };
 
-            bundle.name = Path.GetFileNameWithoutExtension(path);
-            bundle.extension = Path.GetExtension(path);
-            bundle.location = Path.GetDirectoryName(path) + "\\";
-
-            using (var br = new BinaryReader(fi.OpenRead()))
+            using (BinaryReader br = new BinaryReader(fi.OpenRead()))
             {
                 if (br.ReadByte() != 98 ||
                     br.ReadByte() != 110 ||
@@ -61,7 +63,7 @@ namespace ToxicRagers.BurnoutParadise.Formats
 
                 for (int i = 0; i < fileCount; i++)
                 {
-                    var entry = new BUNDLEEntry { Name = i.ToString("00000") };
+                    BUNDLEEntry entry = new BUNDLEEntry { Name = i.ToString("00000") };
 
                     Console.WriteLine("{0}:", entry.Name);
                     br.ReadInt32(); // CRC
@@ -93,18 +95,18 @@ namespace ToxicRagers.BurnoutParadise.Formats
         {
             if (!Directory.Exists(destination)) { Directory.CreateDirectory(destination); }
 
-            using (var msOutput = new MemoryStream())
+            using (MemoryStream msOutput = new MemoryStream())
             {
                 if (file.HeaderSize > 0)
                 {
-                    using (var br = new BinaryReader(new FileStream(this.location + this.name + this.extension, FileMode.Open)))
+                    using (BinaryReader br = new BinaryReader(new FileStream(location + name + extension, FileMode.Open)))
                     {
                         br.BaseStream.Seek(file.HeaderOffset + 2, SeekOrigin.Begin);
 
-                        using (var ms = new MemoryStream(br.ReadBytes(file.HeaderSizeCompressed - 2)))
-                        using (var ds = new DeflateStream(ms, CompressionMode.Decompress))
+                        using (MemoryStream ms = new MemoryStream(br.ReadBytes(file.HeaderSizeCompressed - 2)))
+                        using (DeflateStream ds = new DeflateStream(ms, CompressionMode.Decompress))
                         {
-                            var data = new byte[file.HeaderSize];
+                            byte[] data = new byte[file.HeaderSize];
                             ds.Read(data, 0, file.HeaderSize);
                             msOutput.Write(data, 0, data.Length);
                         }
@@ -113,14 +115,14 @@ namespace ToxicRagers.BurnoutParadise.Formats
 
                 if (file.DataSize > 0)
                 {
-                    using (var br = new BinaryReader(new FileStream(this.location + this.name + this.extension, FileMode.Open)))
+                    using (BinaryReader br = new BinaryReader(new FileStream(location + name + extension, FileMode.Open)))
                     {
                         br.BaseStream.Seek(file.DataOffset + 2, SeekOrigin.Begin);
 
-                        using (var ms = new MemoryStream(br.ReadBytes(file.DataSizeCompressed - 2)))
-                        using (var ds = new DeflateStream(ms, CompressionMode.Decompress))
+                        using (MemoryStream ms = new MemoryStream(br.ReadBytes(file.DataSizeCompressed - 2)))
+                        using (DeflateStream ds = new DeflateStream(ms, CompressionMode.Decompress))
                         {
-                            var data = new byte[file.DataSize];
+                            byte[] data = new byte[file.DataSize];
                             ds.Read(data, 0, file.DataSize);
                             msOutput.Write(data, 0, data.Length);
                         }
@@ -149,56 +151,56 @@ namespace ToxicRagers.BurnoutParadise.Formats
 
         public string Name
         {
-            get { return name; }
-            set { name = value; }
+            get => name;
+            set => name = value;
         }
 
         public int HeaderSize
         {
-            get { return headerSize; }
-            set { headerSize = value; }
+            get => headerSize;
+            set => headerSize = value;
         }
 
         public int HeaderSizeCompressed
         {
-            get { return headerSizeCompressed; }
-            set { headerSizeCompressed = value; }
+            get => headerSizeCompressed;
+            set => headerSizeCompressed = value;
         }
 
         public int DataSize
         {
-            get { return dataSize; }
-            set { dataSize = value; }
+            get => dataSize;
+            set => dataSize = value;
         }
 
         public int DataSizeCompressed
         {
-            get { return dataSizeCompressed; }
-            set { dataSizeCompressed = value; }
+            get => dataSizeCompressed;
+            set => dataSizeCompressed = value;
         }
 
         public int HeaderOffset
         {
-            get { return headerOffset; }
-            set { headerOffset = value; }
+            get => headerOffset;
+            set => headerOffset = value;
         }
 
         public int DataOffset
         {
-            get { return dataOffset; }
-            set { dataOffset = value; }
+            get => dataOffset;
+            set => dataOffset = value;
         }
 
         public int Type
         {
-            get { return type; }
-            set { type = value; }
+            get => type;
+            set => type = value;
         }
 
         public int Count
         {
-            get { return count; }
-            set { count = value; }
+            get => count;
+            set => count = value;
         }
     }
 }

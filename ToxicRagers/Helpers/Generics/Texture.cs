@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 using ToxicRagers.Helpers;
 
@@ -14,14 +13,14 @@ namespace ToxicRagers.Generics
 
         public string Name
         {
-            get { return name; }
-            set { name = value; }
+            get => name;
+            set => name = value;
         }
 
         public virtual D3DFormat Format
         {
-            get { return format; }
-            set { format = value; }
+            get => format;
+            set => format = value;
         }
 
         public string ShortFormat
@@ -39,7 +38,7 @@ namespace ToxicRagers.Generics
             }
         }
 
-        public List<MipMap> MipMaps { get { return mipMaps; } }
+        public List<MipMap> MipMaps => mipMaps;
     }
 
     public class MipMap
@@ -50,20 +49,20 @@ namespace ToxicRagers.Generics
 
         public int Width
         {
-            get { return width; }
-            set { width = value; }
+            get => width;
+            set => width = value;
         }
 
         public int Height
         {
-            get { return height; }
-            set { height = value; }
+            get => height;
+            set => height = value;
         }
 
         public byte[] Data
         {
-            get { return data; }
-            set { data = value; }
+            get => data;
+            set => data = value;
         }
     }
 }

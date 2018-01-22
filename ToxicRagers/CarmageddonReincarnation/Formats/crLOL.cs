@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Text;
 
 using ToxicRagers.Helpers;
@@ -16,8 +15,8 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
         public string Document
         {
-            get { return document; }
-            set { document = value; }
+            get => document;
+            set => document = value;
         }
 
         public static LOL Load(string path)

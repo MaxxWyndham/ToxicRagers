@@ -4,22 +4,22 @@ namespace ToxicRagers.Helpers
 {
     public class Matrix3D
     {
-        public Single M11;
-        public Single M12;
-        public Single M13;
-        public Single M21;
-        public Single M22;
-        public Single M23;
-        public Single M31;
-        public Single M32;
-        public Single M33;
-        public Single M41;
-        public Single M42;
-        public Single M43;
+        public float M11;
+        public float M12;
+        public float M13;
+        public float M21;
+        public float M22;
+        public float M23;
+        public float M31;
+        public float M32;
+        public float M33;
+        public float M41;
+        public float M42;
+        public float M43;
 
-        public static Matrix3D Identity { get { return new Matrix3D(1.0f, 0, 0, 0, 1.0f, 0, 0, 0, 1.0f, 0, 0, 0); } }
+        public static Matrix3D Identity => new Matrix3D(1.0f, 0, 0, 0, 1.0f, 0, 0, 0, 1.0f, 0, 0, 0);
 
-        public Matrix3D(Single M11, Single M12, Single M13, Single M21, Single M22, Single M23, Single M31, Single M32, Single M33, Single M41, Single M42, Single M43)
+        public Matrix3D(float M11, float M12, float M13, float M21, float M22, float M23, float M31, float M32, float M33, float M41, float M42, float M43)
         {
             this.M11 = M11;
             this.M12 = M12;
@@ -37,80 +37,80 @@ namespace ToxicRagers.Helpers
 
         public Matrix3D(Vector3 Position)
         {
-            this.M11 = 1.0f;
-            this.M12 = 0;
-            this.M13 = 0;
-            this.M21 = 0;
-            this.M22 = 1.0f;
-            this.M23 = 0;
-            this.M31 = 0;
-            this.M32 = 0;
-            this.M33 = 1.0f;
-            this.M41 = Position.X;
-            this.M42 = Position.Y;
-            this.M43 = Position.Z;
+            M11 = 1.0f;
+            M12 = 0;
+            M13 = 0;
+            M21 = 0;
+            M22 = 1.0f;
+            M23 = 0;
+            M31 = 0;
+            M32 = 0;
+            M33 = 1.0f;
+            M41 = Position.X;
+            M42 = Position.Y;
+            M43 = Position.Z;
         }
 
         public Matrix3D(Vector3 row1, Vector3 row2, Vector3 row3, Vector3 row4)
         {
-            this.M11 = row1.X;
-            this.M12 = row1.Y;
-            this.M13 = row1.Z;
-            this.M21 = row2.X;
-            this.M22 = row2.Y;
-            this.M23 = row2.Z;
-            this.M31 = row3.X;
-            this.M32 = row3.Y;
-            this.M33 = row3.Z;
-            this.M41 = row4.X;
-            this.M42 = row4.Y;
-            this.M43 = row4.Z;
+            M11 = row1.X;
+            M12 = row1.Y;
+            M13 = row1.Z;
+            M21 = row2.X;
+            M22 = row2.Y;
+            M23 = row2.Z;
+            M31 = row3.X;
+            M32 = row3.Y;
+            M33 = row3.Z;
+            M41 = row4.X;
+            M42 = row4.Y;
+            M43 = row4.Z;
         }
 
-        static Single toRads = (Single)Math.PI / 180;
+        static float toRads = (float)Math.PI / 180;
 
-        public static Matrix3D CreateRotationX(Single Degrees)
+        public static Matrix3D CreateRotationX(float Degrees)
         {
             Degrees *= toRads;
 
             Matrix3D m = Matrix3D.Identity;
-            m.M22 = (Single)Math.Cos(Degrees);
-            m.M23 = (Single)Math.Sin(Degrees);
-            m.M32 = -(Single)Math.Sin(Degrees);
-            m.M33 = (Single)Math.Cos(Degrees);
+            m.M22 = (float)Math.Cos(Degrees);
+            m.M23 = (float)Math.Sin(Degrees);
+            m.M32 = -(float)Math.Sin(Degrees);
+            m.M33 = (float)Math.Cos(Degrees);
             return m;
         }
 
-        public static Matrix3D CreateRotationY(Single Degrees)
+        public static Matrix3D CreateRotationY(float Degrees)
         {
             Degrees *= toRads;
 
             Matrix3D m = Matrix3D.Identity;
-            m.M11 = (Single)Math.Cos(Degrees);
-            m.M13 = -(Single)Math.Sin(Degrees);
-            m.M31 = (Single)Math.Sin(Degrees);
-            m.M33 = (Single)Math.Cos(Degrees);
+            m.M11 = (float)Math.Cos(Degrees);
+            m.M13 = -(float)Math.Sin(Degrees);
+            m.M31 = (float)Math.Sin(Degrees);
+            m.M33 = (float)Math.Cos(Degrees);
             return m;
         }
 
-        public static Matrix3D CreateRotationZ(Single Degrees)
+        public static Matrix3D CreateRotationZ(float Degrees)
         {
             Degrees *= toRads;
 
             Matrix3D m = Matrix3D.Identity;
-            m.M11 = (Single)Math.Cos(Degrees);
-            m.M12 = (Single)Math.Sin(Degrees);
-            m.M21 = -(Single)Math.Sin(Degrees);
-            m.M22 = (Single)Math.Cos(Degrees);
+            m.M11 = (float)Math.Cos(Degrees);
+            m.M12 = (float)Math.Sin(Degrees);
+            m.M21 = -(float)Math.Sin(Degrees);
+            m.M22 = (float)Math.Cos(Degrees);
             return m;
         }
 
-        public static Matrix3D CreateScale(Single scale)
+        public static Matrix3D CreateScale(float scale)
         {
             return CreateScale(scale, scale, scale);
         }
 
-        public static Matrix3D CreateScale(Single x, Single y, Single z)
+        public static Matrix3D CreateScale(float x, float y, float z)
         {
             Matrix3D m = Matrix3D.Identity;
             m.M11 = x;
@@ -121,7 +121,7 @@ namespace ToxicRagers.Helpers
 
         public Vector3 Position
         {
-            get { return new Vector3(M41, M42, M43); }
+            get => new Vector3(M41, M42, M43);
             set
             {
                 M41 = value.X;
@@ -130,7 +130,7 @@ namespace ToxicRagers.Helpers
             }
         }
 
-        public Single Scale
+        public float Scale
         {
             set
             {
@@ -142,7 +142,7 @@ namespace ToxicRagers.Helpers
 
         public static Matrix3D operator *(Matrix3D x, Matrix3D y)
         {
-            var p = x.Position + y.Position;
+            Vector3 p = x.Position + y.Position;
 
             return new Matrix3D(
                 (x.M11 * y.M11) + (x.M12 * y.M21) + (x.M13 * y.M31), (x.M11 * y.M12) + (x.M12 * y.M22) + (x.M13 * y.M32), (x.M11 * y.M13) + (x.M12 * y.M23) + (x.M13 * y.M33),

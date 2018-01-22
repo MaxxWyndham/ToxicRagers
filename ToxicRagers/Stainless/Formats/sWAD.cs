@@ -17,8 +17,8 @@ namespace ToxicRagers.Stainless.Formats
         Version version;
         int flags;
 
-        public string Name { get { return name; } }
-        public List<WADEntry> Contents { get { return contents; } }
+        public string Name => name;
+        public List<WADEntry> Contents => contents;
 
         public WAD()
         {
@@ -29,12 +29,13 @@ namespace ToxicRagers.Stainless.Formats
         {
             FileInfo fi = new FileInfo(path);
             Logger.LogToFile(Logger.LogLevel.Info, "{0}", path);
-            WAD wad = new WAD();
+            WAD wad = new WAD()
+            {
+                name = Path.GetFileNameWithoutExtension(path),
+                location = Path.GetDirectoryName(path) + "\\"
+            };
 
-            wad.name = Path.GetFileNameWithoutExtension(path);
-            wad.location = Path.GetDirectoryName(path) + "\\";
-
-            using (var br = new BinaryReader(fi.OpenRead()))
+            using (BinaryReader br = new BinaryReader(fi.OpenRead()))
             {
                 if (br.ReadByte() != 0x34 ||
                     br.ReadByte() != 0x12)
@@ -61,8 +62,7 @@ namespace ToxicRagers.Stainless.Formats
 
                 while (br.BaseStream.Position < endOfNamesBlock)
                 {
-                    var entry = new WADEntry();
-                    entry.Name = br.ReadString();
+                    WADEntry entry = new WADEntry() { Name = br.ReadString() };
                     wad.contents.Add(entry);
                 }
             }
@@ -74,17 +74,15 @@ namespace ToxicRagers.Stainless.Formats
         {
             if (!Directory.Exists(destination)) { Directory.CreateDirectory(destination); }
 
-            using (var bw = new BinaryWriter(new FileStream(destination + "\\" + file.Name, FileMode.Create)))
+            using (BinaryWriter bw = new BinaryWriter(new FileStream(destination + "\\" + file.Name, FileMode.Create)))
+            using (FileStream fs = new FileStream(location + name + ".wad", FileMode.Open))
             {
-                using (var fs = new FileStream(this.location + this.name + ".wad", FileMode.Open))
-                {
-                    fs.Seek(file.Offset, SeekOrigin.Begin);
+                fs.Seek(file.Offset, SeekOrigin.Begin);
 
-                    var buff = new byte[file.Size];
-                    fs.Read(buff, 0, file.Size);
-                    bw.Write(buff);
-                    buff = null;
-                }
+                byte[] buff = new byte[file.Size];
+                fs.Read(buff, 0, file.Size);
+                bw.Write(buff);
+                buff = null;
             }
         }
     }
@@ -97,20 +95,20 @@ namespace ToxicRagers.Stainless.Formats
 
         public int Offset
         {
-            get { return offset; }
-            set { offset = value; }
+            get => offset;
+            set => offset = value;
         }
 
         public int Size
         {
-            get { return size; }
-            set { size = value; }
+            get => size;
+            set => size = value;
         }
 
         public string Name
         {
-            get { return name; }
-            set { name = value; }
+            get => name;
+            set => name = value;
         }
     }
 }

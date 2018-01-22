@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+
 using ToxicRagers.Helpers;
 
 namespace ToxicRagers.CarmageddonReincarnation.Formats
@@ -25,208 +26,208 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
         string name;
 
         LightType type;
-        Single r;
-        Single g;
-        Single b;
-        Single intensity;
-        Single range;
-        Single inner;
-        Single outer;
-        Single nearClip = 0.2f;
+        float r;
+        float g;
+        float b;
+        float intensity;
+        float range;
+        float inner;
+        float outer;
+        float nearClip = 0.2f;
         LightFlags flags;
         int shadResX = 128;
         int shadResY = 128;
-        Single shadCoverX = 1;
-        Single shadCoverY = 1;
-        Single shadowBias = 0;
-        Single shadIntensity = 1;
+        float shadCoverX = 1;
+        float shadCoverY = 1;
+        float shadowBias = 0;
+        float shadIntensity = 1;
         int splitCount = 0;
-        Single splitDistribution = 1;
-        Single shadDistMin;
-        Single shadDistMax = 2000;
+        float splitDistribution = 1;
+        float shadDistMin;
+        float shadDistMax = 2000;
         bool bUseEdgeCol;
         byte edgeColR;
         byte edgeColG;
         byte edgeColB;
         byte edgeColA;
-        Single goboScaleX = 1;
-        Single goboScaleY = 1;
-        Single goboOffsetX = 0;
-        Single goboOffsetY = 0;
+        float goboScaleX = 1;
+        float goboScaleY = 1;
+        float goboOffsetX = 0;
+        float goboOffsetY = 0;
         string goboTexture;
 
         public string Name
         {
-            get { return name; }
-            set { name = value; }
+            get => name;
+            set => name = value;
         }
 
         public LightType Type
         {
-            get { return type; }
-            set { type = value; }
+            get => type;
+            set => type = value;
         }
 
-        public Single Range
+        public float Range
         {
-            get { return range; }
-            set { range = value; }
+            get => range;
+            set => range = value;
         }
 
-        public Single Inner
+        public float Inner
         {
-            get { return inner; }
-            set { inner = value; }
+            get => inner;
+            set => inner = value;
         }
 
-        public Single Outer
+        public float Outer
         {
-            get { return outer; }
-            set { outer = value; }
+            get => outer;
+            set => outer = value;
         }
 
-        public Single R
+        public float R
         {
-            get { return r; }
-            set { r = value; }
+            get => r;
+            set => r = value;
         }
 
-        public Single G
+        public float G
         {
-            get { return g; }
-            set { g = value; }
+            get => g;
+            set => g = value;
         }
 
-        public Single B
+        public float B
         {
-            get { return b; }
-            set { b = value; }
+            get => b;
+            set => b = value;
         }
 
-        public Single Intensity
+        public float Intensity
         {
-            get { return intensity; }
-            set { intensity = value; }
+            get => intensity;
+            set => intensity = value;
         }
 
         public LightFlags Flags
         {
-            get { return flags; }
-            set { flags = value; }
+            get => flags;
+            set => flags = value;
         }
 
         public int SplitCount
         {
-            get { return splitCount; }
-            set { splitCount = value; }
+            get => splitCount;
+            set => splitCount = value;
         }
 
-        public Single SplitDistribution
+        public float SplitDistribution
         {
-            get { return splitDistribution; }
-            set { splitDistribution = value; }
+            get => splitDistribution;
+            set => splitDistribution = value;
         }
 
-        public Single ShadowCoverX
+        public float ShadowCoverX
         {
-            get { return shadCoverX; }
-            set { shadCoverX = value; }
+            get => shadCoverX;
+            set => shadCoverX = value;
         }
 
-        public Single ShadowCoverY
+        public float ShadowCoverY
         {
-            get { return shadCoverY; }
-            set { shadCoverY = value; }
+            get => shadCoverY;
+            set => shadCoverY = value;
         }
 
         public int ShadowResolutionX
         {
-            get { return shadResX; }
-            set { shadResX = value; }
+            get => shadResX;
+            set => shadResX = value;
         }
 
         public int ShadowResolutionY
         {
-            get { return shadResY; }
-            set { shadResY = value; }
+            get => shadResY;
+            set => shadResY = value;
         }
 
-        public Single ShadowIntensity
+        public float ShadowIntensity
         {
-            get { return shadIntensity; }
-            set { shadIntensity = value; }
+            get => shadIntensity;
+            set => shadIntensity = value;
         }
 
-        public Single GoboScaleX
+        public float GoboScaleX
         {
-            get { return goboScaleX; }
-            set { goboScaleX = value; }
+            get => goboScaleX;
+            set => goboScaleX = value;
         }
 
-        public Single GoboScaleY
+        public float GoboScaleY
         {
-            get { return goboScaleY; }
-            set { goboScaleY = value; }
+            get => goboScaleY;
+            set => goboScaleY = value;
         }
 
-        public Single GoboOffsetX
+        public float GoboOffsetX
         {
-            get { return goboOffsetX; }
-            set { goboOffsetX = value; }
+            get => goboOffsetX;
+            set => goboOffsetX = value;
         }
 
-        public Single GoboOffsetY
+        public float GoboOffsetY
         {
-            get { return goboOffsetY; }
-            set { goboOffsetY = value; }
+            get => goboOffsetY;
+            set => goboOffsetY = value;
         }
 
-        public Single ShadowBias
+        public float ShadowBias
         {
-            get { return shadowBias; }
-            set { shadowBias = value; }
+            get => shadowBias;
+            set => shadowBias = value;
         }
 
-        public Single LightNearClip
+        public float LightNearClip
         {
-            get { return nearClip; }
-            set { nearClip = value; }
+            get => nearClip;
+            set => nearClip = value;
         }
 
-        public Single ShadowDistance
+        public float ShadowDistance
         {
-            get { return shadDistMax; }
-            set { shadDistMax = value; }
+            get => shadDistMax;
+            set => shadDistMax = value;
         }
 
         public string GOBO
         {
-            get { return goboTexture; }
-            set { goboTexture = value; }
+            get => goboTexture;
+            set => goboTexture = value;
         }
 
         public bool UseEdgeColour
         {
-            get { return bUseEdgeCol; }
-            set { bUseEdgeCol = value; }
+            get => bUseEdgeCol;
+            set => bUseEdgeCol = value;
         }
 
         public byte EdgeColourR
         {
-            get { return edgeColR; }
-            set { edgeColR = value; }
+            get => edgeColR;
+            set => edgeColR = value;
         }
 
         public byte EdgeColourG
         {
-            get { return edgeColG; }
-            set { edgeColG = value; }
+            get => edgeColG;
+            set => edgeColG = value;
         }
 
         public byte EdgeColourB
         {
-            get { return edgeColB; }
-            set { edgeColB = value; }
+            get => edgeColB;
+            set => edgeColB = value;
         }
 
         public static LIGHT Load(string path)
@@ -254,38 +255,39 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
         public static LIGHT Load(BinaryReader br)
         {
-            LIGHT light = new LIGHT();
+            LIGHT light = new LIGHT()
+            {
+                type = (LightType)br.ReadUInt32(),
 
-            light.type = (LightType)br.ReadUInt32();
-
-            light.r = br.ReadSingle();
-            light.g = br.ReadSingle();
-            light.b = br.ReadSingle();
-            light.intensity = br.ReadSingle();
-            light.range = br.ReadSingle();
-            light.inner = br.ReadSingle();
-            light.outer = br.ReadSingle();
-            light.nearClip = br.ReadSingle();
-            light.flags = (LightFlags)br.ReadUInt32();
-            light.shadResX = (int)br.ReadUInt32();
-            light.shadResY = (int)br.ReadUInt32();
-            light.shadCoverX = br.ReadSingle();
-            light.shadCoverY = br.ReadSingle();
-            light.shadowBias = br.ReadSingle();
-            light.shadIntensity = br.ReadSingle();
-            light.splitCount = (int)br.ReadUInt32();
-            light.splitDistribution = br.ReadSingle();
-            light.shadDistMin = br.ReadSingle();
-            light.shadDistMax = br.ReadSingle();
-            light.bUseEdgeCol = (br.ReadUInt32() == 1);
-            light.edgeColR = br.ReadByte();
-            light.edgeColG = br.ReadByte();
-            light.edgeColB = br.ReadByte();
-            light.edgeColA = br.ReadByte();
-            light.goboScaleX = br.ReadSingle();
-            light.goboScaleY = br.ReadSingle();
-            light.goboOffsetX = br.ReadSingle();
-            light.goboOffsetY = br.ReadSingle();
+                r = br.ReadSingle(),
+                g = br.ReadSingle(),
+                b = br.ReadSingle(),
+                intensity = br.ReadSingle(),
+                range = br.ReadSingle(),
+                inner = br.ReadSingle(),
+                outer = br.ReadSingle(),
+                nearClip = br.ReadSingle(),
+                flags = (LightFlags)br.ReadUInt32(),
+                shadResX = (int)br.ReadUInt32(),
+                shadResY = (int)br.ReadUInt32(),
+                shadCoverX = br.ReadSingle(),
+                shadCoverY = br.ReadSingle(),
+                shadowBias = br.ReadSingle(),
+                shadIntensity = br.ReadSingle(),
+                splitCount = (int)br.ReadUInt32(),
+                splitDistribution = br.ReadSingle(),
+                shadDistMin = br.ReadSingle(),
+                shadDistMax = br.ReadSingle(),
+                bUseEdgeCol = (br.ReadUInt32() == 1),
+                edgeColR = br.ReadByte(),
+                edgeColG = br.ReadByte(),
+                edgeColB = br.ReadByte(),
+                edgeColA = br.ReadByte(),
+                goboScaleX = br.ReadSingle(),
+                goboScaleY = br.ReadSingle(),
+                goboOffsetX = br.ReadSingle(),
+                goboOffsetY = br.ReadSingle()
+            };
 
             int nameLength = (int)br.ReadUInt32();
             int padding = (((nameLength / 4) + (nameLength % 4 > 0 ? 1 : 0)) * 4) - nameLength;

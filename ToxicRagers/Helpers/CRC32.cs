@@ -33,7 +33,7 @@ namespace ToxicRagers.Helpers
             }
         }
 
-        public byte[] Hash(Byte[] array)
+        public byte[] Hash(byte[] array)
         {
             int start = 0;
             int size = array.Length;

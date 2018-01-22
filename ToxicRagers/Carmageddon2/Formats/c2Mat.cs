@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+
 using ToxicRagers.Helpers;
-using ToxicRagers.Carmageddon2.Helpers;
 
 namespace ToxicRagers.Carmageddon2.Formats
 {
@@ -11,7 +11,7 @@ namespace ToxicRagers.Carmageddon2.Formats
     {
         List<MATMaterial> materials;
 
-        public List<MATMaterial> Materials { get { return materials; } }
+        public List<MATMaterial> Materials => materials;
 
         public MAT()
         {
@@ -102,7 +102,7 @@ namespace ToxicRagers.Carmageddon2.Formats
 
         public void Save(string Path)
         {
-            if (this.materials.Count == 0) { return; }
+            if (materials.Count == 0) { return; }
 
             using (BEBinaryWriter bw = new BEBinaryWriter(new FileStream(Path, FileMode.Create)))
             {
@@ -111,7 +111,7 @@ namespace ToxicRagers.Carmageddon2.Formats
                 bw.WriteInt32(5);
                 bw.WriteInt32(2);
 
-                foreach (var M in this.materials)
+                foreach (MATMaterial M in materials)
                 {
                     bw.Write(new byte[] { 0, 0, 0, 60 });
                     bw.WriteInt32(68 + M.Name.Length);
@@ -189,54 +189,54 @@ namespace ToxicRagers.Carmageddon2.Formats
         private int _flags = ((int)Settings.Lit | (int)Settings.CorrectPerspective);
 
         private byte[] _diffuse = new byte[] { 255, 255, 255, 255 };
-        private Single _ambient = 0.10000000149011612f;
-        private Single _directional = 0.699999988079071f;
-        private Single _specular = 0;
-        private Single _specularpower = 20;
+        private float _ambient = 0.10000000149011612f;
+        private float _directional = 0.699999988079071f;
+        private float _specular = 0;
+        private float _specularpower = 20;
 
         private Matrix2D _matrix = new Matrix2D(1, 0, 0, 1, 0, 0);
         //private Color[] _texturedata;
 
         public string Name
         {
-            get { return _name; }
-            set { _name = value; }
+            get => _name;
+            set => _name = value;
         }
 
         public byte[] DiffuseColour
         {
-            get { return _diffuse; }
-            set { _diffuse = value; }
+            get => _diffuse;
+            set => _diffuse = value;
         }
 
-        public Single AmbientLighting
+        public float AmbientLighting
         {
-            get { return _ambient; }
-            set { _ambient = value; }
+            get => _ambient;
+            set => _ambient = value;
         }
 
-        public Single DirectionalLighting
+        public float DirectionalLighting
         {
-            get { return _directional; }
-            set { _directional = value; }
+            get => _directional;
+            set => _directional = value;
         }
 
-        public Single SpecularLighting
+        public float SpecularLighting
         {
-            get { return _specular; }
-            set { _specular = value; }
+            get => _specular;
+            set => _specular = value;
         }
 
-        public Single SpecularPower
+        public float SpecularPower
         {
-            get { return _specularpower; }
-            set { _specularpower = value; }
+            get => _specularpower;
+            set => _specularpower = value;
         }
 
         public string Texture
         {
-            get { return _texture; }
-            set { _texture = value; }
+            get => _texture;
+            set => _texture = value;
         }
 
         //public Color[] TextureData
@@ -247,8 +247,8 @@ namespace ToxicRagers.Carmageddon2.Formats
 
         public Matrix2D UVMatrix
         {
-            get { return _matrix; }
-            set { _matrix = value; }
+            get => _matrix;
+            set => _matrix = value;
         }
 
         public void SetFlags(int Flags)
@@ -271,24 +271,21 @@ namespace ToxicRagers.Carmageddon2.Formats
             return ((_flags & Flag) > 0);
         }
 
-        public int Flags { get { return _flags; } }
+        public int Flags => _flags;
 
         public int Width
         {
-            get { return _width; }
-            set { _width = value; }
+            get => _width;
+            set => _width = value;
         }
 
         public int Height
         {
-            get { return _height; }
-            set { _height = value; }
+            get => _height;
+            set => _height = value;
         }
 
-        public bool HasTexture
-        {
-            get { return (_texture != null && _texture.Length > 0); }
-        }
+        public bool HasTexture => (_texture != null && _texture.Length > 0);
 
         #region Constructors
         public MATMaterial()

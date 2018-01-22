@@ -1,8 +1,5 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Xml.Linq;
-
-using ToxicRagers.Helpers;
 
 namespace ToxicRagers.CarmageddonReincarnation.Formats.Materials
 {
@@ -20,20 +17,20 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats.Materials
 
         public string Normal_Map
         {
-            get { return normal; }
-            set { normal = value; }
+            get => normal;
+            set => normal = value;
         }
 
         public string Spec_Map
         {
-            get { return specular; }
-            set { specular = value; }
+            get => specular;
+            set => specular = value;
         }
 
         public bool NoSortAlpha
         {
-            get { return bNoSortAlpha; }
-            set { bNoSortAlpha = value; }
+            get => bNoSortAlpha;
+            set => bNoSortAlpha = value;
         }
 
         public glow_simple_norm_spec_env_base_A() { }
@@ -46,10 +43,10 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats.Materials
 
             };
 
-            var diff = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "DiffuseColour").FirstOrDefault();
-            var norm = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "Normal_Map").FirstOrDefault();
-            var spec = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "Spec_Map").FirstOrDefault();
-            var sort = xml.Descendants("NoSortAlpha").FirstOrDefault();
+            XElement diff = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "DiffuseColour").FirstOrDefault();
+            XElement norm = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "Normal_Map").FirstOrDefault();
+            XElement spec = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "Spec_Map").FirstOrDefault();
+            XElement sort = xml.Descendants("NoSortAlpha").FirstOrDefault();
 
             if (diff != null) { diffuse = (diff.Attributes("FileName").Any() ? diff.Attribute("FileName").Value : diff.Attribute("Movie").Value); }
             if (norm != null) { normal = norm.Attribute("FileName").Value; }

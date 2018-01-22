@@ -12,22 +12,22 @@ namespace ToxicRagers.CarmageddonReincarnation.Helpers
         {
             int depth = 0;
 
-            using (var sw = new StreamWriter(path))
+            using (StreamWriter sw = new StreamWriter(path))
             {
                 sw.WriteLine("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
 
-                Write(xml.Root, sw, depth);
+                write(xml.Root, sw, depth);
             }
         }
 
-        private static void Write(XElement element, StreamWriter sw, int depth)
+        private static void write(XElement element, StreamWriter sw, int depth)
         {
             string singleindent = new string(' ', 3);
             string indent = new string(' ', depth * 3);
             int nodeCount = element.Nodes().Count();
 
             sw.Write("{0}<{1}", indent, element.Name);
-            foreach (var attribute in element.Attributes()) { sw.Write(" {0}=\"{1}\"", attribute.Name, attribute.Value); }
+            foreach (XAttribute attribute in element.Attributes()) { sw.Write(" {0}=\"{1}\"", attribute.Name, attribute.Value); }
 
             if (nodeCount > 0)
             {
@@ -39,20 +39,20 @@ namespace ToxicRagers.CarmageddonReincarnation.Helpers
                 {
                     sw.WriteLine(">");
 
-                    var cdata = (element.Nodes().FirstOrDefault(n => n.NodeType == XmlNodeType.CDATA) as XCData);
+                    XCData cdata = (element.Nodes().FirstOrDefault(n => n.NodeType == XmlNodeType.CDATA) as XCData);
                     if (cdata != null)
                     {
                         sw.WriteLine("{0}<![CDATA[", singleindent + indent);
-                        foreach (var centry in cdata.Value.Split("\r\n".ToCharArray(), StringSplitOptions.RemoveEmptyEntries))
+                        foreach (string centry in cdata.Value.Split("\r\n".ToCharArray(), StringSplitOptions.RemoveEmptyEntries))
                         {
                             sw.WriteLine("{0}{1}", singleindent + singleindent + indent, centry);
                         }
                         sw.WriteLine("{0}]]>", singleindent + indent);
                     }
 
-                    foreach (var child in element.Elements())
+                    foreach (XElement child in element.Elements())
                     {
-                        Write(child, sw, depth + 1);
+                        write(child, sw, depth + 1);
                     }
 
                     sw.WriteLine("{0}</{1}>", indent, element.Name);

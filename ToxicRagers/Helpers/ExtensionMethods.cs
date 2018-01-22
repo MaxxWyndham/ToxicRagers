@@ -5,7 +5,6 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
-using System.Linq;
 using System.Text;
 
 namespace ToxicRagers.Helpers
@@ -15,12 +14,12 @@ namespace ToxicRagers.Helpers
         // Rather specific versions of Read and WriteString here.  Possibly move inside cFBX.cs
         public static string ReadPropertyString(this BinaryReader br, int length)
         {
-            var c = br.ReadChars(length);
+            char[] c = br.ReadChars(length);
             int l = length;
 
             for (int i = 0; i < length - 1; i++)
             {
-                if (c[i+0] == 0 && c[i+1] == 1)
+                if (c[i + 0] == 0 && c[i + 1] == 1)
                 {
                     c[i + 0] = ':';
                     c[i + 1] = ':';
@@ -33,7 +32,7 @@ namespace ToxicRagers.Helpers
 
         public static void WritePropertyString(this BinaryWriter bw, string s)
         {
-            var c = s.ToCharArray();
+            char[] c = s.ToCharArray();
             int length = c.Length;
 
             for (int i = 0; i < length - 1; i++)
@@ -53,7 +52,7 @@ namespace ToxicRagers.Helpers
         {
             if (length == 0) { return null; }
 
-            var c = br.ReadChars(length);
+            char[] c = br.ReadChars(length);
             int l = length;
 
             for (int i = 0; i < length; i++)
@@ -70,12 +69,12 @@ namespace ToxicRagers.Helpers
 
         public static string[] ReadStrings(this BinaryReader br, int count)
         {
-            var r = new string[count];
+            string[] r = new string[count];
             int i = 0;
 
             while (i < count)
             {
-                var c = br.ReadChar();
+                char c = br.ReadChar();
                 if (c == 0)
                 {
                     i++;
@@ -113,9 +112,9 @@ namespace ToxicRagers.Helpers
             return int.Parse(s);
         }
 
-        public static Single ToSingle(this string s)
+        public static float ToSingle(this string s)
         {
-            return Single.Parse(s, ToxicRagers.Culture);
+            return float.Parse(s, ToxicRagers.Culture);
         }
 
         public static T ToEnum<T>(this string value, bool ignoreCase = true)
@@ -123,11 +122,9 @@ namespace ToxicRagers.Helpers
             return (T)Enum.Parse(typeof(T), value, ignoreCase);
         }
 
-        public static T ToEnumWithDefault<T>(this string value, T defaultValue, bool ignoreCase = true) where T: struct
+        public static T ToEnumWithDefault<T>(this string value, T defaultValue, bool ignoreCase = true) where T : struct
         {
-            T o;
-
-            if (Enum.TryParse<T>(value, ignoreCase, out o))
+            if (Enum.TryParse<T>(value, ignoreCase, out T o))
             {
                 return o;
             }
@@ -161,8 +158,7 @@ namespace ToxicRagers.Helpers
             while (true)
             {
                 startIndex = originalString.IndexOf(oldValue, startIndex, comparisonType);
-                if (startIndex == -1)
-                    break;
+                if (startIndex == -1) { break; }
 
                 originalString = originalString.Substring(0, startIndex) + newValue + originalString.Substring(startIndex + oldValue.Length);
 
@@ -217,7 +213,7 @@ namespace ToxicRagers.Helpers
                 graphics.SmoothingMode = SmoothingMode.HighQuality;
                 graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
 
-                using (var wrapMode = new ImageAttributes())
+                using (ImageAttributes wrapMode = new ImageAttributes())
                 {
                     wrapMode.SetWrapMode(WrapMode.TileFlipXY);
                     graphics.DrawImage(b, new Rectangle(0, 0, width, height), 0, 0, b.Width, b.Height, GraphicsUnit.Pixel, wrapMode);

@@ -13,16 +13,14 @@ namespace ToxicRagers.Stainless.Formats
         List<string> textureNames = new List<string>();
         Version version;
 
-        public string Name { get { return name; } }
-        public List<string> Textures { get { return textureNames; } }
+        public string Name => name;
+        public List<string> Textures => textureNames;
 
         public static MTL Load(string path)
         {
             FileInfo fi = new FileInfo(path);
             Logger.LogToFile(Logger.LogLevel.Info, "{0}", path);
-            MTL mtl = new MTL();
-
-            mtl.name = Path.GetFileNameWithoutExtension(path);
+            MTL mtl = new MTL() { name = Path.GetFileNameWithoutExtension(path) };
 
             using (BinaryReader br = new BinaryReader(fi.OpenRead()))
             {

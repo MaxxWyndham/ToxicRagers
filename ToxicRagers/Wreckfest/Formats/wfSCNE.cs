@@ -11,10 +11,7 @@ namespace ToxicRagers.Wreckfest.Formats
     {
         List<SCNEBone> bones = new List<SCNEBone>();
 
-        public List<SCNEBone> Bones
-        {
-            get { return bones; }
-        }
+        public List<SCNEBone> Bones => bones;
 
         public static SCNE Load(string path)
         {
@@ -40,8 +37,7 @@ namespace ToxicRagers.Wreckfest.Formats
                             {
                                 Logger.LogToFile(Logger.LogLevel.Debug, "{0} of {1}", k, modelCount);
 
-                                SCNEBone bone = new SCNEBone();
-                                bone.Name = br.ReadString((int)br.ReadUInt32());
+                                SCNEBone bone = new SCNEBone() { Name = br.ReadString((int)br.ReadUInt32()) };
 
                                 string dntpName = br.ReadString((int)br.ReadUInt32());
                                 Logger.LogToFile(Logger.LogLevel.Debug, dntpName);
@@ -89,9 +85,7 @@ namespace ToxicRagers.Wreckfest.Formats
                                             {
                                                 Logger.LogToFile(Logger.LogLevel.Debug, "{0} of {1}", mi, meshCount);
 
-                                                SCNEMesh mesh = new SCNEMesh();
-                                                mesh.Name = br.ReadString((int)br.ReadUInt32());
-
+                                                SCNEMesh mesh = new SCNEMesh() { Name = br.ReadString((int)br.ReadUInt32()) };
                                                 Logger.LogToFile(Logger.LogLevel.Debug, mesh.Name);
 
                                                 if ((section = br.ReadString(4)) != "hctb") { throw new InvalidDataException("Expected hctb"); }
@@ -108,13 +102,13 @@ namespace ToxicRagers.Wreckfest.Formats
                                                     int ia = (int)br.ReadUInt32();
                                                     int ib = (int)br.ReadUInt32();
                                                     int ic = (int)br.ReadUInt32();
-                                                    Single sa = br.ReadSingle();
-                                                    Single sb = br.ReadSingle();
-                                                    Single sc = br.ReadSingle();
-                                                    Single sd = br.ReadSingle();
-                                                    Single se = br.ReadSingle();
-                                                    Single sf = br.ReadSingle();
-                                                    Single sg = br.ReadSingle();
+                                                    float sa = br.ReadSingle();
+                                                    float sb = br.ReadSingle();
+                                                    float sc = br.ReadSingle();
+                                                    float sd = br.ReadSingle();
+                                                    float se = br.ReadSingle();
+                                                    float sf = br.ReadSingle();
+                                                    float sg = br.ReadSingle();
 
                                                     Logger.LogToFile(Logger.LogLevel.Info, mesh.Name);
                                                     Logger.LogToFile(Logger.LogLevel.Info, "{0} : {1} : {2}", ia, ib, ic);
@@ -177,10 +171,12 @@ namespace ToxicRagers.Wreckfest.Formats
                                                     count = (int)br.ReadUInt32();
                                                     for (int i = 0; i < count; i++)
                                                     {
-                                                        SCNEVertex v = new SCNEVertex();
-                                                        v.Position = unpack(br.ReadUInt64()).ToVector3();
-                                                        v.Normal = unpackNormal(br.ReadUInt32()).ToVector3();
-                                                        v.UV = unpack(br.ReadUInt32());
+                                                        SCNEVertex v = new SCNEVertex()
+                                                        {
+                                                            Position = Unpack(br.ReadUInt64()).ToVector3(),
+                                                            Normal = UnpackNormal(br.ReadUInt32()).ToVector3(),
+                                                            UV = Unpack(br.ReadUInt32())
+                                                        };
                                                         part.Verts.Add(v);
 
                                                         br.ReadBytes(16);
@@ -602,7 +598,7 @@ namespace ToxicRagers.Wreckfest.Formats
             return scne;
         }
 
-        public static Vector4 unpack(ulong packedValue)
+        public static Vector4 Unpack(ulong packedValue)
         {
             return new Vector4(
                 ((short)(packedValue & 0xFFFF) / 4095.0f),
@@ -611,7 +607,7 @@ namespace ToxicRagers.Wreckfest.Formats
                 ((short)((packedValue >> 0x30) & 0xFFFF) / 4095.0f));
         }
 
-        public static Vector2 unpack(uint packedValue)
+        public static Vector2 Unpack(uint packedValue)
         {
             float x = 1 + (short)(packedValue & 0xFFFF) / 2047.0f;
             float y = 1 + (short)(packedValue >> 0x10) / 2047.0f;
@@ -621,7 +617,7 @@ namespace ToxicRagers.Wreckfest.Formats
             return new Vector2(x, y);
         }
 
-        public static Vector4 unpackNormal(uint i)
+        public static Vector4 UnpackNormal(uint i)
         {
             return new Vector4(
                 ((sbyte)(i & 0xFF)) / 127.0f,
@@ -639,20 +635,20 @@ namespace ToxicRagers.Wreckfest.Formats
 
         public List<SCNEMesh> Meshes
         {
-            get { return meshes; }
-            set { meshes = value; }
+            get => meshes;
+            set => meshes = value;
         }
 
         public string Name
         {
-            get { return name; }
-            set { name = value; }
+            get => name;
+            set => name = value;
         }
 
         public Matrix4D Transform
         {
-            get { return matrix; }
-            set { matrix = value; }
+            get => matrix;
+            set => matrix = value;
         }
 
         public SCNEBone()
@@ -668,14 +664,14 @@ namespace ToxicRagers.Wreckfest.Formats
 
         public List<SCNEMeshPart> Parts
         {
-            get { return parts; }
-            set { parts = value; }
+            get => parts;
+            set => parts = value;
         }
 
         public string Name
         {
-            get { return name; }
-            set { name = value; }
+            get => name;
+            set => name = value;
         }
 
         public SCNEMesh()
@@ -693,26 +689,26 @@ namespace ToxicRagers.Wreckfest.Formats
 
         public List<string> Materials
         {
-            get { return materials; }
-            set { materials = value; }
+            get => materials;
+            set => materials = value;
         }
 
         public List<SCNETexture> Textures
         {
-            get { return textures; }
-            set { textures = value; }
+            get => textures;
+            set => textures = value;
         }
 
         public List<SCNEVertex> Verts
         {
-            get { return verts; }
-            set { verts = value; }
+            get => verts;
+            set => verts = value;
         }
 
         public List<int> IndexBuffer
         {
-            get { return indexBuffer; }
-            set { indexBuffer = value; }
+            get => indexBuffer;
+            set => indexBuffer = value;
         }
 
         public SCNEMeshPart()
@@ -736,14 +732,14 @@ namespace ToxicRagers.Wreckfest.Formats
 
         public TextureType Format
         {
-            get { return type; }
-            set { type = value; }
+            get => type;
+            set => type = value;
         }
 
         public string Name
         {
-            get { return name; }
-            set { name = value; }
+            get => name;
+            set => name = value;
         }
     }
 
@@ -755,20 +751,20 @@ namespace ToxicRagers.Wreckfest.Formats
 
         public Vector3 Position
         {
-            get { return position; }
-            set { position = value; }
+            get => position;
+            set => position = value;
         }
 
         public Vector3 Normal
         {
-            get { return normal; }
-            set { normal = value; }
+            get => normal;
+            set => normal = value;
         }
 
         public Vector2 UV
         {
-            get { return uv; }
-            set { uv = value; }
+            get => uv;
+            set => uv = value;
         }
     }
 }

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 
@@ -17,7 +16,7 @@ namespace ToxicRagers.Vigilante82ndOffense.Formats
             Logger.LogToFile(Logger.LogLevel.Info, "{0}", path);
             BIN bin = new BIN();
 
-            using (var br = new BinaryReader(fi.OpenRead()))
+            using (BinaryReader br = new BinaryReader(fi.OpenRead()))
             {
                 int aCount = (int)br.ReadUInt32();
                 int aOffset = (int)br.ReadUInt32();
@@ -25,7 +24,7 @@ namespace ToxicRagers.Vigilante82ndOffense.Formats
                 int bOffset = (int)br.ReadUInt32();
                 int textureCount = (int)br.ReadUInt32();
                 int textureOffset = (int)br.ReadUInt32();
-                
+
                 int cCount = (int)br.ReadUInt32();
                 for (int i = 0; i < cCount; i++)
                 {

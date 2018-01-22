@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Xml.Linq;
 
 namespace ToxicRagers.CarmageddonReincarnation.Formats.Materials
@@ -13,14 +12,14 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats.Materials
         [Required]
         public string DiffuseColour
         {
-            get { return diffuse; }
-            set { diffuse = value; }
+            get => diffuse;
+            set => diffuse = value;
         }
 
-        public Single Multiplier
+        public float Multiplier
         {
-            get { return multiplier.X; }
-            set { multiplier.X = value; }
+            get => multiplier.X;
+            set => multiplier.X = value;
         }
 
         public simple_additive_base() { }
@@ -51,7 +50,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats.Materials
 
                 Samplers =
                 {
-                    new Sampler 
+                    new Sampler
                     {
                         Alias = "SAMPLER_DiffuseColour",
                         UsageRGB = Sampler.Usage.DiffuseAlbedo,
@@ -60,7 +59,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats.Materials
                 }
             };
 
-            var diff = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "DiffuseColour").FirstOrDefault();
+            XElement diff = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "DiffuseColour").FirstOrDefault();
 
             if (diff != null) { diffuse = diff.Attribute("FileName").Value; }
         }

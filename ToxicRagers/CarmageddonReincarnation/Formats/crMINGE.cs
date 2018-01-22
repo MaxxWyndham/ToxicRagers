@@ -22,10 +22,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
         List<string> images = new List<string>();
         List<string> requirements = new List<string>();
 
-        public int MingeVersion
-        {
-            get { return mingeVersion; }
-        }
+        public int MingeVersion => mingeVersion;
 
         public Version ModVersion
         {

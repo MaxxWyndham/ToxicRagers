@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Xml.Linq;
 
 using ToxicRagers.Helpers;
@@ -30,112 +29,112 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats.Materials
         [Ignore]
         public string DiffuseColour
         {
-            get { return diffuse; }
-            set { diffuse = value; }
+            get => diffuse;
+            set => diffuse = value;
         }
 
         [Required]
         public string Side1_DiffuseColour1
         {
-            get { return diffuseS1_1; }
-            set { diffuseS1_1 = value; }
+            get => diffuseS1_1;
+            set => diffuseS1_1 = value;
         }
 
         [Required]
         public string Side1_Normal_Map1
         {
-            get { return normalS1_1; }
-            set { normalS1_1 = value; }
+            get => normalS1_1;
+            set => normalS1_1 = value;
         }
 
         [Required]
         public string Side1_Spec_Map1
         {
-            get { return specularS1_1; }
-            set { specularS1_1 = value; }
+            get => specularS1_1;
+            set => specularS1_1 = value;
         }
 
         [Required]
         public string Side1_DiffuseColour2
         {
-            get { return diffuse; }
-            set { diffuse = value; }
+            get => diffuse;
+            set => diffuse = value;
         }
 
         [Required]
         public string Side1_Normal_Map2
         {
-            get { return normalS1_2; }
-            set { normalS1_2 = value; }
+            get => normalS1_2;
+            set => normalS1_2 = value;
         }
 
         [Required]
         public string Side1_Spec_Map2
         {
-            get { return specularS1_2; }
-            set { specularS1_2 = value; }
+            get => specularS1_2;
+            set => specularS1_2 = value;
         }
 
         // <Texture Alias="Side1_Decal_DiffuseColour" FileName="spatter_X"/>
-	    // <Texture Alias="Side1_Decal_Normal_Map" FileName="spatter_X"/>
-	    // <Texture Alias="Side1_Decal_Spec_Map" FileName="spatter_X"/>
+        // <Texture Alias="Side1_Decal_Normal_Map" FileName="spatter_X"/>
+        // <Texture Alias="Side1_Decal_Spec_Map" FileName="spatter_X"/>
 
         [Required]
         public string Side2_DiffuseColour
         {
-            get { return diffuseS2; }
-            set { diffuseS2 = value; }
+            get => diffuseS2;
+            set => diffuseS2 = value;
         }
 
         [Required]
         public string Side2_Normal_Map
         {
-            get { return normalS2; }
-            set { normalS2 = value; }
+            get => normalS2;
+            set => normalS2 = value;
         }
 
         [Required]
         public string Side2_Spec_Map
         {
-            get { return specularS2; }
-            set { specularS2 = value; }
+            get => specularS2;
+            set => specularS2 = value;
         }
 
         [Required]
         public string BlendMap
         {
-            get { return blend; }
-            set { blend = value; }
+            get => blend;
+            set => blend = value;
         }
 
-        public Single BlendFactor
+        public float BlendFactor
         {
-            get { return blendFactor.X; }
-            set { blendFactor.X = value; }
+            get => blendFactor.X;
+            set => blendFactor.X = value;
         }
 
-        public Single Falloff
+        public float Falloff
         {
-            get { return fallOff.X; }
-            set { fallOff.X = value; }
+            get => fallOff.X;
+            set => fallOff.X = value;
         }
 
-        public Single Layer1UVSlot
+        public float Layer1UVSlot
         {
-            get { return layer1UVSlot.X; }
-            set { layer1UVSlot.X = value; }
+            get => layer1UVSlot.X;
+            set => layer1UVSlot.X = value;
         }
 
-        public Single Layer2UVSlot
+        public float Layer2UVSlot
         {
-            get { return layer2UVSlot.X; }
-            set { layer2UVSlot.X = value; }
+            get => layer2UVSlot.X;
+            set => layer2UVSlot.X = value;
         }
 
-        public Single BlendUVSlot
+        public float BlendUVSlot
         {
-            get { return blendUVSlot.X; }
-            set { blendUVSlot.X = value; }
+            get => blendUVSlot.X;
+            set => blendUVSlot.X = value;
         }
 
         public car_shader_double_sided_base() { }
@@ -180,7 +179,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats.Materials
 
                 Samplers =
                 {
-                    new Sampler 
+                    new Sampler
                     {
                         Alias = "SAMPLER_Side1_DiffuseColour1",
                         MinFilter = Sampler.Filter.Anisotropic,
@@ -189,7 +188,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats.Materials
                         UsageRGB = Sampler.Usage.DiffuseAlbedo,
                         sRGBRead = true
                     },
-                    new Sampler 
+                    new Sampler
                     {
                         Alias = "SAMPLER_Side1_NormalMap1",
                         MinFilter = Sampler.Filter.Anisotropic,
@@ -197,7 +196,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats.Materials
                         MagFilter = Sampler.Filter.Anisotropic,
                         UsageRGB = Sampler.Usage.TangentSpaceNormals
                     },
-                    new Sampler 
+                    new Sampler
                     {
                         Alias = "SAMPLER_Side1_SpecMap1",
                         MinFilter = Sampler.Filter.Anisotropic,
@@ -207,7 +206,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats.Materials
                         UsageAlpha = Sampler.Usage.SpecPower
                     },
 
-                    new Sampler 
+                    new Sampler
                     {
                         Alias = "SAMPLER_Side1_DiffuseColour2",
                         MinFilter = Sampler.Filter.Anisotropic,
@@ -216,7 +215,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats.Materials
                         UsageRGB = Sampler.Usage.DiffuseAlbedo,
                         sRGBRead = true
                     },
-                    new Sampler 
+                    new Sampler
                     {
                         Alias = "SAMPLER_Side1_NormalMap2",
                         MinFilter = Sampler.Filter.Anisotropic,
@@ -224,7 +223,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats.Materials
                         MagFilter = Sampler.Filter.Anisotropic,
                         UsageRGB = Sampler.Usage.TangentSpaceNormals
                     },
-                    new Sampler 
+                    new Sampler
                     {
                         Alias = "SAMPLER_Side1_SpecMap2",
                         MinFilter = Sampler.Filter.Anisotropic,
@@ -233,7 +232,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats.Materials
                         UsageRGB = Sampler.Usage.SpecColour,
                         UsageAlpha = Sampler.Usage.SpecPower
                     },
-                    new Sampler 
+                    new Sampler
                     {
                         Alias = "SAMPLER_Side1_Decal_DiffuseColour",
                         MinFilter = Sampler.Filter.Anisotropic,
@@ -242,7 +241,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats.Materials
                         UsageRGB = Sampler.Usage.DiffuseAlbedo,
                         sRGBRead = true
                     },
-                    new Sampler 
+                    new Sampler
                     {
                         Alias = "SAMPLER_Side1_Decal_Normal_Map",
                         MinFilter = Sampler.Filter.Anisotropic,
@@ -250,7 +249,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats.Materials
                         MagFilter = Sampler.Filter.Anisotropic,
                         UsageRGB = Sampler.Usage.TangentSpaceNormals
                     },
-                    new Sampler 
+                    new Sampler
                     {
                         Alias = "SAMPLER_Side1_Decal_Spec_Map",
                         MinFilter = Sampler.Filter.Anisotropic,
@@ -260,7 +259,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats.Materials
                         UsageAlpha = Sampler.Usage.SpecPower
                     },
 
-                    new Sampler 
+                    new Sampler
                     {
                         Alias = "SAMPLER_Side2_DiffuseColour",
                         MinFilter = Sampler.Filter.Anisotropic,
@@ -269,7 +268,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats.Materials
                         UsageRGB = Sampler.Usage.DiffuseAlbedo,
                         sRGBRead = true
                     },
-                    new Sampler 
+                    new Sampler
                     {
                         Alias = "SAMPLER_Side2_NormalMap",
                         MinFilter = Sampler.Filter.Anisotropic,
@@ -277,7 +276,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats.Materials
                         MagFilter = Sampler.Filter.Anisotropic,
                         UsageRGB = Sampler.Usage.TangentSpaceNormals
                     },
-                    new Sampler 
+                    new Sampler
                     {
                         Alias = "SAMPLER_Side2_SpecMap",
                         MinFilter = Sampler.Filter.Anisotropic,
@@ -287,7 +286,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats.Materials
                         UsageAlpha = Sampler.Usage.SpecPower
                     },
 
-                    new Sampler 
+                    new Sampler
                     {
                         Alias = "SAMPLER_BlendMap",
                         MinFilter = Sampler.Filter.Anisotropic,
@@ -297,16 +296,16 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats.Materials
                 }
             };
 
-            var diff11 = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "Side1_DiffuseColour1").FirstOrDefault();
-            var norm11 = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "Side1_Normal_Map1").FirstOrDefault();
-            var spec11 = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "Side1_Spec_Map1").FirstOrDefault();
-            var diff12 = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "Side1_DiffuseColour2").FirstOrDefault();
-            var norm12 = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "Side1_Normal_Map2").FirstOrDefault();
-            var spec12 = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "Side1_Spec_Map2").FirstOrDefault();
-            var diff21 = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "Side2_DiffuseColour").FirstOrDefault();
-            var norm21 = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "Side2_Normal_Map").FirstOrDefault();
-            var spec21 = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "Side2_Spec_Map").FirstOrDefault();
-            var blen = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "BlendMap").FirstOrDefault();
+            XElement diff11 = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "Side1_DiffuseColour1").FirstOrDefault();
+            XElement norm11 = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "Side1_Normal_Map1").FirstOrDefault();
+            XElement spec11 = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "Side1_Spec_Map1").FirstOrDefault();
+            XElement diff12 = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "Side1_DiffuseColour2").FirstOrDefault();
+            XElement norm12 = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "Side1_Normal_Map2").FirstOrDefault();
+            XElement spec12 = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "Side1_Spec_Map2").FirstOrDefault();
+            XElement diff21 = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "Side2_DiffuseColour").FirstOrDefault();
+            XElement norm21 = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "Side2_Normal_Map").FirstOrDefault();
+            XElement spec21 = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "Side2_Spec_Map").FirstOrDefault();
+            XElement blen = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "BlendMap").FirstOrDefault();
 
             if (diff11 != null) { diffuseS1_1 = diff11.Attribute("FileName").Value; }
             if (norm11 != null) { normalS1_1 = norm11.Attribute("FileName").Value; }
@@ -322,11 +321,11 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats.Materials
 
             if (blen != null) { blend = blen.Attribute("FileName").Value; }
 
-            var blnf = xml.Descendants("Constant").Where(e => e.Attribute("Alias").Value == "BlendFactor").FirstOrDefault();
-            var fall = xml.Descendants("Constant").Where(e => e.Attribute("Alias").Value == "Falloff").FirstOrDefault();
-            var bluv = xml.Descendants("Constant").Where(e => e.Attribute("Alias").Value == "BlendUVSlot").FirstOrDefault();
-            var l1uv = xml.Descendants("Constant").Where(e => e.Attribute("Alias").Value == "Layer1UVSlot").FirstOrDefault();
-            var l2uv = xml.Descendants("Constant").Where(e => e.Attribute("Alias").Value == "Layer2UVSlot").FirstOrDefault();
+            XElement blnf = xml.Descendants("Constant").Where(e => e.Attribute("Alias").Value == "BlendFactor").FirstOrDefault();
+            XElement fall = xml.Descendants("Constant").Where(e => e.Attribute("Alias").Value == "Falloff").FirstOrDefault();
+            XElement bluv = xml.Descendants("Constant").Where(e => e.Attribute("Alias").Value == "BlendUVSlot").FirstOrDefault();
+            XElement l1uv = xml.Descendants("Constant").Where(e => e.Attribute("Alias").Value == "Layer1UVSlot").FirstOrDefault();
+            XElement l2uv = xml.Descendants("Constant").Where(e => e.Attribute("Alias").Value == "Layer2UVSlot").FirstOrDefault();
 
             if (blnf != null) { blendFactor = ReadConstant(blnf); }
             if (fall != null) { fallOff = ReadConstant(fall); }

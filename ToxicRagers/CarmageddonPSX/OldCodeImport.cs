@@ -2,24 +2,25 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
-using ToxicRagers.Helpers;
+
 using ToxicRagers.Carmageddon2.Formats;
 using ToxicRagers.Carmageddon2.Helpers;
+using ToxicRagers.Helpers;
 
-namespace reverseEngineerinator
+namespace ToxicRagers.CarmageddonPSX
 {
-    class gameCarmaPSX
+    public class Helpers
     {
         //Single scale = 0.00165f; // C2 scale
 
-        public struct cpsxTex
+        public struct CpsxTex
         {
             public string Name;
             public int Width;
             public int Height;
         }
 
-        public static void ProcessOBJ(string PathIn, string PathOut, Single scale)
+        public static void ProcessOBJ(string PathIn, string PathOut, float scale)
         {
             string pathIn = PathIn.Substring(0, PathIn.LastIndexOf("\\") + 1);
             string fileIn = PathIn.Replace(pathIn, "");
@@ -245,7 +246,7 @@ namespace reverseEngineerinator
             br.Close();
         }
 
-        public static void ProcessTEX(string PathIn, string PathOut, out cpsxTex[] psxTex)
+        public static void ProcessTEX(string PathIn, string PathOut, out CpsxTex[] psxTex)
         {
             string pathIn = PathIn.Substring(0, PathIn.LastIndexOf("\\") + 1);
             string fileIn = PathIn.Replace(pathIn, "");
@@ -262,7 +263,7 @@ namespace reverseEngineerinator
                 int iTexCount = br.ReadInt32();
                 Color[] colours = new Color[16];
 
-                psxTex = new cpsxTex[iTexCount];
+                psxTex = new CpsxTex[iTexCount];
 
                 int k = 0;
 
@@ -311,7 +312,7 @@ namespace reverseEngineerinator
             m.Save(PathOut + (bNonCars ? "nc" : "") + fileIn.Replace(".TEX", ".mat").Replace(".MOT", ".mat"));
         }
 
-        public static void ProcessMOD(string PathIn, string PathOut, cpsxTex[] psxTex, Single scaleFactor, bool bDebug = false, bool bSplit = true)
+        public static void ProcessMOD(string PathIn, string PathOut, CpsxTex[] psxTex, float scaleFactor, bool bDebug = false, bool bSplit = true)
         {
             string pathIn = PathIn.Substring(0, PathIn.LastIndexOf("\\"));
             string fileIn = PathIn.Replace(pathIn, "");
@@ -425,7 +426,7 @@ namespace reverseEngineerinator
 
                         if (1 == 1)
                         {
-                            c2Mesh m = new c2Mesh();
+                            C2Mesh m = new C2Mesh();
 
                             if (psxTex != null)
                             {
@@ -452,8 +453,8 @@ namespace reverseEngineerinator
 
                                 //verts[j] = new Vector3(br.ReadInt16() + oX, -br.ReadInt16(), br.ReadInt16() + oZ);
 
-                                Single oX = x * 8192;
-                                Single oZ = z * -8192;
+                                float oX = x * 8192;
+                                float oZ = z * -8192;
 
                                 verts[j] = new Vector3(br.ReadInt16() + oX, -br.ReadInt16(), -br.ReadInt16() + oZ);
 
@@ -471,14 +472,14 @@ namespace reverseEngineerinator
 
                                 int v4 = br.ReadInt16(); // This is very occasionally not 0!
 
-                                Single v1u = br.ReadByte();
-                                Single v1v = br.ReadByte();
-                                Single v2u = br.ReadByte();
-                                Single v2v = br.ReadByte();
-                                Single v3u = br.ReadByte();
-                                Single v3v = br.ReadByte();
-                                Single v4u = br.ReadByte(); // This is very occasionally not 0!
-                                Single v4v = br.ReadByte(); // This is very occasionally not 0!
+                                float v1u = br.ReadByte();
+                                float v1v = br.ReadByte();
+                                float v2u = br.ReadByte();
+                                float v2v = br.ReadByte();
+                                float v3u = br.ReadByte();
+                                float v3v = br.ReadByte();
+                                float v4u = br.ReadByte(); // This is very occasionally not 0!
+                                float v4v = br.ReadByte(); // This is very occasionally not 0!
 
                                 br.ReadBytes(5);
 
@@ -528,14 +529,14 @@ namespace reverseEngineerinator
                                 int v3 = br.ReadInt16();
                                 int v4 = br.ReadInt16();
 
-                                Single v1u = br.ReadByte();
-                                Single v1v = br.ReadByte();
-                                Single v2u = br.ReadByte();
-                                Single v2v = br.ReadByte();
-                                Single v3u = br.ReadByte();
-                                Single v3v = br.ReadByte();
-                                Single v4u = br.ReadByte();
-                                Single v4v = br.ReadByte();
+                                float v1u = br.ReadByte();
+                                float v1v = br.ReadByte();
+                                float v2u = br.ReadByte();
+                                float v2v = br.ReadByte();
+                                float v3u = br.ReadByte();
+                                float v3v = br.ReadByte();
+                                float v4u = br.ReadByte();
+                                float v4v = br.ReadByte();
 
                                 br.ReadBytes(5);
 
@@ -631,11 +632,11 @@ namespace reverseEngineerinator
                 while (br.BaseStream.Position < br.BaseStream.Length)
                 {
                     if (bSplit) { dat = new DAT(); }
-                    c2Mesh m;
+                    C2Mesh m;
 
                     Console.WriteLine("Object discovered at " + br.BaseStream.Position + " of " + br.BaseStream.Length);
 
-                    m = new c2Mesh();
+                    m = new C2Mesh();
 
                     if (psxTex != null)
                     {
@@ -680,12 +681,12 @@ namespace reverseEngineerinator
                         int v2 = br.ReadInt16();
                         int v1 = br.ReadInt16();
                         int faceID = br.ReadInt16();
-                        Single v3u = br.ReadByte();
-                        Single v3v = br.ReadByte();
-                        Single v2u = br.ReadByte();
-                        Single v2v = br.ReadByte();
-                        Single v1u = br.ReadByte();
-                        Single v1v = br.ReadByte();
+                        float v3u = br.ReadByte();
+                        float v3v = br.ReadByte();
+                        float v2u = br.ReadByte();
+                        float v2v = br.ReadByte();
+                        float v1u = br.ReadByte();
+                        float v1v = br.ReadByte();
                         int unkA = br.ReadInt16();
                         int unkB = br.ReadInt16();
                         int matID = br.ReadInt16();
@@ -736,11 +737,11 @@ namespace reverseEngineerinator
             br.Close();
         }
 
-        static public void loopDirectoriesIn(string sPath, int mode)
+        static public void LoopDirectoriesIn(string sPath, int mode)
         {
             foreach (DirectoryInfo d in new DirectoryInfo(sPath).GetDirectories())
             {
-                loopDirectoriesIn(d.FullName, mode);
+                LoopDirectoriesIn(d.FullName, mode);
 
                 switch (mode)
                 {
@@ -811,18 +812,17 @@ namespace reverseEngineerinator
         }
 
         // Meta/Aggregate functions
-        public static void ProcessCar(string CarName, string DisplayName, string InRoot, string OutParent, Single ChassisOffset = 0.5f, Vector3 frontOffset = null, Vector3 backOffset = null)
+        public static void ProcessCar(string CarName, string DisplayName, string InRoot, string OutParent, float ChassisOffset = 0.5f, Vector3 frontOffset = null, Vector3 backOffset = null)
         {
             frontOffset = frontOffset ?? Vector3.Zero;
             backOffset = backOffset ?? Vector3.Zero;
 
             string outPath = OutParent + "\\" + CarName + "\\";
             if (!Directory.Exists(outPath)) { Directory.CreateDirectory(outPath); }
-            cpsxTex[] psxTex;
 
-            gameCarmaPSX.ProcessTEX(InRoot + "CARS\\TEX\\" + CarName + ".TEX", outPath, out psxTex);
-            //gameCarmaPSX.ProcessTEX(InRoot + "RUNTIME\\GFX\\MODELS\\TEX\\" + CarName + ".TEX", outPath, out psxTex);
-            gameCarmaPSX.ProcessMOD(InRoot + "CARS\\MOD\\" + CarName + ".MOD", outPath, psxTex, 0.00165f);
+            ProcessTEX(InRoot + "CARS\\TEX\\" + CarName + ".TEX", outPath, out CpsxTex[] psxTex);
+            //ProcessTEX(InRoot + "RUNTIME\\GFX\\MODELS\\TEX\\" + CarName + ".TEX", outPath, out psxTex);
+            ProcessMOD(InRoot + "CARS\\MOD\\" + CarName + ".MOD", outPath, psxTex, 0.00165f);
 
             int datCount = new DirectoryInfo(outPath).GetFiles("*_00.dat").Length;
 
@@ -846,7 +846,7 @@ namespace reverseEngineerinator
             //dRLWheel.DatMeshes[0].Mesh.Translate(new Vector3(-backOffset.X, dRLWheel.DatMeshes[0].Mesh.Extents.Max.Y, backOffset.Z));
 
             dChassis.DatMeshes[0].Mesh.GenerateKDOP(18);
-            saveBoundingBox(dChassis.DatMeshes[0].Mesh.intersectionPoints, outPath + DisplayName + "PSX_BB.txt");
+            SaveBoundingBox(dChassis.DatMeshes[0].Mesh.intersectionPoints, outPath + DisplayName + "PSX_BB.txt");
             ACT kdop = new ACT();
             kdop.AddRootNode("pointcloud");
             for (int i = 0; i < dChassis.DatMeshes[0].Mesh.intersectionPoints.Count; i++)
@@ -870,7 +870,7 @@ namespace reverseEngineerinator
             car.Optimise();
             car.Save(outPath + DisplayName + "PSX.dat");
 
-            c2Mesh mSimple = new c2Mesh();
+            C2Mesh mSimple = new C2Mesh();
             mSimple.BuildFromExtents(car.DatMeshes[0].Mesh.Extents);
             DAT dSimple = new DAT(new DatMesh(DisplayName + "PSX.1", mSimple));
             dSimple.Save(outPath + "simple_" + DisplayName + "PSX.dat");
@@ -894,7 +894,7 @@ namespace reverseEngineerinator
             a.Save(outPath + DisplayName + "PSX.act");
         }
 
-        public static void saveBoundingBox(List<Vector3> points, string file)
+        public static void SaveBoundingBox(List<Vector3> points, string file)
         {
             using (StreamWriter txt = new StreamWriter(file))
             {

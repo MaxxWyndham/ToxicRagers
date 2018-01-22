@@ -63,44 +63,44 @@ namespace ToxicRagers.Core.Formats
 
         public PixelFormatFlags Flags
         {
-            get { return flags; }
-            set { flags = value; }
+            get => flags;
+            set => flags = value;
         }
 
         public PixelFormatFourCC FourCC
         {
-            get { return fourCC; }
-            set { fourCC = value; }
+            get => fourCC;
+            set => fourCC = value;
         }
 
         public int RGBBitCount
         {
-            get { return rgbBitCount; }
-            set { rgbBitCount = value; }
+            get => rgbBitCount;
+            set => rgbBitCount = value;
         }
 
         public uint RBitMask
         {
-            get { return rBitMask; }
-            set { rBitMask = value; }
+            get => rBitMask;
+            set => rBitMask = value;
         }
 
         public uint GBitMask
         {
-            get { return gBitMask; }
-            set { gBitMask = value; }
+            get => gBitMask;
+            set => gBitMask = value;
         }
 
         public uint BBitMask
         {
-            get { return bBitMask; }
-            set { bBitMask = value; }
+            get => bBitMask;
+            set => bBitMask = value;
         }
 
         public uint ABitMask
         {
-            get { return aBitMask; }
-            set { aBitMask = value; }
+            get => aBitMask;
+            set => aBitMask = value;
         }
     }
 
@@ -133,20 +133,17 @@ namespace ToxicRagers.Core.Formats
 
         public int Height
         {
-            get { return height; }
-            set { height = value; }
+            get => height;
+            set => height = value;
         }
 
         public int Width
         {
-            get { return width; }
-            set { width = value; }
+            get => width;
+            set => width = value;
         }
 
-        public int Depth
-        {
-            get { return depth; }
-        }
+        public int Depth => depth;
 
         public DDS() { }
 
@@ -178,9 +175,11 @@ namespace ToxicRagers.Core.Formats
             width = bitmap.Width;
             height = bitmap.Height;
 
-            var mip = new MipMap();
-            mip.Width = width;
-            mip.Height = height;
+            MipMap mip = new MipMap()
+            {
+                Width = width,
+                Height = height
+            };
 
             byte[] data = new byte[mip.Width * mip.Height * 4];
 
@@ -258,7 +257,7 @@ namespace ToxicRagers.Core.Formats
 
                 for (int i = 0; i < Math.Max(1, mipCount); i++)
                 {
-                    var mip = new MipMap
+                    MipMap mip = new MipMap
                     {
                         Width = dds.width >> i,
                         Height = dds.height >> i
@@ -363,13 +362,13 @@ namespace ToxicRagers.Core.Formats
 
         public Bitmap Decompress(int mipLevel = 0, bool bSuppressAlpha = false)
         {
-            var mip = this.MipMaps[mipLevel];
+            MipMap mip = MipMaps[mipLevel];
 
             Bitmap b = new Bitmap(mip.Width, mip.Height, PixelFormat.Format32bppArgb);
             SquishFlags flags = 0;
             bool bNotCompressed = false;
 
-            switch (this.format)
+            switch (format)
             {
                 case D3DFormat.DXT1:
                     flags = SquishFlags.kDxt1;
@@ -384,7 +383,7 @@ namespace ToxicRagers.Core.Formats
                     break;
 
                 default:
-                    throw new NotImplementedException(string.Format("Can't decompress: {0}", this.format));
+                    throw new NotImplementedException(string.Format("Can't decompress: {0}", format));
             }
 
             byte[] dest = new byte[mip.Width * mip.Height * 4];
@@ -396,10 +395,10 @@ namespace ToxicRagers.Core.Formats
                 {
                     uint colour = (uint)((data[i + 3] << 24) | (data[i + 2] << 16) | (data[i + 1] << 8) | (data[i + 0] << 0));
 
-                    dest[i + 0] = (byte)((colour & this.pixelFormat.BBitMask) >> 0);
-                    dest[i + 1] = (byte)((colour & this.pixelFormat.GBitMask) >> 8);
-                    dest[i + 2] = (byte)((colour & this.pixelFormat.RBitMask) >> 16);
-                    dest[i + 3] = (byte)((colour & this.pixelFormat.ABitMask) >> 24);
+                    dest[i + 0] = (byte)((colour & pixelFormat.BBitMask) >> 0);
+                    dest[i + 1] = (byte)((colour & pixelFormat.GBitMask) >> 8);
+                    dest[i + 2] = (byte)((colour & pixelFormat.RBitMask) >> 16);
+                    dest[i + 3] = (byte)((colour & pixelFormat.ABitMask) >> 24);
                 }
             }
             else
@@ -414,7 +413,7 @@ namespace ToxicRagers.Core.Formats
                 }
             }
 
-            var bmpdata = b.LockBits(new Rectangle(0, 0, mip.Width, mip.Height), ImageLockMode.ReadWrite, (bSuppressAlpha ? PixelFormat.Format32bppRgb : b.PixelFormat));
+            BitmapData bmpdata = b.LockBits(new Rectangle(0, 0, mip.Width, mip.Height), ImageLockMode.ReadWrite, (bSuppressAlpha ? PixelFormat.Format32bppRgb : b.PixelFormat));
             Marshal.Copy(dest, 0, bmpdata.Scan0, dest.Length);
             b.UnlockBits(bmpdata);
 

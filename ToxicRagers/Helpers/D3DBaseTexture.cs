@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Specialized;
+﻿using System.Collections.Specialized;
 using System.IO;
 
 namespace ToxicRagers.Helpers
@@ -46,11 +45,11 @@ namespace ToxicRagers.Helpers
         int swizzleW;
         int numFormat;
 
-        public string BaseFlush { get { return baseFlush.ToString("X"); } }
-        public string MipFlush { get { return mipFlush.ToString("X"); } }
-        public bool Tiled { get { return tiled; } }
-        public int Endian { get { return endian; } }
-        public D3DFormat DataFormat { get { return dataFormat; } }
+        public string BaseFlush => baseFlush.ToString("X");
+        public string MipFlush => mipFlush.ToString("X");
+        public bool Tiled => tiled;
+        public int Endian => endian;
+        public D3DFormat DataFormat => dataFormat;
 
         public D3DBaseTexture(BinaryReader br)
         {
@@ -66,17 +65,17 @@ namespace ToxicRagers.Helpers
 
             bv = new BitVector32((int)br.ReadUInt32());
 
-            var type = BitVector32.CreateSection(3);
-            var signx = BitVector32.CreateSection(3, type);
-            var signy = BitVector32.CreateSection(3, signx);
-            var signz = BitVector32.CreateSection(3, signy);
-            var signw = BitVector32.CreateSection(3, signz);
-            var clampx = BitVector32.CreateSection(7, signw);
-            var clampy = BitVector32.CreateSection(7, clampx);
-            var clampz = BitVector32.CreateSection(7, clampy);
-            var spacer = BitVector32.CreateSection(7, clampz);
-            var pitch = BitVector32.CreateSection(511, spacer);
-            var tiled = BitVector32.CreateSection(1, pitch);
+            BitVector32.Section type = BitVector32.CreateSection(3);
+            BitVector32.Section signx = BitVector32.CreateSection(3, type);
+            BitVector32.Section signy = BitVector32.CreateSection(3, signx);
+            BitVector32.Section signz = BitVector32.CreateSection(3, signy);
+            BitVector32.Section signw = BitVector32.CreateSection(3, signz);
+            BitVector32.Section clampx = BitVector32.CreateSection(7, signw);
+            BitVector32.Section clampy = BitVector32.CreateSection(7, clampx);
+            BitVector32.Section clampz = BitVector32.CreateSection(7, clampy);
+            BitVector32.Section spacer = BitVector32.CreateSection(7, clampz);
+            BitVector32.Section pitch = BitVector32.CreateSection(511, spacer);
+            BitVector32.Section tiled = BitVector32.CreateSection(1, pitch);
 
             this.tiled = (bv[tiled] == 1);
             this.pitch = bv[pitch];
@@ -91,13 +90,13 @@ namespace ToxicRagers.Helpers
 
             bv = new BitVector32((int)br.ReadUInt32());
 
-            var dataformat = BitVector32.CreateSection(63);
-            var endian = BitVector32.CreateSection(3, dataformat);
-            var requestsize = BitVector32.CreateSection(3, endian);
-            var stacked = BitVector32.CreateSection(1, requestsize);
-            var clamppolicy = BitVector32.CreateSection(1, stacked);
-            var baseaddressa = BitVector32.CreateSection(1023, clamppolicy);
-            var baseaddressb = BitVector32.CreateSection(1023, baseaddressa);
+            BitVector32.Section dataformat = BitVector32.CreateSection(63);
+            BitVector32.Section endian = BitVector32.CreateSection(3, dataformat);
+            BitVector32.Section requestsize = BitVector32.CreateSection(3, endian);
+            BitVector32.Section stacked = BitVector32.CreateSection(1, requestsize);
+            BitVector32.Section clamppolicy = BitVector32.CreateSection(1, stacked);
+            BitVector32.Section baseaddressa = BitVector32.CreateSection(1023, clamppolicy);
+            BitVector32.Section baseaddressb = BitVector32.CreateSection(1023, baseaddressa);
 
             baseAddress = ((int)bv[baseaddressb] << 10) | bv[baseaddressa];
             clampPolicy = bv[clamppolicy];
@@ -110,18 +109,18 @@ namespace ToxicRagers.Helpers
 
             bv = new BitVector32((int)br.ReadUInt32());
 
-            var bordersize = BitVector32.CreateSection(1);
+            BitVector32.Section bordersize = BitVector32.CreateSection(1);
             spacer = BitVector32.CreateSection(7, bordersize);
-            var anisofilter = BitVector32.CreateSection(7, spacer);
-            var mipfilter = BitVector32.CreateSection(3, anisofilter);
-            var minfilter = BitVector32.CreateSection(3, mipfilter);
-            var magfilter = BitVector32.CreateSection(3, minfilter);
-            var expadjust = BitVector32.CreateSection(63, magfilter);
-            var swizzlew = BitVector32.CreateSection(7, expadjust);
-            var swizzlez = BitVector32.CreateSection(7, swizzlew);
-            var swizzley = BitVector32.CreateSection(7, swizzlez);
-            var swizzlex = BitVector32.CreateSection(7, swizzley);
-            var numformat = BitVector32.CreateSection(1, swizzlex);
+            BitVector32.Section anisofilter = BitVector32.CreateSection(7, spacer);
+            BitVector32.Section mipfilter = BitVector32.CreateSection(3, anisofilter);
+            BitVector32.Section minfilter = BitVector32.CreateSection(3, mipfilter);
+            BitVector32.Section magfilter = BitVector32.CreateSection(3, minfilter);
+            BitVector32.Section expadjust = BitVector32.CreateSection(63, magfilter);
+            BitVector32.Section swizzlew = BitVector32.CreateSection(7, expadjust);
+            BitVector32.Section swizzlez = BitVector32.CreateSection(7, swizzlew);
+            BitVector32.Section swizzley = BitVector32.CreateSection(7, swizzlez);
+            BitVector32.Section swizzlex = BitVector32.CreateSection(7, swizzley);
+            BitVector32.Section numformat = BitVector32.CreateSection(1, swizzlex);
 
             borderSize = bv[bordersize];
             anisoFilter = bv[anisofilter];
@@ -134,7 +133,7 @@ namespace ToxicRagers.Helpers
             swizzleZ = bv[swizzlez];
             swizzleW = bv[swizzlew];
             numFormat = bv[numformat];
-            
+
             br.ReadBytes(8);
         }
     }

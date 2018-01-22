@@ -1,6 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
+
 using ToxicRagers.Helpers;
 
 namespace ToxicRagers.TDR2000.Formats
@@ -9,7 +9,7 @@ namespace ToxicRagers.TDR2000.Formats
     {
         List<TDRMesh> meshes = new List<TDRMesh>();
 
-        public List<TDRMesh> Meshes { get { return meshes; } }
+        public List<TDRMesh> Meshes => meshes;
 
         public static MSHS Load(string path)
         {
@@ -35,27 +35,27 @@ namespace ToxicRagers.TDR2000.Formats
 
                             for (int i = 0; i < faces; i++)
                             {
-                            //                        iVertCount = br.ReadInt32()
+                                //                        iVertCount = br.ReadInt32()
 
-                            //                        mshMesh.BeginFace(tdrMesh.FaceMode.VertexList)
-                            //                        mshMesh.SetFaceNormal(New Vector3(br.ReadSingle(), br.ReadSingle(), br.ReadSingle()))
+                                //                        mshMesh.BeginFace(tdrMesh.FaceMode.VertexList)
+                                //                        mshMesh.SetFaceNormal(New Vector3(br.ReadSingle(), br.ReadSingle(), br.ReadSingle()))
 
-                            //                        For j As Integer = 0 To iVertCount - 1
-                            //                            mshMesh.AddFaceVertex(br.ReadSingle(), br.ReadSingle(), br.ReadSingle())
-                            //                            'Console.WriteLine(br.ReadSingle() & ", " & br.ReadSingle() & ", " & br.ReadSingle())
-                            //                            'Console.WriteLine(br.ReadSingle() & ", " & br.ReadSingle() & ", " & br.ReadSingle())
-                            //                            br.ReadBytes(12) 'Vector3 - 3x float - No idea
-                            //                            br.ReadBytes(12) 'Vector3 - 3x float - No idea
-                            //                            If br.ReadSingle() <> 1 Then MsgBox("Strange number isn't 1!")
-                            //                            mshMesh.AddFaceUV(br.ReadSingle(), br.ReadSingle())
-                            //                        Next
+                                //                        For j As Integer = 0 To iVertCount - 1
+                                //                            mshMesh.AddFaceVertex(br.ReadSingle(), br.ReadSingle(), br.ReadSingle())
+                                //                            'Console.WriteLine(br.ReadSingle() & ", " & br.ReadSingle() & ", " & br.ReadSingle())
+                                //                            'Console.WriteLine(br.ReadSingle() & ", " & br.ReadSingle() & ", " & br.ReadSingle())
+                                //                            br.ReadBytes(12) 'Vector3 - 3x float - No idea
+                                //                            br.ReadBytes(12) 'Vector3 - 3x float - No idea
+                                //                            If br.ReadSingle() <> 1 Then MsgBox("Strange number isn't 1!")
+                                //                            mshMesh.AddFaceUV(br.ReadSingle(), br.ReadSingle())
+                                //                        Next
 
-                            //                        mshMesh.EndFace()
+                                //                        mshMesh.EndFace()
                             }
                             break;
 
                         case 256:   // Car
-                            var verts = new List<Vector3>();
+                            List<Vector3> verts = new List<Vector3>();
 
                             vertCount = br.ReadInt32();
                             br.ReadBytes(16);
@@ -68,18 +68,18 @@ namespace ToxicRagers.TDR2000.Formats
                             for (int i = 0; i < faces; i++)
                             {
                                 br.ReadBytes(12);  //Vector3 - 3x float - Probably face normal
-                                var vp0 = verts[br.ReadInt32()];
-                                var vp1 = verts[br.ReadInt32()];
-                                var vp2 = verts[br.ReadInt32()];
+                                Vector3 vp0 = verts[br.ReadInt32()];
+                                Vector3 vp1 = verts[br.ReadInt32()];
+                                Vector3 vp2 = verts[br.ReadInt32()];
                                 br.ReadBytes(16); //4x float - Probably V1 colour
                                 br.ReadBytes(16); //4x float - Probably V1 colour
                                 br.ReadBytes(16); //4x float - Probably V1 colour
-                                var vt0 = new Vector2(br.ReadSingle(), br.ReadSingle());
-                                var vt1 = new Vector2(br.ReadSingle(), br.ReadSingle());
-                                var vt2 = new Vector2(br.ReadSingle(), br.ReadSingle());
-                                var vn0 = new Vector3(br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
-                                var vn1 = new Vector3(br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
-                                var vn2 = new Vector3(br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
+                                Vector2 vt0 = new Vector2(br.ReadSingle(), br.ReadSingle());
+                                Vector2 vt1 = new Vector2(br.ReadSingle(), br.ReadSingle());
+                                Vector2 vt2 = new Vector2(br.ReadSingle(), br.ReadSingle());
+                                Vector3 vn0 = new Vector3(br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
+                                Vector3 vn1 = new Vector3(br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
+                                Vector3 vn2 = new Vector3(br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
 
                                 mshMesh.Vertexes.Add(new TDRVertex(vp0.X, vp0.Y, vp0.Z, vn0.X, vn0.Y, vn0.Z, 0, vt0.X, vt0.Y));
                                 mshMesh.Vertexes.Add(new TDRVertex(vp1.X, vp1.Y, vp1.Z, vn1.X, vn1.Y, vn1.Z, 0, vt1.X, vt1.Y));
@@ -98,7 +98,7 @@ namespace ToxicRagers.TDR2000.Formats
                                     new TDRVertex(
                                         br.ReadSingle(), br.ReadSingle(), br.ReadSingle(),
                                         br.ReadSingle(), br.ReadSingle(), br.ReadSingle(),
-                                        br.ReadSingle(), 
+                                        br.ReadSingle(),
                                         br.ReadSingle(), br.ReadSingle()
                                     )
                                 );
@@ -132,8 +132,17 @@ namespace ToxicRagers.TDR2000.Formats
         List<TDRVertex> verts;
         List<TDRFace> faces;
 
-        public List<TDRVertex> Vertexes { get { return verts; } set { verts = value; } }
-        public List<TDRFace> Faces { get { return faces; } set { faces = value; } }
+        public List<TDRVertex> Vertexes
+        {
+            get => verts;
+            set => verts = value;
+        }
+
+        public List<TDRFace> Faces
+        {
+            get => faces;
+            set => faces = value;
+        }
 
         public TDRMesh()
         {
@@ -147,33 +156,33 @@ namespace ToxicRagers.TDR2000.Formats
         Vector3 position;
         Vector3 normal;
         Vector2 uv;
-        Single unknown;
+        float unknown;
 
         public Vector3 Position
         {
-            get { return position; }
-            set { position = value; }
+            get => position;
+            set => position = value;
         }
 
         public Vector3 Normal
         {
-            get { return normal; }
-            set { normal = value; }
+            get => normal;
+            set => normal = value;
         }
 
         public Vector2 UV
         {
-            get { return uv; }
-            set { uv = value; }
+            get => uv;
+            set => uv = value;
         }
 
-        public Single Unknown
+        public float Unknown
         {
-            get { return unknown; }
-            set { unknown = value; }
+            get => unknown;
+            set => unknown = value;
         }
 
-        public TDRVertex(Single X, Single Y, Single Z, Single NX, Single NY, Single NZ, Single Unknown, Single U, Single V)
+        public TDRVertex(float X, float Y, float Z, float NX, float NY, float NZ, float Unknown, float U, float V)
         {
             position = new Vector3(X, Y, Z);
             normal = new Vector3(NX, NY, NZ);
@@ -181,7 +190,7 @@ namespace ToxicRagers.TDR2000.Formats
             unknown = Unknown;
         }
 
-        public TDRVertex(Single X, Single Y, Single Z) : this(X, Y, Z, 0, 0, 0, 0, 0, 0) { }
+        public TDRVertex(float X, float Y, float Z) : this(X, Y, Z, 0, 0, 0, 0, 0, 0) { }
 
         public override string ToString()
         {
@@ -195,15 +204,15 @@ namespace ToxicRagers.TDR2000.Formats
         int vertexB;
         int vertexC;
 
-        public int V1 { get { return vertexA; } }
-        public int V2 { get { return vertexB; } }
-        public int V3 { get { return vertexC; } }
+        public int V1 => vertexA;
+        public int V2 => vertexB;
+        public int V3 => vertexC;
 
         public TDRFace(int A, int B, int C)
         {
-            this.vertexA = A;
-            this.vertexB = B;
-            this.vertexC = C;
+            vertexA = A;
+            vertexB = B;
+            vertexC = C;
         }
 
         public override string ToString()

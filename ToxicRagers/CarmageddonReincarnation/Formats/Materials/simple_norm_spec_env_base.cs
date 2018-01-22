@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Xml.Linq;
 
 using ToxicRagers.Helpers;
@@ -17,45 +16,45 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats.Materials
         string specular;
         string cubeMap;
         bool bDirectionSet;
-        Single directionAngle;
+        float directionAngle;
 
         [Required]
         public string DiffuseColour
         {
-            get { return diffuse; }
-            set { diffuse = value; }
+            get => diffuse;
+            set => diffuse = value;
         }
 
         [Required]
         public string Normal_Map
         {
-            get { return normal; }
-            set { normal = value; }
+            get => normal;
+            set => normal = value;
         }
 
         [Required]
         public string Spec_Map
         {
-            get { return specular; }
-            set { specular = value; }
+            get => specular;
+            set => specular = value;
         }
 
         public string EnvironmentCube
         {
-            get { return cubeMap; }
-            set { cubeMap = value; }
+            get => cubeMap;
+            set => cubeMap = value;
         }
 
         public bool DirectionSet
         {
-            get { return bDirectionSet; }
-            set { bDirectionSet = value; }
+            get => bDirectionSet;
+            set => bDirectionSet = value;
         }
 
-        public Single DirectionAngle
+        public float DirectionAngle
         {
-            get { return directionAngle; }
-            set { directionAngle = value; }
+            get => directionAngle;
+            set => directionAngle = value;
         }
 
         public simple_norm_spec_env_base() { }
@@ -95,18 +94,18 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats.Materials
 
                 Samplers =
                 {
-                    new Sampler 
+                    new Sampler
                     {
                         Alias = "SAMPLER_DiffuseColour",
                         UsageRGB = Sampler.Usage.DiffuseAlbedo,
                         sRGBRead = true
                     },
-                    new Sampler 
+                    new Sampler
                     {
                         Alias = "SAMPLER_NormalMap",
                         UsageRGB = Sampler.Usage.TangentSpaceNormals
                     },
-                    new Sampler 
+                    new Sampler
                     {
                         Alias = "SAMPLER_SpecMap",
                         UsageRGB = Sampler.Usage.SpecColour,
@@ -115,12 +114,12 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats.Materials
                 }
             };
 
-            var diff = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "DiffuseColour").FirstOrDefault();
-            var norm = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "Normal_Map").FirstOrDefault();
-            var spec = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "Spec_Map").FirstOrDefault();
-            var cube = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "EnvironmentCube").FirstOrDefault();
-            var dset = xml.Descendants("DirectionSet").FirstOrDefault();
-            var dang = xml.Descendants("DirectionAngle").FirstOrDefault();
+            XElement diff = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "DiffuseColour").FirstOrDefault();
+            XElement norm = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "Normal_Map").FirstOrDefault();
+            XElement spec = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "Spec_Map").FirstOrDefault();
+            XElement cube = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "EnvironmentCube").FirstOrDefault();
+            XElement dset = xml.Descendants("DirectionSet").FirstOrDefault();
+            XElement dang = xml.Descendants("DirectionAngle").FirstOrDefault();
 
             if (diff != null) { diffuse = diff.Attribute("FileName").Value; }
             if (norm != null) { normal = norm.Attribute("FileName").Value; }
