@@ -27,6 +27,11 @@ namespace ToxicRagers.CarmageddonReincarnation.Helpers
         protected bool underScored = true;
         protected List<LUACodeBlockMethod> methods;
 
+        public bool IsGreaterThan(float x, float y)
+        {
+            return x > y;
+        }
+
         public string BlockPrefix
         {
             get => blockPrefix;
@@ -56,11 +61,21 @@ namespace ToxicRagers.CarmageddonReincarnation.Helpers
 
         public void AddMethod(LUACodeBlockMethodType methodType, string methodName, params LUACodeBlockMethodParameter[] methodParameters)
         {
+            AddMethod(methodType, methodName, null, null, null, 0, methodParameters);
+        }
+
+        public void AddMethod(LUACodeBlockMethodType methodType, string methodName, string dependsOnMethod, string dependsOnParameter, Func<float, float, bool> comparison, float value, params LUACodeBlockMethodParameter[] methodParameters)
+        {
             LUACodeBlockMethod method = new LUACodeBlockMethod()
             {
                 Type = methodType,
                 Name = methodName
             };
+
+            if (comparison != null)
+            {
+                method.Dependency = () => comparison(Convert.ToSingle(methods.Find(m => m.Name == dependsOnMethod).Parameters.Find(p => p.Name == dependsOnParameter).Value), value);
+            }
 
             foreach (LUACodeBlockMethodParameter parameter in methodParameters)
             {
@@ -211,6 +226,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Helpers
         string methodName;
         List<LUACodeBlockMethodParameter> parameters;
         bool hasBeenSet;
+        Func<bool> dependency = () => true;
 
         public LUACodeBlockMethodType Type
         {
@@ -230,10 +246,17 @@ namespace ToxicRagers.CarmageddonReincarnation.Helpers
             set => parameters = value;
         }
 
+        public Func<bool> Dependency
+        {
+            get => dependency;
+            set => dependency = value;
+        }
+
         public bool ShouldWrite
         {
             get
             {
+                if (!dependency()) { return false; }
                 if (hasBeenSet) { return true; }
 
                 foreach (LUACodeBlockMethodParameter parameter in parameters)

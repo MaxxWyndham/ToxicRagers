@@ -564,6 +564,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             AddMethod(
                 LUACodeBlockMethodType.Set,
                 "Stiffness",
+                "Crushability", "Value", IsGreaterThan, 0,
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Value", Value = 0.3f }
             );
 
