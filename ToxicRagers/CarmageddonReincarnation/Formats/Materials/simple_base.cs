@@ -15,7 +15,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats.Materials
             set => diffuse = value;
         }
 
-        public simple_base() : this(new XElement("poop")) { }
+        public simple_base() { }
 
         public simple_base(XElement xml)
             : base(xml)

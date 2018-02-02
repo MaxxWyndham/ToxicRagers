@@ -367,6 +367,8 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
                 if (property.CanRead && !attributes.Any(a => a.GetType() == typeof(Ignore)))
                 {
+                    if (!property.DeclaringType.IsSubclassOf(typeof(MT2)) && property.DeclaringType != typeof(MT2)) { continue; }
+
                     bool bRequired = attributes.Any(a => a.GetType() == typeof(Required));
 
                     switch (property.PropertyType.ToString().Split('.').Last())
@@ -374,7 +376,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                         case "String":
                             {
                                 string value = (string)property.GetValue(this, null);
-                                if (value != null && value != (string)property.GetValue(coreDefaults, null))
+                                if (value != null && (coreDefaults == null || (coreDefaults != null && value != (string)property.GetValue(coreDefaults, null))))
                                 {
                                     xml.Add(new XElement("Texture",
                                         new XAttribute("Alias", property.Name),

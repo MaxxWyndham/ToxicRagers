@@ -24,12 +24,14 @@ namespace ToxicRagers.Stainless.Formats
 
     public class ZAD
     {
-        string name;
-        string location;
-        List<ZADEntry> contents;
-        ZADType type = ZADType.Archive;
+        private string name;
+        private string extension;
+        private string location;
+        private List<ZADEntry> contents;
+        private ZADType type = ZADType.Archive;
 
         public string Name => name;
+        public string Extension => extension;
         public List<ZADEntry> Contents => contents;
         public bool IsVT => type == ZADType.VirtualTexture;
 
@@ -61,6 +63,7 @@ namespace ToxicRagers.Stainless.Formats
         {
             ZAD zad = new ZAD(Path.GetFileNameWithoutExtension(path))
             {
+                extension = Path.GetExtension(path),
                 type = type,
                 location = Path.GetDirectoryName(path)
             };
@@ -80,6 +83,7 @@ namespace ToxicRagers.Stainless.Formats
             ZAD zad = new ZAD()
             {
                 name = Path.GetFileNameWithoutExtension(path),
+                extension = Path.GetExtension(path),
                 location = Path.GetDirectoryName(path) + "\\"
             };
 
@@ -153,7 +157,7 @@ namespace ToxicRagers.Stainless.Formats
             int centralDirectoryOffset = CentralDirectoryOffset;
             //ZADEntry nextEntry = indexOfEntry == contents.Count ? null : contents[indexOfEntry + 1];
             contents.Remove(entry);
-            using (FileStream fs = new FileStream(Path.Combine(location, name + ".zad"), FileMode.Open))
+            using (FileStream fs = new FileStream(Path.Combine(location, $"{name}{extension}"), FileMode.Open))
             {
                 Logger.LogToFile(Logger.LogLevel.Info, "\tFile Size Before Removal:\t\t{0}", fs.Length);
                 Logger.LogToFile(Logger.LogLevel.Info, "\tEntryOffset:\t\t\t\t\t\t{0}", entry.Offset);
@@ -212,7 +216,7 @@ namespace ToxicRagers.Stainless.Formats
             int oldContentsCount = contents.Count;
             int centralDirectoryOffset = CentralDirectoryOffset;
 
-            using (FileStream fs = new FileStream(Path.Combine(location, name + ".zad"), FileMode.Open))
+            using (FileStream fs = new FileStream(Path.Combine(location, $"{name}{extension}"), FileMode.Open))
             {
                 int dataSize = entry.EntrySize + entry.Padding;
                 entry.Data = newData;
@@ -292,7 +296,7 @@ namespace ToxicRagers.Stainless.Formats
 
         public void AddEntryFromBuffer(byte[] data, string name)
         {
-            using (BinaryWriter bw = new BinaryWriter(new FileStream(Path.Combine(location, name + ".zad"), FileMode.Open)))
+            using (BinaryWriter bw = new BinaryWriter(new FileStream(Path.Combine(location, $"{name}{extension}"), FileMode.Open)))
             {
                 bw.Seek(CentralDirectoryOffset, SeekOrigin.Begin);
 
@@ -334,7 +338,7 @@ namespace ToxicRagers.Stainless.Formats
 
         public void AddDirectory(string path)
         {
-            using (BinaryWriter bw = new BinaryWriter(new FileStream(Path.Combine(location, name + ".zad"), FileMode.Open)))
+            using (BinaryWriter bw = new BinaryWriter(new FileStream(Path.Combine(location, $"{name}{extension}"), FileMode.Open)))
             {
                 addDirectory(bw, path, path.Substring(0, path.IndexOf(Path.GetFileName(path))));
 
@@ -490,7 +494,7 @@ namespace ToxicRagers.Stainless.Formats
 
             if (file.SizeUncompressed == 0) { return null; }
 
-            using (BinaryFileStream bfs = new BinaryFileStream(location + name + ".zad", FileMode.Open))
+            using (BinaryFileStream bfs = new BinaryFileStream(Path.Combine(location, $"{name}{extension}"), FileMode.Open))
             {
                 bfs.Seek(file.Offset, SeekOrigin.Begin);
 
