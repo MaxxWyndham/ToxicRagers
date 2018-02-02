@@ -50,7 +50,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Helpers
         {
             foreach (string methodName in methodNames)
             {
-                AddMethod(methodType, methodName, methodParameters);
+                AddMethod(methodType, methodName, methodParameters.Select(p => p.Clone()).ToArray());
             }
         }
 
@@ -152,7 +152,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Helpers
             {
                 string line = lines[i];
 
-                string[] c = line.Split(':', '(', ')').Select(str => str.Trim())
+                string[] c = line.Split(':', '(', ')', ',').Select(str => str.Trim())
                                                  .Where(str => str != string.Empty)
                                                  .ToArray();
 
@@ -180,7 +180,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Helpers
         {
             StringBuilder sb = new StringBuilder();
 
-            List<LUACodeBlockMethod> toWrite = methods.Select(m => m).Where(m => m.ShouldWrite == true).ToList();
+            List<LUACodeBlockMethod> toWrite = methods.Where(m => m.ShouldWrite == true).ToList();
             int methodCount = toWrite.Count;
 
             for (int i = 0; i < methodCount; i++)

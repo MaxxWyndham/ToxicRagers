@@ -846,7 +846,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                     "AccessoryWeapon"
                 },
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.String, Name = "Weapon" },
-                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Constant" },
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.String, Name = "Constant" },
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "X" },
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Y" },
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Z" }
