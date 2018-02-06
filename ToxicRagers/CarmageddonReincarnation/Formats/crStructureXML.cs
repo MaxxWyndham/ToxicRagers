@@ -396,7 +396,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             AddMethod(
                 LUACodeBlockMethodType.Set,
                 "Weakness",
-                new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Float, Name = "Value", Value = -3 }
+                new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Float, Name = "Value" }
             );
 
             AddMethod(
@@ -554,6 +554,12 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
         public StructureDamageCode()
         {
             blockPrefix = "CDamageParameters";
+
+            AddMethod(
+                LUACodeBlockMethodType.Set,
+                "RenderLevel",
+                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Int, Name = "Level" }
+            );
 
             AddMethod(
                 LUACodeBlockMethodType.Set,
@@ -731,7 +737,9 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                     "PostIK_RotateInX",
                     "PostIK_RotateInY",
                     "PostIK_RotateInZ",
-                    "PostIK_SlideInY"
+                    "PostIK_SlideInX",
+                    "PostIK_SlideInY",
+                    "PostIK_SlideInZ"
                 },
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.String, Name = "Variable" },
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "Factor" }
@@ -886,7 +894,11 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
             AddMethod(
                 LUACodeBlockMethodType.Set,
-                "PostIK_OscillateInZ",
+                new string[] {
+                    "PostIK_OscillateInX",
+                    "PostIK_OscillateInY",
+                    "PostIK_OscillateInZ"
+                },
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.String, Name = "Variable" },
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "BackFactor", PrettyName = "Back Factor" },
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Float, Name = "ForthFactor", PrettyName = "Forward Factor" }
@@ -896,12 +908,6 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                 LUACodeBlockMethodType.Add,
                 "LumpRenderLevel",
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.String, Name = "Name" },
-                new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Int, Name = "Level" }
-            );
-
-            AddMethod(
-                LUACodeBlockMethodType.Set,
-                "RenderLevel",
                 new LUACodeBlockMethodParameter { Type = LUACodeBlockMethodParameterType.Int, Name = "Level" }
             );
 

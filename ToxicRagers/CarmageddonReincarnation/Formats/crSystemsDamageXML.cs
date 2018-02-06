@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Xml;
 using System.Xml.Linq;
 
@@ -86,7 +87,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
             xml.Add(new XElement("STRUCTURE", systems));
 
-            XMLWriter.Save(xml, path + "\\SystemsDamage.xml");
+            XMLWriter.Save(xml, Path.Combine(path, "SystemsDamage.xml"));
         }
     }
 
@@ -171,17 +172,17 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
             AddMethod(
                 LUACodeBlockMethodType.Add,
-                "SolidPart",
-                new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.String, Name = "Part" },
-                new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Float, Name = "A" },
-                new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Float, Name = "B" }
+                "ComplicatedWheel",
+                new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.String, Name = "Wheel" },
+                new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Float, Name = "A" }
             );
 
             AddMethod(
                 LUACodeBlockMethodType.Add,
-                "ComplicatedWheel",
-                new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.String, Name = "Wheel" },
-                new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Float, Name = "A" }
+                "SolidPart",
+                new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.String, Name = "Part" },
+                new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Float, Name = "A" },
+                new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Float, Name = "B" }
             );
 
             AddMethod(

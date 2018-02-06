@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-using ToxicRagers.Helpers;
-
 namespace ToxicRagers.CarmageddonReincarnation.Helpers
 {
     public enum LUACodeBlockMethodType
@@ -114,6 +112,11 @@ namespace ToxicRagers.CarmageddonReincarnation.Helpers
             }
         }
 
+        public void SetParameterForMethod(string methodName, int parameterIndex, object parameterValue)
+        {
+            SetParameterForMethod(methodName, methods.Find(m => m.Name == methodName).Parameters[parameterIndex].Name, parameterValue);
+        }
+
         public void SetParameterForMethod(string methodName, string parameterName, object parameterValue)
         {
             var match = methods.Select((m, index) => new { Index = index, Method = m }).Where(m => m.Method.Name == methodName).Last();
@@ -132,7 +135,6 @@ namespace ToxicRagers.CarmageddonReincarnation.Helpers
                     else
                     {
                         parameter.SetValue(parameterValue);
-                        match.Method.HasBeenSet = true;
                     }
                 }
                 else
@@ -150,9 +152,10 @@ namespace ToxicRagers.CarmageddonReincarnation.Helpers
         {
             T r = new T();
 
-            List<string> lines = cdata.Split('\r', '\n').Select(str => str.Trim())
-                                               .Where(str => str != string.Empty && !str.StartsWith("--"))
-                                               .ToList();
+            List<string> lines = cdata.Split('\r', '\n')
+                .Select(str => str.Trim())
+                .Where(str => str != string.Empty && !str.StartsWith("--"))
+                .ToList();
 
             for (int i = lines.Count - 1; i >= 0; i--)
             {
@@ -167,25 +170,14 @@ namespace ToxicRagers.CarmageddonReincarnation.Helpers
             {
                 string line = lines[i];
 
-                string[] c = line.Split(':', '(', ')', ',').Select(str => str.Trim())
-                                                 .Where(str => str != string.Empty)
-                                                 .ToArray();
+                string[] c = line.Split(':', '(', ')', ',')
+                    .Select(str => str.Trim())
+                    .Where(str => str != string.Empty)
+                    .ToArray();
 
                 if (c[0] != r.blockPrefix) { throw new ArgumentOutOfRangeException(string.Format("{0} was unexpected, expected {1}", c[0], r.blockPrefix)); }
 
-                LUACodeBlockMethod method = r.methods.Find(m => m.Name == c[1].Substring((r.underScored ? 4 : 3)) && m.Type == c[1].Substring(0, 3).ToEnum<LUACodeBlockMethodType>());
-
-                if (method != null)
-                {
-                    for (int j = 2; j < c.Length; j++)
-                    {
-                        method.Parameters[j - 2].SetValue(c[j]);
-                    }
-                }
-                else
-                {
-                    throw new NotImplementedException(string.Format("Unknown {0} method: {1}", r.blockPrefix, c[1]));
-                }
+                for (int j = 2; j < c.Length; j++) { r.SetParameterForMethod(c[1].Substring((r.underScored ? 4 : 3)), j - 2, c[j]); }
             }
 
             return r;
@@ -225,7 +217,6 @@ namespace ToxicRagers.CarmageddonReincarnation.Helpers
         LUACodeBlockMethodType methodType;
         string methodName;
         List<LUACodeBlockMethodParameter> parameters;
-        bool hasBeenSet;
         Func<bool> dependency = () => true;
 
         public LUACodeBlockMethodType Type
@@ -257,7 +248,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Helpers
             get
             {
                 if (!dependency()) { return false; }
-                if (hasBeenSet) { return true; }
+                if (HasBeenSet) { return true; }
 
                 foreach (LUACodeBlockMethodParameter parameter in parameters)
                 {
@@ -268,11 +259,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Helpers
             }
         }
 
-        public bool HasBeenSet
-        {
-            get => hasBeenSet;
-            set => hasBeenSet = value;
-        }
+        public bool HasBeenSet => parameters.Any(p => p.HasBeenSet);
 
         public LUACodeBlockMethod()
         {
@@ -298,12 +285,13 @@ namespace ToxicRagers.CarmageddonReincarnation.Helpers
 
     public class LUACodeBlockMethodParameter
     {
-        LUACodeBlockMethodParameterType type;
-        string name;
-        string namePretty;
-        string description;
-        object value;
-        bool bForceOutput = false;
+        private LUACodeBlockMethodParameterType type;
+        private string name;
+        private string namePretty;
+        private string description;
+        private object value;
+        private bool forceOutput = false;
+        private bool explicitlySet = false;
 
         public LUACodeBlockMethodParameterType Type
         {
@@ -337,7 +325,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Helpers
 
         public bool ForceOutput
         {
-            set => bForceOutput = value;
+            set => forceOutput = value;
         }
 
         public object FormattedValue
@@ -365,16 +353,18 @@ namespace ToxicRagers.CarmageddonReincarnation.Helpers
         {
             get
             {
+                if (explicitlySet) { return true; }
+
                 switch (type)
                 {
                     case LUACodeBlockMethodParameterType.Int:
-                        return bForceOutput || (value != null && Convert.ToInt32(value) != default(int));
+                        return forceOutput || (value != null && Convert.ToInt32(value) != default(int));
 
                     case LUACodeBlockMethodParameterType.String:
                         return value != null;
 
                     case LUACodeBlockMethodParameterType.Float:
-                        return bForceOutput || (value != null && Convert.ToSingle(value) != default(float));
+                        return forceOutput || (value != null && Convert.ToSingle(value) != default(float));
 
                     case LUACodeBlockMethodParameterType.Boolean:
                         return (bool)value;
@@ -392,6 +382,8 @@ namespace ToxicRagers.CarmageddonReincarnation.Helpers
 
         public void SetValue(object value)
         {
+            explicitlySet = true;
+
             switch (type)
             {
                 case LUACodeBlockMethodParameterType.String:
