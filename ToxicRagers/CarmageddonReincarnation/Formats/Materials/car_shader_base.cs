@@ -9,25 +9,27 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats.Materials
         // ReflectionBluryness, Fresnel_R0
 
         string normal;
-        string decal;
-        string decalSpec;
+        string specular;
 
+        [Required]
+        public string DiffuseColour
+        {
+            get => diffuse;
+            set => diffuse = value;
+        }
+
+        [Required]
         public string Normal_Map
         {
             get => normal;
             set => normal = value;
         }
 
-        public string Decals
+        [Required]
+        public string Spec_Map
         {
-            get => decal;
-            set => decal = value;
-        }
-
-        public string DecalsSpec
-        {
-            get => decalSpec;
-            set => decalSpec = value;
+            get => specular;
+            set => specular = value;
         }
 
         public car_shader_base() { }
@@ -40,13 +42,13 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats.Materials
 
             };
 
+            XElement diff = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "DiffuseColour").FirstOrDefault();
             XElement norm = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "Normal_Map").FirstOrDefault();
-            XElement deca = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "Decals").FirstOrDefault();
-            XElement decs = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "DecalsSpec").FirstOrDefault();
+            XElement spec = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "Spec_Map").FirstOrDefault();
 
+            if (diff != null) { diffuse = diff.Attribute("FileName").Value; }
             if (norm != null) { normal = norm.Attribute("FileName").Value; }
-            if (deca != null) { decal = deca.Attribute("FileName").Value; }
-            if (decs != null) { decalSpec = decs.Attribute("FileName").Value; }
+            if (spec != null) { specular = spec.Attribute("FileName").Value; }
         }
     }
 }

@@ -334,6 +334,11 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             if (sub != null) { substance = sub.Attribute("Name").Value; }
         }
 
+        public void Log(string s)
+        {
+            Logger.LogToFile(Logger.LogLevel.All, s);
+        }
+
         public static MT2 Load(string path)
         {
             Logger.LogToFile(Logger.LogLevel.Info, path);
@@ -380,7 +385,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                                 {
                                     xml.Add(new XElement("Texture",
                                         new XAttribute("Alias", property.Name),
-                                        new XAttribute("Value", value.ToString())
+                                        new XAttribute("FileName", value.ToString())
                                     ));
                                 }
                             }
