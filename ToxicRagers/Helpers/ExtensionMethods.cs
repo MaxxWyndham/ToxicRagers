@@ -14,20 +14,20 @@ namespace ToxicRagers.Helpers
         // Rather specific versions of Read and WriteString here.  Possibly move inside cFBX.cs
         public static string ReadPropertyString(this BinaryReader br, int length)
         {
-            char[] c = br.ReadChars(length);
+            byte[] c = br.ReadBytes(length);
             int l = length;
 
             for (int i = 0; i < length - 1; i++)
             {
                 if (c[i + 0] == 0 && c[i + 1] == 1)
                 {
-                    c[i + 0] = ':';
-                    c[i + 1] = ':';
+                    c[i + 0] = 58; // :
+                    c[i + 1] = 58; // :
                     break;
                 }
             }
 
-            return new string(c, 0, l);
+            return Encoding.UTF8.GetString(c);
         }
 
         public static void WritePropertyString(this BinaryWriter bw, string s)

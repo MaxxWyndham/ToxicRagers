@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
+using System.Text;
 
 using ToxicRagers.Helpers;
 
@@ -570,7 +571,7 @@ namespace ToxicRagers.Core.Formats
 
                     case 83: // String
                         if (propertyValue == null) { propertyValue = ""; }
-                        return 4 + ((string)propertyValue).Length;
+                        return 4 + ASCIIEncoding.UTF8.GetBytes((string)propertyValue).Length;
 
                     case 98: // bool array
                         if (rawData == null)
