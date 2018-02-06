@@ -289,6 +289,13 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                 }
 
                 sw.WriteLine(stats.Write());
+
+                if (incarCamOffset != Vector3.Zero)
+                {
+                    sw.WriteLine("[in_car_cam_offset]");
+                    sw.WriteLine($"{incarCamOffset.X},{incarCamOffset.Y},{incarCamOffset.Z}");
+                    sw.WriteLine();
+                }
             }
         }
     }
@@ -547,7 +554,11 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                     break;
 
                 case AttachmentType.Horn:
-                    sb.AppendLine(string.Format("event {0}", horn));
+                    sb.AppendLine($"event {horn}");
+                    break;
+
+                case AttachmentType.ExhaustParticles:
+                    sb.Append(exhaust.ToString());
                     break;
             }
 
@@ -662,6 +673,15 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             get => neutralMultiplier;
             set => neutralMultiplier = value;
         }
+
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine($"vfx {vfx}");
+            if (underwaterVFX != null) { sb.AppendLine($"underwater_vfx {underwaterVFX}"); }
+            sb.AppendLine($"anchor {anchor}");
+            return sb.ToString();
+        }
     }
 
     public class VehicleAttachmentComplicatedWheels
@@ -705,11 +725,11 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
         {
             if (flWheel == frWheel && rlWheel == rrWheel && flWheel == rlWheel)
             {
-                return "wheel_folder_name " + flWheel;
+                return $"wheel_folder_name {flWheel}";
             }
             else
             {
-                return string.Format("fl_wheel_folder_name {0}\r\nfr_wheel_folder_name {1}\r\nrl_wheel_folder_name {2}\r\nrr_wheel_folder_name {3}", flWheel, frWheel, rlWheel, rrWheel);
+                return $"fl_wheel_folder_name {flWheel}\r\nfr_wheel_folder_name {frWheel}\r\nrl_wheel_folder_name {rlWheel}\r\nrr_wheel_folder_name {rrWheel}";
             }
         }
     }
@@ -832,15 +852,15 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             switch (wheelModuleType)
             {
                 case WheelModuleType.TyreParticles:
-                    sb.AppendLine(string.Format("vfx {0}", tyreParticleVFX));
+                    sb.AppendLine($"vfx {tyreParticleVFX}");
                     break;
 
                 case WheelModuleType.SkidNoise:
-                    sb.AppendLine(string.Format("sounds {0}", skidNoiseSound));
+                    sb.AppendLine($"sounds {skidNoiseSound}");
                     break;
 
                 case WheelModuleType.SkidMarks:
-                    sb.AppendLine(string.Format("image {0}", skidMarkImage));
+                    sb.AppendLine($"image {skidMarkImage}");
                     break;
             }
 
@@ -922,7 +942,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                         break;
 
                     default:
-                        throw new NotImplementedException("Unknown MaterialMap parameter: " + mm[0]);
+                        throw new NotImplementedException($"Unknown MaterialMap parameter: {mm[0]}");
                 }
             }
         }
@@ -931,7 +951,11 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
         {
             StringBuilder sb = new StringBuilder();
             sb.AppendLine("[material_map]");
-            sb.AppendLine();
+            sb.AppendLine(name);
+            sb.AppendLine($"localise {localName}");
+            if (paint != null) { sb.AppendLine($"Paint : {paint}"); }
+            sb.AppendLine($"shrapnel {shrapnel.X},{shrapnel.Y},{shrapnel.Z}");
+            if (appID > 0) { sb.AppendLine($"material_map_product_id {appID}"); }
             return sb.ToString();
         }
     }
@@ -1039,7 +1063,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                         break;
 
                     default:
-                        throw new NotImplementedException("Unknown WheelMap parameter: " + wm[0]);
+                        throw new NotImplementedException($"Unknown WheelMap parameter: {wm[0]}");
                 }
             }
         }
@@ -1049,9 +1073,8 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             StringBuilder sb = new StringBuilder();
             sb.AppendLine("[wheel_map]");
             sb.AppendLine(name);
-            sb.AppendLine(string.Format("localise {0}", localName));
+            sb.AppendLine($"localise {localName}");
             sb.AppendLine(wheels.ToString());
-            sb.AppendLine();
             return sb.ToString();
         }
     }
@@ -1112,7 +1135,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                         break;
 
                     default:
-                        throw new NotImplementedException("Unknown SuspensionFactor parameter: " + sf[0]);
+                        throw new NotImplementedException($"Unknown SuspensionFactor parameter: {sf[0]}");
                 }
             }
         }
@@ -1121,6 +1144,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
         {
             StringBuilder sb = new StringBuilder();
             sb.AppendLine("[suspension_factors]");
+            sb.AppendLine($"max_compression {maxCompression}");
             sb.AppendLine();
             return sb.ToString();
         }
@@ -1168,12 +1192,11 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
         {
             StringBuilder sb = new StringBuilder();
             sb.AppendLine("[stats]");
-            sb.AppendLine(string.Format("{0}// top speed; they must be in this order and not have spaces before the comments", topSpeed));
-            sb.AppendLine(string.Format("{0}// time 0 -60", time));
-            sb.AppendLine(string.Format("{0}// weight", weight));
-            sb.AppendLine(string.Format("{0}// toughness", toughness));
-            if (unlockLevel != -1) { sb.AppendLine(string.Format("{0}// unlock level", unlockLevel)); }
-            sb.AppendLine();
+            sb.AppendLine($"{topSpeed}// top speed; they must be in this order and not have spaces before the comments");
+            sb.AppendLine($"{time}// time 0 -60");
+            sb.AppendLine($"{weight}// weight");
+            sb.AppendLine($"{toughness}// toughness");
+            if (unlockLevel != -1) { sb.AppendLine($"{unlockLevel}// unlock level"); }
             return sb.ToString();
         }
     }
