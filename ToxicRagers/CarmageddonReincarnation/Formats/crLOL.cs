@@ -6,6 +6,7 @@ using ToxicRagers.Helpers;
 using unluacNet;
 using unluac.decompile;
 using unluac.parse;
+using System.Threading;
 
 namespace ToxicRagers.CarmageddonReincarnation.Formats
 {
@@ -40,6 +41,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                 ByteBuffer buffer = new ByteBuffer(data);
                 BHeader header = new BHeader(buffer);
 
+                Thread.CurrentThread.CurrentCulture = ToxicRagers.Culture;
                 Decompiler d = new Decompiler(header.function.parse(buffer, header));
                 d.decompile();
                 d.print(new Output((s) => { sb.Append(s); }, () => { sb.Append("\r\n"); }));

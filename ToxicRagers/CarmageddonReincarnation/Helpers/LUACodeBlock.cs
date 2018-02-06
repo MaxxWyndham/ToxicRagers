@@ -72,7 +72,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Helpers
 
             if (comparison != null)
             {
-                method.Dependency = () => comparison(Convert.ToSingle(methods.Find(m => m.Name == dependsOnMethod).Parameters.Find(p => p.Name == dependsOnParameter).Value), value);
+                method.Dependency = () => comparison(Convert.ToSingle(methods.Find(m => m.Name == dependsOnMethod).Parameters.Find(p => p.Name == dependsOnParameter).Value, ToxicRagers.Culture), value);
             }
 
             foreach (LUACodeBlockMethodParameter parameter in methodParameters)
@@ -338,7 +338,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Helpers
                         return "\"" + value + "\"";
 
                     case LUACodeBlockMethodParameterType.Float:
-                        return (Convert.ToSingle(value) < 0 ? value : string.Format(ToxicRagers.Culture, "{0:0.####}", value));
+                        return (Convert.ToSingle(value, ToxicRagers.Culture) < 0 ? value : string.Format(ToxicRagers.Culture, "{0:0.####}", value));
 
                     case LUACodeBlockMethodParameterType.Boolean:
                         return ((bool)value == true ? "true" : "false");
@@ -358,13 +358,13 @@ namespace ToxicRagers.CarmageddonReincarnation.Helpers
                 switch (type)
                 {
                     case LUACodeBlockMethodParameterType.Int:
-                        return forceOutput || (value != null && Convert.ToInt32(value) != default(int));
+                        return forceOutput || (value != null && Convert.ToInt32(value, ToxicRagers.Culture) != default(int));
 
                     case LUACodeBlockMethodParameterType.String:
                         return value != null;
 
                     case LUACodeBlockMethodParameterType.Float:
-                        return forceOutput || (value != null && Convert.ToSingle(value) != default(float));
+                        return forceOutput || (value != null && Convert.ToSingle(value, ToxicRagers.Culture) != default(float));
 
                     case LUACodeBlockMethodParameterType.Boolean:
                         return (bool)value;
