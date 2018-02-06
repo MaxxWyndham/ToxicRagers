@@ -13,8 +13,15 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             Wheels
         }
 
-        int mingeVersion = 1;
+        public enum GameType
+        {
+            MaxDamage,
+            Reincarnation
+        }
+
+        float mingeVersion = 5.2f;
         Version modVersion = new Version(1, 0);
+        GameType gameType = GameType.MaxDamage;
         ModType modType = ModType.Vehicle;
         string name;
         string author;
@@ -22,48 +29,54 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
         List<string> images = new List<string>();
         List<string> requirements = new List<string>();
 
-        public int MingeVersion => mingeVersion;
+        public float MingeVersion => mingeVersion;
 
         public Version ModVersion
         {
-            get { return modVersion; }
-            set { modVersion = value; }
+            get => modVersion;
+            set => modVersion = value;
+        }
+
+        public GameType Game
+        {
+            get => gameType;
+            set => gameType = value;
         }
 
         public ModType Type
         {
-            get { return modType; }
-            set { modType = value; }
+            get => modType;
+            set => modType = value;
         }
 
         public string Name
         {
-            get { return name; }
-            set { name = value; }
+            get => name;
+            set => name = value;
         }
 
         public string Author
         {
-            get { return author; }
-            set { author = value; }
+            get => author;
+            set => author = value;
         }
 
         public string Website
         {
-            get { return website; }
-            set { website = value; }
+            get => website;
+            set => website = value;
         }
 
         public List<string> Images
         {
-            get { return images; }
-            set { images = value; }
+            get => images;
+            set => images = value;
         }
 
         public List<string> Requirements
         {
-            get { return requirements; }
-            set { requirements = value; }
+            get => requirements;
+            set => requirements = value;
         }
 
         public void Save(string path)
@@ -77,6 +90,11 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
                 sw.WriteLine("[Version]");
                 sw.WriteLine(modVersion.Major);
+
+                sw.WriteLine();
+
+                sw.WriteLine("[GameType]");
+                sw.WriteLine(gameType);
 
                 sw.WriteLine();
 
