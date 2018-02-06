@@ -9,7 +9,7 @@ namespace ToxicRagers.Generics
         string name;
         protected string extension;
         D3DFormat format;
-        List<MipMap> mipMaps = new List<MipMap>();
+        protected List<MipMap> mipMaps = new List<MipMap>();
 
         public string Name
         {

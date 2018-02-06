@@ -129,7 +129,6 @@ namespace ToxicRagers.Core.Formats
         DDSCaps2 caps2;
 
         D3DFormat format;
-        List<MipMap> mipMaps = new List<MipMap>();
 
         public int Height
         {
