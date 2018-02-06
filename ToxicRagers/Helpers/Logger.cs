@@ -26,7 +26,7 @@ namespace ToxicRagers.Helpers
 
         public static void LogToFile(LogLevel level, string format, params object[] args)
         {
-            if (Level.HasFlag(level))
+            if (level == LogLevel.All || Level.HasFlag(level))
             {
                 using (StreamWriter w = File.AppendText(Environment.CurrentDirectory + "\\Flummery.log"))
                 {
