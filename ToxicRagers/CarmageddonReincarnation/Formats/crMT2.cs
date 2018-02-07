@@ -398,7 +398,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                             }
                             break;
 
-                        case "float":
+                        case "Single":
                             {
                                 float value = (float)property.GetValue(this, null);
                                 if (value != (float)property.GetValue(coreDefaults, null))
@@ -407,6 +407,20 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                                         new XAttribute("Alias", property.Name),
                                         new XAttribute("Type", "float"),
                                         new XAttribute("Value", value.ToString(ToxicRagers.Culture))
+                                    ));
+                                }
+                            }
+                            break;
+
+                        case "Vector3":
+                            {
+                                Vector3 value = (Vector3)property.GetValue(this, null);
+                                if (value != (Vector3)property.GetValue(coreDefaults, null))
+                                {
+                                    xml.Add(new XElement("Constant",
+                                        new XAttribute("Alias", property.Name),
+                                        new XAttribute("Type", "float3"),
+                                        new XAttribute("Value", $"{value.X} {value.Y} {value.Z}")
                                     ));
                                 }
                             }

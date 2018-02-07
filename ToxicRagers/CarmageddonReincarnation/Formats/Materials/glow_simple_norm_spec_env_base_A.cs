@@ -15,13 +15,22 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats.Materials
 
         bool bNoSortAlpha;
 
-        public string Normal_Map
+        [Required]
+        public string DiffuseColour
+        {
+            get => diffuse;
+            set => diffuse = value;
+        }
+
+        [Required]
+        public string NormalMap
         {
             get => normal;
             set => normal = value;
         }
 
-        public string Spec_Map
+        [Required]
+        public string SpecMap
         {
             get => specular;
             set => specular = value;
@@ -44,11 +53,11 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats.Materials
             };
 
             XElement diff = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "DiffuseColour").FirstOrDefault();
-            XElement norm = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "Normal_Map").FirstOrDefault();
-            XElement spec = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "Spec_Map").FirstOrDefault();
+            XElement norm = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "NormalMap").FirstOrDefault();
+            XElement spec = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "SpecMap").FirstOrDefault();
             XElement sort = xml.Descendants("NoSortAlpha").FirstOrDefault();
 
-            if (diff != null) { diffuse = (diff.Attributes("FileName").Any() ? diff.Attribute("FileName").Value : diff.Attribute("Movie").Value); }
+            if (diff != null) { diffuse = diff.Attribute("FileName").Value; }
             if (norm != null) { normal = norm.Attribute("FileName").Value; }
             if (spec != null) { specular = spec.Attribute("FileName").Value; }
             if (sort != null) { bNoSortAlpha = (sort.Attribute("Value").Value.ToLower() == "true"); }
