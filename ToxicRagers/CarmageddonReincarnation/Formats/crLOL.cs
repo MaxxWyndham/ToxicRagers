@@ -1,12 +1,13 @@
-﻿using System.IO;
+﻿using System.Globalization;
+using System.IO;
 using System.Text;
+using System.Threading;
 
 using ToxicRagers.Helpers;
 
 using unluacNet;
 using unluac.decompile;
 using unluac.parse;
-using System.Threading;
 
 namespace ToxicRagers.CarmageddonReincarnation.Formats
 {
@@ -41,10 +42,13 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                 ByteBuffer buffer = new ByteBuffer(data);
                 BHeader header = new BHeader(buffer);
 
+                CultureInfo culture = Thread.CurrentThread.CurrentCulture;
+
                 Thread.CurrentThread.CurrentCulture = ToxicRagers.Culture;
                 Decompiler d = new Decompiler(header.function.parse(buffer, header));
                 d.decompile();
                 d.print(new Output((s) => { sb.Append(s); }, () => { sb.Append("\r\n"); }));
+                Thread.CurrentThread.CurrentCulture = culture;
 
                 lol.document = sb.ToString();
             }
