@@ -150,6 +150,11 @@ namespace ToxicRagers.Stainless.Formats
             return zad;
         }
 
+        public bool Contains(string file)
+        {
+            return contents.Any(e => e.Name == file);
+        }
+
         public void RemoveEntry(ZADEntry entry)
         {
             int indexOfEntry = contents.IndexOf(entry);
