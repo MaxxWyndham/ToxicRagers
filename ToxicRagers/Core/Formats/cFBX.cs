@@ -571,7 +571,7 @@ namespace ToxicRagers.Core.Formats
 
                     case 83: // String
                         if (propertyValue == null) { propertyValue = ""; }
-                        return 4 + ASCIIEncoding.UTF8.GetBytes((string)propertyValue).Length;
+                        return 4 + Encoding.UTF8.GetBytes((string)propertyValue).Length;
 
                     case 98: // bool array
                         if (rawData == null)
@@ -663,7 +663,7 @@ namespace ToxicRagers.Core.Formats
 
                 case 83: // String
                     string s = (string)propertyValue;
-                    bw.Write(s.Length);
+                    bw.Write(Encoding.UTF8.GetBytes(s).Length);
                     bw.WritePropertyString(s);
                     break;
 
