@@ -32,11 +32,20 @@ namespace ToxicRagers.Carmageddon.Helpers
                     while (br.BaseStream.Position != br.BaseStream.Length)
                     {
                         byte[] s = iWantToFiddle(readLine(br, 256));
-                        if (s != null)
+                        if (line.Length == 0)
                         {
-                            processed.AddRange(s);
                             processed.Add(13);
                             processed.Add(10);
+                        }
+                        else
+                        {
+                            var s = IWantToFiddle(line);
+                            if (s != null)
+                            {
+                                processed.AddRange(s);
+                                processed.Add(13);
+                                processed.Add(10);
+                            }
                         }
                     }
 

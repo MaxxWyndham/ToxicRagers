@@ -175,6 +175,14 @@ namespace ToxicRagers.CarmageddonReincarnation.VirtualTextures
                     TilesPages[tile.Page].AddTile(tile);
                 }
 
+                //var tileNames = new List<string>(TilesByName.Keys);
+                //tileNames.Sort();
+                /*foreach (var tileName in tileNames)
+                {
+                    Logger.LogToFile(Logger.LogLevel.Info, tileName);
+                }*/
+
+                
                 if (!IsDeadBeef(br))
                 {
                     Logger.LogToFile(Logger.LogLevel.Error, "Unexpected data at {0:x2}", br.BaseStream.Position);
@@ -213,10 +221,10 @@ namespace ToxicRagers.CarmageddonReincarnation.VirtualTextures
 
         public bool IsDeadBeef(BinaryReader br)
         {
-            return (br.ReadByte() == 0xde &&
-                    br.ReadByte() == 0xad &&
+            return (br.ReadByte() == 0xef &&
                     br.ReadByte() == 0xbe &&
-                    br.ReadByte() == 0xef);
+                    br.ReadByte() == 0xad &&
+                    br.ReadByte() == 0xde);
         }
 
         public int GetWidth(int page)

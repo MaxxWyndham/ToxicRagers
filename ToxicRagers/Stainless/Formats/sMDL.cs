@@ -825,6 +825,11 @@ namespace ToxicRagers.Stainless.Formats
             get => position;
             set => position = value;
         }
+        public Vector3 Pos
+        {
+            get { return position; }
+            set { position = value; }
+        }
 
         public Vector3 Normal
         {

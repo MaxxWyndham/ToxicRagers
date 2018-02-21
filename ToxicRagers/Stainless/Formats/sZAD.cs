@@ -471,19 +471,21 @@ namespace ToxicRagers.Stainless.Formats
             bw.Write((short)0);     // Comment length
         }
 
-        public void Extract(ZADEntry file, string destination)
+        public void Extract(ZADEntry file, string destination, bool noPath = false)
         {
             if (!Directory.Exists(destination)) { Directory.CreateDirectory(destination); }
 
             file.Name = file.Name.Replace("/", "\\");
-
+            string fileName = file.Name;
+            if (noPath) fileName = Path.GetFileName(fileName);
+            fileName = Path.Combine(destination, fileName);
             if (file.SizeUncompressed == 0)
             {
-                if (!Directory.Exists(destination + file.Name)) { Directory.CreateDirectory(destination + file.Name); }
+                if (!Directory.Exists(fileName)) { Directory.CreateDirectory(fileName); }
             }
             else
             {
-                string folder = Path.GetDirectoryName(destination + file.Name);
+                string folder = Path.GetDirectoryName(fileName);
                 if (!Directory.Exists(folder)) { Directory.CreateDirectory(folder); }
 
                 using (BinaryWriter bw = new BinaryWriter(new FileStream(destination + file.Name, FileMode.Create)))
