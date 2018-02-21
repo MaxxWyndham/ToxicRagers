@@ -31,7 +31,7 @@ namespace ToxicRagers.Carmageddon.Helpers
 
                     while (br.BaseStream.Position != br.BaseStream.Length)
                     {
-                        byte[] s = iWantToFiddle(readLine(br, 256));
+                        var line = readLine(br, 256);
                         if (line.Length == 0)
                         {
                             processed.Add(13);
@@ -39,7 +39,7 @@ namespace ToxicRagers.Carmageddon.Helpers
                         }
                         else
                         {
-                            var s = IWantToFiddle(line);
+                            byte[] s = iWantToFiddle(line);
                             if (s != null)
                             {
                                 processed.AddRange(s);
