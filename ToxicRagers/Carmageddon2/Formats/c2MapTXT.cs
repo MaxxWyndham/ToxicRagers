@@ -19,7 +19,7 @@ namespace ToxicRagers.Carmageddon2.Formats
         int gridRotation;
 
         List<Checkpoint> checkpoints;
-
+        List<SmashSpec> smashables;
         List<PedSpec> pedSpecs;
 
         string additionalActor;
@@ -46,9 +46,16 @@ namespace ToxicRagers.Carmageddon2.Formats
         List<Vector3> nodes;
         List<OpponentPathSection> paths;
 
+        public Vector3 GridPosition
+        {
+            get => gridPosition;
+            set => gridPosition = value;
+        }
+
         public Map()
         {
             checkpoints = new List<Checkpoint>();
+            smashables = new List<SmashSpec>();
             pedSpecs = new List<PedSpec>();
             specialVolumes = new List<SpecialEffectVolume>();
             nodes = new List<Vector3>();
@@ -116,72 +123,70 @@ namespace ToxicRagers.Carmageddon2.Formats
             }
 
             int smashSpecs = file.ReadInt();
-
-            if (smashSpecs > 0)
+            for (int i = 0; i < smashSpecs; i++)
             {
-                throw new NotImplementedException("Can't handle smash specs yet!");
+                SmashSpec smashable = new SmashSpec
+                {
+                    Flags = file.ReadInt(),
+                    Trigger = file.ReadLine(),
+                    TriggerMode = file.ReadEnum<SmashSpec.SmashTriggerMode>()
+                };
+
+                switch (smashable.TriggerMode)
+                {
+                    case SmashSpec.SmashTriggerMode.TextureChange:
+                        smashable.IntactMaterial = file.ReadLine();
+                        int textureLevels = file.ReadInt();
+
+                        for (int j = 0; j < textureLevels; j++)
+                        {
+                            SmashSpecTextureLevel textureLevel = new SmashSpecTextureLevel()
+                            {
+                                TriggerThreshold = file.ReadSingle(),
+                                Flags = file.ReadInt()
+                            };
+
+                            if (smashable.TriggerMode == SmashSpec.SmashTriggerMode.TextureChange)
+                            {
+                                textureLevel.CollisionType = file.ReadEnum<SmashSpecTextureLevel.TextureLevelCollisionType>();
+
+                                textureLevel.Connotations.Load(file);
+
+                                int pixelmaps = file.ReadInt();
+                                for (int k = 0; k < pixelmaps; k++)
+                                {
+                                    textureLevel.Pixelmaps.Add(file.ReadLine());
+                                }
+                            }
+
+                            smashable.Levels.Add(textureLevel);
+                        }
+                        break;
+
+                    case SmashSpec.SmashTriggerMode.ReplaceModel:
+                        smashable.RemovalThreshold = file.ReadSingle();
+                        smashable.Connotations.Load(file);
+                        smashable.NewModel = file.ReadLine();
+                        smashable.ChanceOfFire = file.ReadInt();
+
+                        if (smashable.ChanceOfFire > 0)
+                        {
+                            smashable.NumFires = file.ReadInt();
+                            smashable.SmokeLevel = file.ReadInts();
+                        }
+                        break;
+
+                    default:
+                        throw new NotImplementedException($"Unknown TriggerMode '{smashable.TriggerMode}'");
+                }
+
+                file.ReadInt(); // Reserved 1
+                file.ReadInt(); // Reserved 2
+                file.ReadInt(); // Reserved 3
+                file.ReadInt(); // Reserved 4
+
+                map.smashables.Add(smashable);
             }
-
-            //for (int k = 0; k < i; k++)
-            //{
-            //    int flags = Convert.ToInt32(getNextLine(sr));
-            //    string trigger = getNextLine(sr);
-            //    if (trigger.Length == 3 && trigger.StartsWith("&")) { if (!TestLine("7", getNextLine(sr))) { Console.WriteLine("Noncar smash"); return null; } }
-            //    string mode = getNextLine(sr);
-
-            //    switch (mode)
-            //    {
-            //        case "remove":
-            //            Single removalthreshold = getNextLine(sr).ToSingle();
-            //            if (!processConnotations(sr)) { return null; }
-            //            break;
-
-            //        case "nochange":
-            //            Single threshold = getNextLine(sr).ToSingle();
-            //            if (!processConnotations(sr)) { return null; }
-            //            break;
-
-            //        case "replacemodel":
-            //            Single replacethreshold = getNextLine(sr).ToSingle();
-            //            if (!processConnotations(sr)) { return null; }
-            //            string newmodel = getNextLine(sr);
-            //            int chanceoffire = Convert.ToInt32(getNextLine(sr));
-            //            if (chanceoffire > 0)
-            //            {
-            //                int numfires = Convert.ToInt32(getNextLine(sr));
-            //                Vector2 smokeindex = Vector2.Parse(getNextLine(sr));
-            //            }
-            //            break;
-
-            //        case "texturechange":
-            //            string intactpixelmap = getNextLine(sr);
-            //            int numlevels = Convert.ToInt32(getNextLine(sr));
-            //            for (int j = 0; j < numlevels; j++)
-            //            {
-            //                Single triggerthreshold = getNextLine(sr).ToSingle();
-            //                int texchangeflags = Convert.ToInt32(getNextLine(sr));
-            //                string collisiontype = getNextLine(sr);
-
-            //                if (!processConnotations(sr)) { return null; }
-
-            //                int numpixelmaps = Convert.ToInt32(getNextLine(sr));
-            //                for (int l = 0; l < numpixelmaps; l++)
-            //                {
-            //                    string pixelmap = getNextLine(sr);
-            //                }
-            //            }
-            //            break;
-
-            //        default:
-            //            Console.WriteLine("Unknown mode : " + mode);
-            //            return null;
-            //    }
-
-            //    if (!TestLine("0", getNextLine(sr))) { Console.WriteLine("Reserved 1"); return null; }
-            //    if (!TestLine("0", getNextLine(sr))) { Console.WriteLine("Reserved 2"); return null; }
-            //    if (!TestLine("0", getNextLine(sr))) { Console.WriteLine("Reserved 3"); return null; }
-            //    if (!TestLine("0", getNextLine(sr))) { Console.WriteLine("Reserved 4"); return null; }
-            //}
 
             int pedSpecs = file.ReadInt();
 
@@ -198,7 +203,11 @@ namespace ToxicRagers.Carmageddon2.Formats
                 int exclusionCount = file.ReadInt();
                 for (int j = 0; j < exclusionCount; j++)
                 {
-                    ps.ExclusionMaterials.Add(file.ReadLine());
+                    ps.ExclusionMaterials.Add(new PedExclusionMaterial
+                    {
+                        Flags = file.ReadInt(),
+                        Name = file.ReadLine()
+                    });
                 }
 
                 int exceptionCount = file.ReadInt();
@@ -226,8 +235,9 @@ namespace ToxicRagers.Carmageddon2.Formats
 
             for (int i = 0; i < specialEffectVolumeCount; i++)
             {
-                SpecialEffectVolume sev = new SpecialEffectVolume() { Name = file.ReadLine() };
-                if (i > 0)
+                SpecialEffectVolume sev = new SpecialEffectVolume { Type = file.ReadLine().ToUpper() };
+
+                if (sev.Type == "BOX")
                 {
                     sev.Corners.Add(file.ReadVector3());
                     sev.Corners.Add(file.ReadVector3());
@@ -246,6 +256,16 @@ namespace ToxicRagers.Carmageddon2.Formats
                 sev.ExitSoundID = file.ReadInt();
                 sev.EngineNoiseIndex = file.ReadInt();
                 sev.MaterialIndex = file.ReadInt();
+
+                if (sev.Type != "DEFAULT WATER")
+                {
+                    sev.SoundType = file.ReadEnum<SpecialEffectVolume.SpecVolSoundType>();
+
+                    if (sev.SoundType != SpecialEffectVolume.SpecVolSoundType.None)
+                    {
+                        sev.SoundSpec = SoundSpec.Load(file);
+                    }
+                }
 
                 map.specialVolumes.Add(sev);
             }
@@ -296,188 +316,6 @@ namespace ToxicRagers.Carmageddon2.Formats
 
             return map;
         }
-
-        //private static void processInitialVelocity(StreamReader sr)
-        //{
-        //    Vector2 towardsyouspeed = Vector2.Parse(getNextLine(sr));
-        //    Single impacteevelocityfactor = getNextLine(sr).ToSingle();
-        //    Single randomvelocity = getNextLine(sr).ToSingle();
-        //    Single randomupvelocity = getNextLine(sr).ToSingle();
-        //    Single randomnormalvelocity = getNextLine(sr).ToSingle();
-        //    Single randomspinrate = getNextLine(sr).ToSingle();
-        //}
-
-        //private static bool processConnotations(StreamReader sr)
-        //{
-        //    int numsounds = Convert.ToInt32(getNextLine(sr));
-        //    for (int l = 0; l < numsounds; l++)
-        //    {
-        //        string soundid = getNextLine(sr);
-        //    }
-
-        //    int numshrapnel = Convert.ToInt32(getNextLine(sr));
-        //    for (int l = 0; l < numshrapnel; l++)
-        //    {
-        //        string shrapneltype = getNextLine(sr);
-
-        //        processInitialVelocity(sr);
-
-        //        if (shrapneltype != "shards")
-        //        {
-        //            string initialposition = getNextLine(sr);
-        //            switch (initialposition)
-        //            {
-        //                case "actorbased":
-        //                    // do nothing
-        //                    break;
-
-        //                case "sphereclumped":
-        //                    Single clumpingradius = getNextLine(sr).ToSingle();
-        //                    string clumpingcentre = getNextLine(sr);
-        //                    break;
-
-        //                default:
-        //                    Console.WriteLine("Unknown initial position : " + initialposition);
-        //                    return false;
-        //            }
-        //        }
-
-        //        if (shrapneltype != "noncars") { Vector2 time = Vector2.Parse(getNextLine(sr)); }
-
-        //        switch (shrapneltype)
-        //        {
-        //            case "ghostparts":
-        //                string t = getNextLine(sr);
-        //                if (t.Contains(","))
-        //                {
-        //                    Vector2 vghostpartcount = Vector2.Parse(t);
-        //                }
-        //                else
-        //                {
-        //                    int ighostpartcount = Convert.ToInt32(t);
-        //                }
-        //                int numghosts = Convert.ToInt32(getNextLine(sr));
-        //                if (numghosts > 0)
-        //                {
-        //                    for (int m = 0; m < numghosts; m++)
-        //                    {
-        //                        string actorname = getNextLine(sr);
-        //                    }
-        //                }
-        //                else
-        //                {
-        //                    string shrapnelactor = getNextLine(sr);
-        //                }
-        //                break;
-
-        //            case "noncars":
-        //                Vector2 noncarcount = Vector2.Parse(getNextLine(sr));
-        //                int chanceoffire = Convert.ToInt32(getNextLine(sr));
-        //                if (chanceoffire > 0)
-        //                {
-        //                    int numfires = Convert.ToInt32(getNextLine(sr));
-        //                    Vector2 smokeindex = Vector2.Parse(getNextLine(sr));
-        //                }
-        //                string actorhierarchy = getNextLine(sr);
-        //                int numactors = Convert.ToInt32(getNextLine(sr));
-        //                for (int m = 0; m < numactors; m++)
-        //                {
-        //                    string actorname = getNextLine(sr);
-        //                    string actorfile = getNextLine(sr);
-        //                }
-        //                break;
-
-        //            case "shards":
-        //                Single mincutlength = getNextLine(sr).ToSingle();
-        //                if (!TestLine("0", getNextLine(sr))) { Console.WriteLine("Shards flags"); return false; }
-        //                string shardmaterial = getNextLine(sr);
-        //                break;
-
-        //            default:
-        //                Console.WriteLine("Unknown shrapnel type : " + shrapneltype);
-        //                return false;
-        //        }
-        //    }
-
-        //    int numexplosions = Convert.ToInt32(getNextLine(sr));
-        //    for (int l = 0; l < numexplosions; l++)
-        //    {
-        //        Vector2 explosionettecount = Vector2.Parse(getNextLine(sr));
-        //        Vector2 starttime = Vector2.Parse(getNextLine(sr));
-        //        Vector3 explosionoffset = Vector3.Parse(getNextLine(sr));
-        //        Vector2 xfactor = Vector2.Parse(getNextLine(sr));
-        //        Vector2 yfactor = Vector2.Parse(getNextLine(sr));
-        //        Vector2 zfactor = Vector2.Parse(getNextLine(sr));
-        //        Vector2 framerate = Vector2.Parse(getNextLine(sr));
-        //        Vector2 scalingfactor = Vector2.Parse(getNextLine(sr));
-        //        string rotationmode = getNextLine(sr);
-        //        int numframes = Convert.ToInt32(getNextLine(sr));
-        //        for (int m = 0; m < numframes; m++)
-        //        {
-        //            Single opacity = getNextLine(sr).ToSingle();
-        //            string pixname = getNextLine(sr);
-        //        }
-        //    }
-
-        //    if (!TestLine("none", getNextLine(sr))) { Console.WriteLine("Slick"); return false; }
-
-        //    int numnoncarcuboids = Convert.ToInt32(getNextLine(sr));
-        //    for (int l = 0; l < numnoncarcuboids; l++)
-        //    {
-        //        Vector2 cuboidtime = Vector2.Parse(getNextLine(sr));
-        //        string coordsystem = getNextLine(sr);
-        //        string noncarindex = getNextLine(sr);
-        //        Vector3 min = Vector3.Parse(getNextLine(sr));
-        //        Vector3 max = Vector3.Parse(getNextLine(sr));
-        //        processInitialVelocity(sr);
-        //    }
-
-        //    int numsmashcuboids = Convert.ToInt32(getNextLine(sr));
-        //    for (int l = 0; l < numsmashcuboids; l++)
-        //    {
-        //        Vector2 cuboidtime = Vector2.Parse(getNextLine(sr));
-        //        string triggertype = getNextLine(sr);
-        //        string coordsystem = getNextLine(sr);
-        //        Vector3 min = Vector3.Parse(getNextLine(sr));
-        //        Vector3 max = Vector3.Parse(getNextLine(sr));
-        //        string direction = getNextLine(sr);
-        //        Single force = getNextLine(sr).ToSingle();
-        //    }
-
-        //    if (!TestLine("0", getNextLine(sr))) { Console.WriteLine("Extension flags"); return false; }
-
-        //    string roomturnoncode = getNextLine(sr);
-        //    if (roomturnoncode != "0" && roomturnoncode != "14") { Console.WriteLine("Unknown room turn on code : " + roomturnoncode); }
-
-        //    string awardcode = getNextLine(sr);
-        //    switch (awardcode)
-        //    {
-        //        case "none":
-        //            // do nothing
-        //            break;
-
-        //        case "doitregardless":
-        //        case "repeated":
-        //        case "singleshot":
-        //            int awardpoints = Convert.ToInt32(getNextLine(sr));
-        //            int awardtime = Convert.ToInt32(getNextLine(sr));
-        //            int hudindex = Convert.ToInt32(getNextLine(sr));
-        //            int fancyhudindex = Convert.ToInt32(getNextLine(sr));
-        //            break;
-
-        //        default:
-        //            Console.WriteLine("Unknown award code: " + awardcode);
-        //            return false;
-        //    }
-
-        //    int numvariablechanges = Convert.ToInt32(getNextLine(sr));
-        //    for (int l = 0; l < numvariablechanges; l++)
-        //    {
-        //        Vector2 variables = Vector2.Parse(getNextLine(sr));
-        //    }
-
-        //    return true;
-        //}
     }
 
     public class Checkpoint
@@ -503,13 +341,634 @@ namespace ToxicRagers.Carmageddon2.Formats
         }
     }
 
+    public class SmashSpec
+    {
+        public enum SmashTriggerMode
+        {
+            TextureChange,
+            ReplaceModel
+        }
+
+        int flags;
+        string trigger;
+        SmashTriggerMode triggerMode;
+
+        string intactMaterial;
+        List<SmashSpecTextureLevel> levels = new List<SmashSpecTextureLevel>();
+
+        float removalThreshold;
+        SmashSpecConnotations connotations = new SmashSpecConnotations();
+        string newModel;
+        int chanceOfFire;
+        int numFires;
+        int[] smokeLevel;
+
+        public int Flags
+        {
+            get => flags;
+            set => flags = value;
+        }
+
+        public string Trigger
+        {
+            get => trigger;
+            set => trigger = value;
+        }
+
+        public SmashTriggerMode TriggerMode
+        {
+            get => triggerMode;
+            set => triggerMode = value;
+        }
+
+        public string IntactMaterial
+        {
+            get => intactMaterial;
+            set => intactMaterial = value;
+        }
+
+        public List<SmashSpecTextureLevel> Levels
+        {
+            get => levels;
+            set => levels = value;
+        }
+
+        public float RemovalThreshold
+        {
+            get => removalThreshold;
+            set => removalThreshold = value;
+        }
+
+        public SmashSpecConnotations Connotations
+        {
+            get => connotations;
+            set => connotations = value;
+        }
+
+        public string NewModel
+        {
+            get => newModel;
+            set => newModel = value;
+        }
+
+        public int ChanceOfFire
+        {
+            get => chanceOfFire;
+            set => chanceOfFire = value;
+        }
+
+        public int NumFires
+        {
+            get => numFires;
+            set => numFires = value;
+        }
+
+        public int[] SmokeLevel
+        {
+            get => smokeLevel;
+            set => smokeLevel = value;
+        }
+    }
+
+    public class SmashSpecTextureLevel
+    {
+        public enum TextureLevelCollisionType
+        {
+            Passthrough,
+            Solid,
+            Edges
+        }
+
+        float triggerThreshold;
+        int flags;
+        TextureLevelCollisionType collisionType;
+        SmashSpecConnotations connotations = new SmashSpecConnotations();
+        List<string> pixelmaps = new List<string>();
+
+        public float TriggerThreshold
+        {
+            get => triggerThreshold;
+            set => triggerThreshold = value;
+        }
+
+        public int Flags
+        {
+            get => flags;
+            set => flags = value;
+        }
+
+        public TextureLevelCollisionType CollisionType
+        {
+            get => collisionType;
+            set => collisionType = value;
+        }
+
+        public SmashSpecConnotations Connotations
+        {
+            get => connotations;
+            set => connotations = value;
+        }
+
+        public List<string> Pixelmaps
+        {
+            get => pixelmaps;
+            set => pixelmaps = value;
+        }
+    }
+
+    public class SmashSpecConnotations
+    {
+        public enum AwardCodeType
+        {
+            None,
+            SingleShot
+        }
+
+        List<int> sounds = new List<int>();
+        List<SmashSpecShrapnel> shrapnels = new List<SmashSpecShrapnel>();
+        List<SmashSpecExplosion> explosions = new List<SmashSpecExplosion>();
+        string slickMaterial;
+        List<SmashSpecNoncarActivationCuboid> noncarCuboids = new List<SmashSpecNoncarActivationCuboid>();
+        List<SmashSpecSmashActivationCuboid> smashCuboids = new List<SmashSpecSmashActivationCuboid>();
+        int extensionFlags;
+        int roomTurnOnCode;
+
+        AwardCodeType awardCode;
+        int pointsAwarded;
+        int timeAwarded;
+        int hudIndex;
+        int fancyHUDIndex;
+
+        public List<int> Sounds
+        {
+            get => sounds;
+            set => sounds = value;
+        }
+
+        public List<SmashSpecShrapnel> Shrapnel
+        {
+            get => shrapnels;
+            set => shrapnels = value;
+        }
+
+        public string SlickMaterial
+        {
+            get => slickMaterial;
+            set => slickMaterial = value;
+        }
+
+        public int ExtensionFlags
+        {
+            get => extensionFlags;
+            set => extensionFlags = value;
+        }
+
+        public int RoomTurnOnCode
+        {
+            get => roomTurnOnCode;
+            set => roomTurnOnCode = value;
+        }
+
+        public AwardCodeType AwardCode
+        {
+            get => awardCode;
+            set => awardCode = value;
+        }
+
+        public void Load(DocumentParser file)
+        {
+            int possibleSounds = file.ReadInt();
+            for (int k = 0; k < possibleSounds; k++)
+            {
+                sounds.Add(file.ReadInt());
+            }
+
+            int shrapnelCount = file.ReadInt();
+            for (int k = 0; k < shrapnelCount; k++)
+            {
+                SmashSpecShrapnel shrapnel = new SmashSpecShrapnel
+                {
+                    ShrapnelType = file.ReadEnum<SmashSpecShrapnel.SmashSpecShrapnelType>()
+                };
+
+                shrapnel.InitialVelocity.TowardsYouSpeed = file.ReadVector2();
+                shrapnel.InitialVelocity.ImpacteeVelocityFactor = file.ReadSingle();
+                shrapnel.InitialVelocity.MaxRandomVelocity = file.ReadSingle();
+                shrapnel.InitialVelocity.MaxUpVelocity = file.ReadSingle();
+                shrapnel.InitialVelocity.MaxNormalVelocity = file.ReadSingle();
+                shrapnel.InitialVelocity.MaxRandomSpinRate = file.ReadSingle();
+
+                if (shrapnel.ShrapnelType != SmashSpecShrapnel.SmashSpecShrapnelType.Shards)
+                {
+                    shrapnel.InitialPositionType = file.ReadEnum<SmashSpecShrapnel.SmashSpecInitialPositionType>();
+                }
+
+                if (shrapnel.ShrapnelType != SmashSpecShrapnel.SmashSpecShrapnelType.NonCars)
+                {
+                    shrapnel.Time = file.ReadVector2();
+                }
+
+                if (shrapnel.ShrapnelType == SmashSpecShrapnel.SmashSpecShrapnelType.Shards)
+                {
+                    shrapnel.CutLength = file.ReadSingle();
+                    shrapnel.Flags = file.ReadInt();
+                    shrapnel.MaterialName = file.ReadLine();
+                }
+                else if (shrapnel.ShrapnelType == SmashSpecShrapnel.SmashSpecShrapnelType.NonCars)
+                {
+                    int[] count = file.ReadInts();
+                    shrapnel.MinCount = count[0];
+                    shrapnel.MaxCount = count[1];
+                    shrapnel.ChanceOfFire = file.ReadInt();
+
+                    if (shrapnel.ChanceOfFire > 0)
+                    {
+                        shrapnel.NumFires = file.ReadInt();
+                        shrapnel.SmokeLevel = file.ReadInts();
+                    }
+
+                    shrapnel.Actor = file.ReadLine();
+                    int numActors = file.ReadInt();
+
+                    for (int l = 0; l < numActors; l++)
+                    {
+                        shrapnel.Actors.Add(new SmashSpecShrapnelActor
+                        {
+                            Name = file.ReadLine(),
+                            FileName = file.ReadLine()
+                        });
+                    }
+                }
+                else
+                {
+                    shrapnel.MinCount = file.ReadInt();
+                    shrapnel.MaxCount = file.ReadInt();
+                    shrapnel.Actor = file.ReadLine();
+                }
+
+                shrapnels.Add(shrapnel);
+            }
+
+            int explosionCount = file.ReadInt();
+            for (int k = 0; k < explosionCount; k++)
+            {
+                explosions.Add(SmashSpecExplosion.Load(file));
+            }
+
+            slickMaterial = file.ReadLine();
+
+            int noncarCuboidCount = file.ReadInt();
+            for (int k = 0; k < noncarCuboidCount; k++)
+            {
+
+            }
+
+            int smashCuboidCount = file.ReadInt();
+            for (int k = 0; k < smashCuboidCount; k++)
+            {
+                smashCuboids.Add(SmashSpecSmashActivationCuboid.Load(file));
+            }
+
+            extensionFlags = file.ReadInt();
+            roomTurnOnCode = file.ReadInt();
+            awardCode = file.ReadEnum<AwardCodeType>();
+
+            if (awardCode != AwardCodeType.None)
+            {
+                pointsAwarded = file.ReadInt();
+                timeAwarded = file.ReadInt();
+                hudIndex = file.ReadInt();
+                fancyHUDIndex = file.ReadInt();
+            }
+
+            int runtimeVariableChanges = file.ReadInt();
+            for (int k = 0; k < runtimeVariableChanges; k++)
+            {
+
+            }
+        }
+    }
+
+    public class SmashSpecShrapnel
+    {
+        public enum SmashSpecShrapnelType
+        {
+            GhostParts,
+            Shards,
+            NonCars
+        }
+
+        public enum SmashSpecInitialPositionType
+        {
+            ActorBased
+        }
+
+        SmashSpecShrapnelType shrapnelType;
+        SmashSpecInitialVelocity initialVelocity = new SmashSpecInitialVelocity();
+        SmashSpecInitialPositionType initialPositionType;
+        Vector2 time;
+        int minCount;
+        int maxCount;
+        string actor;
+        float minCutLength;
+        int flags;
+        string materialName;
+        int chanceOfFire;
+        int numFires;
+        int[] smokeLevel;
+        List<SmashSpecShrapnelActor> actors = new List<SmashSpecShrapnelActor>();
+
+        public SmashSpecShrapnelType ShrapnelType
+        {
+            get => shrapnelType;
+            set => shrapnelType = value;
+        }
+
+        public SmashSpecInitialVelocity InitialVelocity
+        {
+            get => initialVelocity;
+            set => initialVelocity = value;
+        }
+
+        public SmashSpecInitialPositionType InitialPositionType
+        {
+            get => initialPositionType;
+            set => initialPositionType = value;
+        }
+
+        public Vector2 Time
+        {
+            get => time;
+            set => time = value;
+        }
+
+        public int MinCount
+        {
+            get => minCount;
+            set => minCount = value;
+        }
+
+        public int MaxCount
+        {
+            get => maxCount;
+            set => maxCount = value;
+        }
+
+        public string Actor
+        {
+            get => actor;
+            set => actor = value;
+        }
+
+        public float CutLength
+        {
+            get => minCutLength;
+            set => minCutLength = value;
+        }
+
+        public int Flags
+        {
+            get => flags;
+            set => flags = value;
+        }
+
+        public string MaterialName
+        {
+            get => materialName;
+            set => materialName = value;
+        }
+
+        public int ChanceOfFire
+        {
+            get => chanceOfFire;
+            set => chanceOfFire = value;
+        }
+
+        public int NumFires
+        {
+            get => numFires;
+            set => numFires = value;
+        }
+
+        public int[] SmokeLevel
+        {
+            get => smokeLevel;
+            set => smokeLevel = value;
+        }
+
+        public List<SmashSpecShrapnelActor> Actors
+        {
+            get => actors;
+            set => actors = value;
+        }
+    }
+
+    public class SmashSpecShrapnelActor
+    {
+        string name;
+        string fileName;
+
+        public string Name
+        {
+            get => name;
+            set => name = value;
+        }
+
+        public string FileName
+        {
+            get => fileName;
+            set => fileName = value;
+        }
+    }
+
+    public class SmashSpecExplosion
+    {
+        public enum ExplosionRotationMode
+        {
+            RandomRotate
+        }
+
+        int[] count;
+        Vector2 startDelay;
+        Vector3 offset;
+        Vector2 xFactor;
+        Vector2 yFactor;
+        Vector2 zFactor;
+        Vector2 frameRate;
+        Vector2 scalingFactor;
+        ExplosionRotationMode rotationMode;
+        List<SmashSpecExplosionFrame> frames = new List<SmashSpecExplosionFrame>();
+
+        public static SmashSpecExplosion Load(DocumentParser file)
+        {
+            SmashSpecExplosion explosion = new SmashSpecExplosion
+            {
+                count = file.ReadInts(),
+                startDelay = file.ReadVector2(),
+                offset = file.ReadVector3(),
+                xFactor = file.ReadVector2(),
+                yFactor = file.ReadVector2(),
+                zFactor = file.ReadVector2(),
+                frameRate = file.ReadVector2(),
+                scalingFactor = file.ReadVector2(),
+                rotationMode = file.ReadEnum<ExplosionRotationMode>()
+            };
+
+            int frameCount = file.ReadInt();
+
+            for (int i = 0; i < frameCount; i++)
+            {
+                explosion.frames.Add(new SmashSpecExplosionFrame
+                {
+                    Opacity = file.ReadInt(),
+                    Pixelmap = file.ReadLine()
+                });
+            }
+
+            return explosion;
+        }
+    }
+
+    public class SmashSpecExplosionFrame
+    {
+        int opacity;
+        string pixelMap;
+
+        public int Opacity
+        {
+            get => opacity;
+            set => opacity = value;
+        }
+
+        public string Pixelmap
+        {
+            get => pixelMap;
+            set => pixelMap = value;
+        }
+    }
+
+    public class SmashSpecActivationCuboid
+    {
+        public enum CuboidCoordinateSystem
+        {
+            Relative
+        }
+
+        Vector2 delay;
+        CuboidCoordinateSystem coordinateSystem;
+        Vector3 min;
+        Vector3 max;
+
+        public Vector2 Delay
+        {
+            get => delay;
+            set => delay = value;
+        }
+
+        public CuboidCoordinateSystem CoordinateSystem
+        {
+            get => coordinateSystem;
+            set => coordinateSystem = value;
+        }
+
+        public Vector3 Min
+        {
+            get => min;
+            set => min = value;
+        }
+
+        public Vector3 Max
+        {
+            get => max;
+            set => max = value;
+        }
+    }
+
+    public class SmashSpecNoncarActivationCuboid : SmashSpecActivationCuboid
+    {
+    }
+
+    public class SmashSpecSmashActivationCuboid : SmashSpecActivationCuboid
+    {
+        public enum SmashImpactDirection
+        {
+            Away
+        }
+
+        string name;
+        SmashImpactDirection impactDirection;
+        float impactStrength;
+
+        public static SmashSpecSmashActivationCuboid Load(DocumentParser file)
+        {
+            SmashSpecSmashActivationCuboid cuboid = new SmashSpecSmashActivationCuboid
+            {
+                Delay = file.ReadVector2(),
+                name = file.ReadLine(),
+                CoordinateSystem = file.ReadEnum<CuboidCoordinateSystem>(),
+                Min = file.ReadVector3(),
+                Max = file.ReadVector3(),
+                impactDirection = file.ReadEnum<SmashImpactDirection>(),
+                impactStrength = file.ReadSingle()
+            };
+
+            return cuboid;
+        }
+    }
+
+    public class SmashSpecInitialVelocity
+    {
+        Vector2 towardsYouSpeed;
+        float impacteeVelocityFactor;
+        float maxRandomVelocity;
+        float maxUpVelocity;
+        float maxNormalVelocity;
+        float maxRandomSpinRate;
+
+        public Vector2 TowardsYouSpeed
+        {
+            get => towardsYouSpeed;
+            set => towardsYouSpeed = value;
+        }
+
+        public float ImpacteeVelocityFactor
+        {
+            get => impacteeVelocityFactor;
+            set => impacteeVelocityFactor = value;
+        }
+
+        public float MaxRandomVelocity
+        {
+            get => maxRandomVelocity;
+            set => maxRandomVelocity = value;
+        }
+
+        public float MaxUpVelocity
+        {
+            get => maxUpVelocity;
+            set => maxUpVelocity = value;
+        }
+
+        public float MaxNormalVelocity
+        {
+            get => maxNormalVelocity;
+            set => maxNormalVelocity = value;
+        }
+
+        public float MaxRandomSpinRate
+        {
+            get => maxRandomSpinRate;
+            set => maxRandomSpinRate = value;
+        }
+    }
+
     public class PedSpec
     {
         string materialName;
         int movementIndex;
         int groupIndex;
         int pedsPer100SquareMetres;
-        List<string> exclusionMaterials;
+        List<PedExclusionMaterial> exclusionMaterials;
         List<string> exceptionMaterials;
 
         public string MaterialName
@@ -536,7 +995,7 @@ namespace ToxicRagers.Carmageddon2.Formats
             set => pedsPer100SquareMetres = value;
         }
 
-        public List<string> ExclusionMaterials
+        public List<PedExclusionMaterial> ExclusionMaterials
         {
             get => exclusionMaterials;
             set => exclusionMaterials = value;
@@ -550,14 +1009,39 @@ namespace ToxicRagers.Carmageddon2.Formats
 
         public PedSpec()
         {
-            exclusionMaterials = new List<string>();
-            exclusionMaterials = new List<string>();
+            exclusionMaterials = new List<PedExclusionMaterial>();
+            exceptionMaterials = new List<string>();
+        }
+    }
+
+    public class PedExclusionMaterial
+    {
+        int flags;
+        string name;
+
+        public int Flags
+        {
+            get => flags;
+            set => flags = value;
+        }
+
+        public string Name
+        {
+            get => name;
+            set => name = value;
         }
     }
 
     public class SpecialEffectVolume
     {
-        string name;
+        public enum SpecVolSoundType
+        {
+            None,
+            Scattered,
+            Saturated
+        }
+
+        string volumeType;
         float gravityMultiplier;
         float viscosityMultiplier;
         float carDamagePerMillisecond;
@@ -570,11 +1054,13 @@ namespace ToxicRagers.Carmageddon2.Formats
         int engineNoiseIndex;
         int materialIndex;
         List<Vector3> corners;
+        SpecVolSoundType soundType;
+        SoundSpec soundSpec;
 
-        public string Name
+        public string Type
         {
-            get => name;
-            set => name = value;
+            get => volumeType;
+            set => volumeType = value;
         }
 
         public float GravityMultiplier
@@ -649,9 +1135,77 @@ namespace ToxicRagers.Carmageddon2.Formats
             set => corners = value;
         }
 
+        public SpecVolSoundType SoundType
+        {
+            get => soundType;
+            set => soundType = value;
+        }
+
+        public SoundSpec SoundSpec
+        {
+            get => soundSpec;
+            set => soundSpec = value;
+        }
+
         public SpecialEffectVolume()
         {
             corners = new List<Vector3>();
+        }
+    }
+
+    public class SoundSpec
+    {
+        public enum SoundSpecType
+        {
+            Random,
+            Continuous
+        }
+
+        SoundSpecType soundSpecType;
+        Vector2 timeBetween;
+        int maxPercentPitchDeviation;
+        List<int> soundIDs;
+
+        public SoundSpecType SoundType
+        {
+            get => soundSpecType;
+            set => soundSpecType = value;
+        }
+
+        public Vector2 TimeBetween
+        {
+            get => timeBetween;
+            set => timeBetween = value;
+        }
+
+        public SoundSpec()
+        {
+            soundIDs = new List<int>();
+        }
+
+        public static SoundSpec Load(DocumentParser file)
+        {
+            SoundSpec spec = new SoundSpec
+            {
+                soundSpecType = file.ReadEnum<SoundSpecType>()
+            };
+
+            switch (spec.soundSpecType)
+            {
+                case SoundSpecType.Random:
+                    spec.timeBetween = file.ReadVector2();
+                    break;
+            }
+
+            spec.maxPercentPitchDeviation = file.ReadInt();
+            int numSounds = file.ReadInt();
+
+            for (int i = 0; i < numSounds; i++)
+            {
+                spec.soundIDs.Add(file.ReadInt());
+            }
+
+            return spec;
         }
     }
 }
