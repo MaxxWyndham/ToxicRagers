@@ -262,7 +262,36 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                 if (drivers.Count > 0)
                 {
                     sw.WriteLine("[default_driver]");
-                    sw.WriteLine(drivers[0]);
+                    foreach (string driver in drivers)
+                    {
+                        sw.WriteLine($"{driver}");
+                    }
+                    sw.WriteLine();
+                }
+
+                if (driverSuffix != null)
+                {
+                    sw.WriteLine("[driver_suffix]");
+                    sw.WriteLine(driverSuffix);
+                    sw.WriteLine();
+                }
+
+                if (!bSmallDriver)
+                {
+                    sw.WriteLine("[small_driver]");
+                    sw.WriteLine();
+                }
+
+                if (!bEjectDriver)
+                {
+                    sw.WriteLine("[disable_ejection]");
+                    sw.WriteLine();
+                }
+
+                if (garageCamOffset != Vector3.Zero)
+                {
+                    sw.WriteLine("[garage_camera_offset]");
+                    sw.WriteLine($"{garageCamOffset.X},{garageCamOffset.Y},{garageCamOffset.Z}");
                     sw.WriteLine();
                 }
 
@@ -278,23 +307,70 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
                 if (suspensionFactors != null) { sw.WriteLine(suspensionFactors.Write()); }
 
+                if (aiScript != null)
+                {
+                    sw.WriteLine("[ai_script]");
+                    sw.WriteLine(aiScript);
+                    sw.WriteLine();
+                }
+
                 foreach (VehicleMaterialMap materialMap in materialMaps)
                 {
                     sw.WriteLine(materialMap.Write());
                 }
+
+                sw.WriteLine(stats.Write());
 
                 foreach (VehicleWheelMap wheelMap in wheelMaps)
                 {
                     sw.WriteLine(wheelMap.Write());
                 }
 
-                sw.WriteLine(stats.Write());
+                if (humanTrailers.Count > 0)
+                {
+                    sw.WriteLine("[Human_Trailer]");
+                    foreach (string trailer in humanTrailers)
+                    {
+                        sw.WriteLine($"{trailer}");
+                    }
+                    sw.WriteLine();
+                }
+
+                if (aiTrailers.Count > 0)
+                {
+                    sw.WriteLine("[AI_Trailer]");
+                    foreach (string trailer in aiTrailers)
+                    {
+                        sw.WriteLine($"{trailer}");
+                    }
+                    sw.WriteLine();
+                }
+
+                if (mpTrailers.Count > 0)
+                {
+                    sw.WriteLine("[MP_Trailer]");
+                    foreach (string trailer in mpTrailers)
+                    {
+                        sw.WriteLine($"{trailer}");
+                    }
+                    sw.WriteLine();
+                }
 
                 if (incarCamOffset != Vector3.Zero)
                 {
                     sw.WriteLine("[in_car_cam_offset]");
                     sw.WriteLine($"{incarCamOffset.X},{incarCamOffset.Y},{incarCamOffset.Z}");
                     sw.WriteLine();
+                }
+
+                if (decalPoints.Count > 0)
+                {
+                    sw.WriteLine("[decal_points]");
+
+                    foreach (Vector3 point in decalPoints)
+                    {
+                        sw.WriteLine($"{point.X},{point.Y},{point.Z}");
+                    }
                 }
             }
         }
@@ -560,6 +636,15 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                 case AttachmentType.ExhaustParticles:
                     sb.Append(exhaust.ToString());
                     break;
+
+                case AttachmentType.ContinuousSound:
+                    sb.AppendLine($"sound {continuousSound}");
+                    sb.AppendLine($"lump {continuousSoundLump}");
+                    break;
+
+                case AttachmentType.ReverseLightSound:
+                    sb.AppendLine($"event {reverseLightSound}");
+                    break;
             }
 
             return sb.ToString();
@@ -628,10 +713,14 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder();
-            sb.AppendFormat("engine {0}\r\n", engine);
-            if (rpmSmooth != default(float)) { sb.AppendFormat("rpmsmooth {0}\r\n", rpmSmooth); }
-            if (onLoadSmooth != default(float)) { sb.AppendFormat("onloadsmooth {0}\r\n", onLoadSmooth); }
-            if (offLoadSmooth != default(float)) { sb.AppendFormat("offloadsmooth {0}\r\n", offLoadSmooth); }
+            sb.AppendLine($"engine {engine}");
+            if (rpmSmooth != default(float)) { sb.AppendLine($"rpmsmooth {rpmSmooth}"); }
+            if (onLoadSmooth != default(float)) { sb.AppendLine($"onloadsmooth {onLoadSmooth}"); }
+            if (offLoadSmooth != default(float)) { sb.AppendLine($"offloadsmooth {offLoadSmooth}"); }
+            if (loadMin != default(float)) { sb.AppendLine($"loadmin {loadMin}"); }
+            if (maxSpeed != default(int)) { sb.AppendLine($"max_speed {maxSpeed}"); }
+            if (maxRevs != default(int)) { sb.AppendLine($"max_revs {maxRevs}"); }
+            if (minRevs != default(int)) { sb.AppendLine($"min_revs {minRevs}"); }
             return sb.ToString();
         }
     }
@@ -680,40 +769,88 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             sb.AppendLine($"vfx {vfx}");
             if (underwaterVFX != null) { sb.AppendLine($"underwater_vfx {underwaterVFX}"); }
             sb.AppendLine($"anchor {anchor}");
+            if (multiplier != default(float)) { sb.AppendLine($"multiplier {multiplier}"); }
+            if (neutralMultiplier != default(float)) { sb.AppendLine($"neutral_multiplier {neutralMultiplier}"); }
             return sb.ToString();
         }
     }
 
     public class VehicleAttachmentComplicatedWheels
     {
-        string flWheel;
-        string frWheel;
-        string rlWheel;
-        string rrWheel;
-        string d4;
-        string d5;
-        string d6;
-        string d7;
-        string d8;
-        string d9;
-        string d10;
-        string d11;
+        Dictionary<string, string> wheels = new Dictionary<string, string>();
         string garageSet;
 
-        public string FLWheel { get => flWheel; set => flWheel = value; }
-        public string FRWheel { get => frWheel; set => frWheel = value; }
-        public string RLWheel { get => rlWheel; set => rlWheel = value; }
-        public string RRWheel { get => rrWheel; set => rrWheel = value; }
+        public string FLWheel
+        {
+            get => wheels["fl"];
+            set => wheels["fl"] = value;
+        }
 
+        public string FRWheel
+        {
+            get => wheels["fr"];
+            set => wheels["fr"] = value;
+        }
 
-        public string D4 { get => d4; set => d4 = value; }
-        public string D5 { get => d5; set => d5 = value; }
-        public string D6 { get => d6; set => d6 = value; }
-        public string D7 { get => d7; set => d7 = value; }
-        public string D8 { get => d8; set => d8 = value; }
-        public string D9 { get => d9; set => d9 = value; }
-        public string D10 { get => d10; set => d10 = value; }
-        public string D11 { get => d11; set => d11 = value; }
+        public string RLWheel
+        {
+            get => wheels["rl"];
+            set => wheels["rl"] = value;
+        }
+
+        public string RRWheel
+        {
+            get => wheels["rr"];
+            set => wheels["rr"] = value;
+        }
+
+        public string D4
+        {
+            get => wheels["D4"];
+            set => wheels["D4"] = value;
+        }
+
+        public string D5
+        {
+            get => wheels["D5"];
+            set => wheels["D5"] = value;
+        }
+
+        public string D6
+        {
+            get => wheels["D6"];
+            set => wheels["D6"] = value;
+        }
+
+        public string D7
+        {
+            get => wheels["D7"];
+            set => wheels["D7"] = value;
+        }
+
+        public string D8
+        {
+            get => wheels["D8"];
+            set => wheels["D8"] = value;
+        }
+
+        public string D9
+        {
+            get => wheels["D9"];
+            set => wheels["D9"] = value;
+        }
+
+        public string D10
+        {
+            get => wheels["D10"];
+            set => wheels["D10"] = value;
+        }
+
+        public string D11
+        {
+            get => wheels["D11"];
+            set => wheels["D11"] = value;
+        }
 
         public string GarageSet
         {
@@ -723,13 +860,18 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
         public override string ToString()
         {
-            if (flWheel == frWheel && rlWheel == rrWheel && flWheel == rlWheel)
+            if (wheels.Count == 4 && FLWheel == FRWheel && RLWheel == RRWheel && FLWheel == RLWheel)
             {
-                return $"wheel_folder_name {flWheel}";
+                return $"wheel_folder_name {FLWheel}";
             }
             else
             {
-                return $"fl_wheel_folder_name {flWheel}\r\nfr_wheel_folder_name {frWheel}\r\nrl_wheel_folder_name {rlWheel}\r\nrr_wheel_folder_name {rrWheel}";
+                StringBuilder output = new StringBuilder();
+                foreach (KeyValuePair<string, string> kvp in wheels)
+                {
+                    output.AppendLine($"{kvp.Key}_wheel_folder_name {kvp.Value}");
+                }
+                return output.ToString();
             }
         }
     }
@@ -856,11 +998,21 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                     break;
 
                 case WheelModuleType.SkidNoise:
-                    sb.AppendLine($"sounds {skidNoiseSound}");
+                    if (bUseScrapeSounds)
+                    {
+                        sb.AppendLine("use_scrape_sounds");
+                        sb.AppendLine($"scrape_index {scrapeSoundIndex}");
+                        sb.AppendLine($"volume {volume}");
+                    }
+                    else
+                    {
+                        sb.AppendLine($"sounds {skidNoiseSound}");
+                    }
                     break;
 
                 case WheelModuleType.SkidMarks:
                     sb.AppendLine($"image {skidMarkImage}");
+                    if (bOnlyTrails) { sb.AppendLine("only_trails"); }
                     break;
             }
 
@@ -870,12 +1022,11 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
     public class VehicleMaterialMap
     {
+        Dictionary<string, string> substitutions = new Dictionary<string, string>();
         string name;
         Vector3 shrapnel;
         string localName;
-        string paint;
         int appID;
-        string[] paintFibreDam = new string[5];
 
         public string Name
         {
@@ -895,10 +1046,10 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             set => localName = value;
         }
 
-        public string Paint
+        public Dictionary<string, string> Substitutions
         {
-            get => paint;
-            set => paint = value;
+            get => substitutions;
+            set => substitutions = value;
         }
 
         public int MaterialMapProductID
@@ -925,24 +1076,20 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                         localName = mm[1];
                         break;
 
-                    case "paint":
-                        paint = mm[2];
-                        break;
-
                     case "material_map_product_id":
                         appID = mm[1].ToInt();
                         break;
 
-                    case "paintfiberdam_1":
-                    case "paintfiberdam_2":
-                    case "paintfiberdam_3":
-                    case "paintfiberdam_4":
-                    case "paintfiberdam_5":
-                        paintFibreDam[int.Parse(mm[0].Substring(mm[0].Length - 1)) - 1] = mm[2];
-                        break;
-
                     default:
-                        throw new NotImplementedException($"Unknown MaterialMap parameter: {mm[0]}");
+                        if (mm[1] == ":")
+                        {
+                            substitutions[mm[0]] = mm[2];
+                        }
+                        else
+                        {
+                            throw new NotImplementedException($"Unknown MaterialMap parameter: {mm[0]}");
+                        }
+                        break;
                 }
             }
         }
@@ -953,7 +1100,10 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             sb.AppendLine("[material_map]");
             sb.AppendLine(name);
             sb.AppendLine($"localise {localName}");
-            if (paint != null) { sb.AppendLine($"Paint : {paint}"); }
+            foreach (KeyValuePair<string, string> kvp in substitutions)
+            {
+                sb.AppendLine($"{kvp.Key} : {kvp.Value}");
+            }
             sb.AppendLine($"shrapnel {shrapnel.X},{shrapnel.Y},{shrapnel.Z}");
             if (appID > 0) { sb.AppendLine($"material_map_product_id {appID}"); }
             return sb.ToString();
@@ -1074,7 +1224,8 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             sb.AppendLine("[wheel_map]");
             sb.AppendLine(name);
             sb.AppendLine($"localise {localName}");
-            sb.AppendLine(wheels.ToString());
+            sb.Append(wheels.ToString());
+            if (wheels.GarageSet != null) { sb.AppendLine($"garage_set {wheels.GarageSet}"); }
             return sb.ToString();
         }
     }
@@ -1144,8 +1295,10 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
         {
             StringBuilder sb = new StringBuilder();
             sb.AppendLine("[suspension_factors]");
-            sb.AppendLine($"max_compression {maxCompression}");
-            sb.AppendLine();
+            if (rideHeight != default(float)) { sb.AppendLine($"ride_height {rideHeight}"); }
+            if (maxCompression != default(float)) { sb.AppendLine($"max_compression {maxCompression}"); }
+            if (maxExtension != default(float)) { sb.AppendLine($"max_extension {maxExtension}"); }
+            if (maxSteeringLock != default(int)) { sb.AppendLine($"max_steering_lock {maxSteeringLock}"); }
             return sb.ToString();
         }
     }

@@ -22,11 +22,6 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats.Materials
         public simple_spec_base(XElement xml)
             : base(xml)
         {
-            coreDefaults = new simple_spec_base
-            {
-
-            };
-
             XElement diff = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "DiffuseColour").FirstOrDefault();
             XElement spec = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "Spec_Map").FirstOrDefault();
 

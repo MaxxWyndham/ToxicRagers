@@ -13,11 +13,6 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats.Materials
         public simple_1bit_base(XElement xml)
             : base(xml)
         {
-            coreDefaults = new simple_1bit_base
-            {
-
-            };
-
             XElement diff = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "DiffuseColour").FirstOrDefault();
 
             if (diff != null) { diffuse = diff.Attribute("FileName").Value; }

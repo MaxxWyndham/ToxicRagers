@@ -9,10 +9,6 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats.Materials
         public test_blood_particle_base(XElement xml)
             : base(xml)
         {
-            coreDefaults = new test_blood_particle_base
-            {
-
-            };
         }
     }
 }

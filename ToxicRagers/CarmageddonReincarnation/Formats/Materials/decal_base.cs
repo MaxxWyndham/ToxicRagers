@@ -17,17 +17,12 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats.Materials
             get => new Vector2(tileSize.X, tileSize.Y);
             set { tileSize.X = value.X; tileSize.Y = value.Y; }
         }
-
         public decal_base() { }
 
+        
         public decal_base(XElement xml)
             : base(xml)
         {
-            coreDefaults = new decal_base
-            {
-
-            };
-
             XElement diff = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "DiffuseColour").FirstOrDefault();
             XElement tile = xml.Descendants("Constant").Where(e => e.Attribute("Alias").Value == "TileSize").FirstOrDefault();
 

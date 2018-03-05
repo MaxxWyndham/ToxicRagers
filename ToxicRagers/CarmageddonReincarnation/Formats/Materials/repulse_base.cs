@@ -9,10 +9,6 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats.Materials
         public repulse_base(XElement xml)
             : base(xml)
         {
-            coreDefaults = new repulse_base
-            {
-
-            };
         }
     }
 }

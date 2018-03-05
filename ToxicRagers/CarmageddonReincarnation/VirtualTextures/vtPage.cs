@@ -214,7 +214,7 @@ namespace ToxicRagers.CarmageddonReincarnation.VirtualTextures
                         }
                     }
                     TDX newTileTDX = TDX.LoadFromBitmap(decompressed, tiles[row][col].Texture.Name, tiles[row][col].Texture.Format);
-                    newTileTDX.SetFlags(TDX.Flags.Unknown8 | TDX.Flags.Unknown128);
+                    newTileTDX.SetFlags(TDX.Flags.AlphaNbit | TDX.Flags.DoNot16bit);
                     tiles[row][col].Texture = newTileTDX;
                     output.Add(tiles[row][col]);
 

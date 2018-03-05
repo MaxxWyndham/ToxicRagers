@@ -37,11 +37,6 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats.Materials
         public fog(XElement xml)
             : base(xml)
         {
-            coreDefaults = new fog
-            {
-
-            };
-
             XElement main = xml.Descendants("Constant").Where(e => e.Attribute("Alias").Value == "MainColour").FirstOrDefault();
             XElement mind = xml.Descendants("Constant").Where(e => e.Attribute("Alias").Value == "Min_distance").FirstOrDefault();
             XElement maxd = xml.Descendants("Constant").Where(e => e.Attribute("Alias").Value == "Max_distance").FirstOrDefault();

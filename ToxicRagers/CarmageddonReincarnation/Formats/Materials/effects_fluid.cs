@@ -58,11 +58,6 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats.Materials
         public effects_fluid(XElement xml)
             : base(xml)
         {
-            coreDefaults = new effects_fluid()
-            {
-
-            };
-
             XElement diff = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "DiffuseColour").FirstOrDefault();
             XElement nor1 = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "Normal_Map").FirstOrDefault();
             XElement nor2 = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "Normal_Map2").FirstOrDefault();

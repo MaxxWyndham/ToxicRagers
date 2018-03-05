@@ -37,11 +37,6 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats.Materials
         public simple_norm_base(XElement xml)
             : base(xml)
         {
-            coreDefaults = new simple_norm_base
-            {
-
-            };
-
             XElement diff = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "DiffuseColour").FirstOrDefault();
             XElement norm = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "Normal_Map").FirstOrDefault();
             XElement scol = xml.Descendants("Constant").Where(e => e.Attribute("Alias").Value == "SpecColour").FirstOrDefault();

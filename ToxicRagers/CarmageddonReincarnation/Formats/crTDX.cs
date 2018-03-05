@@ -19,14 +19,21 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
         [Flags]
         public enum Flags
         {
-            Unknown4 = 4,
-            Unknown8 = 8,
-            Unknown64 = 64,
-            Unknown128 = 128,
-            Unknown256 = 256,
+            Palettised4bit = 1,
+            Palettised8bit = 2,
+            Alpha1bit = 4,
+            AlphaNbit = 8,
+            AlphaOnly = 16,
+            Compressed = 32,
+            DoNotCompress = 64,
+            DoNot16bit = 128,
+            DoNotDownsample = 256,
             ExtraData = 512,
-            Unknown1024 = 1024,
-            Unknown16384 = 16384
+            DoNotMipmap = 1024,
+            Swizzled = 2048,
+            FileIsJpeg = 4096,
+            CubeMap = 8192,
+            sRGB = 16384
         }
 
         public enum ExtraDataTypes
@@ -44,6 +51,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
         public ExtraDataTypes ExtraDataType => extraDataType;
         public TDXExtraData ExtraData => extraData;
+
         public void SetFlags(Flags flags)
         {
             this.flags = flags;

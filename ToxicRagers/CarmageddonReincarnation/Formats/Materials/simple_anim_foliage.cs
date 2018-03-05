@@ -9,10 +9,6 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats.Materials
         public simple_anim_foliage(XElement xml)
             : base(xml)
         {
-            coreDefaults = new simple_anim_foliage
-            {
-
-            };
         }
     }
 }

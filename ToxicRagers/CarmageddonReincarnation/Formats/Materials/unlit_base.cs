@@ -29,11 +29,6 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats.Materials
         public unlit_base(XElement xml)
             : base(xml)
         {
-            coreDefaults = new unlit_base
-            {
-
-            };
-
             XElement diff = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "DiffuseColour").FirstOrDefault();
             XElement norm = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "Normal_Map").FirstOrDefault();
             XElement spec = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "Spec_Map").FirstOrDefault();

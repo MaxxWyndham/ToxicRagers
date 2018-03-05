@@ -70,6 +70,7 @@
     <Compile Include="Carmageddon2\Helpers\Powerups.cs" />
     <Compile Include="CarmageddoniOS\Formats\iTDX.cs" />
     <Compile Include="CarmageddonPSX\OldCodeImport.cs" />
+    <Compile Include="CarmageddonReincarnation\Formats\crCrashSoundsConfigXML.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\crLOL.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\crMINGE.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\crPostFXLOL.cs" />
@@ -78,10 +79,13 @@
     <Compile Include="CarmageddonReincarnation\Formats\crStructureXML.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\crSystemsDamageXML.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\crVehicleSetupCFG.cs" />
+    <Compile Include="CarmageddonReincarnation\Formats\crVehicleSetupLOL.cs" />
+    <Compile Include="CarmageddonReincarnation\Formats\crVFXAnchorsLOL.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\Materials\car_shader_glass.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\Materials\car_translucent_body_base.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\Materials\simple_anim_foliage.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\Materials\simple_norm_detail_spec_base.cs" />
+    <Compile Include="CarmageddonReincarnation\Helpers\LUAScript.cs" />
     <Compile Include="CarmageddonReincarnation\VirtualTextures\vtMap.cs" />
     <Compile Include="CarmageddonReincarnation\VirtualTextures\vtMapEntry.cs" />
     <Compile Include="CarmageddonReincarnation\VirtualTextures\vtMapPage.cs" />

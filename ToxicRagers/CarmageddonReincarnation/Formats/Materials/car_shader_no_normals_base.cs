@@ -36,11 +36,6 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats.Materials
         public car_shader_no_normals_base(XElement xml)
             : base(xml)
         {
-            coreDefaults = new car_shader_no_normals_base()
-            {
-
-            };
-
             XElement norm = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "Normal_Map").FirstOrDefault();
             XElement deca = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "Decals").FirstOrDefault();
             XElement decs = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "DecalsSpec").FirstOrDefault();

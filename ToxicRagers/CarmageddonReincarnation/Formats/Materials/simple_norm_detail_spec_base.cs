@@ -9,10 +9,6 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats.Materials
         public simple_norm_detail_spec_base(XElement xml)
             : base(xml)
         {
-            coreDefaults = new simple_norm_detail_spec_base
-            {
-
-            };
         }
     }
 }

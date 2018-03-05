@@ -9,10 +9,6 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats.Materials
         public car_translucent_body_base(XElement xml)
             : base(xml)
         {
-            coreDefaults = new car_translucent_body_base()
-            {
-
-            };
         }
     }
 }

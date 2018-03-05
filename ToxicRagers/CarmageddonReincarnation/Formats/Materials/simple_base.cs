@@ -9,10 +9,11 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats.Materials
         // Walkable
         // EmissiveFactor
 
+        [Required]
         public string DiffuseColour
         {
-            get => diffuse;
-            set => diffuse = value;
+            get => GetFile("diffuse");
+            set => fileNames.Add("diffuse", value);
         }
 
         public simple_base() { }
@@ -20,14 +21,9 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats.Materials
         public simple_base(XElement xml)
             : base(xml)
         {
-            coreDefaults = new simple_base
-            {
-
-            };
-
             XElement diff = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "DiffuseColour").FirstOrDefault();
 
-            if (diff != null) { diffuse = diff.Attribute("FileName").Value; }
+            if (diff != null) { DiffuseColour = diff.Attribute("FileName").Value; }
         }
     }
 }

@@ -111,11 +111,6 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats.Materials
         public simple_norm_spec_env_blend_base(XElement xml)
             : base(xml)
         {
-            coreDefaults = new simple_norm_spec_env_blend_base
-            {
-
-            };
-
             XElement subs = xml.Descendants("Substance2").FirstOrDefault();
 
             if (subs != null) { substance2 = subs.Attribute("Name").Value; }

@@ -5,6 +5,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace ToxicRagers.Helpers
@@ -221,6 +222,23 @@ namespace ToxicRagers.Helpers
             }
 
             return d;
+        }
+
+        public static string Indent(this string lua)
+        {
+            string[] lines = lua.Split('\r', '\n').Where(s => s != string.Empty).ToArray();
+            string indent = "";
+
+            for (int i = 0; i < lines.Length; i++)
+            {
+                if (lines[i].EndsWith("}") || lines[i].EndsWith("},")) { indent = indent.Substring(0, indent.Length - 2); }
+
+                lines[i] = $"{indent}{lines[i]}";
+
+                if (lines[i].EndsWith("{")) { indent += "  "; }
+            }
+
+            return string.Join("\r\n", lines);
         }
     }
 }

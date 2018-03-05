@@ -43,13 +43,13 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
         float shadIntensity = 1;
         int splitCount = 0;
         float splitDistribution = 1;
-        float shadDistMin;
+        float shadDistMin = 0.1f;
         float shadDistMax = 2000;
         bool bUseEdgeCol;
         byte edgeColR;
         byte edgeColG;
         byte edgeColB;
-        byte edgeColA;
+        byte edgeColA = 255;
         float goboScaleX = 1;
         float goboScaleY = 1;
         float goboOffsetX = 0;

@@ -82,11 +82,6 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats.Materials
         public water_base(XElement xml)
             : base(xml)
         {
-            coreDefaults = new water_base
-            {
-
-            };
-
             XElement diff = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "DiffuseColour").FirstOrDefault();
             XElement nor1 = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "Normal_Map").FirstOrDefault();
             XElement spec = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "Spec_Map").FirstOrDefault();

@@ -20,8 +20,6 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
     public class MT2 : Material
     {
-        protected MT2 coreDefaults;
-
         protected XElement xml;
 
         protected string name;
@@ -65,11 +63,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
         protected Vector3 fresnelR0 = Vector3.Zero;
 
         [Ignore]
-        public MT2 Defaults
-        {
-            get => coreDefaults;
-            set => coreDefaults = value;
-        }
+        public override List<string> FileNames => base.FileNames;
 
         [Ignore]
         public string Name
@@ -196,10 +190,16 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             set => alphaCutOff.X = value;
         }
 
-        public Vector3 EmissiveLight
+        public Vector3 Multiplier
         {
             get => multiplier;
             set => multiplier = value;
+        }
+
+        public Vector3 EmissiveLight
+        {
+            get => emissiveLight;
+            set => emissiveLight = value;
         }
 
         public float EmissiveFactor
@@ -222,8 +222,8 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
         public Vector3 ReflectionMultiplier
         {
-            get => multiplier;
-            set => multiplier = value;
+            get => reflectionMultiplier;
+            set => reflectionMultiplier = value;
         }
 
         public float Fresnel_R0
@@ -252,6 +252,8 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             samplers = new List<Sampler>();
 
             basedOffOf = GetType().ToString().Substring(GetType().ToString().LastIndexOf(".") + 1);
+
+            initDefaultValues();
         }
 
         public MT2(XElement xml)
@@ -334,6 +336,8 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             if (sub != null) { substance = sub.Attribute("Name").Value; }
         }
 
+        protected virtual void initDefaultValues() { }
+
         public void Log(string s)
         {
             Logger.LogToFile(Logger.LogLevel.All, s);
@@ -366,6 +370,8 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                 new XElement("BasedOffOf", new XAttribute("Name", basedOffOf))
             );
 
+            MT2 defaultMaterial = (MT2)Activator.CreateInstance(GetType());
+
             foreach (PropertyInfo property in GetType().GetProperties())
             {
                 object[] attributes = property.GetCustomAttributes(true);
@@ -381,7 +387,8 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                         case "String":
                             {
                                 string value = (string)property.GetValue(this, null);
-                                if (value != null && (coreDefaults == null || (coreDefaults != null && value != (string)property.GetValue(coreDefaults, null))))
+                                // value != null && 
+                                if (value != (string)property.GetValue(defaultMaterial, null))
                                 {
                                     xml.Add(new XElement("Texture",
                                         new XAttribute("Alias", property.Name),
@@ -394,14 +401,19 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                         case "Troolean":
                             {
                                 Troolean value = (Troolean)property.GetValue(this, null);
-                                if (value != Troolean.Unset && value != (Troolean)property.GetValue(coreDefaults, null)) { xml.Add(new XElement(property.Name, new XAttribute("Value", value.ToString()))); }
+                                //value != Troolean.Unset && 
+                                if (value != (Troolean)property.GetValue(defaultMaterial, null))
+                                {
+                                    xml.Add(new XElement(property.Name, new XAttribute("Value", value.ToString())));
+                                }
                             }
                             break;
 
                         case "Single":
                             {
                                 float value = (float)property.GetValue(this, null);
-                                if (value != (float)property.GetValue(coreDefaults, null))
+                                //value != default(float) && 
+                                if (value != (float)property.GetValue(defaultMaterial, null))
                                 {
                                     xml.Add(new XElement("Constant",
                                         new XAttribute("Alias", property.Name),
@@ -415,7 +427,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                         case "Vector3":
                             {
                                 Vector3 value = (Vector3)property.GetValue(this, null);
-                                if (value != (Vector3)property.GetValue(coreDefaults, null))
+                                if (value != (Vector3)property.GetValue(defaultMaterial, null))
                                 {
                                     xml.Add(new XElement("Constant",
                                         new XAttribute("Alias", property.Name),

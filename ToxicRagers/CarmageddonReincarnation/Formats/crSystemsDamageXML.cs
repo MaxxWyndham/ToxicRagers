@@ -179,10 +179,24 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
             AddMethod(
                 LUACodeBlockMethodType.Add,
+                "IndexedComplicatedWheel",
+                new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Int, Name = "Index" },
+                new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Float, Name = "Factor" }
+            );
+
+            AddMethod(
+                LUACodeBlockMethodType.Add,
                 "SolidPart",
                 new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.String, Name = "Part" },
                 new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Float, Name = "A" },
                 new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Float, Name = "B" }
+            );
+
+            AddMethod(
+                LUACodeBlockMethodType.Add,
+                "CaterpillarTrack",
+                new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Int, Name = "Index" },
+                new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Float, Name = "Factor" }
             );
 
             AddMethod(
@@ -214,20 +228,6 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             AddMethod(
                 LUACodeBlockMethodType.Set,
                 "DamageEffect_Brakes",
-                new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Float, Name = "Factor" }
-            );
-
-            AddMethod(
-                LUACodeBlockMethodType.Add,
-                "IndexedComplicatedWheel",
-                new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Int, Name = "Index" },
-                new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Float, Name = "Factor" }
-            );
-
-            AddMethod(
-                LUACodeBlockMethodType.Add,
-                "CaterpillarTrack",
-                new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Int, Name = "Index" },
                 new LUACodeBlockMethodParameter() { Type = LUACodeBlockMethodParameterType.Float, Name = "Factor" }
             );
 

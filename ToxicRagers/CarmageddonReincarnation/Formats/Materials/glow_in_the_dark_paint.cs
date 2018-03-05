@@ -41,11 +41,6 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats.Materials
         public glow_in_the_dark_paint(XElement xml)
             : base(xml)
         {
-            coreDefaults = new glow_in_the_dark_paint
-            {
-
-            };
-
             XElement norm = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "Normal_Map").FirstOrDefault();
 
             if (norm != null) { normal = norm.Attribute("FileName").Value; }

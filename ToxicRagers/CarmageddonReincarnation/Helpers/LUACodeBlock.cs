@@ -53,21 +53,32 @@ namespace ToxicRagers.CarmageddonReincarnation.Helpers
         {
             foreach (string methodName in methodNames)
             {
-                AddMethod(methodType, methodName, methodParameters.Select(p => p.Clone()).ToArray());
+                AddMethod(methodType, methodName, null, methodParameters.Select(p => p.Clone()).ToArray());
             }
         }
 
         public void AddMethod(LUACodeBlockMethodType methodType, string methodName, params LUACodeBlockMethodParameter[] methodParameters)
         {
-            AddMethod(methodType, methodName, null, null, null, 0, methodParameters);
+            AddMethod(methodType, methodName, null, null, null, null, 0, methodParameters);
+        }
+
+        public void AddMethod(LUACodeBlockMethodType methodType, string methodName, string methodDescription, params LUACodeBlockMethodParameter[] methodParameters)
+        {
+            AddMethod(methodType, methodName, methodDescription, null, null, null, 0, methodParameters);
         }
 
         public void AddMethod(LUACodeBlockMethodType methodType, string methodName, string dependsOnMethod, string dependsOnParameter, Func<float, float, bool> comparison, float value, params LUACodeBlockMethodParameter[] methodParameters)
         {
+            AddMethod(methodType, methodName, null, dependsOnMethod, dependsOnParameter, comparison, value, methodParameters);
+        }
+
+        public void AddMethod(LUACodeBlockMethodType methodType, string methodName, string methodDescription, string dependsOnMethod, string dependsOnParameter, Func<float, float, bool> comparison, float value, params LUACodeBlockMethodParameter[] methodParameters)
+        {
             LUACodeBlockMethod method = new LUACodeBlockMethod()
             {
                 Type = methodType,
-                Name = methodName
+                Name = methodName,
+                Description = methodDescription
             };
 
             if (comparison != null)
@@ -216,6 +227,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Helpers
     {
         LUACodeBlockMethodType methodType;
         string methodName;
+        string methodDescription;
         List<LUACodeBlockMethodParameter> parameters;
         Func<bool> dependency = () => true;
 
@@ -229,6 +241,12 @@ namespace ToxicRagers.CarmageddonReincarnation.Helpers
         {
             get => methodName;
             set => methodName = value;
+        }
+
+        public string Description
+        {
+            get => methodDescription;
+            set => methodDescription = value;
         }
 
         public List<LUACodeBlockMethodParameter> Parameters
