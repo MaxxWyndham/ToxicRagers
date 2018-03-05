@@ -149,6 +149,11 @@ namespace ToxicRagers.Carmageddon.Helpers
             return r;
         }
 
+        public T ReadEnum<T>()
+        {
+            return ReadLine().ToEnum<T>();
+        }
+
         public string PeekLine()
         {
             int p = position;

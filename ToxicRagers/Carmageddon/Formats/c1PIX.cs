@@ -60,7 +60,7 @@ namespace ToxicRagers.Carmageddon.Formats
                     return null;
                 }
 
-                PIXIE pixelmap = new PIXIE();
+                Stack<PIXIE> pixies = new Stack<PIXIE>();
 
                 while (br.BaseStream.Position < br.BaseStream.Length)
                 {
@@ -69,8 +69,8 @@ namespace ToxicRagers.Carmageddon.Formats
 
                     switch (tag)
                     {
-                        case 0x03:
-                            pixelmap = new PIXIE()
+                        case 0x03:  // 3
+                            pixies.Push(new PIXIE()
                             {
                                 Format = (PIXIE.PixelmapFormat)br.ReadByte(),
                                 RowSize = br.ReadUInt16(),
@@ -79,29 +79,30 @@ namespace ToxicRagers.Carmageddon.Formats
                                 HalfWidth = br.ReadUInt16(),
                                 HalfHeight = br.ReadUInt16(),
                                 Name = br.ReadString()
-                            };
+                            });
                             break;
 
-                        case 0x21:
-                            pixelmap.PixelCount = (int)br.ReadUInt32();
-                            pixelmap.PixelSize = (int)br.ReadUInt32();
-                            pixelmap.SetData(br.ReadBytes(pixelmap.DataLength));
+                        case 0x21:  // 33
+                            pixies.Peek().PixelCount = (int)br.ReadUInt32();
+                            pixies.Peek().PixelSize = (int)br.ReadUInt32();
+                            pixies.Peek().SetData(br.ReadBytes(pixies.Peek().DataLength));
                             break;
 
-                        case 0x00:
-                            pix.pixies.Add(pixelmap);
+                        case 0x22:  // 34
+                        case 0x00:  // 0
+                            pix.pixies.Add(pixies.Pop());
                             break;
 
                         case 0x3d:
-                            pixelmap = new PIXIE()
+                            pixies.Push(new PIXIE()
                             {
                                 Format = (PIXIE.PixelmapFormat)br.ReadByte(),
                                 RowSize = br.ReadUInt16(),
                                 Width = br.ReadUInt16(),
                                 Height = br.ReadUInt16()
-                            };
+                            });
                             br.ReadBytes(6);
-                            pixelmap.Name = br.ReadString();
+                            pixies.Peek().Name = br.ReadString();
                             break;
 
                         default:
@@ -121,6 +122,7 @@ namespace ToxicRagers.Carmageddon.Formats
         {
             C1_8bit = 3,
             C2_16bit = 5,
+            Palette = 7,
             C2_16bitAlpha = 18
         }
 
@@ -204,7 +206,20 @@ namespace ToxicRagers.Carmageddon.Formats
             set => name = value;
         }
 
-        public int DataLength => height * ActualRowSize * pixelSize;
+        public int DataLength
+        {
+            get
+            {
+                if (format == PixelmapFormat.Palette)
+                {
+                    return 4 * 256;
+                }
+                else
+                {
+                    return height * ActualRowSize * pixelSize;
+                }
+            }
+        }
 
         public void SetData(byte[] data)
         {

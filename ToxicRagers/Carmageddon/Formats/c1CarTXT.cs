@@ -168,6 +168,12 @@ namespace ToxicRagers.Carmageddon.Formats
             set => pixelmaps = value;
         }
 
+        public List<string>[] Materials
+        {
+            get => materials;
+            set => materials = value;
+        }
+
         public List<string> Models
         {
             get => models;
@@ -184,6 +190,12 @@ namespace ToxicRagers.Carmageddon.Formats
         {
             get => actorLOD;
             set => actorLOD = value;
+        }
+
+        public List<Crush> Crushes
+        {
+            get => crushes;
+            set => crushes = value;
         }
 
         public Car()
@@ -334,10 +346,10 @@ namespace ToxicRagers.Carmageddon.Formats
             }
             file.ReadLine();
 
-            for (int i = 0; i < car.models.Count; i++)
+            for (int i = 0; i < car.actors.Count; i++)
             {
                 car.crushes.Add(new Crush(file));
-                Console.WriteLine("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}", car.models[i], car.crushes[i].SoftnessFactor, car.crushes[i].FoldFactor, car.crushes[i].WibbleFactor, car.crushes[i].LimitDeviant, car.crushes[i].SplitChance, car.crushes[i].MinYFoldDown);
+                Console.WriteLine("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}", car.actors[i], car.crushes[i].SoftnessFactor, car.crushes[i].FoldFactor, car.crushes[i].WibbleFactor, car.crushes[i].LimitDeviant, car.crushes[i].SplitChance, car.crushes[i].MinYFoldDown);
             }
 
             int mechanicsVersion = file.ReadLine().Replace("START OF MECHANICS STUFF version ", "", StringComparison.InvariantCultureIgnoreCase).ToInt();
@@ -644,6 +656,12 @@ namespace ToxicRagers.Carmageddon.Formats
         {
             get => minYFoldDown;
             set => minYFoldDown = value;
+        }
+
+        public List<CrushPoint> Points
+        {
+            get => points;
+            set => points = value;
         }
 
         public Crush()
