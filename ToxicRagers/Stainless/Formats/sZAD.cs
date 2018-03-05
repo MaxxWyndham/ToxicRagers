@@ -514,6 +514,9 @@ namespace ToxicRagers.Stainless.Formats
             switch (file.CompressionMethod)
             {
                 case CompressionMethods.None:
+                    bfs.Read(buff, 0, file.SizeUncompressed);
+                    break;
+
                 case CompressionMethods.Deflate:
                     if (bfs.ReadByte() != 0x50 ||
                         bfs.ReadByte() != 0x4B ||
