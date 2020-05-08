@@ -60,9 +60,9 @@ namespace ToxicRagers.Stainless.Formats
                 int namesLength = (int)br.ReadUInt32();
                 int endOfNamesBlock = (int)br.BaseStream.Position + namesLength;
 
-                while (br.BaseStream.Position < endOfNamesBlock)
+                while (br.BaseStream.Position + 4 < endOfNamesBlock)
                 {
-                    WADEntry entry = new WADEntry() { Name = br.ReadString() };
+                    WADEntry entry = new WADEntry() { Name = br.ReadNullTerminatedString() };
                     wad.contents.Add(entry);
                 }
             }

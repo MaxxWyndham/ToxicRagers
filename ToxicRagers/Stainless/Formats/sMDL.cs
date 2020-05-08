@@ -59,7 +59,7 @@ namespace ToxicRagers.Stainless.Formats
 
         List<MDLPrepSkinWeightLookup> prepVertSkinWeightLookup = new List<MDLPrepSkinWeightLookup>();
 
-        MDLExtents extents = new MDLExtents();
+        public MDLExtents Extents { get; set; } = new MDLExtents();
 
         public string Name => (name ?? "Unknown Mesh");
         public List<MDLMaterialGroup> Meshes => meshes;
@@ -147,9 +147,9 @@ namespace ToxicRagers.Stainless.Formats
 
                 mdl.fileSize = (int)br.ReadUInt32();
 
-                mdl.extents.Radius = br.ReadSingle();
-                mdl.extents.Min = new Vector3(br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
-                mdl.extents.Max = new Vector3(br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
+                mdl.Extents.Radius = br.ReadSingle();
+                mdl.Extents.Min = new Vector3(br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
+                mdl.Extents.Max = new Vector3(br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
                 br.ReadBytes(12);   //  BoundingBox centre, Flummery auto calculates from min and max
 
                 int materialCount = br.ReadInt16();
@@ -537,16 +537,16 @@ namespace ToxicRagers.Stainless.Formats
 
                 bw.Write(0);                            // Back filled post save
 
-                bw.Write(extents.Radius);
-                bw.Write(extents.Min.X);
-                bw.Write(extents.Min.Y);
-                bw.Write(extents.Min.Z);
-                bw.Write(extents.Max.X);
-                bw.Write(extents.Max.Y);
-                bw.Write(extents.Max.Z);
-                bw.Write(extents.Centre.X);
-                bw.Write(extents.Centre.Y);
-                bw.Write(extents.Centre.Z);
+                bw.Write(Extents.Radius);
+                bw.Write(Extents.Min.X);
+                bw.Write(Extents.Min.Y);
+                bw.Write(Extents.Min.Z);
+                bw.Write(Extents.Max.X);
+                bw.Write(Extents.Max.Y);
+                bw.Write(Extents.Max.Z);
+                bw.Write(Extents.Centre.X);
+                bw.Write(Extents.Centre.Y);
+                bw.Write(Extents.Centre.Z);
 
                 bw.Write((short)Meshes.Count);
 
@@ -724,10 +724,10 @@ namespace ToxicRagers.Stainless.Formats
                 if (verts[i].Position.Z > max.Z) { max.Z = verts[i].Position.Z; }
             }
 
-            extents.Min = min;
-            extents.Max = max;
+            Extents.Min = min;
+            Extents.Max = max;
 
-            extents.Radius = (float)Math.Max(
+            Extents.Radius = (float)Math.Max(
                         Math.Abs(Math.Sqrt(Math.Pow(min.X, 2) + Math.Pow(min.Y, 2) + Math.Pow(min.Z, 2))),
                         Math.Abs(Math.Sqrt(Math.Pow(max.X, 2) + Math.Pow(max.Y, 2) + Math.Pow(max.Z, 2)))
                       );
