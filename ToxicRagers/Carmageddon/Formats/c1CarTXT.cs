@@ -295,7 +295,7 @@ namespace ToxicRagers.Carmageddon.Formats
             }
 
             int actorCount = file.ReadInt();
-            for (int j = 0; j < modelCount; j++)
+            for (int j = 0; j < actorCount; j++)
             {
                 string[] s = file.ReadStrings();
                 car.actorLOD.Add(s[0].ToInt());
@@ -696,6 +696,42 @@ namespace ToxicRagers.Carmageddon.Formats
         Vector3 softnessPos;
         List<CrushPointNeighbour> neighbours;
 
+        public int VertexIndex
+        {
+            get => vertexIndex;
+            set => vertexIndex = value;
+        }
+
+        public Vector3 LimitMin
+        {
+            get => limitNeg;
+            set => limitNeg = value;
+        }
+
+        public Vector3 LimitMax
+        {
+            get => limitPos;
+            set => limitPos = value;
+        }
+
+        public Vector3 SoftnessNeg
+        {
+            get => softnessNeg;
+            set => softnessNeg = value;
+        }
+
+        public Vector3 SoftnessPos
+        {
+            get => softnessPos;
+            set => softnessPos = value;
+        }
+
+        public List<CrushPointNeighbour> Neighbours
+        {
+            get => neighbours;
+            set => neighbours = value;
+        }
+
         public CrushPoint()
         {
             neighbours = new List<CrushPointNeighbour>();
@@ -722,6 +758,18 @@ namespace ToxicRagers.Carmageddon.Formats
     {
         int vertexIndex;
         float factor;
+
+        public int VertexIndex
+        {
+            get => vertexIndex;
+            set => vertexIndex = value;
+        }
+
+        public float Factor
+        {
+            get => factor;
+            set => factor = value;
+        }
 
         public CrushPointNeighbour() { }
         public CrushPointNeighbour(DocumentParser file)

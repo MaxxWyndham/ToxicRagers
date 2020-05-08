@@ -12,9 +12,34 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats.Materials
         // NeedsWorldLightDir, NeedsLightingSpaceVertexNormal, NeedsLocalCubeMap
         // Multiplier
 
-        string normal;
-        string specular;
-        string normal2;
+        [Required]
+        public string DiffuseColour
+        {
+            get => GetFile("diffuse");
+            set => fileNames.Add("diffuse", value);
+        }
+
+        [Required]
+        public string Normal_Map
+        {
+            get => GetFile("normal");
+            set => fileNames.Add("normal", value);
+        }
+
+        [Required]
+        public string Spec_Map
+        {
+            get => GetFile("specular");
+            set => fileNames.Add("specular", value);
+        }
+
+        [Required]
+        public string Normal_Map2
+        {
+            get => GetFile("normal2");
+            set => fileNames.Add("normal2", value);
+        }
+
         string foamMap;
         string cubeMap;
 
@@ -22,24 +47,6 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats.Materials
         Vector3 maxDistance;
         Vector3 seaFalloff;
         Vector3 shoreFactor;
-
-        public string Normal_Map
-        {
-            get => normal;
-            set => normal = value;
-        }
-
-        public string Spec_Map
-        {
-            get => specular;
-            set => specular = value;
-        }
-
-        public string Normal_Map2
-        {
-            get => normal2;
-            set => normal2 = value;
-        }
 
         public string Foam_Map
         {
@@ -89,10 +96,10 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats.Materials
             XElement foam = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "Foam_Map").FirstOrDefault();
             XElement cube = xml.Descendants("Texture").Where(e => e.Attribute("Alias").Value == "EnvironmentCube").FirstOrDefault();
 
-            if (diff != null) { diffuse = diff.Attribute("FileName").Value; }
-            if (nor1 != null) { normal = nor1.Attribute("FileName").Value; }
-            if (spec != null) { specular = spec.Attribute("FileName").Value; }
-            if (nor2 != null) { normal2 = nor2.Attribute("FileName").Value; }
+            if (diff != null) { DiffuseColour = diff.Attribute("FileName").Value; }
+            if (nor1 != null) { Normal_Map = nor1.Attribute("FileName").Value; }
+            if (spec != null) { Spec_Map = spec.Attribute("FileName").Value; }
+            if (nor2 != null) { Normal_Map2 = nor2.Attribute("FileName").Value; }
             if (foam != null) { foamMap = foam.Attribute("FileName").Value; }
             if (cube != null) { cubeMap = cube.Attribute("FileName").Value; }
 

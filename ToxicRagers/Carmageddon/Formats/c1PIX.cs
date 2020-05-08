@@ -64,6 +64,12 @@ namespace ToxicRagers.Carmageddon.Formats
 
                 while (br.BaseStream.Position < br.BaseStream.Length)
                 {
+                    if (br.BaseStream.Position + 8 > br.BaseStream.Length)
+                    {
+                        Logger.LogToFile(Logger.LogLevel.Error, $"{path} is malformed.  The last {br.BaseStream.Length - br.BaseStream.Position} bytes are redundant and should be removed");
+                        break;
+                    }
+
                     int tag = (int)br.ReadUInt32();
                     int length = (int)br.ReadUInt32();
 
