@@ -24,6 +24,15 @@ namespace ToxicRagers.Stainless.Formats
             shrb
         }
 
+        public enum ExtraLump
+        {
+            App = -1,
+            Null = 0,
+            Octree,
+            KeyframeAnimation,
+            ZBias
+        }
+
         CNT parent;
         string name;
         string modelName;
@@ -39,6 +48,8 @@ namespace ToxicRagers.Stainless.Formats
         string effectName;
 
         string foliageName;
+
+        Octree octree;
 
         public string Name
         {
@@ -119,7 +130,10 @@ namespace ToxicRagers.Stainless.Formats
 
                 cnt = load(br, new Version(major, minor));
 
-                if (br.BaseStream.Position != br.BaseStream.Length) { Logger.LogToFile(Logger.LogLevel.Warning, "Still has data remaining (processed {0} of {1}", br.BaseStream.Position.ToString("X"), br.BaseStream.Length.ToString("X")); }
+                if (br.BaseStream.Position != br.BaseStream.Length) {
+                    Logger.LogToFile(Logger.LogLevel.Warning, "Still has data remaining (processed {0} of {1}", 
+                        br.BaseStream.Position.ToString("X"), 
+                        br.BaseStream.Length.ToString("X")); }
             }
 
             return cnt;
@@ -221,6 +235,8 @@ namespace ToxicRagers.Stainless.Formats
 
                     cnt.effectName = br.ReadString(nameLength);
 
+                    Console.WriteLine($"Effect: {cnt.effectName}");
+
                     Logger.LogToFile(Logger.LogLevel.Debug, "VFXI: \"{0}\" of length {1}, padding of {2}", cnt.effectName, nameLength, 0);
                     break;
 
@@ -271,7 +287,21 @@ namespace ToxicRagers.Stainless.Formats
                 cnt.childNodes.Add(load(br, version, cnt));
             }
 
-            br.ReadUInt32();    // Terminator
+            bool processLumps = true;
+
+            do
+            {
+                switch ((ExtraLump)br.ReadUInt32())
+                {
+                    case ExtraLump.Octree:
+                        cnt.octree = Octree.ReadFromMemory(br);
+                        break;
+
+                    case ExtraLump.Null:
+                        processLumps = false;
+                        break;
+                }
+            } while (processLumps);
 
             return cnt;
         }
@@ -344,16 +374,21 @@ namespace ToxicRagers.Stainless.Formats
                     bw.Write(new byte[padding]);
                     break;
 
+                case NodeType.VFXI:
+                    bw.Write(cnt.effectName.Length);
+                    bw.WriteString(cnt.effectName);
+                    break;
+
                 case NodeType.NULL:
                     break;
 
                 default:
-                    throw new NotImplementedException(string.Format("Save code for CNT section {0} does not exist!", cnt.Section));
+                    throw new NotImplementedException($"Save code for CNT section {cnt.Section} does not exist!");
             }
 
             bw.Write(cnt.Children.Count);
             foreach (CNT c in cnt.Children) { save(bw, c); }
-            bw.Write((int)0);
+            bw.Write(0);
         }
 
         // This seems wrong.  I am very tired.

@@ -14,6 +14,48 @@ namespace ToxicRagers.Helpers
         public float Y { get => _y; set => _y = value; }
         public float Z { get => _z; set => _z = value; }
 
+        public float this[int index]
+        {
+            get
+            {
+                switch (index)
+                {
+                    case 0:
+                        return _x;
+
+                    case 1:
+                        return _y;
+
+                    case 2:
+                        return _z;
+
+                    default:
+                        throw new InvalidOperationException();
+                }
+            }
+
+            set
+            {
+                switch (index)
+                {
+                    case 0:
+                        _x = value;
+                        break;
+
+                    case 1:
+                        _y = value;
+                        break;
+
+                    case 2:
+                        _z = value;
+                        break;
+
+                    default:
+                        throw new InvalidOperationException();
+                }
+            }
+        }
+
         public Vector3(float x, float y, float z)
         {
             _x = x;

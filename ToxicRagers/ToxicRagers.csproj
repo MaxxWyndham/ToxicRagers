@@ -145,6 +145,7 @@
     <Compile Include="Helpers\BC5Unorm.cs" />
     <Compile Include="Helpers\BinaryFileStream.cs" />
     <Compile Include="Helpers\BinaryMemoryStream.cs" />
+    <Compile Include="Helpers\BoundingBox.cs" />
     <Compile Include="Helpers\ColourHelper.cs" />
     <Compile Include="Helpers\CRC32.cs" />
     <Compile Include="Helpers\Euler.cs" />
@@ -164,6 +165,7 @@
     <Compile Include="Helpers\Matrix2D.cs" />
     <Compile Include="Helpers\Matrix3D.cs" />
     <Compile Include="Helpers\Matrix4D.cs" />
+    <Compile Include="Helpers\Octree.cs" />
     <Compile Include="Helpers\Plane.cs" />
     <Compile Include="Helpers\Structs.cs" />
     <Compile Include="Helpers\TypeConverters.cs" />
