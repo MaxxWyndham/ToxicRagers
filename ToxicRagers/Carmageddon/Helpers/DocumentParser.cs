@@ -165,7 +165,9 @@ namespace ToxicRagers.Carmageddon.Helpers
 
         public int ReadInt()
         {
-            return ReadLine().ToInt();
+            string s = ReadLine();
+
+            return Convert.ToInt32(s, s.StartsWith("0x") ? 16 : 10);
         }
 
         public float ReadSingle()

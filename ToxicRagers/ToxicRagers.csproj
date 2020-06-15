@@ -61,6 +61,7 @@
     <Compile Include="Carmageddon2\Formats\c2Dat.cs" />
     <Compile Include="Carmageddon2\Formats\c2MapTXT.cs" />
     <Compile Include="Carmageddon2\Formats\c2Mat.cs" />
+    <Compile Include="Carmageddon2\Formats\c2WAM.cs" />
     <Compile Include="Carmageddon2\Helpers\c2Face.cs" />
     <Compile Include="Carmageddon2\Helpers\c2Mesh.cs" />
     <Compile Include="Carmageddon2\Helpers\c2Vertex.cs" />
@@ -68,6 +69,7 @@
     <Compile Include="Carmageddon2\Helpers\GrooveParser.cs" />
     <Compile Include="Carmageddon2\Helpers\OpponentPathParser.cs" />
     <Compile Include="Carmageddon2\Helpers\Powerups.cs" />
+    <Compile Include="Carmageddon2\Helpers\SmashData.cs" />
     <Compile Include="CarmageddoniOS\Formats\iTDX.cs" />
     <Compile Include="CarmageddonPSX\OldCodeImport.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\crCrashSoundsConfigXML.cs" />
