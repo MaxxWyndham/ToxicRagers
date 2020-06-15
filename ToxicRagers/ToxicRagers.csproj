@@ -58,6 +58,7 @@
     <Compile Include="BurnoutParadise\Formats\bpBundle.cs" />
     <Compile Include="BurnoutParadise\Formats\bpBOM.cs" />
     <Compile Include="Carmageddon2\Formats\c2Act.cs" />
+    <Compile Include="Carmageddon2\Formats\c2CarTXT.cs" />
     <Compile Include="Carmageddon2\Formats\c2Dat.cs" />
     <Compile Include="Carmageddon2\Formats\c2MapTXT.cs" />
     <Compile Include="Carmageddon2\Formats\c2Mat.cs" />
@@ -65,8 +66,6 @@
     <Compile Include="Carmageddon2\Helpers\c2Face.cs" />
     <Compile Include="Carmageddon2\Helpers\c2Mesh.cs" />
     <Compile Include="Carmageddon2\Helpers\c2Vertex.cs" />
-    <Compile Include="Carmageddon2\Helpers\FunkParser.cs" />
-    <Compile Include="Carmageddon2\Helpers\GrooveParser.cs" />
     <Compile Include="Carmageddon2\Helpers\OpponentPathParser.cs" />
     <Compile Include="Carmageddon2\Helpers\Powerups.cs" />
     <Compile Include="Carmageddon2\Helpers\SmashData.cs" />
@@ -134,6 +133,9 @@
     <Compile Include="CarmageddonReincarnation\Helpers\XMLWriter.cs" />
     <Compile Include="Carmageddon\Formats\c1PIX.cs" />
     <Compile Include="Carmageddon\Helpers\DocumentParser.cs" />
+    <Compile Include="Carmageddon\Helpers\Funk.cs" />
+    <Compile Include="Carmageddon\Helpers\Groove.cs" />
+    <Compile Include="Carmageddon\Helpers\ImpactSpec.cs" />
     <Compile Include="Compression\Huffman\FrequencyTable.cs" />
     <Compile Include="Compression\Huffman\Node.cs" />
     <Compile Include="Compression\Huffman\Tree.cs" />
