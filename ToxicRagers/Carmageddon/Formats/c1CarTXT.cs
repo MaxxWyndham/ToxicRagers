@@ -163,13 +163,12 @@ namespace ToxicRagers.Carmageddon.Formats
             car.engineNoises = file.ReadInts();
             car.stealWorthy = (file.ReadLine().ToLower() == "stealworthy");
 
-            // This next section is all about impacts, 6 blocks in the order of top, bottom, left, right, front, back
-            car.impactTop = new ImpactSpec(file);
-            car.impactBottom = new ImpactSpec(file);
-            car.impactLeft = new ImpactSpec(file);
-            car.impactRight = new ImpactSpec(file);
-            car.impactFront = new ImpactSpec(file);
-            car.impactBack = new ImpactSpec(file);
+            car.impactTop = new ImpactSpec("top", file);
+            car.impactBottom = new ImpactSpec("bottom", file);
+            car.impactLeft = new ImpactSpec("left", file);
+            car.impactRight = new ImpactSpec("right", file);
+            car.impactFront = new ImpactSpec("front", file);
+            car.impactBack = new ImpactSpec("back", file);
 
             car.gridImages = file.ReadStrings();
 

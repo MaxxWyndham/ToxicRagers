@@ -22,10 +22,14 @@ namespace ToxicRagers.Carmageddon.Helpers
 
     public class ImpactSpec
     {
+        public string Description { get; set; }
+
         public List<ImpactSpecClause> Clauses { get; set; } = new List<ImpactSpecClause>();
 
-        public ImpactSpec(DocumentParser file)
+        public ImpactSpec(string description, DocumentParser file)
         {
+            Description = description;
+
             int clauseCount = file.ReadInt();
 
             for (int i = 0; i < clauseCount; i++)
