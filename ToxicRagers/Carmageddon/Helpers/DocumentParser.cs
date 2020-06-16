@@ -167,6 +167,8 @@ namespace ToxicRagers.Carmageddon.Helpers
         {
             string s = ReadLine();
 
+            if (s.IndexOf(" ") > -1) { s = s.Substring(0, s.IndexOf(" ")); }
+
             return Convert.ToInt32(s, s.StartsWith("0x") ? 16 : 10);
         }
 

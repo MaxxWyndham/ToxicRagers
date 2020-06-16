@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using ToxicRagers.Generics;
 using ToxicRagers.Helpers;
 
 namespace ToxicRagers.Carmageddon.Helpers
@@ -41,7 +42,7 @@ namespace ToxicRagers.Carmageddon.Helpers
         texturebits
     }
 
-    public enum FrameSomething
+    public enum TexturebitMode
     {
         B,
         BV,
@@ -55,13 +56,18 @@ namespace ToxicRagers.Carmageddon.Helpers
         public FunkMode Mode { get; set; }
         public FunkMatrixMode MatrixModType { get; set; }
         public GroovePathMode MatrixModMode { get; set; }
+        
+        public Vector2 SlitherSpeed { get; set; }
+
+        public Vector2 SlitherAmount { get; set; }
+
         public float SpinPeriod { get; set; }
         public Vector2 RollPeriods { get; set; }
         public GroovePathMode LightingMode { get; set; }
         public FunkAnimationType AnimationType { get; set; }
         public FrameRate Framerate { get; set; }
         public FrameType FrameMode { get; set; }
-        public FrameSomething FrameThing { get; set; }
+        public TexturebitMode TextureBitMode { get; set; }
         public float FrameSpeed { get; set; }
         public List<string> Frames { get; set; } = new List<string>();
 
@@ -74,8 +80,16 @@ namespace ToxicRagers.Carmageddon.Helpers
 
             switch (MatrixModType)
             {
+                case FunkMatrixMode.None:
+                    break;
+
                 case FunkMatrixMode.roll:
                     RollPeriods = file.ReadVector2();
+                    break;
+
+                case FunkMatrixMode.slither:
+                    SlitherSpeed = file.ReadVector2();
+                    SlitherAmount = file.ReadVector2();
                     break;
 
                 case FunkMatrixMode.spin:
@@ -107,7 +121,7 @@ namespace ToxicRagers.Carmageddon.Helpers
                     switch (FrameMode)
                     {
                         case FrameType.texturebits:
-                            FrameThing = file.ReadEnum<FrameSomething>();
+                            TextureBitMode = file.ReadEnum<TexturebitMode>();
                             break;
 
                         case FrameType.continuous:

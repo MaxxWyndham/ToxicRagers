@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 using ToxicRagers.Carmageddon.Helpers;
 using ToxicRagers.Helpers;
@@ -13,13 +10,17 @@ namespace ToxicRagers.Carmageddon2.Helpers
     {
         public enum SmashTriggerMode
         {
-            TextureChange,
-            ReplaceModel
+            NoChange,
+            Remove,
+            ReplaceModel,
+            TextureChange
         }
 
         public int Flags { get; set; }
 
         public string Trigger { get; set; }
+
+        public int TriggerFlags { get; set; }
 
         public SmashTriggerMode TriggerMode { get; set; }
 
@@ -66,11 +67,14 @@ namespace ToxicRagers.Carmageddon2.Helpers
         {
             None,
             Repeated,
-            SingleShot
+            SingleShot,
+            DoItRegardless
         }
 
-        public List<SmashDataExplosion> Explosions { get; set; }  = new List<SmashDataExplosion>();
+        public List<SmashDataExplosion> Explosions { get; set; } = new List<SmashDataExplosion>();
+
         public List<SmashDataNoncarActivationCuboid> NoncarCuboids { get; set; } = new List<SmashDataNoncarActivationCuboid>();
+
         public List<SmashDataSmashActivationCuboid> SmashCuboids { get; set; } = new List<SmashDataSmashActivationCuboid>();
 
         public List<int> Sounds { get; set; } = new List<int>();
@@ -84,10 +88,16 @@ namespace ToxicRagers.Carmageddon2.Helpers
         public int RoomTurnOnCode { get; set; }
 
         public AwardCodeType AwardCode { get; set; }
+
         public int PointsAwarded { get; set; }
+
         public int TimeAwarded { get; set; }
+
         public int HudIndex { get; set; }
+
         public int FancyHUDIndex { get; set; }
+
+        public List<string> RuntimeVariableChanges { get; set; } = new List<string>();
 
         public void Load(DocumentParser file)
         {
@@ -133,6 +143,25 @@ namespace ToxicRagers.Carmageddon2.Helpers
                     shrapnel.CutLength = file.ReadSingle();
                     shrapnel.Flags = file.ReadInt();
                     shrapnel.MaterialName = file.ReadLine();
+                }
+                else if (shrapnel.ShrapnelType == SmashDataShrapnel.SmashDataShrapnelType.GhostParts)
+                {
+                    int[] count = file.ReadInts();
+                    shrapnel.MinCount = count[0];
+                    shrapnel.MaxCount = count.Length == 2 ? count[1] : count[0];
+
+                    int numActors = file.ReadInt();
+                    if (numActors > 0)
+                    {
+                        for (int l = 0; l < numActors; l++)
+                        {
+                            shrapnel.GhostPartActors.Add(file.ReadLine());
+                        }
+                    } 
+                    else
+                    {
+                        shrapnel.GhostPartActors.Add(file.ReadLine());
+                    }
                 }
                 else if (shrapnel.ShrapnelType == SmashDataShrapnel.SmashDataShrapnelType.NonCars)
                 {
@@ -180,7 +209,7 @@ namespace ToxicRagers.Carmageddon2.Helpers
             int noncarCuboidCount = file.ReadInt();
             for (int k = 0; k < noncarCuboidCount; k++)
             {
-
+                NoncarCuboids.Add(SmashDataNoncarActivationCuboid.Load(file));
             }
 
             int smashCuboidCount = file.ReadInt();
@@ -204,7 +233,7 @@ namespace ToxicRagers.Carmageddon2.Helpers
             int runtimeVariableChanges = file.ReadInt();
             for (int k = 0; k < runtimeVariableChanges; k++)
             {
-
+                RuntimeVariableChanges.Add(file.ReadLine());
             }
         }
     }
@@ -226,7 +255,8 @@ namespace ToxicRagers.Carmageddon2.Helpers
 
         public enum ClumpCentre
         {
-            impact
+            impact,
+            model
         }
 
         public SmashDataShrapnelType ShrapnelType { get; set; }
@@ -258,6 +288,7 @@ namespace ToxicRagers.Carmageddon2.Helpers
 
         public int[] SmokeLevel { get; set; }
 
+        public List<string> GhostPartActors { get; set; } = new List<string>();
         public List<SmashDataShrapnelActor> Actors { get; set; } = new List<SmashDataShrapnelActor>();
     }
 
@@ -327,6 +358,7 @@ namespace ToxicRagers.Carmageddon2.Helpers
     {
         public enum CuboidCoordinateSystem
         {
+            Absolute,
             Relative
         }
 
@@ -341,6 +373,32 @@ namespace ToxicRagers.Carmageddon2.Helpers
 
     public class SmashDataNoncarActivationCuboid : SmashDataActivationCuboid
     {
+        public int NoncarNumber { get; set; }
+
+        public SmashDataInitialVelocity InitialVelocity { get; set; }
+
+        public static SmashDataNoncarActivationCuboid Load(DocumentParser file)
+        {
+            SmashDataNoncarActivationCuboid cuboid = new SmashDataNoncarActivationCuboid
+            {
+                Delay = file.ReadVector2(),
+                CoordinateSystem = file.ReadEnum<CuboidCoordinateSystem>(),
+                NoncarNumber = file.ReadInt(),
+                Min = file.ReadVector3(),
+                Max = file.ReadVector3(),
+                InitialVelocity = new SmashDataInitialVelocity
+                {
+                    TowardsYouSpeed = file.ReadVector2(),
+                    ImpacteeVelocityFactor = file.ReadSingle(),
+                    MaxRandomVelocity = file.ReadSingle(),
+                    MaxUpVelocity = file.ReadSingle(),
+                    MaxNormalVelocity = file.ReadSingle(),
+                    MaxRandomSpinRate = file.ReadSingle()
+                }
+            };
+
+            return cuboid;
+        }
     }
 
     public class SmashDataSmashActivationCuboid : SmashDataActivationCuboid
@@ -351,7 +409,9 @@ namespace ToxicRagers.Carmageddon2.Helpers
         }
 
         public string Name { get; set; }
+
         public SmashImpactDirection ImpactDirection { get; set; }
+
         public float ImpactStrength { get; set; }
 
         public static SmashDataSmashActivationCuboid Load(DocumentParser file)
