@@ -113,26 +113,10 @@ namespace ToxicRagers.Carmageddon2
 
     public class C2Powerup
     {
-        string name;
-        string model = "drum";
-        bool bCanCR = true;
+        public string Name { get; set; }
 
-        public string Name
-        {
-            get => name;
-            set => name = value;
-        }
+        public bool InCR { get; set; } = true;
 
-        public bool InCR
-        {
-            get => bCanCR;
-            set => bCanCR = value;
-        }
-
-        public string Model
-        {
-            get => model;
-            set => model = value;
-        }
+        public string Model { get; set; } = "drum";
     }
 }

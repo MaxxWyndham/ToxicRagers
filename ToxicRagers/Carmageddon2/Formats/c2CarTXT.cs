@@ -174,7 +174,7 @@ namespace ToxicRagers.Carmageddon2.Formats
             }
             file.ReadLine();
 
-            int mechanicsVersion = file.ReadLine().Replace("START OF MECHANICS STUFF version ", "", StringComparison.InvariantCultureIgnoreCase).ToInt();
+            int _ = file.ReadLine().Replace("START OF MECHANICS STUFF version ", "", StringComparison.InvariantCultureIgnoreCase).ToInt();
 
             car.MinimumTurningCircle = file.ReadSingle();
             car.BrakeMultiplier = file.ReadSingle();

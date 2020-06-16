@@ -10,16 +10,13 @@ namespace ToxicRagers.Carmageddon2.Formats
 {
     public class DAT
     {
-        public List<DatMesh> DatMeshes;
+        public List<DatMesh> DatMeshes { get; set; } = new List<DatMesh>();
 
-        public DAT()
-        {
-            DatMeshes = new List<DatMesh>();
-        }
+        public DAT() { }
 
         public DAT(DatMesh dm)
         {
-            DatMeshes = new List<DatMesh> { dm };
+            DatMeshes.Add(dm);
         }
 
         public static DAT Load(string path)
@@ -33,10 +30,10 @@ namespace ToxicRagers.Carmageddon2.Formats
 
             using (BEBinaryReader br = new BEBinaryReader(fi.OpenRead(), Encoding.Default))
             {
-                if (br.ReadUInt32() != 18 ||
-                    br.ReadUInt32() != 8 ||
-                    br.ReadUInt32() != 64206 ||
-                    br.ReadUInt32() != 2)
+                if (br.ReadUInt32() != 0x12 ||
+                    br.ReadUInt32() != 0x8 ||
+                    br.ReadUInt32() != 0xFACE ||
+                    br.ReadUInt32() != 0x2)
                 {
                     Logger.LogToFile(Logger.LogLevel.Error, "{0} isn't a valid DAT file", path);
                     return null;
@@ -234,8 +231,6 @@ namespace ToxicRagers.Carmageddon2.Formats
             DatMeshes.Add(d);
         }
 
-        // aggregate functions, apply to all submeshes
-        #region Aggregate functions
         public MeshExtents Extents
         {
             get
@@ -269,20 +264,6 @@ namespace ToxicRagers.Carmageddon2.Formats
             }
         }
 
-        public void CentreOn(float x, float y, float z)
-        {
-            MeshExtents extents = Extents;
-            Vector3 offset = (extents.Min + extents.Max) / 2;
-
-            Console.WriteLine(offset);
-
-            foreach (DatMesh d in DatMeshes)
-            {
-                d.Mesh.Translate(-offset);
-                d.Mesh.ProcessMesh();
-            }
-        }
-
         public void Scale(float scale)
         {
             foreach (DatMesh d in DatMeshes)
@@ -291,41 +272,22 @@ namespace ToxicRagers.Carmageddon2.Formats
                 d.Mesh.ProcessMesh();
             }
         }
-        #endregion
     }
 
     public class DatMesh
     {
-        #region Variables
-        private string _name = "";
-        private int _attribUnknown = 0;
-        private C2Mesh _mesh = new C2Mesh();
-        #endregion
+        public string Name { get; set; } = "";
 
-        public string Name
-        {
-            get => _name;
-            set => _name = value;
-        }
+        public int UnknownAttribute { get; set; } = 0;
 
-        public int UnknownAttribute
-        {
-            get => _attribUnknown;
-            set => _attribUnknown = value;
-        }
-
-        public C2Mesh Mesh
-        {
-            get => _mesh;
-            set => _mesh = value;
-        }
+        public C2Mesh Mesh { get; set; } = new C2Mesh();
 
         public DatMesh() { }
 
         public DatMesh(string Name, C2Mesh m)
         {
-            _name = Name;
-            _mesh = m;
+            this.Name = Name;
+            Mesh = m;
         }
     }
 }

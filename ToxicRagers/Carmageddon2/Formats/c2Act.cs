@@ -22,12 +22,11 @@ namespace ToxicRagers.Carmageddon2.Formats
 
     public class ACT
     {
-        List<ACTNode> sections;
-        public List<ACTNode> Sections => sections;
+        public List<ACTNode> Sections { get; }
 
         public ACT()
         {
-            sections = new List<ACTNode>();
+            Sections = new List<ACTNode>();
         }
 
         public static ACT Load(string path)
@@ -52,7 +51,7 @@ namespace ToxicRagers.Carmageddon2.Formats
                 while (br.BaseStream.Position < br.BaseStream.Length)
                 {
                     Section tag = (Section)br.ReadUInt32();
-                    int length = (int)br.ReadUInt32();
+                    int _ = (int)br.ReadUInt32();
 
                     a = new ACTNode(tag);
 
@@ -98,7 +97,7 @@ namespace ToxicRagers.Carmageddon2.Formats
                             return null;
                     }
 
-                    act.sections.Add(a);
+                    act.Sections.Add(a);
                 }
             }
 
@@ -107,10 +106,6 @@ namespace ToxicRagers.Carmageddon2.Formats
 
         public void Save(string Path)
         {
-            string sPath, sFile;
-            sPath = Path.Substring(0, Path.LastIndexOf("\\") + 1);
-            sFile = Path.Substring(Path.LastIndexOf("\\") + 1);
-
             using (BEBinaryWriter bw = new BEBinaryWriter(new FileStream(Path, FileMode.Create), Encoding.Default))
             {
                 int iLength;
@@ -120,7 +115,7 @@ namespace ToxicRagers.Carmageddon2.Formats
                 bw.Write(new byte[] { 0x0, 0x0, 0x0, 0x1 });    // 
                 bw.Write(new byte[] { 0x0, 0x0, 0x0, 0x2 });    // 
 
-                foreach (ACTNode A in sections)
+                foreach (ACTNode A in Sections)
                 {
                     bw.WriteInt32((int)A.Section);
 
@@ -172,129 +167,88 @@ namespace ToxicRagers.Carmageddon2.Formats
 
         public void AddRootNode(string Name = "")
         {
-            sections.Add(new ACTNode(Section.Name, Name));
-            sections.Add(new ACTNode(Section.Matrix));
-            sections.Add(new ACTNode(Section.Section37));
+            Sections.Add(new ACTNode(Section.Name, Name));
+            Sections.Add(new ACTNode(Section.Matrix));
+            Sections.Add(new ACTNode(Section.Section37));
         }
 
         public void AddActor(string ActorName, string Model, Matrix3D Transform, bool Parent)
         {
-            sections.Add(new ACTNode(Section.Name, ActorName) { ActorType = (Model != null ? ActorType.BR_ACTOR_MODEL : ActorType.BR_ACTOR_NONE) });
-            sections.Add(new ACTNode(Transform));
-            sections.Add(new ACTNode(Section.Section37));
-            if (Model != null) { sections.Add(new ACTNode(Section.Model, Model)); }
-            if (!Parent) { sections.Add(new ACTNode(Section.SubLevelEnd)); }
+            Sections.Add(new ACTNode(Section.Name, ActorName) { ActorType = (Model != null ? ActorType.BR_ACTOR_MODEL : ActorType.BR_ACTOR_NONE) });
+            Sections.Add(new ACTNode(Transform));
+            Sections.Add(new ACTNode(Section.Section37));
+            if (Model != null) { Sections.Add(new ACTNode(Section.Model, Model)); }
+            if (!Parent) { Sections.Add(new ACTNode(Section.SubLevelEnd)); }
         }
 
         public void AddPivot(string PivotName, string ActorName, string ActorModel, Matrix3D Transform)
         {
-            sections.Add(new ACTNode(Section.Name, PivotName)); //, false, 0, 0
-            sections.Add(new ACTNode(Transform));
-            sections.Add(new ACTNode(Section.Section37));
+            Sections.Add(new ACTNode(Section.Name, PivotName)); //, false, 0, 0
+            Sections.Add(new ACTNode(Transform));
+            Sections.Add(new ACTNode(Section.Section37));
 
-            sections.Add(new ACTNode(Section.Name, ActorName)); //, false, 1, 4
-            sections.Add(new ACTNode(Matrix3D.Identity));
-            sections.Add(new ACTNode(Section.Section37));
-            sections.Add(new ACTNode(Section.Model, ActorModel));
-            sections.Add(new ACTNode(Section.SubLevelEnd));
+            Sections.Add(new ACTNode(Section.Name, ActorName)); //, false, 1, 4
+            Sections.Add(new ACTNode(Matrix3D.Identity));
+            Sections.Add(new ACTNode(Section.Section37));
+            Sections.Add(new ACTNode(Section.Model, ActorModel));
+            Sections.Add(new ACTNode(Section.SubLevelEnd));
 
-            sections.Add(new ACTNode(Section.SubLevelEnd));
+            Sections.Add(new ACTNode(Section.SubLevelEnd));
         }
 
         public void AddSubLevelBegin()
         {
-            sections.Add(new ACTNode(Section.SubLevelBegin));
+            Sections.Add(new ACTNode(Section.SubLevelBegin));
         }
 
         public void AddSubLevelEnd()
         {
-            sections.Add(new ACTNode(Section.SubLevelEnd));
+            Sections.Add(new ACTNode(Section.SubLevelEnd));
         }
     }
 
     public class ACTNode
     {
-        Section section;
-        ActorType type = ActorType.BR_ACTOR_MODEL;
-        RenderStyle renderStyle = RenderStyle.BR_RSTYLE_FACES;
-        string identifier;
-        string model;
-        string material;
-        Matrix3D transform;
-        MeshExtents bounds;
+        public Section Section { get; set; }
 
-        public Section Section
-        {
-            get => section;
-            set => section = value;
-        }
+        public ActorType ActorType { get; set; } = ActorType.BR_ACTOR_MODEL;
 
-        public ActorType ActorType
-        {
-            get => type;
-            set => type = value;
-        }
+        public RenderStyle RenderStyle { get; set; } = RenderStyle.BR_RSTYLE_FACES;
 
-        public RenderStyle RenderStyle
-        {
-            get => renderStyle;
-            set => renderStyle = value;
-        }
+        public string Identifier { get; set; }
 
-        public string Identifier
-        {
-            get => identifier;
-            set => identifier = value;
-        }
+        public string Model { get; set; }
 
-        public string Model
-        {
-            get => model;
-            set => model = value;
-        }
+        public string Material { get; set; }
 
-        public string Material
-        {
-            get => material;
-            set => material = value;
-        }
+        public Matrix3D Transform { get; set; }
 
-        public Matrix3D Transform
-        {
-            get => transform;
-            set => transform = value;
-        }
-
-        public MeshExtents Bounds
-        {
-            get => bounds;
-            set => bounds = value;
-        }
+        public MeshExtents Bounds { get; set; }
 
         public ACTNode(Section section, string name = null)
         {
-            this.section = section;
+            Section = section;
 
             switch (Section)
             {
                 case Section.Name:
-                    identifier = name;
+                    Identifier = name;
                     break;
 
                 case Section.Model:
-                    model = name;
+                    Model = name;
                     break;
 
                 case Section.Material:
-                    material = name;
+                    Material = name;
                     break;
             }
         }
 
         public ACTNode(Matrix3D transform)
         {
-            section = Section.Matrix;
-            this.transform = transform;
+            Section = Section.Matrix;
+            Transform = transform;
         }
     }
 

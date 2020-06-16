@@ -11,10 +11,9 @@ namespace ToxicRagers.Carmageddon.Helpers
     {
         byte[] data;
         int position;
-        bool bFiddled = false;
 
         public bool EOF => position == data.Length;
-        public bool Fiddled => bFiddled;
+        public bool Fiddled { get; } = false;
 
         public override string ToString()
         {
@@ -43,7 +42,7 @@ namespace ToxicRagers.Carmageddon.Helpers
                     data = new byte[processed.Count];
                     processed.CopyTo(data);
 
-                    bFiddled = true;
+                    Fiddled = true;
                 }
                 else
                 {
