@@ -26,126 +26,113 @@ namespace ToxicRagers.Stainless.Formats
             LODData = 512
         }
 
-        public static Dictionary<string, Version> SupportedVersions = new Dictionary<string, Version>
+        public static List<Version> SupportedVersions = new List<Version>
         {
-            //{ "5.6", new Version(5,6)}, // iOS, Novadrome
-            { "5.9", new Version(5,9)}, // iOS, Novadrome
-            { "6.0", new Version(6,0)}, // iOS, Novadrome
-            { "6.1", new Version(6,1)}, // Novadrome
-            { "6.2", new Version(6,2)}, // C:R
-            { "6.3", new Version(6,3)}  // C:R
+            //new Version(5,6), // iOS, Novadrome
+            new Version(5,9), // iOS, Novadrome
+            new Version(6,0), // iOS, Novadrome
+            new Version(6,1), // Novadrome
+            new Version(6,2), // C:R
+            new Version(6,3)  // C:R
         };
 
-        int userFaceCount;
-        int userVertexCount;
-        int prepFaceCount;
-        int prepVertexCount;
-        Version version;
-        string name;
-        int checkSum;
-        Flags flags;
-        int prepDataSize;
-        int fileSize;
-        Flags userFlags;
-
-        List<MDLMaterialGroup> meshes = new List<MDLMaterialGroup>();
-        List<MDLFace> faces = new List<MDLFace>();
-        List<MDLVertex> verts = new List<MDLVertex>();
-        List<MDLUserVertexEntry> userVertexList = new List<MDLUserVertexEntry>();
-        List<MDLUserFaceEntry> userFaceList = new List<MDLUserFaceEntry>();
-        List<MDLBone> prepBoneList = new List<MDLBone>();
-        List<int> ptouVertexLookup = new List<int>();
-        List<int> ptouFaceLookup = new List<int>();
-
-        List<MDLPrepSkinWeightLookup> prepVertSkinWeightLookup = new List<MDLPrepSkinWeightLookup>();
+        readonly List<MDLUserVertexEntry> userVertexList = new List<MDLUserVertexEntry>();
+        readonly List<MDLUserFaceEntry> userFaceList = new List<MDLUserFaceEntry>();
+        readonly List<MDLBone> prepBoneList = new List<MDLBone>();
+        readonly List<int> ptouVertexLookup = new List<int>();
+        readonly List<int> ptouFaceLookup = new List<int>();
+        readonly List<MDLPrepSkinWeightLookup> prepVertSkinWeightLookup = new List<MDLPrepSkinWeightLookup>();
 
         public MDLExtents Extents { get; set; } = new MDLExtents();
 
-        public string Name => (name ?? "Unknown Mesh");
-        public List<MDLMaterialGroup> Meshes => meshes;
-        public int PREPFaceCount => prepFaceCount;
-        public int USERFaceCount => userFaceCount;
-        public int PREPVertexCount => prepVertexCount;
-        public int USERVertexCount => userVertexCount;
+        public Version Version { get; set; }
 
-        public List<MDLFace> Faces
-        {
-            get => faces;
-            set => faces = value;
-        }
+        public string Name { get; set; } = "Unknown Mesh";
 
-        public List<MDLVertex> Vertices
-        {
-            get => verts;
-            set => verts = value;
-        }
+        public int FileSize { get; set; }
 
-        public int Checksum
-        {
-            get => checkSum;
-            set => checkSum = value;
-        }
+        public List<MDLMaterialGroup> Meshes { get; } = new List<MDLMaterialGroup>();
 
-        public Flags ModelFlags
-        {
-            get => flags;
-            set => flags = value;
-        }
+        public int PREPFaceCount { get; private set; }
 
-        public int PrepDataSize
-        {
-            get => prepDataSize;
-            set => prepDataSize = value;
-        }
+        public int USERFaceCount { get; private set; }
+
+        public int PREPVertexCount { get; private set; }
+
+        public int USERVertexCount { get; private set; }
+
+        public Flags UserFlags { get; private set; }
+
+        public List<MDL> LODs { get; set; } = new List<MDL>();
+
+        public List<MDLFace> Faces { get; set; } = new List<MDLFace>();
+
+        public List<MDLVertex> Vertices { get; set; } = new List<MDLVertex>();
+
+        public int Checksum { get; set; }
+
+        public Flags ModelFlags { get; set; }
+
+        public int PrepDataSize { get; set; }
 
         public static MDL Load(string path)
         {
-            FileInfo fi = new FileInfo(path);
             Logger.LogToFile(Logger.LogLevel.Info, "{0}", path);
-            MDL mdl = new MDL() { name = fi.Name.Replace(fi.Extension, "") };
+            MDL mdl = new MDL { Name = Path.GetFileNameWithoutExtension(path) };
 
             using (MemoryStream ms = new MemoryStream(File.ReadAllBytes(path)))
-            using (BinaryReader br = new BinaryReader(ms, Encoding.Default))
+            {
+                mdl = Load(ms, Path.GetFileNameWithoutExtension(path));
+            }
+
+            return mdl;
+        }
+
+        public static MDL Load(Stream stream, string name = null)
+        {
+            MDL mdl = new MDL { Name = name };
+
+            using (BinaryReader br = new BinaryReader(stream, Encoding.Default, true))
             {
                 if (br.ReadByte() != 0x45 ||
                     br.ReadByte() != 0x23)
                 {
-                    Logger.LogToFile(Logger.LogLevel.Error, "{0} isn't a valid MDL file", path);
+                    Logger.LogToFile(Logger.LogLevel.Error, "This isn't a valid MDL file");
                     return null;
                 }
 
                 byte minor = br.ReadByte();
                 byte major = br.ReadByte();
 
-                mdl.version = new Version(major, minor);
+                mdl.Version = new Version(major, minor);
 
-                if (!MDL.SupportedVersions.ContainsKey(mdl.version.ToString()))
+                if (!SupportedVersions.Contains(mdl.Version))
                 {
-                    Logger.LogToFile(Logger.LogLevel.Error, "Unsupported MDL version: v{0}", mdl.version.ToString());
+                    Logger.LogToFile(Logger.LogLevel.Error, "Unsupported MDL version: v{0}", mdl.Version.ToString());
                     return null;
                 }
 
-                Logger.LogToFile(Logger.LogLevel.Info, "MDL v{0}", mdl.version.ToString());
+                Logger.LogToFile(Logger.LogLevel.Info, "MDL v{0}", mdl.Version.ToString());
 
                 // TODO: v5.6
                 // Ref : Novadrome_Demo\WADs\data\DATA\SFX\CAR_EXPLOSION\DEBPOOL\DEBPOOL.MDL
                 // Ref : Carmageddon Mobile\Data_IOS\DATA\CONTENT\SFX\SHRAPNEL.MDL
                 // 01 00 00 00 EE 02 00 00 02 00 00 00 04 00 00 00 01 00 00 00 49 33 35 3F 89 41 00 BF 18 B7 51 BA 89 41 00 BF 00 00 00 3F 52 49 9D 3A 00 00 00 3F 00 12 03 BA 18 B7 51 39 00 12 03 BA 01 00 66 69 72 65 70 6F 6F 6C 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 02 00 00 00 00 00 00 00 00 00 00 00 01 00 00 00 02 00 00 00 17 B7 51 39 17 B7 D1 38 00 00 80 3F 17 B7 D1 B8 00 00 00 00 03 00 00 00 02 00 00 00 01 00 00 00 17 B7 51 39 17 B7 D1 B8 00 00 80 3F 17 B7 D1 38 04 00 00 00 00 00 00 3F 17 B7 D1 38 00 00 00 BF 17 B7 D1 38 00 00 80 3F 17 B7 D1 B8 00 00 80 3F 00 00 80 3F 00 00 00 00 00 00 00 00 80 80 80 FF 00 00 00 BF 17 B7 51 39 00 00 00 BF 00 00 00 00 00 00 80 3F 00 00 00 00 00 00 00 00 00 00 80 3F 00 00 00 00 00 00 00 00 80 80 80 FF 00 00 00 3F 17 B7 51 39 00 00 00 3F 00 00 00 00 00 00 80 3F 00 00 00 00 00 00 80 3F 00 00 00 00 00 00 00 00 00 00 00 00 80 80 80 FF 00 00 00 BF 17 B7 D1 38 00 00 00 3F 17 B7 D1 B8 00 00 80 3F 17 B7 D1 38 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 80 80 80 FF 01 00 00 00 00 00 17 B7 D1 38 00 00 00 00 00 00 00 00 04 00 00 00 04 00 00 00 00 00 00 00 01 00 00 00 02 00 00 00 03 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 FF FF FF FF
 
-                mdl.checkSum = (int)br.ReadUInt32();
+                mdl.Checksum = (int)br.ReadUInt32();
 
-                mdl.flags = (Flags)br.ReadUInt32();
-                Logger.LogToFile(Logger.LogLevel.Debug, "Flags {0}", (Flags)mdl.flags);
+                mdl.ModelFlags = (Flags)br.ReadUInt32();
+                Logger.LogToFile(Logger.LogLevel.Debug, "Flags {0}", (Flags)mdl.ModelFlags);
 
-                mdl.prepDataSize = (int)br.ReadUInt32();    // PREP data size
+                mdl.PrepDataSize = (int)br.ReadUInt32();    // PREP data size
 
-                mdl.userFaceCount = (int)br.ReadUInt32();
-                mdl.userVertexCount = (int)br.ReadUInt32();
+                mdl.USERFaceCount = (int)br.ReadUInt32();
+                mdl.USERVertexCount = (int)br.ReadUInt32();
 
-                Logger.LogToFile(Logger.LogLevel.Debug, "USER Faces: {0}", mdl.userFaceCount);
-                Logger.LogToFile(Logger.LogLevel.Debug, "USER Verts: {0}", mdl.userVertexCount);
+                Logger.LogToFile(Logger.LogLevel.Debug, "USER Faces: {0}", mdl.USERFaceCount);
+                Logger.LogToFile(Logger.LogLevel.Debug, "USER Verts: {0}", mdl.USERVertexCount);
 
-                mdl.fileSize = (int)br.ReadUInt32();
+                mdl.FileSize = (int)br.ReadUInt32();
 
                 mdl.Extents.Radius = br.ReadSingle();
                 mdl.Extents.Min = new Vector3(br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
@@ -159,30 +146,30 @@ namespace ToxicRagers.Stainless.Formats
                 for (int i = 0; i < materialCount; i++)
                 {
                     string materialName;
-                    int nameLength = -1;
-                    int padding = -1;
+                    int nameLength;
+                    int padding;
 
-                    if (mdl.version.Major < 6)
+                    if (mdl.Version.Major < 6)
                     {
                         materialName = br.ReadBytes(32).ToName();
                     }
                     else
                     {
-                        nameLength = (int)br.ReadInt32();
-                        padding = (((nameLength / 4) + (nameLength % 4 > 0 ? 1 : 0)) * 4) - nameLength + (mdl.version.Major == 6 && mdl.version.Minor > 0 ? 4 : 0);
+                        nameLength = br.ReadInt32();
+                        padding = (((nameLength / 4) + (nameLength % 4 > 0 ? 1 : 0)) * 4) - nameLength + (mdl.Version.Major == 6 && mdl.Version.Minor > 0 ? 4 : 0);
                         materialName = br.ReadString(nameLength);
                         br.ReadBytes(padding);
                     }
 
-                    mdl.meshes.Add(new MDLMaterialGroup(i, materialName));
+                    mdl.Meshes.Add(new MDLMaterialGroup(i, materialName));
                 }
 
                 // START PREP DATA
-                mdl.prepFaceCount = (int)br.ReadUInt32();
+                mdl.PREPFaceCount = (int)br.ReadUInt32();
 
-                Logger.LogToFile(Logger.LogLevel.Debug, "PREP Faces: {0}", mdl.prepFaceCount);
+                Logger.LogToFile(Logger.LogLevel.Debug, "PREP Faces: {0}", mdl.PREPFaceCount);
 
-                for (int i = 0; i < mdl.prepFaceCount; i++)
+                for (int i = 0; i < mdl.PREPFaceCount; i++)
                 {
                     MDLFace face = new MDLFace(
                         br.ReadUInt16(),        // Material index
@@ -192,16 +179,16 @@ namespace ToxicRagers.Stainless.Formats
                         (int)br.ReadUInt32()    // Vert index C
                     );
 
-                    mdl.faces.Add(face);
+                    mdl.Faces.Add(face);
 
                     Logger.LogToFile(Logger.LogLevel.Debug, "{0} : {1}", i, face);
                 }
 
-                mdl.prepVertexCount = (int)br.ReadUInt32();
+                mdl.PREPVertexCount = (int)br.ReadUInt32();
 
-                Logger.LogToFile(Logger.LogLevel.Debug, "PREP Verts: {0}", mdl.prepVertexCount);
+                Logger.LogToFile(Logger.LogLevel.Debug, "PREP Verts: {0}", mdl.PREPVertexCount);
 
-                for (int i = 0; i < mdl.prepVertexCount; i++)
+                for (int i = 0; i < mdl.PREPVertexCount; i++)
                 {
                     MDLVertex vert = new MDLVertex(
                         br.ReadSingle(),        // X
@@ -220,7 +207,7 @@ namespace ToxicRagers.Stainless.Formats
                         br.ReadByte()           // A
                     );
 
-                    mdl.verts.Add(vert);
+                    mdl.Vertices.Add(vert);
 
                     Logger.LogToFile(Logger.LogLevel.Debug, "{0} : {1}", i, vert);
                 }
@@ -229,7 +216,7 @@ namespace ToxicRagers.Stainless.Formats
 
                 for (int i = 0; i < materialGroups; i++)
                 {
-                    MDLMaterialGroup mesh = mdl.meshes[i];
+                    MDLMaterialGroup mesh = mdl.Meshes[i];
 
                     br.ReadBytes(12);   // BoundingBox Centre, we recalculate it from Min and Max
                     mesh.Extents.Radius = br.ReadSingle();
@@ -269,7 +256,7 @@ namespace ToxicRagers.Stainless.Formats
                     }
                 }
 
-                if (mdl.flags.HasFlag(Flags.PREPSkinData))
+                if (mdl.ModelFlags.HasFlag(Flags.PREPSkinData))
                 {
                     Logger.LogToFile(Logger.LogLevel.Debug, "Processing PREP skin data");
 
@@ -315,7 +302,7 @@ namespace ToxicRagers.Stainless.Formats
 
                     Logger.LogToFile(Logger.LogLevel.Debug, "PREP skin vert weight table");
 
-                    for (int i = 0; i < mdl.prepVertexCount; i++)
+                    for (int i = 0; i < mdl.PREPVertexCount; i++)
                     {
                         int weightCount = br.ReadUInt16();
                         br.ReadBytes(2);
@@ -344,63 +331,43 @@ namespace ToxicRagers.Stainless.Formats
                 }
                 // END PREP DATA
 
-                if (mdl.flags.HasFlag(Flags.LODData))
+                if (mdl.ModelFlags.HasFlag(Flags.LODData))
                 {
-                    Console.WriteLine("{0} has LODs!", path);
-                    //return null;
+                    ushort lodLevel;
 
-                    br.ReadUInt16();
-
-                    for (int i = 0; i < mdl.meshes.Count; i++)
+                    do
                     {
-                        int nameLength = (int)br.ReadUInt32();
-                        string s = br.ReadString(nameLength);
+                        lodLevel = br.ReadUInt16();
+                        int nameLength = br.ReadInt32();
 
-                        if (br.ReadUInt32() != 0)
+                        if (nameLength > 0)
                         {
-                            br.ReadBytes(70);
+                            int padding = (((nameLength / 4) + (nameLength % 4 > 0 ? 1 : 0)) * 4) - nameLength + (mdl.Version.Major == 6 && mdl.Version.Minor > 0 ? 4 : 0);
+                            string lodLevelName = br.ReadString(nameLength);
+                            br.ReadBytes(padding);
+
+                            mdl.LODs.Add(Load(br.BaseStream, lodLevelName));
                         }
-                    }
-
-                    br.ReadByte();
-
-                    int someCount = 0;
-
-                    someCount = (int)br.ReadUInt32();
-
-                    for (int i = 0; i < someCount; i++)
-                    {
-                        br.ReadUInt32();
-                        br.ReadUInt32();
-                        br.ReadUInt32();
-                        br.ReadUInt32();
-                    }
-
-                    someCount = (int)br.ReadUInt32();
-
-                    for (int i = 0; i < someCount; i++)
-                    {
-                        br.ReadBytes(44);
-                    }
+                    } while (lodLevel < 4);
                 }
 
                 // START USER DATA
-                if (mdl.flags.HasFlag(Flags.USERData))
+                if (mdl.ModelFlags.HasFlag(Flags.USERData))
                 {
-                    mdl.userFlags = (Flags)br.ReadUInt32();
+                    mdl.UserFlags = (Flags)br.ReadUInt32();
 
                     // v5.6 successfully parses from this point down
 
                     Logger.LogToFile(Logger.LogLevel.Debug, "USER vertex list with index count");
-                    for (int i = 0; i < mdl.userVertexCount; i++)
+                    for (int i = 0; i < mdl.USERVertexCount; i++)
                     {
                         mdl.userVertexList.Add(new MDLUserVertexEntry(br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), (int)br.ReadUInt32()));
                     }
 
                     Logger.LogToFile(Logger.LogLevel.Debug, "USER face data");
-                    for (int i = 0; i < mdl.userFaceCount; i++)
+                    for (int i = 0; i < mdl.USERFaceCount; i++)
                     {
-                        if (mdl.version.Major == 5 && mdl.version.Minor == 6)
+                        if (mdl.Version.Major == 5 && mdl.Version.Minor == 6)
                         {
                             br.ReadBytes(133);
                         }
@@ -428,13 +395,13 @@ namespace ToxicRagers.Stainless.Formats
                                         new Vector2(br.ReadSingle(), br.ReadSingle()),                      // uv2[2]
                                         br.ReadByte(),                                                      // flags
                                         (int)br.ReadUInt32()                                                // application specific flags
-                                ) // 137 bytes
+                                ) // 137 bytes || 0x89
                             );
                         }
                     }
 
                     Logger.LogToFile(Logger.LogLevel.Debug, "PREP to USER face lookup");
-                    for (int i = 0; i < mdl.prepFaceCount; i++)
+                    for (int i = 0; i < mdl.PREPFaceCount; i++)
                     {
                         mdl.ptouFaceLookup.Add((int)br.ReadUInt32());
                     }
@@ -447,7 +414,7 @@ namespace ToxicRagers.Stainless.Formats
                         mdl.ptouVertexLookup.Add((int)br.ReadUInt32());
                     }
 
-                    if (mdl.userFlags.HasFlag(Flags.USERSkinData))
+                    if (mdl.UserFlags.HasFlag(Flags.USERSkinData))
                     {
                         Logger.LogToFile(Logger.LogLevel.Debug, "Processing USER skin data");
 
@@ -472,9 +439,9 @@ namespace ToxicRagers.Stainless.Formats
                         }
 
                         int userDataCount = (int)br.ReadUInt32();
-                        Logger.LogToFile(Logger.LogLevel.Debug, "{0} == {1}", userDataCount, mdl.userVertexCount);
+                        Logger.LogToFile(Logger.LogLevel.Debug, "{0} == {1}", userDataCount, mdl.USERVertexCount);
 
-                        for (int i = 0; i < mdl.userVertexCount; i++)
+                        for (int i = 0; i < mdl.USERVertexCount; i++)
                         {
                             int entryCount = br.ReadUInt16();
 
@@ -488,10 +455,6 @@ namespace ToxicRagers.Stainless.Formats
                         }
                     }
                 }
-                else
-                {
-                    //Console.WriteLine("no user data");
-                }
 
                 if (br.BaseStream.Position != br.BaseStream.Length) { Logger.LogToFile(Logger.LogLevel.Warning, "Still has data remaining (processed {0:x2} of {1:x2}", br.BaseStream.Position, br.BaseStream.Length); }
             }
@@ -501,7 +464,7 @@ namespace ToxicRagers.Stainless.Formats
 
         public MDLMaterialGroup GetMesh(int index)
         {
-            return meshes[index];
+            return Meshes[index];
         }
 
         public void Save(string path)
@@ -515,13 +478,13 @@ namespace ToxicRagers.Stainless.Formats
                 bw.Write(new byte[] { 2, 6 });          // Version (6.2)
 
                 bw.Write(new byte[] { 0, 0, 0, 0 });    // Checksum, to calculate
-                bw.Write((int)flags);
+                bw.Write((int)ModelFlags);
 
-                int prepDataSize = 4 + (faces.Count * 16) + 4 + (verts.Count * 44) + 2;
+                int prepDataSize = 4 + (Faces.Count * 16) + 4 + (Vertices.Count * 44) + 2;
 
-                for (int i = 0; i < meshes.Count; i++)
+                for (int i = 0; i < Meshes.Count; i++)
                 {
-                    MDLMaterialGroup mesh = meshes[i];
+                    MDLMaterialGroup mesh = Meshes[i];
 
                     prepDataSize += 52;
                     prepDataSize += (4 * mesh.StripList.Count);
@@ -532,8 +495,8 @@ namespace ToxicRagers.Stainless.Formats
 
                 bw.Write(prepDataSize);                 // PREP data size
 
-                bw.Write(faces.Count);             // USER face count
-                bw.Write(verts.Count);             // USER vert count
+                bw.Write(Faces.Count);             // USER face count
+                bw.Write(Vertices.Count);             // USER vert count
 
                 bw.Write(0);                            // Back filled post save
 
@@ -560,46 +523,46 @@ namespace ToxicRagers.Stainless.Formats
                     bw.Write(new byte[padding]);
                 }
 
-                bw.Write(faces.Count);
+                bw.Write(Faces.Count);
 
-                for (int i = 0; i < faces.Count; i++)
+                for (int i = 0; i < Faces.Count; i++)
                 {
-                    bw.Write((short)faces[i].MaterialID);
+                    bw.Write((short)Faces[i].MaterialID);
                     bw.Write((short)0);
-                    bw.Write(faces[i].Verts[0]);
-                    bw.Write(faces[i].Verts[1]);
-                    bw.Write(faces[i].Verts[2]);
+                    bw.Write(Faces[i].Verts[0]);
+                    bw.Write(Faces[i].Verts[1]);
+                    bw.Write(Faces[i].Verts[2]);
                 }
 
-                bw.Write(verts.Count);
+                bw.Write(Vertices.Count);
 
-                for (int i = 0; i < verts.Count; i++)
+                for (int i = 0; i < Vertices.Count; i++)
                 {
-                    bw.Write(verts[i].Position.X);
-                    bw.Write(verts[i].Position.Y);
-                    bw.Write(verts[i].Position.Z);
+                    bw.Write(Vertices[i].Position.X);
+                    bw.Write(Vertices[i].Position.Y);
+                    bw.Write(Vertices[i].Position.Z);
 
-                    bw.Write(verts[i].Normal.X);
-                    bw.Write(verts[i].Normal.Y);
-                    bw.Write(verts[i].Normal.Z);
+                    bw.Write(Vertices[i].Normal.X);
+                    bw.Write(Vertices[i].Normal.Y);
+                    bw.Write(Vertices[i].Normal.Z);
 
-                    bw.Write(verts[i].UV.X);
-                    bw.Write(verts[i].UV.Y);
+                    bw.Write(Vertices[i].UV.X);
+                    bw.Write(Vertices[i].UV.Y);
 
-                    bw.Write(verts[i].UV2.X);
-                    bw.Write(verts[i].UV2.Y);
+                    bw.Write(Vertices[i].UV2.X);
+                    bw.Write(Vertices[i].UV2.Y);
 
-                    bw.Write(verts[i].Colour.R);
-                    bw.Write(verts[i].Colour.G);
-                    bw.Write(verts[i].Colour.B);
-                    bw.Write(verts[i].Colour.A);
+                    bw.Write(Vertices[i].Colour.R);
+                    bw.Write(Vertices[i].Colour.G);
+                    bw.Write(Vertices[i].Colour.B);
+                    bw.Write(Vertices[i].Colour.A);
                 }
 
-                bw.Write((short)meshes.Count);
+                bw.Write((short)Meshes.Count);
 
-                for (int i = 0; i < meshes.Count; i++)
+                for (int i = 0; i < Meshes.Count; i++)
                 {
-                    MDLMaterialGroup mesh = meshes[i];
+                    MDLMaterialGroup mesh = Meshes[i];
 
                     bw.Write(mesh.Extents.Centre.X);
                     bw.Write(mesh.Extents.Centre.Y);
@@ -632,69 +595,69 @@ namespace ToxicRagers.Stainless.Formats
                     }
                 }
 
-                if (flags.HasFlag(Flags.USERData))
+                if (ModelFlags.HasFlag(Flags.USERData))
                 {
                     bw.Write(0);
 
-                    for (int i = 0; i < verts.Count; i++)
+                    for (int i = 0; i < Vertices.Count; i++)
                     {
-                        bw.Write(verts[i].Position.X);
-                        bw.Write(verts[i].Position.Y);
-                        bw.Write(verts[i].Position.Z);
+                        bw.Write(Vertices[i].Position.X);
+                        bw.Write(Vertices[i].Position.Y);
+                        bw.Write(Vertices[i].Position.Z);
                         bw.Write(1);
                     }
 
-                    for (int i = 0; i < faces.Count; i++)
+                    for (int i = 0; i < Faces.Count; i++)
                     {
-                        Vector3 v12 = verts[faces[i].Verts[1]].Normal - verts[faces[i].Verts[0]].Normal;
-                        Vector3 v13 = verts[faces[i].Verts[2]].Normal - verts[faces[i].Verts[0]].Normal;
+                        Vector3 v12 = Vertices[Faces[i].Verts[1]].Normal - Vertices[Faces[i].Verts[0]].Normal;
+                        Vector3 v13 = Vertices[Faces[i].Verts[2]].Normal - Vertices[Faces[i].Verts[0]].Normal;
                         Vector3 n = Vector3.Cross(v12, v13).Normalised;
-                        float d = Vector3.Dot(n, verts[faces[i].Verts[0]].Normal);
+                        float d = Vector3.Dot(n, Vertices[Faces[i].Verts[0]].Normal);
 
                         bw.Write(d);
                         bw.Write(n.X);
                         bw.Write(n.Y);
                         bw.Write(n.Z);
-                        bw.Write(verts[faces[i].Verts[0]].Normal.X);
-                        bw.Write(verts[faces[i].Verts[0]].Normal.Y);
-                        bw.Write(verts[faces[i].Verts[0]].Normal.Z);
-                        bw.Write(verts[faces[i].Verts[1]].Normal.X);
-                        bw.Write(verts[faces[i].Verts[1]].Normal.Y);
-                        bw.Write(verts[faces[i].Verts[1]].Normal.Z);
-                        bw.Write(verts[faces[i].Verts[2]].Normal.X);
-                        bw.Write(verts[faces[i].Verts[2]].Normal.Y);
-                        bw.Write(verts[faces[i].Verts[2]].Normal.Z);
-                        bw.Write(faces[i].MaterialID);
+                        bw.Write(Vertices[Faces[i].Verts[0]].Normal.X);
+                        bw.Write(Vertices[Faces[i].Verts[0]].Normal.Y);
+                        bw.Write(Vertices[Faces[i].Verts[0]].Normal.Z);
+                        bw.Write(Vertices[Faces[i].Verts[1]].Normal.X);
+                        bw.Write(Vertices[Faces[i].Verts[1]].Normal.Y);
+                        bw.Write(Vertices[Faces[i].Verts[1]].Normal.Z);
+                        bw.Write(Vertices[Faces[i].Verts[2]].Normal.X);
+                        bw.Write(Vertices[Faces[i].Verts[2]].Normal.Y);
+                        bw.Write(Vertices[Faces[i].Verts[2]].Normal.Z);
+                        bw.Write(Faces[i].MaterialID);
                         bw.Write(0);
-                        bw.Write(faces[i].Verts[0]);
-                        bw.Write(faces[i].Verts[1]);
-                        bw.Write(faces[i].Verts[2]);
-                        bw.Write(verts[faces[i].Verts[0]].Colour.R); bw.Write(verts[faces[i].Verts[0]].Colour.G); bw.Write(verts[faces[i].Verts[0]].Colour.B); bw.Write(verts[faces[i].Verts[0]].Colour.A);
-                        bw.Write(verts[faces[i].Verts[1]].Colour.R); bw.Write(verts[faces[i].Verts[1]].Colour.G); bw.Write(verts[faces[i].Verts[1]].Colour.B); bw.Write(verts[faces[i].Verts[1]].Colour.A);
-                        bw.Write(verts[faces[i].Verts[2]].Colour.R); bw.Write(verts[faces[i].Verts[2]].Colour.G); bw.Write(verts[faces[i].Verts[2]].Colour.B); bw.Write(verts[faces[i].Verts[2]].Colour.A);
-                        bw.Write(verts[faces[i].Verts[0]].UV.X);
-                        bw.Write(verts[faces[i].Verts[0]].UV.Y);
-                        bw.Write(verts[faces[i].Verts[0]].UV2.X);
-                        bw.Write(verts[faces[i].Verts[0]].UV2.Y);
-                        bw.Write(verts[faces[i].Verts[1]].UV.X);
-                        bw.Write(verts[faces[i].Verts[1]].UV.Y);
-                        bw.Write(verts[faces[i].Verts[1]].UV2.X);
-                        bw.Write(verts[faces[i].Verts[1]].UV2.Y);
-                        bw.Write(verts[faces[i].Verts[2]].UV.X);
-                        bw.Write(verts[faces[i].Verts[2]].UV.Y);
-                        bw.Write(verts[faces[i].Verts[2]].UV2.X);
-                        bw.Write(verts[faces[i].Verts[2]].UV2.Y);
+                        bw.Write(Faces[i].Verts[0]);
+                        bw.Write(Faces[i].Verts[1]);
+                        bw.Write(Faces[i].Verts[2]);
+                        bw.Write(Vertices[Faces[i].Verts[0]].Colour.R); bw.Write(Vertices[Faces[i].Verts[0]].Colour.G); bw.Write(Vertices[Faces[i].Verts[0]].Colour.B); bw.Write(Vertices[Faces[i].Verts[0]].Colour.A);
+                        bw.Write(Vertices[Faces[i].Verts[1]].Colour.R); bw.Write(Vertices[Faces[i].Verts[1]].Colour.G); bw.Write(Vertices[Faces[i].Verts[1]].Colour.B); bw.Write(Vertices[Faces[i].Verts[1]].Colour.A);
+                        bw.Write(Vertices[Faces[i].Verts[2]].Colour.R); bw.Write(Vertices[Faces[i].Verts[2]].Colour.G); bw.Write(Vertices[Faces[i].Verts[2]].Colour.B); bw.Write(Vertices[Faces[i].Verts[2]].Colour.A);
+                        bw.Write(Vertices[Faces[i].Verts[0]].UV.X);
+                        bw.Write(Vertices[Faces[i].Verts[0]].UV.Y);
+                        bw.Write(Vertices[Faces[i].Verts[0]].UV2.X);
+                        bw.Write(Vertices[Faces[i].Verts[0]].UV2.Y);
+                        bw.Write(Vertices[Faces[i].Verts[1]].UV.X);
+                        bw.Write(Vertices[Faces[i].Verts[1]].UV.Y);
+                        bw.Write(Vertices[Faces[i].Verts[1]].UV2.X);
+                        bw.Write(Vertices[Faces[i].Verts[1]].UV2.Y);
+                        bw.Write(Vertices[Faces[i].Verts[2]].UV.X);
+                        bw.Write(Vertices[Faces[i].Verts[2]].UV.Y);
+                        bw.Write(Vertices[Faces[i].Verts[2]].UV2.X);
+                        bw.Write(Vertices[Faces[i].Verts[2]].UV2.Y);
                         bw.Write((byte)0);
                         bw.Write(0);
                     }
 
-                    for (int i = 0; i < faces.Count; i++) { bw.Write(i); }
+                    for (int i = 0; i < Faces.Count; i++) { bw.Write(i); }
 
-                    bw.Write(verts.Count);
+                    bw.Write(Vertices.Count);
 
-                    for (int i = 0; i < verts.Count; i++) { bw.Write(i); }
+                    for (int i = 0; i < Vertices.Count; i++) { bw.Write(i); }
 
-                    if (flags.HasFlag(Flags.USERSkinData))
+                    if (ModelFlags.HasFlag(Flags.USERSkinData))
                     {
 
                     }
@@ -713,15 +676,15 @@ namespace ToxicRagers.Stainless.Formats
             Vector3 min = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
             Vector3 max = new Vector3(float.MinValue, float.MinValue, float.MinValue);
 
-            for (int i = 0; i < verts.Count; i++)
+            for (int i = 0; i < Vertices.Count; i++)
             {
-                if (verts[i].Position.X < min.X) { min.X = verts[i].Position.X; }
-                if (verts[i].Position.Y < min.Y) { min.Y = verts[i].Position.Y; }
-                if (verts[i].Position.Z < min.Z) { min.Z = verts[i].Position.Z; }
+                if (Vertices[i].Position.X < min.X) { min.X = Vertices[i].Position.X; }
+                if (Vertices[i].Position.Y < min.Y) { min.Y = Vertices[i].Position.Y; }
+                if (Vertices[i].Position.Z < min.Z) { min.Z = Vertices[i].Position.Z; }
 
-                if (verts[i].Position.X > max.X) { max.X = verts[i].Position.X; }
-                if (verts[i].Position.Y > max.Y) { max.Y = verts[i].Position.Y; }
-                if (verts[i].Position.Z > max.Z) { max.Z = verts[i].Position.Z; }
+                if (Vertices[i].Position.X > max.X) { max.X = Vertices[i].Position.X; }
+                if (Vertices[i].Position.Y > max.Y) { max.Y = Vertices[i].Position.Y; }
+                if (Vertices[i].Position.Z > max.Z) { max.Z = Vertices[i].Position.Z; }
             }
 
             Extents.Min = min;
@@ -732,51 +695,26 @@ namespace ToxicRagers.Stainless.Formats
                         Math.Abs(Math.Sqrt(Math.Pow(max.X, 2) + Math.Pow(max.Y, 2) + Math.Pow(max.Z, 2)))
                       );
         }
-
-        private Dictionary<Vector3, List<int>> generateConsolidata()
-        {
-            Dictionary<Vector3, List<int>> flattened = new Dictionary<Vector3, List<int>>();
-
-            for (int i = 0; i < verts.Count; i++)
-            {
-                MDLVertex vert = verts[i];
-
-                if (!flattened.ContainsKey(vert.Position))
-                {
-                    flattened[vert.Position] = new List<int>() { i };
-                }
-                else
-                {
-                    flattened[vert.Position].Add(i);
-                }
-            }
-
-            return flattened;
-        }
     }
 
     public class MDLFace
     {
-        int materialID;
-        int flags;
-        int[] verts = new int[3];
-
-        public int MaterialID => materialID;
-        public int Flags => flags;
-        public int[] Verts => verts;
+        public int MaterialID { get; }
+        public int Flags { get; }
+        public int[] Verts { get; } = new int[3];
 
         public MDLFace(int MaterialID, int Flags, int A, int B, int C)
         {
-            materialID = MaterialID;
-            flags = Flags;
-            verts[0] = A;
-            verts[1] = B;
-            verts[2] = C;
+            this.MaterialID = MaterialID;
+            this.Flags = Flags;
+            Verts[0] = A;
+            Verts[1] = B;
+            Verts[2] = C;
         }
 
         public override string ToString()
         {
-            return "{ Face: {A:" + verts[0] + " B:" + verts[1] + " C:" + verts[2] + "} Material: " + materialID + " Flags: " + flags + " }";
+            return "{ Face: {A:" + Verts[0] + " B:" + Verts[1] + " C:" + Verts[2] + "} Material: " + MaterialID + " Flags: " + Flags + " }";
         }
     }
 
@@ -868,250 +806,159 @@ namespace ToxicRagers.Stainless.Formats
     [DebuggerDisplay("Index {Index} Degenerate {Degenerate}")]
     public class MDLPoint
     {
-        int index;
-        bool bDegenerate;
+        public int Index { get; }
 
-        public int Index => index;
-        public bool Degenerate => bDegenerate;
+        public bool Degenerate { get; }
 
         public MDLPoint(int Index, bool IsDegenerate = false)
         {
-            index = Index;
-            bDegenerate = IsDegenerate;
+            this.Index = Index;
+            Degenerate = IsDegenerate;
         }
     }
 
     public class MDLBone
     {
-        string name;
-        Vector3 minExtents;
-        Vector3 maxExtents;
-        Vector3 offset;
-        byte parent;
-        byte child;
-        byte sibling;
+        public string Name { get; set; }
 
-        Vector4 rotation; // Actually a quat
-        Vector3 position;
+        public Vector3 MinExtents { get; set; }
 
-        public string Name
-        {
-            get => name;
-            set => name = value;
-        }
+        public Vector3 MaxExtents { get; set; }
 
-        public Vector3 MinExtents
-        {
-            get => minExtents;
-            set => minExtents = value;
-        }
+        public Vector3 Offset { get; set; }
 
-        public Vector3 MaxExtents
-        {
-            get => maxExtents;
-            set => maxExtents = value;
-        }
+        public byte Parent { get; set; }
 
-        public Vector3 Offset
-        {
-            get => offset;
-            set => offset = value;
-        }
+        public byte Child { get; set; }
 
-        public byte Parent
-        {
-            get => parent;
-            set => parent = value;
-        }
+        public byte Sibling { get; set; }
 
-        public byte Child
-        {
-            get => child;
-            set => child = value;
-        }
+        public Vector4 Rotation { get; set; } // Actually a quat
 
-        public byte Sibling
-        {
-            get => sibling;
-            set => sibling = value;
-        }
-
-        public Vector4 Rotation
-        {
-            get => rotation;
-            set => rotation = value;
-        }
-
-        public Vector3 Position
-        {
-            get => position;
-            set => position = value;
-        }
+        public Vector3 Position { get; set; }
     }
 
     public class MDLPrepSkinWeightLookup
     {
-        int count;
-        int index;
+        public int Count { get; set; }
 
-        public int Count
-        {
-            get => count;
-            set => count = value;
-        }
-
-        public int Index
-        {
-            get => index;
-            set => index = value;
-        }
+        public int Index { get; set; }
     }
 
     public class MDLPrepSkinWeight
     {
-        int boneIndex;
-        float weight;
+        public int BoneIndex { get; set; }
 
-        public int BoneIndex
-        {
-            get => boneIndex;
-            set => boneIndex = value;
-        }
-
-        public float Weight
-        {
-            get => weight;
-            set => weight = value;
-        }
+        public float Weight { get; set; }
     }
 
     public class MDLUserVertexEntry
     {
-        int count;
-        Vector3 position;
+        public int Count { get; }
 
-        public int Count => count;
-        public Vector3 Position => position;
+        public Vector3 Position { get; }
 
         public MDLUserVertexEntry(float x, float y, float z, int n)
         {
-            position = new Vector3(x, y, z);
-            count = n;
+            Position = new Vector3(x, y, z);
+            Count = n;
         }
     }
 
     public class MDLUserFaceEntry
     {
-        Vector4 plane;
-        Vector3 norm1;
-        Vector3 norm2;
-        Vector3 norm3;
-        int materialID;
-        int smoothingGroup;
-        int vertexID1;
-        int vertexID2;
-        int vertexID3;
-        Color colour1;
-        Color colour2;
-        Color colour3;
-        Vector2 uv1;
-        Vector2 uv21;
-        Vector2 uv2;
-        Vector2 uv22;
-        Vector2 uv3;
-        Vector2 uv23;
-        byte flags;
-        int applicationFlags;
+        public Vector4 Plane { get; set; }
+
+        public Vector3 Norm1 { get; set; }
+
+        public Vector3 Norm2 { get; set; }
+
+        public Vector3 Norm3 { get; set; }
+
+        public int MaterialID { get; set; }
+
+        public int SmoothingGroup { get; set; }
+
+        public int VertexID1 { get; set; }
+
+        public int VertexID2 { get; set; }
+
+        public int VertexID3 { get; set; }
+
+        public Color Colour1 { get; set; }
+
+        public Color Colour2 { get; set; }
+
+        public Color Colour3 { get; set; }
+
+        public Vector2 UV1 { get; set; }
+
+        public Vector2 UV21 { get; set; }
+
+        public Vector2 UV2 { get; set; }
+
+        public Vector2 UV22 { get; set; }
+
+        public Vector2 UV3 { get; set; }
+
+        public Vector2 UV23 { get; set; }
+
+        public byte Flags { get; set; }
+
+        public int ApplicationFlags { get; set; }
 
         public MDLUserFaceEntry(float d, float a, float b, float c, Vector3 n1, Vector3 n2, Vector3 n3, int materialID, int smoothingGroup, int v1, int v2, int v3, byte r1, byte g1, byte b1, byte a1, byte r2, byte g2, byte b2, byte a2, byte r3, byte g3, byte b3, byte a3, Vector2 uv1, Vector2 uv21, Vector2 uv2, Vector2 uv22, Vector2 uv3, Vector2 uv23, byte flags, int applicationFlags)
         {
-            plane = new Vector4(d, a, b, c);
-            norm1 = n1;
-            norm2 = n2;
-            norm3 = n3;
-            this.materialID = materialID;
-            this.smoothingGroup = smoothingGroup;
-            vertexID1 = v1;
-            vertexID2 = v2;
-            vertexID3 = v3;
-            colour1 = Color.FromArgb(a1, r1, g1, b1);
-            colour2 = Color.FromArgb(a2, r2, g2, b2);
-            colour3 = Color.FromArgb(a3, r3, g3, b3);
-            this.uv1 = uv1;
-            this.uv21 = uv21;
-            this.uv2 = uv2;
-            this.uv22 = uv22;
-            this.uv3 = uv3;
-            this.uv23 = uv23;
-            this.flags = flags;
-            this.applicationFlags = applicationFlags;
+            Plane = new Vector4(d, a, b, c);
+            Norm1 = n1;
+            Norm2 = n2;
+            Norm3 = n3;
+            MaterialID = materialID;
+            SmoothingGroup = smoothingGroup;
+            VertexID1 = v1;
+            VertexID2 = v2;
+            VertexID3 = v3;
+            Colour1 = Color.FromArgb(a1, r1, g1, b1);
+            Colour2 = Color.FromArgb(a2, r2, g2, b2);
+            Colour3 = Color.FromArgb(a3, r3, g3, b3);
+            UV1 = uv1;
+            UV21 = uv21;
+            UV2 = uv2;
+            UV22 = uv22;
+            UV3 = uv3;
+            UV23 = uv23;
+            Flags = flags;
+            ApplicationFlags = applicationFlags;
         }
     }
 
     public class MDLMaterialGroup
     {
-        int index;
-        string name;
-        int stripOffset;
-        int stripVertCount;
-        int triOffset;
-        int triVertCount;
-        List<MDLPoint> stripList;
-        List<MDLPoint> triList;
-        MDLExtents extents;
+        public int Index { get; }
 
-        public int Index => index;
-        public string Name => name;
+        public string Name { get; }
 
-        public int StripOffset
-        {
-            get => stripOffset;
-            set => stripOffset = value;
-        }
+        public int StripOffset { get; set; }
 
-        public int StripVertCount
-        {
-            get => stripVertCount;
-            set => stripVertCount = value;
-        }
+        public int StripVertCount { get; set; }
 
-        public int TriListOffset
-        {
-            get => triOffset;
-            set => triOffset = value;
-        }
+        public int TriListOffset { get; set; }
 
-        public int TriListVertCount
-        {
-            get => triVertCount;
-            set => triVertCount = value;
-        }
+        public int TriListVertCount { get; set; }
 
-        public List<MDLPoint> StripList
-        {
-            get => stripList;
-            set => stripList = value;
-        }
+        public List<MDLPoint> StripList { get; set; }
 
-        public List<MDLPoint> TriList
-        {
-            get => triList;
-            set => triList = value;
-        }
+        public List<MDLPoint> TriList { get; set; }
 
-        public MDLExtents Extents
-        {
-            get => extents;
-            set => extents = value;
-        }
+        public MDLExtents Extents { get; set; }
 
         public MDLMaterialGroup(int Index, string Name)
         {
-            index = Index;
-            name = Name;
-            stripList = new List<MDLPoint>();
-            triList = new List<MDLPoint>();
-            extents = new MDLExtents();
+            this.Index = Index;
+            this.Name = Name;
+            StripList = new List<MDLPoint>();
+            TriList = new List<MDLPoint>();
+            Extents = new MDLExtents();
         }
 
         public void CalculateExtents(List<MDLVertex> Vertices)
@@ -1119,32 +966,32 @@ namespace ToxicRagers.Stainless.Formats
             Vector3 min = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
             Vector3 max = new Vector3(float.MinValue, float.MinValue, float.MinValue);
 
-            foreach (MDLPoint point in stripList)
+            foreach (MDLPoint point in StripList)
             {
-                min.X = Math.Min(Vertices[point.Index + stripOffset].Position.X, min.X);
-                min.Y = Math.Min(Vertices[point.Index + stripOffset].Position.Y, min.Y);
-                min.Z = Math.Min(Vertices[point.Index + stripOffset].Position.Z, min.Z);
+                min.X = Math.Min(Vertices[point.Index + StripOffset].Position.X, min.X);
+                min.Y = Math.Min(Vertices[point.Index + StripOffset].Position.Y, min.Y);
+                min.Z = Math.Min(Vertices[point.Index + StripOffset].Position.Z, min.Z);
 
-                max.X = Math.Max(Vertices[point.Index + stripOffset].Position.X, max.X);
-                max.Y = Math.Max(Vertices[point.Index + stripOffset].Position.Y, max.Y);
-                max.Z = Math.Max(Vertices[point.Index + stripOffset].Position.Z, max.Z);
+                max.X = Math.Max(Vertices[point.Index + StripOffset].Position.X, max.X);
+                max.Y = Math.Max(Vertices[point.Index + StripOffset].Position.Y, max.Y);
+                max.Z = Math.Max(Vertices[point.Index + StripOffset].Position.Z, max.Z);
             }
 
-            foreach (MDLPoint point in triList)
+            foreach (MDLPoint point in TriList)
             {
-                min.X = Math.Min(Vertices[point.Index + triOffset].Position.X, min.X);
-                min.Y = Math.Min(Vertices[point.Index + triOffset].Position.Y, min.Y);
-                min.Z = Math.Min(Vertices[point.Index + triOffset].Position.Z, min.Z);
+                min.X = Math.Min(Vertices[point.Index + TriListOffset].Position.X, min.X);
+                min.Y = Math.Min(Vertices[point.Index + TriListOffset].Position.Y, min.Y);
+                min.Z = Math.Min(Vertices[point.Index + TriListOffset].Position.Z, min.Z);
 
-                max.X = Math.Max(Vertices[point.Index + triOffset].Position.X, max.X);
-                max.Y = Math.Max(Vertices[point.Index + triOffset].Position.Y, max.Y);
-                max.Z = Math.Max(Vertices[point.Index + triOffset].Position.Z, max.Z);
+                max.X = Math.Max(Vertices[point.Index + TriListOffset].Position.X, max.X);
+                max.Y = Math.Max(Vertices[point.Index + TriListOffset].Position.Y, max.Y);
+                max.Z = Math.Max(Vertices[point.Index + TriListOffset].Position.Z, max.Z);
             }
 
-            extents.Min = min;
-            extents.Max = max;
+            Extents.Min = min;
+            Extents.Max = max;
 
-            extents.Radius = (float)Math.Max(
+            Extents.Radius = (float)Math.Max(
                                     Math.Abs(Math.Sqrt(Math.Pow(min.X, 2) + Math.Pow(min.Y, 2) + Math.Pow(min.Z, 2))),
                                     Math.Abs(Math.Sqrt(Math.Pow(max.X, 2) + Math.Pow(max.Y, 2) + Math.Pow(max.Z, 2)))
                                   );
