@@ -27,12 +27,11 @@ namespace ToxicRagers.Stainless.Formats
         private string name;
         private string extension;
         private string location;
-        private List<ZADEntry> contents;
         private ZADType type = ZADType.Archive;
 
         public string Name => name;
         public string Extension => extension;
-        public List<ZADEntry> Contents => contents;
+        public List<ZADEntry> Contents { get; } = new List<ZADEntry>();
         public bool IsVT => type == ZADType.VirtualTexture;
 
         public ZADType Type
@@ -41,11 +40,10 @@ namespace ToxicRagers.Stainless.Formats
             set => type = value;
         }
 
-        public int CentralDirectoryOffset => contents.Sum(e => e.EntrySize + e.Padding);
+        public uint CentralDirectoryOffset => (uint)Contents.Sum(e => e.EntrySize + e.Padding);
 
         public ZAD()
         {
-            contents = new List<ZADEntry>();
         }
 
         public ZAD(string name)
@@ -108,25 +106,25 @@ namespace ToxicRagers.Stainless.Formats
 
                 br.ReadUInt32();
 
-                int recordCount = br.ReadUInt16();
+                ushort recordCount = br.ReadUInt16();
                 if (recordCount != br.ReadUInt16())
                 {
                     Logger.LogToFile(Logger.LogLevel.Error, "Something has gone horribly wrong!  Aborting");
                     return null;
                 }
 
-                int directorySize = (int)br.ReadUInt32();
-                int directoryOffset = (int)br.ReadUInt32();
+                uint directorySize = br.ReadUInt32();
+                uint directoryOffset = br.ReadUInt32();
 
                 br.ReadUInt16();
 
                 br.BaseStream.Seek(directoryOffset, SeekOrigin.Begin);
 
-                using (BinaryMemoryStream ms = new BinaryMemoryStream(br.ReadBytes(directorySize)))
+                using (BinaryMemoryStream ms = new BinaryMemoryStream(br.ReadBytes((int)directorySize)))
                 {
                     for (int i = 0; i < recordCount; i++)
                     {
-                        zad.contents.Add(new ZADEntry(ms));
+                        zad.Contents.Add(new ZADEntry(ms));
                     }
                 }
 
@@ -134,7 +132,7 @@ namespace ToxicRagers.Stainless.Formats
 
                 ZADEntry lastEntry = null;
 
-                foreach (ZADEntry entry in zad.contents.OrderBy(e => e.Offset))
+                foreach (ZADEntry entry in zad.Contents.OrderBy(e => e.Offset))
                 {
                     if (lastEntry != null)
                     {
@@ -144,7 +142,7 @@ namespace ToxicRagers.Stainless.Formats
                     lastEntry = entry;
                 }
 
-                lastEntry.Padding = directoryOffset - lastEntry.Offset - lastEntry.EntrySize;
+                lastEntry.Padding = (uint)(directoryOffset - lastEntry.Offset - lastEntry.EntrySize);
             }
 
             return zad;
@@ -152,41 +150,41 @@ namespace ToxicRagers.Stainless.Formats
 
         public bool Contains(string file)
         {
-            return contents.Any(e => e.Name == file);
+            return Contents.Any(e => e.Name == file);
         }
 
         public void RemoveEntry(ZADEntry entry)
         {
-            int indexOfEntry = contents.IndexOf(entry);
-            int oldContentsCount = contents.Count;
-            int centralDirectoryOffset = CentralDirectoryOffset;
+            int indexOfEntry = Contents.IndexOf(entry);
+            int oldContentsCount = Contents.Count;
+            uint centralDirectoryOffset = CentralDirectoryOffset;
             //ZADEntry nextEntry = indexOfEntry == contents.Count ? null : contents[indexOfEntry + 1];
-            contents.Remove(entry);
+            Contents.Remove(entry);
             using (FileStream fs = new FileStream(Path.Combine(location, $"{name}{extension}"), FileMode.Open))
             {
                 Logger.LogToFile(Logger.LogLevel.Info, "\tFile Size Before Removal:\t\t{0}", fs.Length);
                 Logger.LogToFile(Logger.LogLevel.Info, "\tEntryOffset:\t\t\t\t\t\t{0}", entry.Offset);
-                int dataSize = entry.EntrySize + entry.Padding;
+                uint dataSize = entry.EntrySize + entry.Padding;
                 Logger.LogToFile(Logger.LogLevel.Info, "\tEntrySize:\t\t\t\t\t\t{0}\n\tEntryPadding:\t\t\t\t\t{1}\n\tDataSize:\t\t\t\t\t\t{2}", entry.EntrySize, entry.Padding, dataSize);
-                Logger.LogToFile(Logger.LogLevel.Info, "\tEntryOffset+DataSize:\t\t\t{0}\n\tNextEntryOffset:\t\t\t\t{1}", entry.Offset + dataSize, contents[indexOfEntry + 1].Offset);
+                Logger.LogToFile(Logger.LogLevel.Info, "\tEntryOffset+DataSize:\t\t\t{0}\n\tNextEntryOffset:\t\t\t\t{1}", entry.Offset + dataSize, Contents[indexOfEntry + 1].Offset);
 
-                int nextEntryOffset = entry.Offset + dataSize;
-                int foundOffset = contents[indexOfEntry + 1].Offset;
+                uint nextEntryOffset = entry.Offset + dataSize;
+                uint foundOffset = Contents[indexOfEntry + 1].Offset;
                 ZADEntry foundEntry = null;
                 int firstIndexAfterEntry = 0;
 
-                for (int i = 1; i < contents.Count; i++)
+                for (int i = 1; i < Contents.Count; i++)
                 {
-                    if (contents[i].Offset >= nextEntryOffset && contents[i].Offset <= foundOffset)
+                    if (Contents[i].Offset >= nextEntryOffset && Contents[i].Offset <= foundOffset)
                     {
-                        foundOffset = contents[i].Offset;
-                        foundEntry = contents[i];
+                        foundOffset = Contents[i].Offset;
+                        foundEntry = Contents[i];
                     }
 
-                    if (contents[i].Offset > entry.Offset)
+                    if (Contents[i].Offset > entry.Offset)
                     {
                         if (firstIndexAfterEntry == 0) { firstIndexAfterEntry = i; }
-                        contents[i].Offset -= dataSize;
+                        Contents[i].Offset -= dataSize;
                     }
                 }
 
@@ -194,14 +192,14 @@ namespace ToxicRagers.Stainless.Formats
                 Logger.LogToFile(Logger.LogLevel.Info, "\tCalculatedNextEntryOffset:\t\t{0}", nextEntryOffset);
                 fs.Seek(nextEntryOffset, SeekOrigin.Begin);
                 byte[] data = new byte[fs.Length - nextEntryOffset];
-                fs.Read(data, 0, (int)fs.Length - nextEntryOffset);
+                fs.Read(data, 0, (int)(fs.Length - nextEntryOffset));
                 fs.Seek(entry.Offset, SeekOrigin.Begin);
                 fs.SetLength(entry.Offset);
                 fs.Write(data, 0, data.Length);
 
                 using (BinaryWriter bw = new BinaryWriter(fs))
                 {
-                    bw.Seek(CentralDirectoryOffset, SeekOrigin.Begin);
+                    bw.Seek((int)CentralDirectoryOffset, SeekOrigin.Begin);
                     fs.SetLength(CentralDirectoryOffset);
                     writeCentralDirectory(bw);
                     Logger.LogToFile(Logger.LogLevel.Info, "\tFile Size After Removal:\t\t{0}", fs.Length);
@@ -217,49 +215,49 @@ namespace ToxicRagers.Stainless.Formats
 
         public void ReplaceEntryFromBuffer(ZADEntry entry, byte[] newData)
         {
-            int indexOfEntry = contents.IndexOf(entry);
-            int oldContentsCount = contents.Count;
-            int centralDirectoryOffset = CentralDirectoryOffset;
+            int indexOfEntry = Contents.IndexOf(entry);
+            int oldContentsCount = Contents.Count;
+            uint centralDirectoryOffset = CentralDirectoryOffset;
 
             using (FileStream fs = new FileStream(Path.Combine(location, $"{name}{extension}"), FileMode.Open))
             {
-                int dataSize = entry.EntrySize + entry.Padding;
+                uint dataSize = entry.EntrySize + entry.Padding;
                 entry.Data = newData;
                 entry.Padding = 0;
 
                 if (Type == ZADType.VirtualTexture)
                 {
                     while (entry.Data.Length > entry.Padding) { entry.Padding += 4096; }
-                    entry.Padding -= entry.Data.Length;
+                    entry.Padding -= (uint)entry.Data.Length;
                 }
 
-                int newDataSize = entry.EntrySize + entry.Padding;
-                int nextEntryOffset = entry.Offset + dataSize;
-                int foundOffset = contents[indexOfEntry + 1].Offset;
+                uint newDataSize = entry.EntrySize + entry.Padding;
+                uint nextEntryOffset = entry.Offset + dataSize;
+                uint foundOffset = Contents[indexOfEntry + 1].Offset;
                 ZADEntry foundEntry = null;
                 int firstIndexAfterEntry = 0;
 
-                for (int i = 1; i < contents.Count; i++)
+                for (int i = 1; i < Contents.Count; i++)
                 {
                     if (indexOfEntry == i) { continue; }
 
-                    if (contents[i].Offset >= nextEntryOffset && contents[i].Offset <= foundOffset)
+                    if (Contents[i].Offset >= nextEntryOffset && Contents[i].Offset <= foundOffset)
                     {
-                        foundOffset = contents[i].Offset;
-                        foundEntry = contents[i];
+                        foundOffset = Contents[i].Offset;
+                        foundEntry = Contents[i];
                     }
 
-                    if (contents[i].Offset > entry.Offset)
+                    if (Contents[i].Offset > entry.Offset)
                     {
                         if (firstIndexAfterEntry == 0) { firstIndexAfterEntry = i; }
-                        contents[i].Offset -= dataSize;
-                        contents[i].Offset += newDataSize;
+                        Contents[i].Offset -= dataSize;
+                        Contents[i].Offset += newDataSize;
                     }
                 }
 
                 fs.Seek(nextEntryOffset, SeekOrigin.Begin);
                 byte[] data = new byte[fs.Length - nextEntryOffset];
-                fs.Read(data, 0, (int)fs.Length - nextEntryOffset);
+                fs.Read(data, 0, (int)(fs.Length - nextEntryOffset));
                 fs.Seek(entry.Offset, SeekOrigin.Begin);
 
                 fs.SetLength(entry.Offset);
@@ -287,7 +285,7 @@ namespace ToxicRagers.Stainless.Formats
                     }
 
                     fs.Write(data, 0, data.Length);
-                    bw.Seek(CentralDirectoryOffset, SeekOrigin.Begin);
+                    bw.Seek((int)CentralDirectoryOffset, SeekOrigin.Begin);
                     fs.SetLength(CentralDirectoryOffset);
                     writeCentralDirectory(bw);
                 }
@@ -303,13 +301,13 @@ namespace ToxicRagers.Stainless.Formats
         {
             using (BinaryWriter bw = new BinaryWriter(new FileStream(Path.Combine(location, $"{name}{extension}"), FileMode.Open)))
             {
-                bw.Seek(CentralDirectoryOffset, SeekOrigin.Begin);
+                bw.Seek((int)CentralDirectoryOffset, SeekOrigin.Begin);
 
                 ZADEntry entry = new ZADEntry()
                 {
                     CompressionMethod = (type == ZADType.Archive ? CompressionMethods.Deflate : CompressionMethods.LZ4),
                     Name = name,
-                    Offset = (int)bw.BaseStream.Position,
+                    Offset = (uint)bw.BaseStream.Position,
                     Data = data
                 };
 
@@ -331,11 +329,11 @@ namespace ToxicRagers.Stainless.Formats
                 if (type == ZADType.VirtualTexture)
                 {
                     while (entry.Data.Length > entry.Padding) { entry.Padding += 4096; }
-                    entry.Padding -= entry.Data.Length;
+                    entry.Padding -= (uint)entry.Data.Length;
                     bw.Write(new byte[entry.Padding]);
                 }
 
-                contents.Add(entry);
+                Contents.Add(entry);
 
                 writeCentralDirectory(bw);
             }
@@ -353,12 +351,12 @@ namespace ToxicRagers.Stainless.Formats
 
         private void addDirectory(BinaryWriter bw, string path, string root)
         {
-            bw.Seek(CentralDirectoryOffset, SeekOrigin.Begin);
+            bw.Seek((int)CentralDirectoryOffset, SeekOrigin.Begin);
 
             ZADEntry directory = new ZADEntry()
             {
                 Name = path.Replace(root, "").Replace("\\", "/") + "/",
-                Offset = (int)bw.BaseStream.Position
+                Offset = (uint)bw.BaseStream.Position
             };
 
             /* Write entry (ZAD.VTs don't record folder info as specific entries) */
@@ -374,7 +372,7 @@ namespace ToxicRagers.Stainless.Formats
                 bw.Write(0);            // Uncompressed filesize
                 bw.Write(directory.Name.Length);
                 bw.Write(directory.Name.ToCharArray());
-                contents.Add(directory);
+                Contents.Add(directory);
             }
 
             foreach (string folder in Directory.GetDirectories(path))
@@ -392,7 +390,7 @@ namespace ToxicRagers.Stainless.Formats
                 {
                     CompressionMethod = (type == ZADType.Archive ? CompressionMethods.Deflate : CompressionMethods.LZ4),
                     Name = directory.Name + Path.GetFileName(file),
-                    Offset = (int)bw.BaseStream.Position,
+                    Offset = (uint)bw.BaseStream.Position,
                     Data = File.ReadAllBytes(file)
                 };
 
@@ -414,11 +412,11 @@ namespace ToxicRagers.Stainless.Formats
                 if (type == ZADType.VirtualTexture)
                 {
                     while (entry.Data.Length > entry.Padding) { entry.Padding += 4096; }
-                    entry.Padding -= entry.Data.Length;
+                    entry.Padding -= (uint)entry.Data.Length;
                     bw.Write(new byte[entry.Padding]);
                 }
 
-                contents.Add(entry);
+                Contents.Add(entry);
             }
         }
 
@@ -426,7 +424,7 @@ namespace ToxicRagers.Stainless.Formats
         {
             int centralDirectorySize = (int)bw.BaseStream.Position;
 
-            foreach (ZADEntry entry in contents)
+            foreach (ZADEntry entry in Contents)
             {
                 /* Write end of dictionary */
                 bw.Write(new byte[] { 0x50, 0x4b, 0x01, 0x02 });
@@ -464,8 +462,8 @@ namespace ToxicRagers.Stainless.Formats
             bw.Write(new byte[] { 0x50, 0x4b, 0x05, 0x06 });
             bw.Write((short)0);     // Disk number
             bw.Write((short)0);     // Disk number with central directory
-            bw.Write((short)contents.Count);
-            bw.Write((short)contents.Count);
+            bw.Write((short)Contents.Count);
+            bw.Write((short)Contents.Count);
             bw.Write(centralDirectorySize);
             bw.Write(CentralDirectoryOffset);
             bw.Write((short)0);     // Comment length
@@ -514,7 +512,7 @@ namespace ToxicRagers.Stainless.Formats
             switch (file.CompressionMethod)
             {
                 case CompressionMethods.None:
-                    bfs.Read(buff, 0, file.SizeUncompressed);
+                    bfs.Read(buff, 0, (int)file.SizeUncompressed);
                     break;
 
                 case CompressionMethods.Deflate:
@@ -542,23 +540,23 @@ namespace ToxicRagers.Stainless.Formats
 
                     if (file.CompressionMethod == CompressionMethods.None)
                     {
-                        bfs.Read(buff, 0, file.SizeUncompressed);
+                        bfs.Read(buff, 0, (int)file.SizeUncompressed);
                     }
                     else
                     {
-                        using (MemoryStream ms = new MemoryStream(bfs.ReadBytes(file.SizeCompressed)))
+                        using (MemoryStream ms = new MemoryStream(bfs.ReadBytes((int)file.SizeCompressed)))
                         using (DeflateStream ds = new DeflateStream(ms, CompressionMode.Decompress))
                         {
-                            ds.Read(buff, 0, file.SizeUncompressed);
+                            ds.Read(buff, 0, (int)file.SizeUncompressed);
                         }
                     }
                     break;
 
                 case CompressionMethods.LZ4:
-                    using (MemoryStream ms = new MemoryStream(bfs.ReadBytes(file.SizeCompressed)))
+                    using (MemoryStream ms = new MemoryStream(bfs.ReadBytes((int)file.SizeCompressed)))
                     using (LZ4Decompress lz4 = new LZ4Decompress(ms))
                     {
-                        lz4.Read(buff, 0, file.SizeCompressed);
+                        lz4.Read(buff, 0, (int)file.SizeCompressed);
                     }
                     break;
 
@@ -574,33 +572,13 @@ namespace ToxicRagers.Stainless.Formats
     {
         byte[] data;
 
-        byte[] crc = new byte[] { 0, 0, 0, 0 };
-        int sizeCompressed;
-        int sizeUncompressed;
-        int offset;
-        int padding;
-        string name;
-        CompressionMethods compressionMethod;
+        public string Name { get; set; }
 
-        public string Name
-        {
-            get => name;
-            set => name = value;
-        }
+        public uint Offset { get; set; }
 
-        public int Offset
-        {
-            get => offset;
-            set => offset = value;
-        }
+        public uint Padding { get; set; }
 
-        public int Padding
-        {
-            get => padding;
-            set => padding = value;
-        }
-
-        public byte[] CRC => crc;
+        public byte[] CRC { get; private set; } = new byte[] { 0, 0, 0, 0 };
 
         public byte[] Data
         {
@@ -608,12 +586,12 @@ namespace ToxicRagers.Stainless.Formats
             set
             {
                 data = value;
-                sizeUncompressed = data.Length;
-                crc = (new CRC32()).Hash(data);
+                SizeUncompressed = (uint)data.Length;
+                CRC = (new CRC32()).Hash(data);
 
-                if (sizeUncompressed > 0)
+                if (SizeUncompressed > 0)
                 {
-                    switch (compressionMethod)
+                    switch (CompressionMethod)
                     {
                         case CompressionMethods.Deflate:
                             using (MemoryStream ms = new MemoryStream())
@@ -642,36 +620,32 @@ namespace ToxicRagers.Stainless.Formats
                 }
                 else
                 {
-                    compressionMethod = CompressionMethods.None;
+                    CompressionMethod = CompressionMethods.None;
                 }
 
-                sizeCompressed = data.Length;
+                SizeCompressed = (uint)data.Length;
             }
         }
 
-        public int SizeCompressed => sizeCompressed;
-        public int SizeUncompressed => sizeUncompressed;
+        public uint SizeCompressed { get; private set; }
+        public uint SizeUncompressed { get; private set; }
 
-        public int EntrySize
+        public uint EntrySize
         {
             get
             {
-                if (compressionMethod == CompressionMethods.LZ4)
+                if (CompressionMethod == CompressionMethods.LZ4)
                 {
-                    return sizeCompressed;
+                    return SizeCompressed;
                 }
                 else
                 {
-                    return name.Length + sizeCompressed + 0x1e;
+                    return (uint)(Name.Length + SizeCompressed + 0x1e);
                 }
             }
         }
 
-        public CompressionMethods CompressionMethod
-        {
-            get => compressionMethod;
-            set => compressionMethod = value;
-        }
+        public CompressionMethods CompressionMethod { get; set; }
 
         public ZADEntry()
         {
@@ -693,20 +667,20 @@ namespace ToxicRagers.Stainless.Formats
             br.ReadByte();      // version needed to extract    
             br.ReadByte();      // target os
             int flags = br.ReadUInt16();
-            compressionMethod = (CompressionMethods)br.ReadUInt16();
+            CompressionMethod = (CompressionMethods)br.ReadUInt16();
             br.ReadUInt16();    // file last modified time
             br.ReadUInt16();    // file last modified date
             br.ReadUInt32();    // crc32
-            sizeCompressed = (int)br.ReadUInt32();
-            sizeUncompressed = (int)br.ReadUInt32();
+            SizeCompressed = br.ReadUInt32();
+            SizeUncompressed = br.ReadUInt32();
             int nameLength = br.ReadUInt16();
             int extraLength = br.ReadUInt16();
             br.ReadUInt16();    // file comment length
             br.ReadUInt32();    // disk number
             br.ReadUInt16();    // internal file attributes
             br.ReadUInt16();    // external file attributes
-            offset = (int)br.ReadUInt32();
-            name = br.ReadString(nameLength);
+            Offset = br.ReadUInt32();
+            Name = br.ReadString(nameLength);
             br.ReadBytes(extraLength);
         }
     }
