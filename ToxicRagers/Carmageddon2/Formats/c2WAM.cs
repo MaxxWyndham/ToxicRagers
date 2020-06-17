@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-
+using System.IO;
 using ToxicRagers.Carmageddon.Helpers;
 using ToxicRagers.Carmageddon2.Helpers;
 using ToxicRagers.Helpers;
@@ -11,17 +11,29 @@ namespace ToxicRagers.Carmageddon2.Formats
         public int Version { get; set; }
 
         public List<float> XMins { get; set; } = new List<float>();
+
         public List<float> XMaxs { get; set; } = new List<float>();
+
         public List<float> YMins { get; set; } = new List<float>();
+
         public List<float> YMaxs { get; set; } = new List<float>();
+
         public List<float> ZMins { get; set; } = new List<float>();
+
         public List<float> ZMaxs { get; set; } = new List<float>();
+
         public float BendabilityFactor { get; set; }
+
         public float BendPointZMin { get; set; }
+
         public float BendPointZMax { get; set; }
+
         public float SnappabilityFactor { get; set; }
+
         public float YSplitPosition { get; set; }
+
         public Vector3 DriverPosition { get; set; } = Vector3.Zero;
+
         public List<CrushData> CrushEntries { get; set; } = new List<CrushData>();
 
         public static WAM Load(string path)
@@ -141,6 +153,101 @@ namespace ToxicRagers.Carmageddon2.Formats
 
             return wam;
         }
+
+        public void Save(string path)
+        {
+            using (DocumentWriter dw = new DocumentWriter(path))
+            {
+                dw.CommentIndent = 28;
+                dw.CommentIndentCharacter = ' ';
+
+                dw.WriteLine($"VERSION {Version}");
+
+                dw.WriteLine();
+
+                dw.WriteLine("// Sub member: Master-crush data");
+                dw.WriteLine($"{XMins.Count}", "Number of 'X mins' entries.");
+                foreach (float xmin in XMins) { dw.WriteLine($"{xmin:F6}", "X mins"); }
+                dw.WriteLine($"{XMaxs.Count}", "Number of 'X maxs' entries.");
+                foreach (float xmax in XMaxs) { dw.WriteLine($"{xmax:F6}", "X maxs"); }
+                dw.WriteLine($"{YMins.Count}", "Number of 'Y mins' entries.");
+                foreach (float ymin in YMins) { dw.WriteLine($"{ymin:F6}", "Y mins"); }
+                dw.WriteLine($"{YMaxs.Count}", "Number of 'Y maxs' entries.");
+                foreach (float ymax in YMaxs) { dw.WriteLine($"{ymax:F6}", "Y maxs"); }
+                dw.WriteLine($"{ZMins.Count}", "Number of 'Z mins' entries.");
+                foreach (float zmin in ZMins) { dw.WriteLine($"{zmin:F6}", "Z mins"); }
+                dw.WriteLine($"{ZMaxs.Count}", "Number of 'Z maxs' entries.");
+                foreach (float zmax in ZMaxs) { dw.WriteLine($"{zmax:F6}", "Z maxs"); }
+                dw.WriteLine($"{BendabilityFactor:F6}", "Bendability factor");
+                dw.WriteLine($"{BendPointZMin:F6}", "Bend point Z min");
+                dw.WriteLine($"{BendPointZMax:F6}", "Bend point Z max");
+                dw.WriteLine($"{SnappabilityFactor:F6}", "Snappability factor");
+                dw.WriteLine($"{YSplitPosition}", "Y split position");
+                dw.WriteLine($"{DriverPosition.X:F6},{DriverPosition.Y:F6},{DriverPosition.Z:F6}", "Driver position");
+                dw.WriteLine($"{CrushEntries.Count}", "Number of 'Crush data' entries.");
+
+                for (int i = 0; i < CrushEntries.Count; i++)
+                {
+                    CrushData crush = CrushEntries[i];
+
+                    dw.WriteLine($"// Crush data entry #{i}");
+                    dw.WriteLine($"{crush.Actor}", "Actor");
+                    dw.WriteLine($"{crush.Softness}", "Softness");
+                    dw.WriteLine($"{crush.Type}", "Crush type");
+
+                    switch (crush.Type)
+                    {
+                        case CrushData.CrushType.detach:
+                            dw.WriteLine($"{crush.EaseOfDetach}", "Ease of detachment");
+                            dw.WriteLine($"{crush.DetachmentType}", "Type");
+                            dw.WriteLine($"{crush.CrushShape}", "shape");
+                            break;
+
+                        case CrushData.CrushType.flap:
+                            for (int j = 0; j < crush.HingePoints.Count; j++)
+                            {
+                                int point = crush.HingePoints[j];
+
+                                dw.WriteLine($"{point}", $"Hinge point {j}");
+                            }
+                            dw.WriteLine($"{(crush.KevOFlap ? 1 : 0)}", "Kev-o-flap?");
+                            dw.WriteLine($"{crush.EaseOfFlap}", "Ease of flap");
+                            dw.WriteLine($"{crush.CrushShape}", "shape");
+                            break;
+                    }
+
+                    if (crush.CrushShape == CrushData.BoxShape.poly)
+                    {
+                        dw.WriteLine($"{crush.ShapePoints.Count}");
+                        foreach (int point in crush.ShapePoints) { dw.WriteLine($"{point}"); }
+                    }
+
+                    dw.WriteLine($"{crush.SmashEntries.Count}", "Number of 'Smash data' entries.");
+
+                    foreach (SmashData smash in crush.SmashEntries)
+                    {
+                        dw.WriteLine($"{smash.Trigger}", "name of material");
+                        dw.WriteLine($"{smash.IntactMaterial}", "pixelmap to use when intact");
+                        dw.WriteLine($"{smash.Levels.Count}", "Number of levels");
+
+                        int j = 1;
+
+                        foreach (SmashDataTextureLevel textureLevel in smash.Levels)
+                        {
+                            dw.WriteLine($"{textureLevel.TriggerThreshold}", "trigger threshold (default if zero)");
+                            dw.WriteLine($"{textureLevel.Flags}", "flags");
+                            dw.IncreaseIndent();
+                            textureLevel.Connotations.Write(dw);
+                            dw.DecreaseIndent();
+                            dw.WriteLine($"{textureLevel.Pixelmaps.Count}", "Number of pixelmaps");
+                            foreach (string pixelmap in textureLevel.Pixelmaps) { dw.WriteLine($"{pixelmap}", $"pixelmap to use when smashed level {j}"); }
+
+                            j++;
+                        }
+                    }
+                }
+            }
+        }
     }
 
     public class CrushData
@@ -184,17 +291,23 @@ namespace ToxicRagers.Carmageddon2.Formats
         }
 
         public string Actor { get; set; }
+
         public CrushSoftness Softness { get; set; } = CrushSoftness.normal;
+
         public CrushType Type { get; set; } = CrushType.boring;
 
         public List<int> HingePoints { get; set; } = new List<int>();
+
         public bool KevOFlap { get; set; }
+
         public Ease EaseOfFlap { get; set; }
 
         public Ease EaseOfDetach { get; set; }
+
         public DetachType DetachmentType { get; set; }
 
         public BoxShape CrushShape { get; set; }
+
         public List<int> ShapePoints { get; set; } = new List<int>();
 
         public List<SmashData> SmashEntries { get; set; } = new List<SmashData>();

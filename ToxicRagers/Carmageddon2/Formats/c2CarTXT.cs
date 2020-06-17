@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.IO;
 
 using ToxicRagers.Carmageddon.Helpers;
 using ToxicRagers.Helpers;
@@ -20,28 +18,20 @@ namespace ToxicRagers.Carmageddon2.Formats
 
         public bool FemaleDriver { get; set; }
 
-        [Description("Name of car")]
         public string Name { get; set; }
 
-        [Description("softness_factor")]
         public float SoftnessFactor { get; set; }
 
-        [Description("Offset of driver's head in 3D space")]
         public Vector3 DriversHeadOffset { get; set; }
 
-        [Description("Angles to turn to make head go left and right")]
         public Vector2 DriversHeadTurnAngles { get; set; }
 
-        [Description("Offset of 'mirror camera' in 3D space, viewing angle of mirror")]
         public Vector4 MirrorCamera { get; set; }
 
-        [Description("Pratcam border names (left, top, right, bottom)")]
         public string[] PratcamBorders { get; set; }
 
-        [Description("Engine noise (normal, enclosed space, underwater)")]
         public int[] EngineNoises { get; set; }
 
-        [Description("Can be stolen")]
         public bool Stealworthy { get; set; }
 
         public ImpactSpec ImpactTop { get; set; }
@@ -51,22 +41,16 @@ namespace ToxicRagers.Carmageddon2.Formats
         public ImpactSpec ImpactFront { get; set; }
         public ImpactSpec ImpactBack { get; set; }
 
-        [Description("Grid image (opponent, frank, annie)")]
         public string[] GridImages { get; set; }
 
-        [Description("Number of extra levels of detail")]
         public List<int> ExtraLevelsOfDetail { get; set; } = new List<int>();
 
-        [Description("crush data file (will be incorporated into this file)")]
         public string WAM { get; set; }
 
-        [Description("Name of reflective screen material (or none if non-reflective)")]
         public string ReflectiveScreenMaterial { get; set; }
 
-        [Description("Percentage transparency of windscreen")]
         public float TransparencyOfWindscreen { get; set; }
 
-        [Description("Number of steerable wheels")]
         public List<int> SteerableWheels { get; set; } = new List<int>();
         public int[] LeftFrontSuspension { get; set; }
         public int[] RightFrontSuspension { get; set; }
@@ -148,7 +132,7 @@ namespace ToxicRagers.Carmageddon2.Formats
             car.ImpactLeft = new ImpactSpec("left", file);
             car.ImpactRight = new ImpactSpec("right", file);
             car.ImpactFront = new ImpactSpec("front", file);
-            car.ImpactBack = new ImpactSpec("back", file);
+            car.ImpactBack = new ImpactSpec("rear", file);
 
             car.GridImages = file.ReadStrings();
 
@@ -343,326 +327,330 @@ namespace ToxicRagers.Carmageddon2.Formats
 
         public void Save(string path)
         {
-            using (StreamWriter sw = new StreamWriter(path))
+            using (DocumentWriter dw = new DocumentWriter(path))
             {
-                sw.WriteLine($"VERSION {Version}");
-                sw.WriteLine("//	Version 1 :		New crush data");
-                if (Version > 1) { sw.WriteLine("//		2 :		New windscreen spec"); }
-                sw.WriteLine($"{(FemaleDriver ? "GIRL" : "")}");
-                sw.WriteLine($"{Name}");
+                dw.WriteLine($"VERSION {Version}");
+                dw.WriteLine("//	Version 1 :		New crush data");
+                if (Version > 1) { dw.WriteLine("//		2 :		New windscreen spec"); }
+                dw.WriteLine($"{(FemaleDriver ? "GIRL" : "")}");
+                dw.WriteLine($"{Name}", "Name of car");
 
-                sw.WriteLine();
+                dw.WriteLine();
 
-                sw.WriteLine($"{SoftnessFactor}");
+                dw.WriteLine($"{SoftnessFactor}", "softness_factor");
 
-                sw.WriteLine();
+                dw.WriteLine();
 
-                sw.WriteLine("START OF DRIVABLE STUFF");
-                sw.WriteLine();
-                sw.WriteLine($"{DriversHeadOffset.X},{DriversHeadOffset.Y},{DriversHeadOffset.Z}");
-                sw.WriteLine($"{DriversHeadTurnAngles.X},{DriversHeadTurnAngles.Y}");
-                sw.WriteLine($"{MirrorCamera.X},{MirrorCamera.Y},{MirrorCamera.Z},{MirrorCamera.W}");
-                sw.WriteLine($"{string.Join(",", PratcamBorders)}");
-                sw.WriteLine();
-                sw.WriteLine("END OF DRIVABLE STUFF");
+                dw.WriteLine("START OF DRIVABLE STUFF");
+                dw.WriteLine();
+                dw.WriteLine($"{DriversHeadOffset.X},{DriversHeadOffset.Y},{DriversHeadOffset.Z}", "Offset of driver's head in 3D space");
+                dw.WriteLine($"{DriversHeadTurnAngles.X},{DriversHeadTurnAngles.Y}", "Angles to turn to make head go left and right");
+                dw.WriteLine($"{MirrorCamera.X},{MirrorCamera.Y},{MirrorCamera.Z},{MirrorCamera.W}", "Offset of 'mirror camera' in 3D space, viewing angle of mirror");
+                dw.WriteLine($"{string.Join(",", PratcamBorders)}", "Pratcam border names (left, top, right, bottom)");
+                dw.WriteLine();
+                dw.WriteLine("END OF DRIVABLE STUFF");
 
-                sw.WriteLine();
+                dw.WriteLine();
 
-                sw.WriteLine($"{string.Join(",",EngineNoises)}");
+                dw.WriteLine($"{string.Join(",",EngineNoises)}", "Engine noise (normal, enclosed space, underwater)");
 
-                sw.WriteLine();
+                dw.WriteLine();
 
-                sw.WriteLine($"{(Stealworthy ? "stealworthy" : "")}");
+                dw.WriteLine($"{(Stealworthy ? "stealworthy" : "")}", "Can be stolen");
 
-                sw.WriteLine();
+                dw.WriteLine();
 
                 foreach (ImpactSpec impactSpec in new List<ImpactSpec> { ImpactTop, ImpactBottom, ImpactLeft, ImpactRight, ImpactFront, ImpactBack })
                 {
-                    sw.WriteLine($"// Damage info for {impactSpec.Description} impacts");
-                    sw.WriteLine($"{impactSpec.Clauses.Count}");
+                    dw.WriteLine($"// Damage info for {impactSpec.Description} impacts");
+                    dw.WriteLine($"{impactSpec.Clauses.Count}", "Number of clauses");
+                    dw.IncreaseIndent();
                     foreach (ImpactSpecClause clause in impactSpec.Clauses)
                     {
-                        sw.WriteLine($"\t{clause.Clause}");
-                        sw.WriteLine($"\t{clause.Systems.Count}");
+                        dw.WriteLine($"{clause.Clause}", "Condition");
+                        dw.WriteLine($"{clause.Systems.Count}", "Systems count");
 
+                        dw.IncreaseIndent();
                         foreach (ImpactSpecClauseSystem system in clause.Systems)
                         {
-                            sw.WriteLine($"\t\t{system.Part},{system.Damage}");
+                            dw.WriteLine($"{system.Part},{system.Damage:F1}", "Damage");
                         }
+                        dw.DecreaseIndent();
                     }
+                    dw.DecreaseIndent();
                 }
 
-                sw.WriteLine();
+                dw.WriteLine();
 
-                sw.WriteLine($"{string.Join(",", GridImages)}");
+                dw.WriteLine($"{string.Join(",", GridImages)}", "Grid image (opponent, frank, annie)");
 
-                sw.WriteLine();
+                dw.WriteLine();
 
-                sw.WriteLine($"{ExtraLevelsOfDetail.Count}");
+                dw.WriteLine($"{ExtraLevelsOfDetail.Count}", "Number of extra levels of detail");
                 foreach (int extraLevelOfDetail in ExtraLevelsOfDetail)
                 {
-                    sw.WriteLine($"{extraLevelOfDetail}");
+                    dw.WriteLine($"{extraLevelOfDetail}", "min_dist_squared");
                 }
 
-                sw.WriteLine();
+                dw.WriteLine();
 
-                sw.WriteLine($"{WAM}");
+                dw.WriteLine($"{WAM}", "crush data file (will be incorporated into this file)");
 
-                sw.WriteLine();
+                dw.WriteLine();
 
-                sw.WriteLine($"{ReflectiveScreenMaterial}");
-                sw.WriteLine($"{TransparencyOfWindscreen}");
+                dw.WriteLine($"{ReflectiveScreenMaterial}", "Name of reflective screen material (or none if non-reflective)");
+                dw.WriteLine($"{TransparencyOfWindscreen}", "Percentage transparency of windscreen");
 
-                sw.WriteLine();
+                dw.WriteLine();
 
-                sw.WriteLine($"{SteerableWheels.Count}");
+                dw.WriteLine($"{SteerableWheels.Count}", "Number of steerable wheels");
                 foreach (int steerableWheel in SteerableWheels)
                 {
-                    sw.WriteLine($"{steerableWheel}");
+                    dw.WriteLine($"{steerableWheel}", "GroovyFunkRef of nth steerable wheel");
                 }
 
-                sw.WriteLine();
+                dw.WriteLine();
 
-                sw.WriteLine($"{string.Join(",", LeftFrontSuspension)}");
-                sw.WriteLine($"{string.Join(",", RightFrontSuspension)}");
-                sw.WriteLine($"{string.Join(",", LeftRearSuspension)}");
-                sw.WriteLine($"{string.Join(",", RightRearSuspension)}");
+                dw.WriteLine($"{string.Join(",", LeftFrontSuspension)}", "Left-front suspension parts GroovyFunkRef");
+                dw.WriteLine($"{string.Join(",", RightFrontSuspension)}", "Right-front suspension parts GroovyFunkRef");
+                dw.WriteLine($"{string.Join(",", LeftRearSuspension)}", "Left-rear suspension parts GroovyFunkRef");
+                dw.WriteLine($"{string.Join(",", RightRearSuspension)}", "Right-rear suspension parts GroovyFunkRef");
 
-                sw.WriteLine();
+                dw.WriteLine();
 
-                sw.WriteLine($"{string.Join(",", DrivenWheels)}");
-                sw.WriteLine($"{string.Join(",", NonDrivenWheels)}");
+                dw.WriteLine($"{string.Join(",", DrivenWheels)}", "Driven wheels GroovyFunkRefs (for spinning) - MUST BE 4 ITEMS");
+                dw.WriteLine($"{string.Join(",", NonDrivenWheels)}", "Non-driven wheels GroovyFunkRefs (for spinning) - MUST BE 4 ITEMS");
 
-                sw.WriteLine();
+                dw.WriteLine();
 
-                sw.WriteLine($"{DrivenWheelDiameter}");
-                sw.WriteLine($"{NonDrivenWheelDiameter}");
+                dw.WriteLine($"{DrivenWheelDiameter}", "Driven wheels diameter");
+                dw.WriteLine($"{NonDrivenWheelDiameter}", "Non-driven wheels diameter");
 
-                sw.WriteLine();
-                sw.WriteLine("START OF FUNK");
-                sw.WriteLine();
+                dw.WriteLine();
+                dw.WriteLine("START OF FUNK");
+                dw.WriteLine();
 
                 for (int i = 0; i < Funks.Count; i++)
                 {
                     Funk funk = Funks[i];
 
-                    sw.WriteLine($"{funk.Material}");
-                    sw.WriteLine($"{funk.Mode}");
-                    sw.WriteLine($"{funk.MatrixModType}");
-                    if (funk.MatrixModType != FunkMatrixMode.None) { sw.WriteLine($"{funk.MatrixModMode}"); }
+                    dw.WriteLine($"{funk.Material}");
+                    dw.WriteLine($"{funk.Mode}");
+                    dw.WriteLine($"{funk.MatrixModType}");
+                    if (funk.MatrixModType != FunkMatrixMode.None) { dw.WriteLine($"{funk.MatrixModMode}"); }
 
                     switch (funk.MatrixModType)
                     {
                         case FunkMatrixMode.roll:
-                            sw.WriteLine($"{funk.RollPeriods.X},{funk.RollPeriods.Y}");
+                            dw.WriteLine($"{funk.RollPeriods.X},{funk.RollPeriods.Y}");
                             break;
 
                         case FunkMatrixMode.slither:
-                            sw.WriteLine($"{funk.SlitherSpeed.X},{funk.SlitherSpeed.Y}");
-                            sw.WriteLine($"{funk.SlitherAmount.X},{funk.SlitherAmount.Y}");
+                            dw.WriteLine($"{funk.SlitherSpeed.X},{funk.SlitherSpeed.Y}");
+                            dw.WriteLine($"{funk.SlitherAmount.X},{funk.SlitherAmount.Y}");
                             break;
 
                         case FunkMatrixMode.spin:
-                            sw.WriteLine($"{funk.SpinPeriod}");
+                            dw.WriteLine($"{funk.SpinPeriod}");
                             break;
                     }
 
-                    sw.WriteLine($"{funk.LightingMode}");
-                    sw.WriteLine($"{funk.AnimationType}");
+                    dw.WriteLine($"{funk.LightingMode}");
+                    dw.WriteLine($"{funk.AnimationType}");
 
                     switch (funk.AnimationType)
                     {
                         case FunkAnimationType.frames:
-                            sw.WriteLine($"{funk.Framerate}");
-                            sw.WriteLine($"{funk.FrameMode}");
+                            dw.WriteLine($"{funk.Framerate}");
+                            dw.WriteLine($"{funk.FrameMode}");
 
                             switch (funk.FrameMode)
                             {
                                 case FrameType.texturebits:
-                                    sw.WriteLine($"{funk.TextureBitMode}");
+                                    dw.WriteLine($"{funk.TextureBitMode}");
                                     break;
 
                                 case FrameType.continuous:
-                                    sw.WriteLine($"{funk.FrameSpeed}");
+                                    dw.WriteLine($"{funk.FrameSpeed}");
                                     break;
                             }
 
-                            sw.WriteLine($"{funk.Frames.Count}");
+                            dw.WriteLine($"{funk.Frames.Count}");
                             foreach (string frame in funk.Frames)
                             {
-                                sw.WriteLine($"{frame}");
+                                dw.WriteLine($"{frame}");
                             }
                             break;
                     }
 
                     if (i + 1 != Funks.Count)
                     {
-                        sw.WriteLine();
-                        sw.WriteLine("NEXT FUNK");
-                        sw.WriteLine();
+                        dw.WriteLine();
+                        dw.WriteLine("NEXT FUNK");
+                        dw.WriteLine();
                     }
                 }
 
-                sw.WriteLine();
-                sw.WriteLine("END OF FUNK");
-                sw.WriteLine();
+                dw.WriteLine();
+                dw.WriteLine("END OF FUNK");
+                dw.WriteLine();
 
-                sw.WriteLine();
-                sw.WriteLine("START OF GROOVE");
-                sw.WriteLine();
+                dw.WriteLine();
+                dw.WriteLine("START OF GROOVE");
+                dw.WriteLine();
 
                 for (int i = 0; i < Grooves.Count; i++)
                 {
                     Groove groove = Grooves[i];
 
-                    sw.WriteLine($"{groove.Part}");
-                    sw.WriteLine($"{groove.LollipopMode}");
-                    sw.WriteLine($"{groove.Mode}");
-                    sw.WriteLine($"{groove.PathType}");
-                    if (groove.PathType != GroovePathNames.None) { sw.WriteLine($"{groove.PathMode}"); }
+                    dw.WriteLine($"{groove.Part}");
+                    dw.WriteLine($"{groove.LollipopMode}");
+                    dw.WriteLine($"{groove.Mode}");
+                    dw.WriteLine($"{groove.PathType}");
+                    if (groove.PathType != GroovePathNames.None) { dw.WriteLine($"{groove.PathMode}"); }
 
                     switch (groove.PathType)
                     {
                         case GroovePathNames.straight:
-                            sw.WriteLine($"{groove.PathCentre.X},{groove.PathCentre.Y},{groove.PathCentre.Z}");
-                            sw.WriteLine($"{groove.PathPeriod}");
-                            sw.WriteLine($"{groove.PathDelta.X},{groove.PathDelta.Y},{groove.PathDelta.Z}");
+                            dw.WriteLine($"{groove.PathCentre.X},{groove.PathCentre.Y},{groove.PathCentre.Z}");
+                            dw.WriteLine($"{groove.PathPeriod}");
+                            dw.WriteLine($"{groove.PathDelta.X},{groove.PathDelta.Y},{groove.PathDelta.Z}");
                             break;
                     }
 
-                    sw.WriteLine($"{groove.AnimationType}");
-                    if (groove.AnimationType != GrooveAnimation.None) { sw.WriteLine($"{groove.AnimationMode}"); }
+                    dw.WriteLine($"{groove.AnimationType}");
+                    if (groove.AnimationType != GrooveAnimation.None) { dw.WriteLine($"{groove.AnimationMode}"); }
 
                     switch (groove.AnimationType)
                     {
                         case GrooveAnimation.rock:
-                            sw.WriteLine($"{groove.AnimationPeriod}");
-                            sw.WriteLine($"{groove.AnimationCentre.X},{groove.AnimationCentre.Y},{groove.AnimationCentre.Z}");
-                            sw.WriteLine($"{groove.AnimationAxis}");
-                            sw.WriteLine($"{groove.RockMaxAngle}");
+                            dw.WriteLine($"{groove.AnimationPeriod}");
+                            dw.WriteLine($"{groove.AnimationCentre.X},{groove.AnimationCentre.Y},{groove.AnimationCentre.Z}");
+                            dw.WriteLine($"{groove.AnimationAxis}");
+                            dw.WriteLine($"{groove.RockMaxAngle}");
                             break;
 
                         case GrooveAnimation.shear:
-                            sw.WriteLine($"{groove.ShearPeriod.X},{groove.ShearPeriod.Y},{groove.ShearPeriod.Z}");
-                            sw.WriteLine($"{groove.AnimationCentre.X},{groove.AnimationCentre.Y},{groove.AnimationCentre.Z}");
-                            sw.WriteLine($"{groove.ShearMagnitude.X},{groove.ShearMagnitude.Y},{groove.ShearMagnitude.Z}");
+                            dw.WriteLine($"{groove.ShearPeriod.X},{groove.ShearPeriod.Y},{groove.ShearPeriod.Z}");
+                            dw.WriteLine($"{groove.AnimationCentre.X},{groove.AnimationCentre.Y},{groove.AnimationCentre.Z}");
+                            dw.WriteLine($"{groove.ShearMagnitude.X},{groove.ShearMagnitude.Y},{groove.ShearMagnitude.Z}");
                             break;
 
                         case GrooveAnimation.spin:
-                            sw.WriteLine($"{groove.AnimationPeriod}");
-                            sw.WriteLine($"{groove.AnimationCentre.X},{groove.AnimationCentre.Y},{groove.AnimationCentre.Z}");
-                            sw.WriteLine($"{groove.AnimationAxis}");
+                            dw.WriteLine($"{groove.AnimationPeriod}");
+                            dw.WriteLine($"{groove.AnimationCentre.X},{groove.AnimationCentre.Y},{groove.AnimationCentre.Z}");
+                            dw.WriteLine($"{groove.AnimationAxis}");
                             break;
                     }
 
                     if (i + 1 != Grooves.Count)
                     {
-                        sw.WriteLine();
-                        sw.WriteLine("NEXT GROOVE");
-                        sw.WriteLine();
+                        dw.WriteLine();
+                        dw.WriteLine("NEXT GROOVE");
+                        dw.WriteLine();
                     }
                 }
 
-                sw.WriteLine();
-                sw.WriteLine("END OF GROOVE");
-                sw.WriteLine();
+                dw.WriteLine();
+                dw.WriteLine("END OF GROOVE");
+                dw.WriteLine();
 
-                sw.WriteLine("// END OF CRUSH DATA");
+                dw.WriteLine("// END OF CRUSH DATA");
 
-                sw.WriteLine();
-                sw.WriteLine("START OF MECHANICS STUFF version 1");
-                sw.WriteLine();
+                dw.WriteLine();
+                dw.WriteLine("START OF MECHANICS STUFF version 1");
+                dw.WriteLine();
 
-                sw.WriteLine($"{MinimumTurningCircle}");
-                sw.WriteLine($"{BrakeMultiplier}");
-                sw.WriteLine($"{BrakingStrengthMultiplier}");
-                sw.WriteLine($"{NumberOfGears}");
-                sw.WriteLine($"{TopGearRedlineSpeed}");
-                sw.WriteLine($"{TopGearAcceleration}");
+                dw.WriteLine($"{MinimumTurningCircle:F6}", "Minimum turning circle.");
+                dw.WriteLine($"{BrakeMultiplier:F6}", "Brake multiplier.");
+                dw.WriteLine($"{BrakingStrengthMultiplier:F6}", "Braking strength multiplier.");
+                dw.WriteLine($"{NumberOfGears}", "Number of gears.");
+                dw.WriteLine($"{TopGearRedlineSpeed:F4}", "Speed at red line in highest gear.");
+                dw.WriteLine($"{TopGearAcceleration:F6}", "Acceleration in highest gear (m/s^2) i.e. engine strength.");
 
-                sw.WriteLine();
+                dw.WriteLine();
 
-                sw.WriteLine("// Sub member: Root part");
-                sw.WriteLine($"{RootPartType}");
-                sw.WriteLine($"{RootPartIdentifier}");
-                sw.WriteLine($"{RootPartActor}");
-                sw.WriteLine("// Sub member: Joint data");
-                sw.WriteLine($"{SubPartType}");
-                sw.WriteLine($"{CentreOfMass.X},{CentreOfMass.Y},{CentreOfMass.Z}");
-                sw.WriteLine($"{Mass}");
-                sw.WriteLine($"{AngularMomentumProportions.X},{AngularMomentumProportions.Y},{AngularMomentumProportions.Z}");
-                sw.WriteLine($"{DownforceToWeightBalanceSpeed}");
-                sw.WriteLine($"{Wheels.Count}");
+                dw.WriteLine("// Sub member: Root part");
+                dw.WriteLine($"{RootPartType}", "Type");
+                dw.WriteLine($"{RootPartIdentifier}", "Identifier");
+                dw.WriteLine($"{RootPartActor}", "Actor");
+                dw.WriteLine("// Sub member: Joint data");
+                dw.WriteLine($"{SubPartType}", "Type");
+                dw.WriteLine($"{CentreOfMass.X:F6},{CentreOfMass.Y:F6},{CentreOfMass.Z:F6}", "Centre of mass");
+                dw.WriteLine($"{Mass}", "Mass");
+                dw.WriteLine($"{AngularMomentumProportions.X:F6},{AngularMomentumProportions.Y:F6},{AngularMomentumProportions.Z:F6}", "Angular momentum proportions");
+                dw.WriteLine($"{DownforceToWeightBalanceSpeed:F6}", "Downforce-to-weight balance speed");
+                dw.WriteLine($"{Wheels.Count}", "Number of 'Wheels' entries.");
 
                 for (int i = 0; i < Wheels.Count; i++)
                 {
                     Wheel wheel = Wheels[i];
 
-                    sw.WriteLine($"// Wheels entry #{(i + 1)}");
-                    sw.WriteLine($"{(int)wheel.Type}");
-                    sw.WriteLine($"{wheel.Identifier}");
-                    sw.WriteLine($"{wheel.Actor}");
-                    sw.WriteLine($"{wheel.Position.X},{wheel.Position.Y},{wheel.Position.Z}");
-                    sw.WriteLine($"{wheel.SteerableFlags}");
-                    sw.WriteLine($"{wheel.DrivenFlags}");
-                    sw.WriteLine($"{wheel.SuspensionGive}");
-                    sw.WriteLine($"{wheel.DampingFactor}");
-                    sw.WriteLine($"{wheel.SlipFrictionReductionFraction}");
-                    sw.WriteLine($"{wheel.FrictionAngles.X},{wheel.FrictionAngles.Y}");
-                    sw.WriteLine($"{wheel.TractionFractionalMultiplier}");
-                    sw.WriteLine($"{wheel.RollingResistance}");
+                    dw.WriteLine($"// Wheels entry #{i + 1}");
+                    dw.WriteLine($"{(int)wheel.Type}", "Type");
+                    dw.WriteLine($"{wheel.Identifier}", "Identifier");
+                    dw.WriteLine($"{wheel.Actor}", "Actor");
+                    dw.WriteLine($"{wheel.Position.X},{wheel.Position.Y},{wheel.Position.Z}", "Position");
+                    dw.WriteLine($"{wheel.SteerableFlags}", "Steerable flags");
+                    dw.WriteLine($"{wheel.DrivenFlags}", "Driven flags");
+                    dw.WriteLine($"{wheel.SuspensionGive:F6}", "Suspension give");
+                    dw.WriteLine($"{wheel.DampingFactor:F6}", "Damping factor");
+                    dw.WriteLine($"{wheel.SlipFrictionReductionFraction:F6}", "Fractional reduction in friction when slipping");
+                    dw.WriteLine($"{wheel.FrictionAngles.X:F6},{wheel.FrictionAngles.Y:F6}", "Friction angles");
+                    dw.WriteLine($"{wheel.TractionFractionalMultiplier:F6}", "Traction fractional multiplier");
+                    dw.WriteLine($"{wheel.RollingResistance:F6}", "Rolling resistance");
                 }
 
-                sw.WriteLine();
+                dw.WriteLine();
 
-                sw.WriteLine($"{BoundingShapes.Count}");
+                dw.WriteLine($"{BoundingShapes.Count}", "Number of 'Bounding shapes' entries.");
 
                 for (int i = 0; i < BoundingShapes.Count; i++)
                 {
                     BoundingShape shape = BoundingShapes[i];
 
-                    sw.WriteLine($"// Bounding shapes entry #{i + 1}");
-                    sw.WriteLine($"{shape.Type}");
-                    sw.WriteLine($"{shape.Points.Count}");
+                    dw.WriteLine($"// Bounding shapes entry #{i + 1}");
+                    dw.WriteLine($"{shape.Type}", "Type");
+                    dw.WriteLine($"{shape.Points.Count}");
                     foreach (Vector3 point in shape.Points)
                     {
-                        sw.WriteLine($"{point.X},{point.Y},{point.Z}");
+                        dw.WriteLine($"{point.X:F2},{point.Y:F2},{point.Z:F2}");
                     }
                 }
 
-                sw.WriteLine();
-                sw.WriteLine($"{SubParts.Count}");
-                sw.WriteLine();
+                dw.WriteLine();
+                dw.WriteLine($"{SubParts.Count}", "Number of sub-parts.");
+                dw.WriteLine();
 
-                sw.WriteLine();
-                sw.WriteLine("END OF MECHANICS STUFF");
-                sw.WriteLine();
+                dw.WriteLine();
+                dw.WriteLine("END OF MECHANICS STUFF");
+                dw.WriteLine();
 
-                sw.WriteLine("// Materials for shrapnel");
-                sw.WriteLine($"{Shrapnel.Count}");
+                dw.WriteLine("// Materials for shrapnel");
+                dw.WriteLine($"{Shrapnel.Count}", "number of materials");
                 foreach (string shrapnel in Shrapnel)
                 {
-                    sw.WriteLine($"{shrapnel}");
+                    dw.WriteLine($"{shrapnel}");
                 }
 
-                sw.WriteLine();
+                dw.WriteLine();
 
-                sw.WriteLine("//damage vertices fire points");
+                dw.WriteLine("//damage vertices fire points");
                 foreach (int point in FirePoints)
                 {
-                    sw.WriteLine($"{point}");
+                    dw.WriteLine($"{point}");
                 }
 
-                sw.WriteLine();
+                dw.WriteLine();
 
-                sw.WriteLine("// start of keyword stuff");
+                dw.WriteLine("// start of keyword stuff");
                 foreach (Keyword keyword in Keywords)
                 {
-                    keyword.Write(sw);
+                    keyword.Write(dw);
                 }
 
-                sw.WriteLine("// End of keyword stuff");
-                sw.WriteLine("END");
+                dw.WriteLine("// End of keyword stuff");
+                dw.WriteLine("END");
             }
         }
     }
@@ -715,7 +703,7 @@ namespace ToxicRagers.Carmageddon2.Formats
     { 
         public string Name { get; set; }
 
-        public abstract void Write(StreamWriter sw);
+        public abstract void Write(DocumentWriter dw);
     }
 
     public class CameraPosition : Keyword
@@ -729,11 +717,11 @@ namespace ToxicRagers.Carmageddon2.Formats
             Name = "CAMERA_POSITIONS";
         }
 
-        public override void Write(StreamWriter sw)
+        public override void Write(DocumentWriter dw)
         {
-            sw.WriteLine($"{Name}");
-            sw.WriteLine($"{BumperPosition.X}, {BumperPosition.Y}, {BumperPosition.Z}");
-            sw.WriteLine($"{CockpitPosition.X}, {CockpitPosition.Y}, {CockpitPosition.Z}");
+            dw.WriteLine($"{Name}");
+            dw.WriteLine($"{BumperPosition.X}, {BumperPosition.Y}, {BumperPosition.Z}", "bumper position");
+            dw.WriteLine($"{CockpitPosition.X}, {CockpitPosition.Y}, {CockpitPosition.Z}", "cockpit position");
         }
     }
 
@@ -746,19 +734,19 @@ namespace ToxicRagers.Carmageddon2.Formats
             Name = "CAMERA_TURN_OFF_MATERIALS";
         }
 
-        public override void Write(StreamWriter sw)
+        public override void Write(DocumentWriter dw)
         {
-            sw.WriteLine($"{Name}");
-            sw.WriteLine($"{Entries.Count}");
+            dw.WriteLine($"{Name}");
+            dw.WriteLine($"{Entries.Count}", "Count");
 
             foreach (CameraTurnOffMaterialEntry entry in Entries)
             {
-                sw.WriteLine($"{entry.MaterialName}");
-                sw.WriteLine($"{entry.Materials.Count}");
+                dw.WriteLine($"{entry.MaterialName}");
+                dw.WriteLine($"{entry.Materials.Count}");
 
                 foreach (string material in entry.Materials)
                 {
-                    sw.WriteLine($"{material}");
+                    dw.WriteLine($"{material}");
                 }
             }
         }
