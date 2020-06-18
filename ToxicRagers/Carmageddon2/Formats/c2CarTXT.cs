@@ -35,10 +35,15 @@ namespace ToxicRagers.Carmageddon2.Formats
         public bool Stealworthy { get; set; }
 
         public ImpactSpec ImpactTop { get; set; }
+
         public ImpactSpec ImpactBottom { get; set; }
+
         public ImpactSpec ImpactLeft { get; set; }
+
         public ImpactSpec ImpactRight { get; set; }
+
         public ImpactSpec ImpactFront { get; set; }
+
         public ImpactSpec ImpactBack { get; set; }
 
         public string[] GridImages { get; set; }
@@ -52,35 +57,65 @@ namespace ToxicRagers.Carmageddon2.Formats
         public float TransparencyOfWindscreen { get; set; }
 
         public List<int> SteerableWheels { get; set; } = new List<int>();
+
         public int[] LeftFrontSuspension { get; set; }
+
         public int[] RightFrontSuspension { get; set; }
+
         public int[] LeftRearSuspension { get; set; }
+
         public int[] RightRearSuspension { get; set; }
+
         public int[] DrivenWheels { get; set; }
+
         public int[] NonDrivenWheels { get; set; }
+
         public float DrivenWheelDiameter { get; set; }
+
         public float NonDrivenWheelDiameter { get; set; }
+
         public List<Funk> Funks { get; set; } = new List<Funk>();
+
         public List<Groove> Grooves { get; set; } = new List<Groove>();
+
         public float MinimumTurningCircle { get; set; }
+
         public float BrakeMultiplier { get; set; }
+
         public float BrakingStrengthMultiplier { get; set; }
+
         public float NumberOfGears { get; set; }
+
         public float TopGearRedlineSpeed { get; set; }
+
         public float TopGearAcceleration { get; set; }
+
         public PartType RootPartType { get; set; }
+
         public string RootPartIdentifier { get; set; }
+
         public string RootPartActor { get; set; }
+
         public PartType SubPartType { get; set; }
+
         public Vector3 CentreOfMass { get; set; }
+
         public float Mass { get; set; }
+
         public Vector3 AngularMomentumProportions { get; set; }
+
         public float DownforceToWeightBalanceSpeed { get; set; }
+
         public List<Wheel> Wheels { get; set; } = new List<Wheel>();
+
         public List<BoundingShape> BoundingShapes { get; set; } = new List<BoundingShape>();
+
         public List<object> SubParts { get; set; } = new List<object>();
+
         public List<string> Shrapnel { get; set; } = new List<string>();
+
         public List<int> FirePoints { get; set; } = new List<int>();
+
         public List<Keyword> Keywords { get; set; } = new List<Keyword>();
 
         public static Car Load(string path)
