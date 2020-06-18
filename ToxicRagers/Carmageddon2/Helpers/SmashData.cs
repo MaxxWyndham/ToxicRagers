@@ -1,6 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.Collections.Generic;
+
 using ToxicRagers.Carmageddon.Helpers;
 using ToxicRagers.Helpers;
 
@@ -10,10 +9,10 @@ namespace ToxicRagers.Carmageddon2.Helpers
     {
         public enum SmashTriggerMode
         {
-            NoChange,
-            Remove,
-            ReplaceModel,
-            TextureChange
+            nochange,
+            remove,
+            replacemodel,
+            texturechange
         }
 
         public int Flags { get; set; }
@@ -39,15 +38,23 @@ namespace ToxicRagers.Carmageddon2.Helpers
         public int NumFires { get; set; }
 
         public int[] SmokeLevel { get; set; }
+
+        public int Reserved1 { get; set; }
+
+        public int Reserved2 { get; set; }
+
+        public int Reserved3 { get; set; }
+
+        public int Reserved4 { get; set; }
     }
 
     public class SmashDataTextureLevel
     {
         public enum TextureLevelCollisionType
         {
-            Passthrough,
-            Solid,
-            Edges
+            passthrough,
+            solid,
+            edges
         }
 
         public float TriggerThreshold { get; set; }
@@ -126,7 +133,7 @@ namespace ToxicRagers.Carmageddon2.Helpers
                 {
                     shrapnel.InitialPositionType = file.ReadEnum<SmashDataShrapnel.SmashDataInitialPositionType>();
 
-                    if (shrapnel.InitialPositionType == SmashDataShrapnel.SmashDataInitialPositionType.SphereClumped)
+                    if (shrapnel.InitialPositionType == SmashDataShrapnel.SmashDataInitialPositionType.sphereclumped)
                     {
                         shrapnel.ClumpingRadius = file.ReadSingle();
                         shrapnel.ClumpingCentre = file.ReadEnum<SmashDataShrapnel.ClumpCentre>();
@@ -237,46 +244,49 @@ namespace ToxicRagers.Carmageddon2.Helpers
             }
         }
 
-        public void Write(DocumentWriter sw)
+        public void Write(DocumentWriter dw)
         {
-            sw.WriteLine("// Connotations:");
-            sw.WriteLine();
+            dw.WriteLine("// Connotations:");
+            dw.WriteLine();
 
-            sw.WriteLine($"{Sounds.Count}", "number of possible sounds");
-            foreach (int sound in Sounds) { sw.WriteLine($"{sound}", "sound ID"); }
+            dw.WriteLine($"{Sounds.Count}", "number of possible sounds");
+            foreach (int sound in Sounds) { dw.WriteLine($"{sound}", "sound ID"); }
 
-            sw.WriteLine();
+            dw.WriteLine();
 
-            sw.WriteLine($"{Shrapnel.Count}", "Shrapnel count");
-            foreach (SmashDataShrapnel shrapnel in Shrapnel) { shrapnel.Write(sw); }
+            dw.WriteLine($"{Shrapnel.Count}", "shrapnel count");
+            foreach (SmashDataShrapnel shrapnel in Shrapnel) { shrapnel.Write(dw); }
 
-            sw.WriteLine();
+            dw.WriteLine();
 
-            sw.WriteLine($"{Explosions.Count}", "Explosion size");
-            if (Explosions.Count > 0) { sw.WriteLine("Explosions go here"); }
+            dw.WriteLine($"{Explosions.Count}", "number of explosion groups");
+            foreach (SmashDataExplosion explosion in Explosions) { explosion.Write(dw); }
 
-            sw.WriteLine($"{SlickMaterial}", "Slick material");
+            dw.WriteLine($"{SlickMaterial}", "slick material");
 
-            sw.WriteLine($"{NoncarCuboids.Count}", "Number of non-cars activated");
-            if (NoncarCuboids.Count > 0) { sw.WriteLine("NoncarCuboids go here"); }
+            dw.WriteLine($"{NoncarCuboids.Count}", "no. of non car cuboids activated");
+            foreach (SmashDataNoncarActivationCuboid cuboid in NoncarCuboids) { cuboid.Write(dw); }
 
-            sw.WriteLine($"{SmashCuboids.Count}", "Radius of side-effect smashes");
-            if (SmashCuboids.Count > 0) { sw.WriteLine("SmashCuboids go here"); }
+            dw.WriteLine($"{SmashCuboids.Count}", "Radius of side-effect smashes");
+            foreach (SmashDataSmashActivationCuboid cuboid in SmashCuboids) { cuboid.Write(dw); }
 
-            sw.WriteLine($"{ExtensionFlags}", "Extensions flags");
-            sw.WriteLine($"{RoomTurnOnCode}", "Room turn on code");
-            sw.WriteLine($"{AwardCode}", "Award code");
+            dw.WriteLine($"{ExtensionFlags}", "extensions flags");
+            dw.WriteLine($"{RoomTurnOnCode}", "room turn on code");
+            dw.WriteLine($"{AwardCode}", "award code");
 
             if (AwardCode != AwardCodeType.none)
             {
-                sw.WriteLine($"{PointsAwarded}");
-                sw.WriteLine($"{TimeAwarded}");
-                sw.WriteLine($"{HudIndex}");
-                sw.WriteLine($"{FancyHUDIndex}");
+                dw.WriteLine($"{PointsAwarded}");
+                dw.WriteLine($"{TimeAwarded}");
+                dw.WriteLine($"{HudIndex}");
+                dw.WriteLine($"{FancyHUDIndex}");
             }
 
-            sw.WriteLine($"{RuntimeVariableChanges.Count}", "No run-time variable changes");
-            if (RuntimeVariableChanges.Count > 0) { sw.WriteLine("RuntimeVariableChanges go here"); }
+            dw.WriteLine($"{RuntimeVariableChanges.Count}", "no. run time variable changes");
+            foreach (string runtimeVariable in RuntimeVariableChanges)
+            {
+                dw.WriteLine($"{runtimeVariable}");
+            }
         }
     }
 
@@ -291,8 +301,8 @@ namespace ToxicRagers.Carmageddon2.Helpers
 
         public enum SmashDataInitialPositionType
         {
-            ActorBased,
-            SphereClumped
+            actorbased,
+            sphereclumped
         }
 
         public enum ClumpCentre
@@ -335,63 +345,63 @@ namespace ToxicRagers.Carmageddon2.Helpers
 
         public List<SmashDataShrapnelActor> Actors { get; set; } = new List<SmashDataShrapnelActor>();
 
-        public void Write(DocumentWriter sw)
+        public void Write(DocumentWriter dw)
         {
-            sw.WriteLine($"{ShrapnelType}", "Shrapnel type");
-            InitialVelocity.Write(sw);
+            dw.WriteLine($"{ShrapnelType}", "Shrapnel type");
+            InitialVelocity.Write(dw);
 
             if (ShrapnelType != SmashDataShrapnelType.shards)
             {
-                sw.WriteLine($"{InitialPositionType}");
+                dw.WriteLine($"{InitialPositionType}", "How the shrapnel bits are initially placed in the World");
 
-                if (InitialPositionType == SmashDataInitialPositionType.SphereClumped)
+                if (InitialPositionType == SmashDataInitialPositionType.sphereclumped)
                 {
-                    sw.WriteLine($"{ClumpingRadius}");
-                    sw.WriteLine($"{ClumpingCentre}");
+                    dw.WriteLine($"{ClumpingRadius}");
+                    dw.WriteLine($"{ClumpingCentre}");
                 }
             }
 
             if (ShrapnelType != SmashDataShrapnelType.noncars)
             {
-                sw.WriteLine($"{Time.X},{Time.Y}", "Min time, Max time");
+                dw.WriteLine($"{Time.X},{Time.Y}", "Min time, Max time");
             }
 
             if (ShrapnelType == SmashDataShrapnelType.shards)
             {
-                sw.WriteLine($"{CutLength}", "Min cut length");
-                sw.WriteLine($"{Flags}", "flags");
-                sw.WriteLine($"{MaterialName}", "name of shrapnel material");
+                dw.WriteLine($"{CutLength}", "Min cut length");
+                dw.WriteLine($"{Flags}", "flags");
+                dw.WriteLine($"{MaterialName}", "name of shrapnel material");
             }
             else if (ShrapnelType == SmashDataShrapnelType.ghostparts)
             {
-                sw.WriteLine($"{MinCount},{MaxCount}");
-                sw.WriteLine($"{GhostPartActors.Count}");
-                foreach (string ghostPartActor in GhostPartActors) { sw.WriteLine($"{ghostPartActor}"); }
+                dw.WriteLine($"{MinCount},{MaxCount}");
+                dw.WriteLine($"{GhostPartActors.Count}");
+                foreach (string ghostPartActor in GhostPartActors) { dw.WriteLine($"{ghostPartActor}"); }
             }
             else if (ShrapnelType == SmashDataShrapnelType.noncars)
             {
-                sw.WriteLine($"{MinCount},{MaxCount}");
-                sw.WriteLine($"{ChanceOfFire}");
+                dw.WriteLine($"{MinCount},{MaxCount}", "Min number,Max number (-1,-1 means use exactly one of each type of bit)");
+                dw.WriteLine($"{ChanceOfFire}", "% Chance of fire/smoke");
 
                 if (ChanceOfFire > 0)
                 {
-                    sw.WriteLine($"{NumFires}");
-                    sw.WriteLine($"{SmokeLevel}");
+                    dw.WriteLine($"{NumFires}", "Number of fires/smoke column");
+                    dw.WriteLine($"{string.Join(",", SmokeLevel)}", "Min,Max smokiness (0 = fire, 1 = black smoke, 2 = grey smoke, 3 = white smoke)");
                 }
 
-                sw.WriteLine($"{Actor}");
-                sw.WriteLine($"{Actors.Count}");
+                dw.WriteLine($"{Actor}", "Name of actor file");
+                dw.WriteLine($"{Actors.Count}", "Number of separate actors in file");
                 foreach (SmashDataShrapnelActor actor in Actors)
                 {
-                    sw.WriteLine($"{actor.Name}");
-                    sw.WriteLine($"{actor.FileName}");
+                    dw.WriteLine($"{actor.Name}", "Actor name");
+                    dw.WriteLine($"{actor.FileName}", "Non-car text file to use for the above actor");
                 }
             }
             else
             {
-                sw.WriteLine($"{MinCount}");
-                sw.WriteLine($"{MaxCount}");
-                sw.WriteLine($"{Actor}");
+                dw.WriteLine($"{MinCount}");
+                dw.WriteLine($"{MaxCount}");
+                dw.WriteLine($"{Actor}");
             }
         }
     }
@@ -407,18 +417,27 @@ namespace ToxicRagers.Carmageddon2.Helpers
     {
         public enum ExplosionRotationMode
         {
-            RandomRotate
+            randomrotate
         }
 
         public int[] Count { get; set; }
+
         public Vector2 StartDelay { get; set; }
+
         public Vector3 Offset { get; set; }
+
         public Vector2 XFactor { get; set; }
+
         public Vector2 YFactor { get; set; }
+
         public Vector2 ZFactor { get; set; }
+
         public Vector2 FrameRate { get; set; }
+
         public Vector2 ScalingFactor { get; set; }
+
         public ExplosionRotationMode RotationMode { get; set; }
+
         public List<SmashDataExplosionFrame> Frames { get; set; } = new List<SmashDataExplosionFrame>();
 
         public static SmashDataExplosion Load(DocumentParser file)
@@ -449,6 +468,30 @@ namespace ToxicRagers.Carmageddon2.Helpers
 
             return explosion;
         }
+
+        public void Write(DocumentWriter dw)
+        {
+            bool firstLoop = true;
+
+            dw.WriteLine($"{string.Join(",", Count)}", "min count, max count");
+            dw.WriteLine($"{StartDelay.X},{StartDelay.Y}", "min start delay, max start delay");
+            dw.WriteLine($"{Offset.X},{Offset.Y},{Offset.Z}", "offset");
+            dw.WriteLine($"{XFactor.X},{XFactor.Y}", "min x factor, max x factor");
+            dw.WriteLine($"{YFactor.X},{YFactor.Y}", "min y factor, max y factor");
+            dw.WriteLine($"{ZFactor.X},{ZFactor.Y}", "min z factor, max z factor");
+            dw.WriteLine($"{FrameRate.X},{FrameRate.Y}", "min frame rate, max frame rate");
+            dw.WriteLine($"{ScalingFactor.X},{ScalingFactor.Y}", "min scaling factor, max scaling factor");
+            dw.WriteLine($"{RotationMode}", "rotate mode");
+            dw.WriteLine($"{Frames.Count}", "number of frames");
+            foreach (SmashDataExplosionFrame frame in Frames)
+            {
+                dw.WriteLine($"{frame.Opacity}", firstLoop ? "opacity" : null);
+                dw.WriteLine($"{frame.Pixelmap}", firstLoop ? "frame pix name" : null);
+
+                firstLoop = false;
+            }
+            dw.WriteLine();
+        }
     }
 
     public class SmashDataExplosionFrame
@@ -462,8 +505,8 @@ namespace ToxicRagers.Carmageddon2.Helpers
     {
         public enum CuboidCoordinateSystem
         {
-            Absolute,
-            Relative
+            absolute,
+            relative
         }
 
         public Vector2 Delay { get; set; }
@@ -503,13 +546,23 @@ namespace ToxicRagers.Carmageddon2.Helpers
 
             return cuboid;
         }
+
+        public void Write(DocumentWriter dw)
+        {
+            dw.WriteLine($"{Delay.X},{Delay.Y}");
+            dw.WriteLine($"{CoordinateSystem}");
+            dw.WriteLine($"{NoncarNumber}");
+            dw.WriteLine($"{Min.X},{Min.Y},{Min.Z}");
+            dw.WriteLine($"{Max.X},{Max.Y},{Max.Z}");
+            InitialVelocity.Write(dw);
+        }
     }
 
     public class SmashDataSmashActivationCuboid : SmashDataActivationCuboid
     {
         public enum SmashImpactDirection
         {
-            Away
+            away
         }
 
         public string Name { get; set; }
@@ -533,6 +586,17 @@ namespace ToxicRagers.Carmageddon2.Helpers
 
             return cuboid;
         }
+
+        public void Write(DocumentWriter dw)
+        {
+            dw.WriteLine($"{Delay.X},{Delay.Y}");
+            dw.WriteLine($"{Name}");
+            dw.WriteLine($"{CoordinateSystem}");
+            dw.WriteLine($"{Min.X},{Min.Y},{Min.Z}");
+            dw.WriteLine($"{Max.X},{Max.Y},{Max.Z}");
+            dw.WriteLine($"{ImpactDirection}");
+            dw.WriteLine($"{ImpactStrength}");
+        }
     }
 
     public class SmashDataInitialVelocity
@@ -549,14 +613,14 @@ namespace ToxicRagers.Carmageddon2.Helpers
 
         public float MaxRandomSpinRate { get; set; }
 
-        public void Write(DocumentWriter sw)
+        public void Write(DocumentWriter dw)
         {
-            sw.WriteLine($"{TowardsYouSpeed.X},{TowardsYouSpeed.Y}", "Min,max speed towards car");
-            sw.WriteLine($"{ImpacteeVelocityFactor:F1}", "Impactee velocity factor");
-            sw.WriteLine($"{MaxRandomVelocity:F1}", "Random velocity (max)");
-            sw.WriteLine($"{MaxUpVelocity:F1}", "Random up velocity (max)");
-            sw.WriteLine($"{MaxNormalVelocity}", "Random normal velocity (max)");
-            sw.WriteLine($"{MaxRandomSpinRate:F1}", "Random spin rate (max)");
+            dw.WriteLine($"{TowardsYouSpeed.X},{TowardsYouSpeed.Y}", "Min, max towards you speed");
+            dw.WriteLine($"{ImpacteeVelocityFactor:F1}", "Impactee velocity factor");
+            dw.WriteLine($"{MaxRandomVelocity:F1}", "Random velocity (max)");
+            dw.WriteLine($"{MaxUpVelocity:F1}", "Random up velocity (max)");
+            dw.WriteLine($"{MaxNormalVelocity}", "Random normal velocity (max)");
+            dw.WriteLine($"{MaxRandomSpinRate:F1}", "Random spin rate (max)");
         }
     }
 }

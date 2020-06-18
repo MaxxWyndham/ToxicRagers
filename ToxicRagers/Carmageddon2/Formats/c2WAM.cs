@@ -120,7 +120,7 @@ namespace ToxicRagers.Carmageddon2.Formats
                     SmashData smash = new SmashData
                     {
                         Trigger = file.ReadLine(),
-                        TriggerMode = SmashData.SmashTriggerMode.TextureChange
+                        TriggerMode = SmashData.SmashTriggerMode.texturechange
                     };
 
                     smash.IntactMaterial = file.ReadLine();
