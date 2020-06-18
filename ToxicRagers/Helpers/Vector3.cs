@@ -207,6 +207,11 @@ namespace ToxicRagers.Helpers
             if (obj == null || GetType() != obj.GetType()) { return false; }
             return Equals(obj as Vector3);
         }
+
+        public static explicit operator Vector3(Vector2 v)
+        {
+            return new Vector3(v.X, v.Y, 0);
+        }
     }
 
     public class Vector3Converter : ExpandableObjectConverter

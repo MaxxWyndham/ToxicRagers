@@ -111,7 +111,7 @@ namespace ToxicRagers.Carmageddon.Formats
 
         public float SlipFrictionReductionFraction { get; set; }
 
-        public Vector2 FrictionAngle { get; set; }
+        public Vector3 FrictionAngle { get; set; }
 
         public Vector3 AngularMomentumProportions { get; set; }
 
@@ -301,7 +301,16 @@ namespace ToxicRagers.Carmageddon.Formats
             car.DampingFactor = file.ReadSingle();
             car.Mass = file.ReadSingle();
             car.SlipFrictionReductionFraction = file.ReadSingle();
-            car.FrictionAngle = file.ReadVector2();
+
+            if (car.MechanicsVersion == 4)
+            {
+                car.FrictionAngle = file.ReadVector3();
+            }
+            else
+            {
+                car.FrictionAngle = (Vector3)file.ReadVector2();
+            }
+            
             car.AngularMomentumProportions = file.ReadVector3();
             car.TractionFractionalMultiplier = file.ReadSingle();
             car.DownforceToWeightBalanceSpeed = file.ReadSingle();
@@ -566,17 +575,17 @@ namespace ToxicRagers.Carmageddon.Formats
                 }
 
                 dw.WriteLine($"{MinimumTurningCircle}", "min turning circle radius");
-                dw.WriteLine($"{SuspensionGive.X}, {SuspensionGive.Y}", "suspension give (forward, back)");
+                dw.WriteLine($"{SuspensionGive.X:F3}, {SuspensionGive.Y:F3}", "suspension give (forward, back)");
                 dw.WriteLine($"{RideHeight}", "ride height (must be more than miny in bounding box )");
                 dw.WriteLine($"{DampingFactor}", "damping factor");
                 dw.WriteLine($"{Mass}", "mass in tonnes");
                 dw.WriteLine($"{SlipFrictionReductionFraction}", "fractional reduction in friction when slipping");
-                dw.WriteLine($"{FrictionAngle.X}, {FrictionAngle.Y}", "friction angle ( front and rear )");
+                dw.WriteLine($"{FrictionAngle.X}, {FrictionAngle.Y}{(MechanicsVersion == 4 ? $", {FrictionAngle.Z}" : null)}", "friction angle ( front and rear )");
                 dw.WriteLine($"{AngularMomentumProportions.X}, {AngularMomentumProportions.Y}, {AngularMomentumProportions.Z}", "width, height, length for angular momentum calculation");
-                dw.WriteLine($"{TractionFractionalMultiplier}", "traction fractional multiplier v. 2");
+                dw.WriteLine($"{TractionFractionalMultiplier:F1}", "traction fractional multiplier v. 2");
                 dw.WriteLine($"{DownforceToWeightBalanceSpeed}", "speed at which down force = weight v. 2");
-                dw.WriteLine($"{BrakeMultiplier}", "brake multiplier, 1 = nomral brakes v. 2");
-                dw.WriteLine($"{BrakingStrengthMultiplier}", "increase in brakes per second 1 = normal v. 2");
+                dw.WriteLine($"{BrakeMultiplier:F1}", "brake multiplier, 1 = nomral brakes v. 2");
+                dw.WriteLine($"{BrakingStrengthMultiplier:F1}", "increase in brakes per second 1 = normal v. 2");
                 dw.WriteLine($"{RollingResistance.X}, {RollingResistance.Y}", "rolling resistance front and back");
                 dw.WriteLine($"{NumberOfGears}", "number of gears");
                 dw.WriteLine($"{TopGearRedlineSpeed}", "speed at red line in highest gear");
@@ -587,6 +596,12 @@ namespace ToxicRagers.Carmageddon.Formats
                 dw.WriteLine("// Materials for shrapnel");
                 dw.WriteLine($"{Shrapnel.Count}", "number of materials");
                 foreach (string shrapnel in Shrapnel) { dw.WriteLine($"{shrapnel}"); }
+
+                if (FirePoints.Count > 0)
+                {
+                    dw.WriteLine("// damage vertices fire point");
+                    foreach (int firepoint in FirePoints) { dw.WriteLine($"{firepoint}"); }
+                }
             }
         }
     }
