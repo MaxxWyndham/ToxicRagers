@@ -10,139 +10,39 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 {
     public class VehicleSetupConfig
     {
-        List<string> drivers;
-        string aiScript;
-        bool bEjectDriver = true;
-        Vector3 incarCamOffset = Vector3.Zero;
-        Vector3 garageCamOffset = Vector3.Zero;
-        List<VehicleAttachment> attachments;
-        List<VehicleWheelModule> wheelModules;
-        List<VehicleMaterialMap> materialMaps;
-        List<VehicleWheelMap> wheelMaps;
-        List<Vector3> decalPoints;
-        VehicleSuspensionFactors suspensionFactors;
-        VehicleStats stats;
-        bool bSmallDriver = false;
-        string driverSuffix;
-        List<string> humanTrailers;
-        List<string> aiTrailers;
-        List<string> mpTrailers;
+        public List<string> Drivers { get; set; } = new List<string>();
 
-        public List<string> Drivers
-        {
-            get => drivers;
-            set => drivers = value;
-        }
+        public string DriverSuffix { get; set; }
 
-        public string DriverSuffix
-        {
-            get => driverSuffix;
-            set => driverSuffix = value;
-        }
+        public string AIScript { get; set; }
 
-        public string AIScript
-        {
-            get => aiScript;
-            set => aiScript = value;
-        }
+        public bool EjectDriver { get; set; } = true;
 
-        public bool EjectDriver
-        {
-            get => bEjectDriver;
-            set => bEjectDriver = value;
-        }
+        public Vector3 InCarCamOffset { get; set; } = Vector3.Zero;
 
-        public Vector3 InCarCamOffset
-        {
-            get => incarCamOffset;
-            set => incarCamOffset = value;
-        }
+        public Vector3 GarageCameraOffset { get; set; } = Vector3.Zero;
 
-        public Vector3 GarageCameraOffset
-        {
-            get => garageCamOffset;
-            set => garageCamOffset = value;
-        }
+        public bool SmallDriver { get; set; } = false;
 
-        public bool SmallDriver
-        {
-            get => bSmallDriver;
-            set => bSmallDriver = value;
-        }
+        public List<VehicleAttachment> Attachments { get; set; } = new List<VehicleAttachment>();
 
-        public List<VehicleAttachment> Attachments
-        {
-            get => attachments;
-            set => attachments = value;
-        }
+        public List<VehicleWheelModule> WheelModules { get; set; } = new List<VehicleWheelModule>();
 
-        public List<VehicleWheelModule> WheelModules
-        {
-            get => wheelModules;
-            set => wheelModules = value;
-        }
+        public List<VehicleMaterialMap> MaterialMaps { get; set; } = new List<VehicleMaterialMap>();
 
-        public List<VehicleMaterialMap> MaterialMaps
-        {
-            get => materialMaps;
-            set => materialMaps = value;
-        }
+        public List<VehicleWheelMap> WheelMaps { get; set; } = new List<VehicleWheelMap>();
 
-        public List<VehicleWheelMap> WheelMaps
-        {
-            get => wheelMaps;
-            set => wheelMaps = value;
-        }
+        public List<Vector3> DecalPoints { get; set; } = new List<Vector3>();
 
-        public List<Vector3> DecalPoints
-        {
-            get => decalPoints;
-            set => decalPoints = value;
-        }
+        public VehicleSuspensionFactors SuspensionFactors { get; set; }
 
-        public VehicleSuspensionFactors SuspensionFactors
-        {
-            get => suspensionFactors;
-            set => suspensionFactors = value;
-        }
+        public VehicleStats Stats { get; set; } = new VehicleStats();
 
-        public VehicleStats Stats
-        {
-            get => stats;
-            set => stats = value;
-        }
+        public List<string> HumanTrailer { get; set; } = new List<string>();
 
-        public List<string> HumanTrailer
-        {
-            get => humanTrailers;
-            set => humanTrailers = value;
-        }
+        public List<string> AITrailer { get; set; } = new List<string>();
 
-        public List<string> AITrailer
-        {
-            get => aiTrailers;
-            set => aiTrailers = value;
-        }
-
-        public List<string> MPTrailer
-        {
-            get => mpTrailers;
-            set => mpTrailers = value;
-        }
-
-        public VehicleSetupConfig()
-        {
-            drivers = new List<string>();
-            attachments = new List<VehicleAttachment>();
-            wheelModules = new List<VehicleWheelModule>();
-            materialMaps = new List<VehicleMaterialMap>();
-            wheelMaps = new List<VehicleWheelMap>();
-            decalPoints = new List<Vector3>();
-            stats = new VehicleStats();
-            humanTrailers = new List<string>();
-            aiTrailers = new List<string>();
-            mpTrailers = new List<string>();
-        }
+        public List<string> MPTrailer { get; set; } = new List<string>();
 
         public static VehicleSetupConfig Load(string pathToFile)
         {
@@ -244,7 +144,6 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                             break;
 
                         default:
-                            Console.WriteLine(pathToFile);
                             throw new NotImplementedException("Unexpected [SECTION]: " + line);
                     }
 
@@ -259,115 +158,115 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
         {
             using (StreamWriter sw = new StreamWriter(path + "\\vehicle_setup.cfg"))
             {
-                if (drivers.Count > 0)
+                if (Drivers.Count > 0)
                 {
                     sw.WriteLine("[default_driver]");
-                    foreach (string driver in drivers)
+                    foreach (string driver in Drivers)
                     {
                         sw.WriteLine($"{driver}");
                     }
                     sw.WriteLine();
                 }
 
-                if (driverSuffix != null)
+                if (DriverSuffix != null)
                 {
                     sw.WriteLine("[driver_suffix]");
-                    sw.WriteLine(driverSuffix);
+                    sw.WriteLine(DriverSuffix);
                     sw.WriteLine();
                 }
 
-                if (!bSmallDriver)
+                if (!SmallDriver)
                 {
                     sw.WriteLine("[small_driver]");
                     sw.WriteLine();
                 }
 
-                if (!bEjectDriver)
+                if (!EjectDriver)
                 {
                     sw.WriteLine("[disable_ejection]");
                     sw.WriteLine();
                 }
 
-                if (garageCamOffset != Vector3.Zero)
+                if (GarageCameraOffset != Vector3.Zero)
                 {
                     sw.WriteLine("[garage_camera_offset]");
-                    sw.WriteLine($"{garageCamOffset.X},{garageCamOffset.Y},{garageCamOffset.Z}");
+                    sw.WriteLine($"{GarageCameraOffset.X},{GarageCameraOffset.Y},{GarageCameraOffset.Z}");
                     sw.WriteLine();
                 }
 
-                foreach (VehicleAttachment attachment in attachments)
+                foreach (VehicleAttachment attachment in Attachments)
                 {
                     sw.WriteLine(attachment.Write());
                 }
 
-                foreach (VehicleWheelModule wheelModule in wheelModules)
+                foreach (VehicleWheelModule wheelModule in WheelModules)
                 {
                     sw.WriteLine(wheelModule.Write());
                 }
 
-                if (suspensionFactors != null) { sw.WriteLine(suspensionFactors.Write()); }
+                if (SuspensionFactors != null) { sw.WriteLine(SuspensionFactors.Write()); }
 
-                if (aiScript != null)
+                if (AIScript != null)
                 {
                     sw.WriteLine("[ai_script]");
-                    sw.WriteLine(aiScript);
+                    sw.WriteLine(AIScript);
                     sw.WriteLine();
                 }
 
-                foreach (VehicleMaterialMap materialMap in materialMaps)
+                foreach (VehicleMaterialMap materialMap in MaterialMaps)
                 {
                     sw.WriteLine(materialMap.Write());
                 }
 
-                sw.WriteLine(stats.Write());
+                sw.WriteLine(Stats.Write());
 
-                foreach (VehicleWheelMap wheelMap in wheelMaps)
+                foreach (VehicleWheelMap wheelMap in WheelMaps)
                 {
                     sw.WriteLine(wheelMap.Write());
                 }
 
-                if (humanTrailers.Count > 0)
+                if (HumanTrailer.Count > 0)
                 {
                     sw.WriteLine("[Human_Trailer]");
-                    foreach (string trailer in humanTrailers)
+                    foreach (string trailer in HumanTrailer)
                     {
                         sw.WriteLine($"{trailer}");
                     }
                     sw.WriteLine();
                 }
 
-                if (aiTrailers.Count > 0)
+                if (AITrailer.Count > 0)
                 {
                     sw.WriteLine("[AI_Trailer]");
-                    foreach (string trailer in aiTrailers)
+                    foreach (string trailer in AITrailer)
                     {
                         sw.WriteLine($"{trailer}");
                     }
                     sw.WriteLine();
                 }
 
-                if (mpTrailers.Count > 0)
+                if (MPTrailer.Count > 0)
                 {
                     sw.WriteLine("[MP_Trailer]");
-                    foreach (string trailer in mpTrailers)
+                    foreach (string trailer in MPTrailer)
                     {
                         sw.WriteLine($"{trailer}");
                     }
                     sw.WriteLine();
                 }
 
-                if (incarCamOffset != Vector3.Zero)
+                if (InCarCamOffset != Vector3.Zero)
                 {
                     sw.WriteLine("[in_car_cam_offset]");
-                    sw.WriteLine($"{incarCamOffset.X},{incarCamOffset.Y},{incarCamOffset.Z}");
+                    sw.WriteLine($"{InCarCamOffset.X},{InCarCamOffset.Y},{InCarCamOffset.Z}");
                     sw.WriteLine();
                 }
 
-                if (decalPoints.Count > 0)
+                if (DecalPoints.Count > 0)
                 {
                     sw.WriteLine("[decal_points]");
 
-                    foreach (Vector3 point in decalPoints)
+                    foreach (Vector3 point in DecalPoints)
                     {
                         sw.WriteLine($"{point.X},{point.Y},{point.Z}");
                     }
@@ -389,54 +288,23 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             ContinuousSound
         }
 
-        AttachmentType attachmentType;
-        VehicleAttachmentComplicatedWheels wheels;
-        VehicleAttachmentFModEngine engine;
-        VehicleAttachmentExhaust exhaust;
-        string horn;
-        string reverseLightSound;
-        string continuousSound;
-        string continuousSoundLump;
+        public AttachmentType Type { get; set; }
 
-        public AttachmentType Type
-        {
-            get => attachmentType;
-            set => attachmentType = value;
-        }
+        public VehicleAttachmentFModEngine FModEngine { get; set; }
 
-        public VehicleAttachmentFModEngine FModEngine
-        {
-            get => engine;
-            set => engine = value;
-        }
+        public VehicleAttachmentComplicatedWheels Wheels { get; set; }
 
-        public VehicleAttachmentComplicatedWheels Wheels
-        {
-            get => wheels;
-            set => wheels = value;
-        }
+        public VehicleAttachmentExhaust Exhaust { get; set; }
 
-        public VehicleAttachmentExhaust Exhaust
-        {
-            get => exhaust;
-            set => exhaust = value;
-        }
+        public string Horn { get; set; }
 
-        public string Horn
-        {
-            get => horn;
-            set => horn = value;
-        }
+        public string ReverseLightSound { get; set; }
 
-        public string ReverseLightSound
-        {
-            get => reverseLightSound;
-            set => reverseLightSound = value;
-        }
+        public string ContinuousSound { get; set; }
 
-        public VehicleAttachment()
-        {
-        }
+        public string ContinuousSoundLump { get; set; }
+
+        public VehicleAttachment() { }
 
         public VehicleAttachment(DocumentParser doc)
         {
@@ -445,12 +313,12 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             switch (s)
             {
                 case "DynamicsWheels":
-                    attachmentType = AttachmentType.DynamicsWheels;
+                    Type = AttachmentType.DynamicsWheels;
                     break;
 
                 case "ComplicatedWheels":
-                    attachmentType = AttachmentType.ComplicatedWheels;
-                    wheels = new VehicleAttachmentComplicatedWheels();
+                    Type = AttachmentType.ComplicatedWheels;
+                    Wheels = new VehicleAttachmentComplicatedWheels();
 
                     while (!doc.NextLineIsASection())
                     {
@@ -459,26 +327,26 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                         switch (cw[0])
                         {
                             case "fl_wheel_folder_name":
-                                wheels.FLWheel = cw[1];
+                                Wheels.FLWheel = cw[1];
                                 break;
 
                             case "fr_wheel_folder_name":
-                                wheels.FRWheel = cw[1];
+                                Wheels.FRWheel = cw[1];
                                 break;
 
                             case "rl_wheel_folder_name":
-                                wheels.RLWheel = cw[1];
+                                Wheels.RLWheel = cw[1];
                                 break;
 
                             case "rr_wheel_folder_name":
-                                wheels.RRWheel = cw[1];
+                                Wheels.RRWheel = cw[1];
                                 break;
 
                             case "wheel_folder_name":
-                                wheels.FLWheel = cw[1];
-                                wheels.FRWheel = cw[1];
-                                wheels.RLWheel = cw[1];
-                                wheels.RRWheel = cw[1];
+                                Wheels.FLWheel = cw[1];
+                                Wheels.FRWheel = cw[1];
+                                Wheels.RLWheel = cw[1];
+                                Wheels.RRWheel = cw[1];
                                 break;
 
                             default:
@@ -488,8 +356,8 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                     break;
 
                 case "DynamicsFmodEngine":
-                    attachmentType = AttachmentType.DynamicsFmodEngine;
-                    engine = new VehicleAttachmentFModEngine();
+                    Type = AttachmentType.DynamicsFmodEngine;
+                    FModEngine = new VehicleAttachmentFModEngine();
 
                     while (!doc.NextLineIsASection())
                     {
@@ -498,35 +366,35 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                         switch (dfe[0])
                         {
                             case "engine":
-                                engine.Engine = dfe[1];
+                                FModEngine.Engine = dfe[1];
                                 break;
 
                             case "rpmsmooth":
-                                engine.RPMSmooth = float.Parse(dfe[1], ToxicRagers.Culture);
+                                FModEngine.RPMSmooth = float.Parse(dfe[1], ToxicRagers.Culture);
                                 break;
 
                             case "onloadsmooth":
-                                engine.OnLoadSmooth = float.Parse(dfe[1], ToxicRagers.Culture);
+                                FModEngine.OnLoadSmooth = float.Parse(dfe[1], ToxicRagers.Culture);
                                 break;
 
                             case "offloadsmooth":
-                                engine.OffLoadSmooth = float.Parse(dfe[1], ToxicRagers.Culture);
+                                FModEngine.OffLoadSmooth = float.Parse(dfe[1], ToxicRagers.Culture);
                                 break;
 
                             case "max_revs":
-                                engine.MaxRevs = int.Parse(dfe[1]);
+                                FModEngine.MaxRevs = int.Parse(dfe[1]);
                                 break;
 
                             case "min_revs":
-                                engine.MinRevs = int.Parse(dfe[1]);
+                                FModEngine.MinRevs = int.Parse(dfe[1]);
                                 break;
 
                             case "max_speed":
-                                engine.MaxSpeed = int.Parse(dfe[1]);
+                                FModEngine.MaxSpeed = int.Parse(dfe[1]);
                                 break;
 
                             case "loadmin":
-                                engine.LoadMin = float.Parse(dfe[1], ToxicRagers.Culture);
+                                FModEngine.LoadMin = float.Parse(dfe[1], ToxicRagers.Culture);
                                 break;
 
                             default:
@@ -536,15 +404,15 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                     break;
 
                 case "Horn":
-                    attachmentType = AttachmentType.Horn;
+                    Type = AttachmentType.Horn;
 
                     string[] h = doc.ReadStringArray(2);
-                    horn = h[1];
+                    Horn = h[1];
                     break;
 
                 case "ExhaustParticles":
-                    attachmentType = AttachmentType.ExhaustParticles;
-                    exhaust = new VehicleAttachmentExhaust();
+                    Type = AttachmentType.ExhaustParticles;
+                    Exhaust = new VehicleAttachmentExhaust();
 
                     while (!doc.NextLineIsASection())
                     {
@@ -553,23 +421,23 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                         switch (ep[0])
                         {
                             case "vfx":
-                                exhaust.VFX = ep[1];
+                                Exhaust.VFX = ep[1];
                                 break;
 
                             case "underwater_vfx":
-                                exhaust.UnderwaterVFX = ep[1];
+                                Exhaust.UnderwaterVFX = ep[1];
                                 break;
 
                             case "anchor":
-                                exhaust.Anchor = ep[1];
+                                Exhaust.Anchor = ep[1];
                                 break;
 
                             case "multiplier":
-                                exhaust.Multiplier = float.Parse(ep[1], ToxicRagers.Culture);
+                                Exhaust.Multiplier = float.Parse(ep[1], ToxicRagers.Culture);
                                 break;
 
                             case "neutral_multiplier":
-                                exhaust.NeutralMultiplier = float.Parse(ep[1], ToxicRagers.Culture);
+                                Exhaust.NeutralMultiplier = float.Parse(ep[1], ToxicRagers.Culture);
                                 break;
 
                             default:
@@ -579,14 +447,14 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                     break;
 
                 case "ReverseLightSound":
-                    attachmentType = AttachmentType.ReverseLightSound;
+                    Type = AttachmentType.ReverseLightSound;
 
                     string[] rl = doc.ReadStringArray(2);
-                    reverseLightSound = rl[1];
+                    ReverseLightSound = rl[1];
                     break;
 
                 case "ContinuousSound":
-                    attachmentType = AttachmentType.ContinuousSound;
+                    Type = AttachmentType.ContinuousSound;
 
                     while (!doc.NextLineIsASection())
                     {
@@ -595,21 +463,21 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                         switch (cs[0])
                         {
                             case "sound":
-                                continuousSound = cs[1];
+                                ContinuousSound = cs[1];
                                 break;
 
                             case "lump":
-                                continuousSoundLump = cs[1];
+                                ContinuousSoundLump = cs[1];
                                 break;
 
                             default:
-                                throw new NotImplementedException("Unknown ContinuousSound parameter: " + cs[0]);
+                                throw new NotImplementedException($"Unknown ContinuousSound parameter: {cs[0]}");
                         }
                     }
                     break;
 
                 default:
-                    throw new NotImplementedException("Unknown AttachmentType: " + s);
+                    throw new NotImplementedException($"Unknown AttachmentType: {s}");
             }
         }
 
@@ -617,33 +485,33 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
         {
             StringBuilder sb = new StringBuilder();
             sb.AppendLine("[attachment]");
-            sb.AppendLine(attachmentType.ToString());
+            sb.AppendLine(Type.ToString());
 
-            switch (attachmentType)
+            switch (Type)
             {
                 case AttachmentType.ComplicatedWheels:
-                    sb.AppendLine(wheels.ToString());
+                    sb.AppendLine(Wheels.ToString());
                     break;
 
                 case AttachmentType.DynamicsFmodEngine:
-                    sb.Append(engine.ToString());
+                    sb.Append(FModEngine.ToString());
                     break;
 
                 case AttachmentType.Horn:
-                    sb.AppendLine($"event {horn}");
+                    sb.AppendLine($"event {Horn}");
                     break;
 
                 case AttachmentType.ExhaustParticles:
-                    sb.Append(exhaust.ToString());
+                    sb.Append(Exhaust.ToString());
                     break;
 
                 case AttachmentType.ContinuousSound:
-                    sb.AppendLine($"sound {continuousSound}");
-                    sb.AppendLine($"lump {continuousSoundLump}");
+                    sb.AppendLine($"sound {ContinuousSound}");
+                    sb.AppendLine($"lump {ContinuousSoundLump}");
                     break;
 
                 case AttachmentType.ReverseLightSound:
-                    sb.AppendLine($"event {reverseLightSound}");
+                    sb.AppendLine($"event {ReverseLightSound}");
                     break;
             }
 
@@ -653,132 +521,64 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
     public class VehicleAttachmentFModEngine
     {
-        string engine;
-        float rpmSmooth;
-        float onLoadSmooth;
-        float offLoadSmooth;
-        int maxRevs;
-        int minRevs;
-        int maxSpeed;
-        float loadMin;
+        public string Engine { get; set; }
 
-        public string Engine
-        {
-            get => engine;
-            set => engine = value;
-        }
+        public float RPMSmooth { get; set; }
 
-        public float RPMSmooth
-        {
-            get => rpmSmooth;
-            set => rpmSmooth = value;
-        }
+        public float OnLoadSmooth { get; set; }
 
-        public float OnLoadSmooth
-        {
-            get => onLoadSmooth;
-            set => onLoadSmooth = value;
-        }
+        public float OffLoadSmooth { get; set; }
 
-        public float OffLoadSmooth
-        {
-            get => offLoadSmooth;
-            set => offLoadSmooth = value;
-        }
+        public int MaxRevs { get; set; }
 
-        public int MaxRevs
-        {
-            get => maxRevs;
-            set => maxRevs = value;
-        }
+        public int MinRevs { get; set; }
 
-        public int MinRevs
-        {
-            get => minRevs;
-            set => minRevs = value;
-        }
+        public int MaxSpeed { get; set; }
 
-        public int MaxSpeed
-        {
-            get => maxSpeed;
-            set => maxSpeed = value;
-        }
-
-        public float LoadMin
-        {
-            get => loadMin;
-            set => loadMin = value;
-        }
+        public float LoadMin { get; set; }
 
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder();
-            sb.AppendLine($"engine {engine}");
-            if (rpmSmooth != default(float)) { sb.AppendLine($"rpmsmooth {rpmSmooth}"); }
-            if (onLoadSmooth != default(float)) { sb.AppendLine($"onloadsmooth {onLoadSmooth}"); }
-            if (offLoadSmooth != default(float)) { sb.AppendLine($"offloadsmooth {offLoadSmooth}"); }
-            if (loadMin != default(float)) { sb.AppendLine($"loadmin {loadMin}"); }
-            if (maxSpeed != default(int)) { sb.AppendLine($"max_speed {maxSpeed}"); }
-            if (maxRevs != default(int)) { sb.AppendLine($"max_revs {maxRevs}"); }
-            if (minRevs != default(int)) { sb.AppendLine($"min_revs {minRevs}"); }
+            sb.AppendLine($"engine {Engine}");
+            if (RPMSmooth != default) { sb.AppendLine($"rpmsmooth {RPMSmooth}"); }
+            if (OnLoadSmooth != default) { sb.AppendLine($"onloadsmooth {OnLoadSmooth}"); }
+            if (OffLoadSmooth != default) { sb.AppendLine($"offloadsmooth {OffLoadSmooth}"); }
+            if (LoadMin != default) { sb.AppendLine($"loadmin {LoadMin}"); }
+            if (MaxSpeed != default) { sb.AppendLine($"max_speed {MaxSpeed}"); }
+            if (MaxRevs != default) { sb.AppendLine($"max_revs {MaxRevs}"); }
+            if (MinRevs != default) { sb.AppendLine($"min_revs {MinRevs}"); }
             return sb.ToString();
         }
     }
 
     public class VehicleAttachmentExhaust
     {
-        string vfx;
-        string underwaterVFX;
-        string anchor;
-        float multiplier;
-        float neutralMultiplier;
+        public string VFX { get; set; }
 
-        public string VFX
-        {
-            get => vfx;
-            set => vfx = value;
-        }
+        public string UnderwaterVFX { get; set; }
 
-        public string UnderwaterVFX
-        {
-            get => underwaterVFX;
-            set => underwaterVFX = value;
-        }
+        public string Anchor { get; set; }
 
-        public string Anchor
-        {
-            get => anchor;
-            set => anchor = value;
-        }
+        public float Multiplier { get; set; }
 
-        public float Multiplier
-        {
-            get => multiplier;
-            set => multiplier = value;
-        }
-
-        public float NeutralMultiplier
-        {
-            get => neutralMultiplier;
-            set => neutralMultiplier = value;
-        }
+        public float NeutralMultiplier { get; set; }
 
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder();
-            sb.AppendLine($"vfx {vfx}");
-            if (underwaterVFX != null) { sb.AppendLine($"underwater_vfx {underwaterVFX}"); }
-            sb.AppendLine($"anchor {anchor}");
-            if (multiplier != default(float)) { sb.AppendLine($"multiplier {multiplier}"); }
-            if (neutralMultiplier != default(float)) { sb.AppendLine($"neutral_multiplier {neutralMultiplier}"); }
+            sb.AppendLine($"vfx {VFX}");
+            if (UnderwaterVFX != null) { sb.AppendLine($"underwater_vfx {UnderwaterVFX}"); }
+            sb.AppendLine($"anchor {Anchor}");
+            if (Multiplier != default) { sb.AppendLine($"multiplier {Multiplier}"); }
+            if (NeutralMultiplier != default) { sb.AppendLine($"neutral_multiplier {NeutralMultiplier}"); }
             return sb.ToString();
         }
     }
 
     public class VehicleAttachmentComplicatedWheels
     {
-        Dictionary<string, string> wheels = new Dictionary<string, string>();
-        string garageSet;
+        readonly Dictionary<string, string> wheels = new Dictionary<string, string>();
 
         public string FLWheel
         {
@@ -852,11 +652,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             set => wheels["D11"] = value;
         }
 
-        public string GarageSet
-        {
-            get => garageSet;
-            set => garageSet = value;
-        }
+        public string GarageSet { get; set; }
 
         public override string ToString()
         {
@@ -885,66 +681,23 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             TyreParticles
         }
 
-        WheelModuleType wheelModuleType;
-        string skidMarkImage;
-        string skidNoiseSound;
-        string tyreParticleVFX;
-        bool bOnlyTrails;
-        bool bUseScrapeSounds;
-        int scrapeSoundIndex;
-        int volume;
+        public WheelModuleType Type { get; set; }
 
-        public WheelModuleType Type
-        {
-            get => wheelModuleType;
-            set => wheelModuleType = value;
-        }
+        public string SkidMarkImage { get; set; }
 
-        public string SkidMarkImage
-        {
-            get => skidMarkImage;
-            set => skidMarkImage = value;
-        }
+        public string SkidNoiseSound { get; set; }
 
-        public string SkidNoiseSound
-        {
-            get => skidNoiseSound;
-            set => skidNoiseSound = value;
-        }
+        public string TyreParticleVFX { get; set; }
 
-        public string TyreParticleVFX
-        {
-            get => tyreParticleVFX;
-            set => tyreParticleVFX = value;
-        }
+        public bool OnlyTrails { get; set; }
 
-        public bool OnlyTrails
-        {
-            get => bOnlyTrails;
-            set => bOnlyTrails = value;
-        }
+        public bool UseScrapeSounds { get; set; }
 
-        public bool UseScrapeSounds
-        {
-            get => bUseScrapeSounds;
-            set => bUseScrapeSounds = value;
-        }
+        public int ScrapeSoundIndex { get; set; }
 
-        public int ScrapeSoundIndex
-        {
-            get => scrapeSoundIndex;
-            set => scrapeSoundIndex = value;
-        }
+        public int Volume { get; set; }
 
-        public int Volume
-        {
-            get => volume;
-            set => volume = value;
-        }
-
-        public VehicleWheelModule()
-        {
-        }
+        public VehicleWheelModule() { }
 
         public VehicleWheelModule(DocumentParser doc)
         {
@@ -953,35 +706,36 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             switch (s)
             {
                 case "SkidMarks":
-                    wheelModuleType = WheelModuleType.SkidMarks;
-                    skidMarkImage = doc.ReadStringArray(2)[1];
-                    if (doc.ReadNextLine() == "only_trails") { bOnlyTrails = true; } else { doc.Rewind(); }
+                    Type = WheelModuleType.SkidMarks;
+                    SkidMarkImage = doc.ReadStringArray(2)[1];
+                    if (doc.ReadNextLine() == "only_trails") { OnlyTrails = true; } else { doc.Rewind(); }
                     break;
 
                 case "TyreParticles":
                 case "TyreSmokeVFX":
-                    wheelModuleType = WheelModuleType.TyreParticles;
-                    tyreParticleVFX = doc.ReadStringArray(2)[1];
+                    Type = WheelModuleType.TyreParticles;
+                    TyreParticleVFX = doc.ReadStringArray(2)[1];
                     break;
 
                 case "SkidNoise":
-                    wheelModuleType = WheelModuleType.SkidNoise;
+                    Type = WheelModuleType.SkidNoise;
+
                     if (doc.ReadNextLine() == "use_scrape_sounds")
                     {
-                        bUseScrapeSounds = true;
-                        scrapeSoundIndex = int.Parse(doc.ReadStringArray(2)[1]);
-                        volume = int.Parse(doc.ReadStringArray(2)[1]);
+                        UseScrapeSounds = true;
+                        ScrapeSoundIndex = int.Parse(doc.ReadStringArray(2)[1]);
+                        Volume = int.Parse(doc.ReadStringArray(2)[1]);
                     }
                     else
                     {
                         doc.Rewind();
-                        skidNoiseSound = doc.ReadStringArray(2)[1];
+                        SkidNoiseSound = doc.ReadStringArray(2)[1];
                     }
 
                     break;
 
                 default:
-                    throw new NotImplementedException("Unknown WheelModuleType: " + s);
+                    throw new NotImplementedException($"Unknown WheelModuleType: {s}");
             }
         }
 
@@ -989,30 +743,30 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
         {
             StringBuilder sb = new StringBuilder();
             sb.AppendLine("[wheel_module]");
-            sb.AppendLine(wheelModuleType.ToString());
+            sb.AppendLine(Type.ToString());
 
-            switch (wheelModuleType)
+            switch (Type)
             {
                 case WheelModuleType.TyreParticles:
-                    sb.AppendLine($"vfx {tyreParticleVFX}");
+                    sb.AppendLine($"vfx {TyreParticleVFX}");
                     break;
 
                 case WheelModuleType.SkidNoise:
-                    if (bUseScrapeSounds)
+                    if (UseScrapeSounds)
                     {
                         sb.AppendLine("use_scrape_sounds");
-                        sb.AppendLine($"scrape_index {scrapeSoundIndex}");
-                        sb.AppendLine($"volume {volume}");
+                        sb.AppendLine($"scrape_index {ScrapeSoundIndex}");
+                        sb.AppendLine($"volume {Volume}");
                     }
                     else
                     {
-                        sb.AppendLine($"sounds {skidNoiseSound}");
+                        sb.AppendLine($"sounds {SkidNoiseSound}");
                     }
                     break;
 
                 case WheelModuleType.SkidMarks:
-                    sb.AppendLine($"image {skidMarkImage}");
-                    if (bOnlyTrails) { sb.AppendLine("only_trails"); }
+                    sb.AppendLine($"image {SkidMarkImage}");
+                    if (OnlyTrails) { sb.AppendLine("only_trails"); }
                     break;
             }
 
@@ -1022,45 +776,19 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
     public class VehicleMaterialMap
     {
-        Dictionary<string, string> substitutions = new Dictionary<string, string>();
-        string name;
-        Vector3 shrapnel;
-        string localName;
-        int appID;
+        public string Name { get; set; }
 
-        public string Name
-        {
-            get => name;
-            set => name = value;
-        }
+        public Vector3 Shrapnel { get; set; }
 
-        public Vector3 Shrapnel
-        {
-            get => shrapnel;
-            set => shrapnel = value;
-        }
+        public string Localisation { get; set; }
 
-        public string Localisation
-        {
-            get => localName;
-            set => localName = value;
-        }
+        public Dictionary<string, string> Substitutions { get; set; } = new Dictionary<string, string>();
 
-        public Dictionary<string, string> Substitutions
-        {
-            get => substitutions;
-            set => substitutions = value;
-        }
-
-        public int MaterialMapProductID
-        {
-            get => appID;
-            set => appID = value;
-        }
+        public int MaterialMapProductID { get; set; }
 
         public VehicleMaterialMap(DocumentParser doc)
         {
-            name = doc.ReadNextLine();
+            Name = doc.ReadNextLine();
 
             while (!doc.NextLineIsASection())
             {
@@ -1069,21 +797,21 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                 switch (mm[0].ToLower())
                 {
                     case "shrapnel":
-                        shrapnel = Vector3.Parse(mm[1]);
+                        Shrapnel = Vector3.Parse(mm[1]);
                         break;
 
                     case "localise":
-                        localName = mm[1];
+                        Localisation = mm[1];
                         break;
 
                     case "material_map_product_id":
-                        appID = mm[1].ToInt();
+                        MaterialMapProductID = mm[1].ToInt();
                         break;
 
                     default:
                         if (mm[1] == ":")
                         {
-                            substitutions[mm[0]] = mm[2];
+                            Substitutions[mm[0]] = mm[2];
                         }
                         else
                         {
@@ -1098,50 +826,32 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
         {
             StringBuilder sb = new StringBuilder();
             sb.AppendLine("[material_map]");
-            sb.AppendLine(name);
-            sb.AppendLine($"localise {localName}");
-            foreach (KeyValuePair<string, string> kvp in substitutions)
+            sb.AppendLine(Name);
+            sb.AppendLine($"localise {Localisation}");
+            foreach (KeyValuePair<string, string> kvp in Substitutions)
             {
                 sb.AppendLine($"{kvp.Key} : {kvp.Value}");
             }
-            sb.AppendLine($"shrapnel {shrapnel.X},{shrapnel.Y},{shrapnel.Z}");
-            if (appID > 0) { sb.AppendLine($"material_map_product_id {appID}"); }
+            sb.AppendLine($"shrapnel {Shrapnel.X},{Shrapnel.Y},{Shrapnel.Z}");
+            if (MaterialMapProductID > 0) { sb.AppendLine($"material_map_product_id {MaterialMapProductID}"); }
             return sb.ToString();
         }
     }
 
     public class VehicleWheelMap
     {
-        string name;
-        string localName;
-        VehicleAttachmentComplicatedWheels wheels;
+        public string Name { get; set; }
 
-        public string Name
-        {
-            get => name;
-            set => name = value;
-        }
+        public string Localisation { get; set; }
 
-        public string Localisation
-        {
-            get => localName;
-            set => localName = value;
-        }
+        public VehicleAttachmentComplicatedWheels Wheels { get; set; }
 
-        public VehicleAttachmentComplicatedWheels Wheels
-        {
-            get => wheels;
-            set => wheels = value;
-        }
-
-        public VehicleWheelMap()
-        {
-        }
+        public VehicleWheelMap() { }
 
         public VehicleWheelMap(DocumentParser doc)
         {
-            name = doc.ReadNextLine();
-            wheels = new VehicleAttachmentComplicatedWheels();
+            Name = doc.ReadNextLine();
+            Wheels = new VehicleAttachmentComplicatedWheels();
 
             while (!doc.NextLineIsASection() && !doc.EOF())
             {
@@ -1150,66 +860,66 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                 switch (wm[0])
                 {
                     case "localise":
-                        localName = wm[1];
+                        Localisation = wm[1];
                         break;
 
                     case "fl_wheel_folder_name":
-                        wheels.FLWheel = wm[1];
+                        Wheels.FLWheel = wm[1];
                         break;
 
                     case "fr_wheel_folder_name":
-                        wheels.FRWheel = wm[1];
+                        Wheels.FRWheel = wm[1];
                         break;
 
                     case "rl_wheel_folder_name":
-                        wheels.RLWheel = wm[1];
+                        Wheels.RLWheel = wm[1];
                         break;
 
                     case "rr_wheel_folder_name":
-                        wheels.RRWheel = wm[1];
+                        Wheels.RRWheel = wm[1];
                         break;
 
                     case "wheel_folder_name":
-                        wheels.FLWheel = wm[1];
-                        wheels.FRWheel = wm[1];
-                        wheels.RLWheel = wm[1];
-                        wheels.RRWheel = wm[1];
+                        Wheels.FLWheel = wm[1];
+                        Wheels.FRWheel = wm[1];
+                        Wheels.RLWheel = wm[1];
+                        Wheels.RRWheel = wm[1];
                         break;
 
                     case "D4_wheel_folder_name":
-                        wheels.D4 = wm[1];
+                        Wheels.D4 = wm[1];
                         break;
 
                     case "D5_wheel_folder_name":
-                        wheels.D5 = wm[1];
+                        Wheels.D5 = wm[1];
                         break;
 
                     case "D6_wheel_folder_name":
-                        wheels.D6 = wm[1];
+                        Wheels.D6 = wm[1];
                         break;
 
                     case "D7_wheel_folder_name":
-                        wheels.D7 = wm[1];
+                        Wheels.D7 = wm[1];
                         break;
 
                     case "D8_wheel_folder_name":
-                        wheels.D8 = wm[1];
+                        Wheels.D8 = wm[1];
                         break;
 
                     case "D9_wheel_folder_name":
-                        wheels.D9 = wm[1];
+                        Wheels.D9 = wm[1];
                         break;
 
                     case "D10_wheel_folder_name":
-                        wheels.D10 = wm[1];
+                        Wheels.D10 = wm[1];
                         break;
 
                     case "D11_wheel_folder_name":
-                        wheels.D11 = wm[1];
+                        Wheels.D11 = wm[1];
                         break;
 
                     case "garage_set":
-                        wheels.GarageSet = wm[1];
+                        Wheels.GarageSet = wm[1];
                         break;
 
                     default:
@@ -1222,44 +932,23 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
         {
             StringBuilder sb = new StringBuilder();
             sb.AppendLine("[wheel_map]");
-            sb.AppendLine(name);
-            sb.AppendLine($"localise {localName}");
-            sb.Append(wheels.ToString());
-            if (wheels.GarageSet != null) { sb.AppendLine($"garage_set {wheels.GarageSet}"); }
+            sb.AppendLine(Name);
+            sb.AppendLine($"localise {Localisation}");
+            sb.Append(Wheels.ToString());
+            if (Wheels.GarageSet != null) { sb.AppendLine($"garage_set {Wheels.GarageSet}"); }
             return sb.ToString();
         }
     }
 
     public class VehicleSuspensionFactors
     {
-        float maxCompression;
-        float rideHeight;
-        int maxSteeringLock;
-        float maxExtension;
+        public float MaxCompression { get; set; }
 
-        public float MaxCompression
-        {
-            get => maxCompression;
-            set => maxCompression = value;
-        }
+        public float RightHeight { get; set; }
 
-        public float RightHeight
-        {
-            get => rideHeight;
-            set => rideHeight = value;
-        }
+        public int MaxSteeringLock { get; set; }
 
-        public int MaxSteeringLock
-        {
-            get => maxSteeringLock;
-            set => maxSteeringLock = value;
-        }
-
-        public float MaxExtension
-        {
-            get => maxExtension;
-            set => maxExtension = value;
-        }
+        public float MaxExtension { get; set; }
 
         public VehicleSuspensionFactors(DocumentParser doc)
         {
@@ -1270,19 +959,19 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                 switch (sf[0])
                 {
                     case "max_compression":
-                        maxCompression = sf[1].ToSingle();
+                        MaxCompression = sf[1].ToSingle();
                         break;
 
                     case "ride_height":
-                        rideHeight = sf[1].ToSingle();
+                        RightHeight = sf[1].ToSingle();
                         break;
 
                     case "max_steering_lock":
-                        maxSteeringLock = sf[1].ToInt();
+                        MaxSteeringLock = sf[1].ToInt();
                         break;
 
                     case "max_extension":
-                        maxExtension = sf[1].ToSingle();
+                        MaxExtension = sf[1].ToSingle();
                         break;
 
                     default:
@@ -1294,62 +983,40 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
         public string Write()
         {
             StringBuilder sb = new StringBuilder();
+
             sb.AppendLine("[suspension_factors]");
-            if (rideHeight != default(float)) { sb.AppendLine($"ride_height {rideHeight}"); }
-            if (maxCompression != default(float)) { sb.AppendLine($"max_compression {maxCompression}"); }
-            if (maxExtension != default(float)) { sb.AppendLine($"max_extension {maxExtension}"); }
-            if (maxSteeringLock != default(int)) { sb.AppendLine($"max_steering_lock {maxSteeringLock}"); }
+            if (RightHeight != default) { sb.AppendLine($"ride_height {RightHeight}"); }
+            if (MaxCompression != default) { sb.AppendLine($"max_compression {MaxCompression}"); }
+            if (MaxExtension != default) { sb.AppendLine($"max_extension {MaxExtension}"); }
+            if (MaxSteeringLock != default) { sb.AppendLine($"max_steering_lock {MaxSteeringLock}"); }
+
             return sb.ToString();
         }
     }
 
     public class VehicleStats
     {
-        int topSpeed;
-        float time;
-        float weight;
-        float toughness;
-        float unlockLevel = -1;
+        public int TopSpeed { get; set; }
 
-        public int TopSpeed
-        {
-            get => topSpeed;
-            set => topSpeed = value;
-        }
+        public float Time { get; set; }
 
-        public float Time
-        {
-            get => time;
-            set => time = value;
-        }
+        public float Weight { get; set; }
 
-        public float Weight
-        {
-            get => weight;
-            set => weight = value;
-        }
+        public float Toughness { get; set; }
 
-        public float Toughness
-        {
-            get => toughness;
-            set => toughness = value;
-        }
-
-        public float UnlockLevel
-        {
-            get => unlockLevel;
-            set => unlockLevel = value;
-        }
+        public float UnlockLevel { get; set; } = -1;
 
         public string Write()
         {
             StringBuilder sb = new StringBuilder();
+
             sb.AppendLine("[stats]");
-            sb.AppendLine($"{topSpeed}// top speed; they must be in this order and not have spaces before the comments");
-            sb.AppendLine($"{time}// time 0 -60");
-            sb.AppendLine($"{weight}// weight");
-            sb.AppendLine($"{toughness}// toughness");
-            if (unlockLevel != -1) { sb.AppendLine($"{unlockLevel}// unlock level"); }
+            sb.AppendLine($"{TopSpeed}// top speed; they must be in this order and not have spaces before the comments");
+            sb.AppendLine($"{Time}// time 0 -60");
+            sb.AppendLine($"{Weight}// weight");
+            sb.AppendLine($"{Toughness}// toughness");
+            if (UnlockLevel != -1) { sb.AppendLine($"{UnlockLevel}// unlock level"); }
+
             return sb.ToString();
         }
     }

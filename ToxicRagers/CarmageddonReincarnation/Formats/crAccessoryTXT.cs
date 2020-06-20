@@ -30,77 +30,28 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
     public class Accessory
     {
         // APP_DATA
-        CustomAccessoryType customAccessoryType;
-        Dictionary<string, string> customAccessoryProperties = new Dictionary<string, string>();
-        string customAccessoryAudio;
+        public CustomAccessoryType CustomAccessoryType { get; set; }
 
-        public CustomAccessoryType CustomAccessoryType
-        {
-            get => customAccessoryType;
-            set => customAccessoryType = value;
-        }
+        public Dictionary<string, string> CustomAccessoryProperties { get; } = new Dictionary<string, string>();
 
-        public Dictionary<string, string> CustomAccessoryProperties => customAccessoryProperties;
+        public string CustomAccessoryAudio { get; set; }
 
-        public string CustomAccessoryAudio
-        {
-            get => customAccessoryAudio;
-            set => customAccessoryAudio = value;
-        }
+        // ACOLYTE / ACOYLTE
+        public bool Powerup { get; set; }
 
-        // ACOLYTE / ACOLYTE
-        bool bPowerup;
-        bool bHidden;
-
-        public bool Powerup
-        {
-            get => bPowerup;
-            set => bPowerup = value;
-        }
-
-        public bool Hidden
-        {
-            get => bHidden;
-            set => bHidden = value;
-        }
+        public bool Hidden { get; set; }
 
         // ANIMATION
-        string animationType;
-        string animationFile;
-        float animationSpeed;
-        float animationPhase;
+        public string AnimationType { get; set; }
 
-        public string AnimationType
-        {
-            get => animationType;
-            set => animationType = value;
-        }
+        public string AnimationFile { get; set; }
 
-        public string AnimationFile
-        {
-            get => animationFile;
-            set => animationFile = value;
-        }
+        public float AnimationSpeed { get; set; }
 
-        public float AnimationSpeed
-        {
-            get => animationSpeed;
-            set => animationSpeed = value;
-        }
-
-        public float AnimationPhase
-        {
-            get => animationPhase;
-            set => animationPhase = value;
-        }
+        public float AnimationPhase { get; set; }
 
         // DYNAMICS
-        List<AccessoryDynamics> dynamics;
-
-        public Accessory()
-        {
-            dynamics = new List<AccessoryDynamics>();
-        }
+        public List<AccessoryDynamics> Dynamics { get; } = new List<AccessoryDynamics>();
 
         public static Accessory Load(string pathToFile)
         {
@@ -160,7 +111,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                                     case CustomAccessoryType.Bicycle:
                                         while (!doc.NextLineIsASection() && !doc.EOF())
                                         {
-                                            accessory.customAccessoryProperties.Add(doc.ReadNextLine().Split(' '));
+                                            accessory.CustomAccessoryProperties.Add(doc.ReadNextLine().Split(' '));
                                         }
                                         break;
 
@@ -214,7 +165,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                             break;
 
                         case "[DYNAMICS]":
-                            accessory.dynamics.Add(new AccessoryDynamics(doc));
+                            accessory.Dynamics.Add(new AccessoryDynamics(doc));
                             line = doc.ReadNextLine();
                             break;
 
@@ -238,161 +189,51 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
     public class AccessoryDynamics
     {
-        string lump;
-        float mass;
-        bool bDrivableOn;
-        bool bSolid;
-        bool bStopSinkingIntoGround;
-        bool bPartOfWorld;
-        bool bBuouyant;
-        float buoyancyCount;
-        Vector3 buoyancyVector;
-        Vector3 moments;
-        bool bBuoyancyRelativeToCOM;
-        Vector3 centreOfMass;
-        AccessoryShape shape;
-        float sphereRollingResistance;
-        AccessoryBreak breakable;
-        AccessoryJoint worldJoint;
-        AccessoryJoint childJoint;
-        bool bIgnoreWorld;
-        int substance;
-        bool bInfMass;
-        int group;
-        int ignoreGroup;
-        bool bInfMi;
+        public string Lump { get; set; }
 
-        public string Lump
-        {
-            get => lump;
-            set => lump = value;
-        }
+        public float Mass { get; set; }
 
-        public float Mass
-        {
-            get => mass;
-            set => mass = value;
-        }
+        public bool DrivableOn { get; set; }
 
-        public bool DrivableOn
-        {
-            get => bDrivableOn;
-            set => bDrivableOn = value;
-        }
+        public bool Solid { get; set; }
 
-        public bool Solid
-        {
-            get => bSolid;
-            set => bSolid = value;
-        }
+        public bool StopSinkingIntoGround { get; set; }
 
-        public bool StopSinkingIntoGround
-        {
-            get => bStopSinkingIntoGround;
-            set => bStopSinkingIntoGround = value;
-        }
+        public bool PartOfWorld { get; set; }
 
-        public bool PartOfWorld
-        {
-            get => bPartOfWorld;
-            set => bPartOfWorld = value;
-        }
+        public bool Buoyant { get; set; }
 
-        public bool Buoyant
-        {
-            get => bBuouyant;
-            set => bBuouyant = value;
-        }
+        public bool BuoyancyRelativeToCOM { get; set; }
 
-        public bool BuoyancyRelativeToCOM
-        {
-            get => bBuoyancyRelativeToCOM;
-            set => bBuoyancyRelativeToCOM = value;
-        }
+        public float BuoyancyCount { get; set; }
 
-        public float BuoyancyCount
-        {
-            get => buoyancyCount;
-            set => buoyancyCount = value;
-        }
+        public Vector3 BuoyancyVector { get; set; }
 
-        public Vector3 BuoyancyVector
-        {
-            get => buoyancyVector;
-            set => buoyancyVector = value;
-        }
+        public Vector3 Moments { get; set; }
 
-        public Vector3 Moments
-        {
-            get => moments;
-            set => moments = value;
-        }
+        public Vector3 CentreOfMass { get; set; }
 
-        public Vector3 CentreOfMass
-        {
-            get => centreOfMass;
-            set => centreOfMass = value;
-        }
+        public float SphereRollingResistance { get; set; }
 
-        public AccessoryShape Shape
-        {
-            get => shape;
-            set => shape = value;
-        }
+        public AccessoryShape Shape { get; set; }
 
-        public AccessoryBreak Break
-        {
-            get => breakable;
-            set => breakable = value;
-        }
+        public AccessoryBreak Break { get; set; }
 
-        public AccessoryJoint WorldJoint
-        {
-            get => worldJoint;
-            set => worldJoint = value;
-        }
+        public AccessoryJoint WorldJoint { get; set; }
 
-        public AccessoryJoint ChildJoint
-        {
-            get => childJoint;
-            set => childJoint = value;
-        }
+        public AccessoryJoint ChildJoint { get; set; }
 
-        public bool IgnoreWorld
-        {
-            get => bIgnoreWorld;
-            set => bIgnoreWorld = value;
-        }
+        public bool IgnoreWorld { get; set; }
 
-        public int Substance
-        {
-            get => substance;
-            set => substance = value;
-        }
+        public int Substance { get; set; }
 
-        public int Group
-        {
-            get => group;
-            set => group = value;
-        }
+        public int Group { get; set; }
 
-        public int IgnoreGroup
-        {
-            get => ignoreGroup;
-            set => ignoreGroup = value;
-        }
+        public int IgnoreGroup { get; set; }
 
-        public bool InfMass
-        {
-            get => bInfMass;
-            set => bInfMass = value;
-        }
+        public bool InfMass { get; set; }
 
-        public bool InfMi
-        {
-            get => bInfMi;
-            set => bInfMi = value;
-        }
+        public bool InfMi { get; set; }
 
         public AccessoryDynamics(DocumentParser doc)
         {
@@ -403,89 +244,89 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                 switch (line)
                 {
                     case "<lump_name>":
-                        lump = doc.ReadNextLine();
+                        Lump = doc.ReadNextLine();
                         break;
 
                     case "<mass>":
-                        mass = doc.ReadFloat();
+                        Mass = doc.ReadFloat();
                         break;
 
                     case "<drivable_on>":
-                        bDrivableOn = true;
+                        DrivableOn = true;
                         break;
 
                     case "<solid>":
-                        bSolid = true;
+                        Solid = true;
                         break;
 
                     case "<stop_sinking_into_ground>":
-                        bStopSinkingIntoGround = true;
+                        StopSinkingIntoGround = true;
                         break;
 
                     case "<part_of_world>":
-                        bPartOfWorld = true;
+                        PartOfWorld = true;
                         break;
 
                     case "<ignore_world>":
-                        bIgnoreWorld = true;
+                        IgnoreWorld = true;
                         break;
 
                     case "<inf_mass>":
-                        bInfMass = true;
+                        InfMass = true;
                         break;
 
                     case "<inf_mi>":
-                        bInfMi = true;
+                        InfMi = true;
                         break;
 
                     case "<buoyant>":
-                        bBuouyant = true;
-                        buoyancyCount = doc.ReadFloat();
-                        buoyancyVector = doc.ReadVector3();
+                        Buoyant = true;
+                        BuoyancyCount = doc.ReadFloat();
+                        BuoyancyVector = doc.ReadVector3();
                         break;
 
                     case "<substance>":
-                        substance = doc.ReadInt();
+                        Substance = doc.ReadInt();
                         break;
 
                     case "<group>":
-                        group = doc.ReadInt();
+                        Group = doc.ReadInt();
                         break;
 
                     case "<ignore_group>":
-                        ignoreGroup = doc.ReadInt();
+                        IgnoreGroup = doc.ReadInt();
                         break;
 
                     case "<moments>":
-                        moments = doc.ReadVector3();
+                        Moments = doc.ReadVector3();
                         break;
 
                     case "<buoyancy_relative_to_com>":
-                        bBuoyancyRelativeToCOM = true;
+                        BuoyancyRelativeToCOM = true;
                         break;
 
                     case "<centre_of_mass>":
-                        centreOfMass = doc.ReadVector3();
+                        CentreOfMass = doc.ReadVector3();
                         break;
 
                     case "<sphere_rolling_resistance>":
-                        sphereRollingResistance = doc.ReadFloat();
+                        SphereRollingResistance = doc.ReadFloat();
                         break;
 
                     case "<shape>":
-                        shape = new AccessoryShape(doc);
+                        Shape = new AccessoryShape(doc);
                         break;
 
                     case "<breakable>":
-                        breakable = new AccessoryBreak(doc);
+                        Break = new AccessoryBreak(doc);
                         break;
 
                     case "<world_joint>":
-                        worldJoint = new AccessoryJoint(doc);
+                        WorldJoint = new AccessoryJoint(doc);
                         break;
 
                     case "<child_joint>":
-                        childJoint = new AccessoryJoint(doc);
+                        ChildJoint = new AccessoryJoint(doc);
                         break;
 
                     default:
@@ -497,33 +338,21 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
     public class AccessoryShape
     {
-        string name;
-        int boxCount;
-        List<AccessoryShapeComponent> boxes = new List<AccessoryShapeComponent>();
+        public string Name { get; set; }
 
-        public string Name
-        {
-            get => name;
-            set => name = value;
-        }
-
-        public int Count
-        {
-            get => boxCount;
-            set => boxCount = value;
-        }
+        public List<AccessoryShapeComponent> Boxes { get; set; } = new List<AccessoryShapeComponent>();
 
         public AccessoryShape(DocumentParser sr)
         {
-            name = sr.ReadNextLine();
+            Name = sr.ReadNextLine();
 
-            if (name.Replace("_", " ") != "(no shape)")
+            if (Name.Replace("_", " ") != "(no shape)")
             {
-                boxCount = sr.ReadInt();
+                int boxCount = sr.ReadInt();
 
                 for (int i = 0; i < boxCount; i++)
                 {
-                    boxes.Add(new AccessoryShapeComponent(sr));
+                    Boxes.Add(new AccessoryShapeComponent(sr));
                 }
             }
         }
@@ -540,75 +369,58 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             TicTac
         }
 
-        ComponentType componentType;
-        List<Vector3> points;
-        float radius;
-        int group;
+        public ComponentType Type { get; set; }
 
-        public ComponentType Type
-        {
-            get => componentType;
-            set => componentType = value;
-        }
+        public List<Vector3> Points { get; set; } = new List<Vector3>();
 
-        public int Group
-        {
-            get => group;
-            set => group = value;
-        }
+        public int Group { get; set; }
 
-        public float Radius
-        {
-            get => radius;
-            set => radius = value;
-        }
+        public float Radius { get; set; }
 
         public AccessoryShapeComponent(DocumentParser sr)
         {
-            points = new List<Vector3>();
-
             string s = sr.ReadNextLine();
             int pointCount;
 
             switch (s)
             {
                 case "AlignedCuboid":
-                    componentType = ComponentType.AlignedCuboid;
-                    points.Add(sr.ReadVector3());
-                    points.Add(sr.ReadVector3());
+                    Type = ComponentType.AlignedCuboid;
+                    Points.Add(sr.ReadVector3());
+                    Points.Add(sr.ReadVector3());
                     break;
 
                 case "Polyhedron":
-                    componentType = ComponentType.Polyhedron;
+                    Type = ComponentType.Polyhedron;
                     pointCount = sr.ReadInt();
-                    for (int i = 0; i < pointCount; i++) { points.Add(sr.ReadVector3()); }
+                    for (int i = 0; i < pointCount; i++) { Points.Add(sr.ReadVector3()); }
                     break;
 
                 case "RoundedPolyhedron":
-                    componentType = ComponentType.RoundedPolyhedron;
-                    radius = sr.ReadFloat();
+                    Type = ComponentType.RoundedPolyhedron;
+                    Radius = sr.ReadFloat();
                     pointCount = sr.ReadInt();
-                    for (int i = 0; i < pointCount; i++) { points.Add(sr.ReadVector3()); }
+                    for (int i = 0; i < pointCount; i++) { Points.Add(sr.ReadVector3()); }
                     break;
 
                 case "Sphere":
-                    points.Add(sr.ReadVector3());
-                    radius = sr.ReadFloat();
+                    Points.Add(sr.ReadVector3());
+                    Radius = sr.ReadFloat();
                     break;
 
                 case "TicTac":
-                    points.Add(sr.ReadVector3());
-                    points.Add(sr.ReadVector3());
-                    radius = sr.ReadFloat();
+                    Points.Add(sr.ReadVector3());
+                    Points.Add(sr.ReadVector3());
+                    Radius = sr.ReadFloat();
                     break;
 
                 default:
-                    throw new NotImplementedException("Unknown ComponentType: " + s);
+                    throw new NotImplementedException($"Unknown ComponentType: {s}");
             }
 
             while (sr.ReadNextLine() == "form_collision_groups")
             {
-                group = sr.ReadInt();
+                Group = sr.ReadInt();
             }
 
             sr.Rewind();
@@ -617,35 +429,30 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
     public class AccessoryBreak
     {
-        List<AccessoryBreakReplacement> replacements = new List<AccessoryBreakReplacement>();
-        int breakImpulse;
-        bool bDetatchChildren;
-        bool bDestroyChildren;
-        int explodeForce;
-        Vector2 randomRotation;
-        bool bTriggerParticles;
-        string sound;
+        public int BreakImpulse { get; set; }
 
-        public int BreakImpulse
-        {
-            get => breakImpulse;
-            set => breakImpulse = value;
-        }
+        public List<AccessoryBreakReplacement> Replacements { get; set; } = new List<AccessoryBreakReplacement>();
 
-        public List<AccessoryBreakReplacement> Replacements
-        {
-            get => replacements;
-            set => replacements = value;
-        }
+        public bool DetatchChildren { get; set; }
+
+        public bool DestroyChildren { get; set; }
+
+        public int ExplodeForce { get; set; }
+
+        public Vector2 RandomRotation { get; set; }
+
+        public bool TriggerParticles { get; set; }
+
+        public string Sound { get; set; }
 
         public AccessoryBreak(DocumentParser sr)
         {
-            bool bBreak = true;
+            bool inBreak = true;
             string[] settings;
 
             if (!Accessory.TestLine("Breakable", sr.ReadNextLine(), out string line)) { Console.WriteLine("Unexpected value: {0}", line); }
 
-            while (bBreak)
+            while (inBreak)
             {
                 line = sr.ReadNextLine();
                 if (line == null) { break; }
@@ -656,40 +463,40 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                 {
                     case "break":
                     case "break_impulse":
-                        breakImpulse = settings[settings.Length - 1].ToInt();
+                        BreakImpulse = settings[settings.Length - 1].ToInt();
                         break;
 
                     case "detach_children":
                     case "detatch_children":
-                        bDetatchChildren = true;
+                        DetatchChildren = true;
                         break;
 
                     case "destroy_children":
-                        bDestroyChildren = true;
+                        DestroyChildren = true;
                         break;
 
                     case "explode":
                     case "explode_force":
-                        explodeForce = settings[settings.Length - 1].ToInt();
+                        ExplodeForce = settings[settings.Length - 1].ToInt();
                         break;
 
                     case "random_rotation":
                         if (settings.Length == 2)
                         {
-                            randomRotation = Vector2.Parse(settings[1]);
+                            RandomRotation = Vector2.Parse(settings[1]);
                         }
                         else
                         {
-                            randomRotation = new Vector2(settings[1].ToSingle(), settings[2].ToSingle());
+                            RandomRotation = new Vector2(settings[1].ToSingle(), settings[2].ToSingle());
                         }
                         break;
 
                     case "sound":
-                        sound = settings[1];
+                        Sound = settings[1];
                         break;
 
                     case "trigger_particles":
-                        bTriggerParticles = true;
+                        TriggerParticles = true;
                         break;
 
                     case "collision_with_world_will_break_me":
@@ -699,16 +506,16 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                     case "replace":
                         if (settings.Length == 3)
                         {
-                            replacements.Add(new AccessoryBreakReplacement(settings[1], settings[2]));
+                            Replacements.Add(new AccessoryBreakReplacement(settings[1], settings[2]));
                         }
                         else
                         {
-                            replacements.Add(new AccessoryBreakReplacement(settings[1]));
+                            Replacements.Add(new AccessoryBreakReplacement(settings[1]));
                         }
                         break;
 
                     default:
-                        bBreak = false;
+                        inBreak = false;
 
                         if (!settings[0].StartsWith("[") && !settings[0].StartsWith("<"))
                         {
@@ -722,39 +529,34 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                 }
             }
         }
-
-        public void Save()
-        {
-            // Pointless code makes visual studio warnings go away
-            bool b = bDetatchChildren &
-                bDestroyChildren &
-                bTriggerParticles;
-        }
     }
 
     public class AccessoryBreakReplacement
     {
-        string direction;
-        string model;
+        public string Direction { get; set; }
 
-        public AccessoryBreakReplacement(string Model) : this("", Model) { }
+        public string Model { get; set; }
 
-        public AccessoryBreakReplacement(string Direction, string Model)
+        public AccessoryBreakReplacement(string model) : this("", model) { }
+
+        public AccessoryBreakReplacement(string direction, string model)
         {
-            direction = Direction;
-            model = Model;
+            Direction = direction;
+            Model = model;
         }
     }
 
     public class AccessoryJoint
     {
-        int vertexNum;
+        public int VertexNum { get; set; }
 
         public AccessoryJoint(DocumentParser sr)
         {
             if (!Accessory.TestLine("joint", sr.ReadNextLine(), out string line)) { Console.WriteLine("Unexpected value: {0}", line); }
 
-            vertexNum = sr.ReadInt();
+            throw new NotImplementedException("AccessoryJoint not supported!");
+
+            VertexNum = sr.ReadInt();
             float f1 = sr.ReadFloat();
             Vector3 v1 = sr.ReadVector3();
             Vector3 v2 = sr.ReadVector3();
