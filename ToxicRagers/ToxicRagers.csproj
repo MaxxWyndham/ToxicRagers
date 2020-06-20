@@ -189,6 +189,7 @@
     <Compile Include="Stainless\Formats\sWAD.cs" />
     <Compile Include="Stainless\Formats\sZAD.cs" />
     <Compile Include="TDR2000\Formats\tdrDCOL.cs" />
+    <Compile Include="TDR2000\Formats\tdrFUNC.cs" />
     <Compile Include="TDR2000\Formats\tdrH.cs" />
     <Compile Include="TDR2000\Formats\tdrHIE.cs" />
     <Compile Include="TDR2000\Formats\tdrMSHS.cs" />
