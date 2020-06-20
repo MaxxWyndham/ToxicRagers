@@ -6,25 +6,49 @@ namespace ToxicRagers.Helpers
     [TypeConverter(typeof(Vector2Converter))]
     public class Vector2 : IEquatable<Vector2>
     {
-        float _x;
-        float _y;
+        public float this[int index]
+        {
+            get
+            {
+                switch (index)
+                {
+                    case 0:
+                        return X;
+
+                    case 1:
+                        return Y;
+
+                    default:
+                        throw new InvalidOperationException();
+                }
+            }
+
+            set
+            {
+                switch (index)
+                {
+                    case 0:
+                        X = value;
+                        break;
+
+                    case 1:
+                        Y = value;
+                        break;
+
+                    default:
+                        throw new InvalidOperationException();
+                }
+            }
+        }
+
+        public float X { get; set; }
+
+        public float Y { get; set; }
 
         public Vector2(float x, float y)
         {
-            _x = x;
-            _y = y;
-        }
-
-        public float X
-        {
-            get => _x;
-            set => _x = value;
-        }
-
-        public float Y
-        {
-            get => _y;
-            set => _y = value;
+            X = x;
+            Y = y;
         }
 
         public static Vector2 Zero => new Vector2(0, 0);
@@ -39,12 +63,12 @@ namespace ToxicRagers.Helpers
 
         public override string ToString()
         {
-            return string.Format("{{X: {0,15:F9} Y: {1,15:F9} }}", _x, _y);
+            return string.Format("{{X: {0,15:F9} Y: {1,15:F9} }}", X, Y);
         }
 
         public static Vector2 operator *(Vector2 x, float y)
         {
-            return new Vector2(x._x * y, x._y * y);
+            return new Vector2(x.X * y, x.Y * y);
         }
 
         public static bool operator ==(Vector2 x, Vector2 y)
@@ -74,6 +98,7 @@ namespace ToxicRagers.Helpers
         }
 
         public float Length => (float)Math.Sqrt(Dot(this, this));
+
         public Vector2 Normalised => new Vector2(X / Length, Y / Length);
 
         public static float Dot(Vector2 v1, Vector2 v2)
@@ -87,6 +112,7 @@ namespace ToxicRagers.Helpers
         public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType)
         {
             if (destinationType == typeof(Vector2)) { return true; }
+
             return base.CanConvertTo(context, destinationType);
         }
 

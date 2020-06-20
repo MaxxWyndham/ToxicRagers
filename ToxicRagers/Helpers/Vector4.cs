@@ -1,33 +1,82 @@
 ﻿using System;
+using System.ComponentModel;
 
 namespace ToxicRagers.Helpers
 {
-    public class Vector4
+    [TypeConverter(typeof(Vector4Converter))]
+    public class Vector4 : IEquatable<Vector4>
     {
-        private float _x;
-        private float _y;
-        private float _z;
-        private float _w;
+        public float X { get; set; }
 
-        public float X => _x;
-        public float Y => _y;
-        public float Z => _z;
-        public float W => _w;
+        public float Y { get; set; }
+
+        public float Z { get; set; }
+
+        public float W { get; set; }
+
+        public float this[int index]
+        {
+            get
+            {
+                switch (index)
+                {
+                    case 0:
+                        return X;
+
+                    case 1:
+                        return Y;
+
+                    case 2:
+                        return Z;
+
+                    case 3:
+                        return W;
+
+                    default:
+                        throw new InvalidOperationException();
+                }
+            }
+
+            set
+            {
+                switch (index)
+                {
+                    case 0:
+                        X = value;
+                        break;
+
+                    case 1:
+                        Y = value;
+                        break;
+
+                    case 2:
+                        Z = value;
+                        break;
+
+                    case 3:
+                        W = value;
+                        break;
+
+                    default:
+                        throw new InvalidOperationException();
+                }
+            }
+        }
 
         public Vector4(float n)
         {
-            _x = n;
-            _y = n;
-            _z = n;
-            _w = n;
+            X = n;
+            Y = n;
+            Z = n;
+            W = n;
         }
 
-        public Vector4(float X, float Y, float Z, float W)
+        public Vector4(float x, float y, float z, float w)
         {
-            _x = X;
-            _y = Y;
-            _z = Z;
-            _w = W;
+            X = x;
+            Y = y;
+            Z = z;
+            W = w;
         }
 
         public static Vector4 Min(Vector4 v1, Vector4 v2)
@@ -60,10 +109,13 @@ namespace ToxicRagers.Helpers
             );
         }
 
-        public Vector4 SplatX() { return new Vector4(_x); }
-        public Vector4 SplatY() { return new Vector4(_y); }
-        public Vector4 SplatZ() { return new Vector4(_z); }
-        public Vector4 SplatW() { return new Vector4(_w); }
+        public Vector4 SplatX() { return new Vector4(X); }
+
+        public Vector4 SplatY() { return new Vector4(Y); }
+
+        public Vector4 SplatZ() { return new Vector4(Z); }
+
+        public Vector4 SplatW() { return new Vector4(W); }
 
         public static Vector4 Reciprocal(Vector4 v)
         {
@@ -77,30 +129,25 @@ namespace ToxicRagers.Helpers
 
         public static bool CompareAnyLessThan(Vector4 left, Vector4 right)
         {
-            return left._x < right._x
-                    || left._y < right._y
-                    || left._z < right._z
-                    || left._w < right._w;
-        }
-
-        public Vector3 ToVector3()
-        {
-            return new Vector3(_x, _y, _z);
+            return left.X < right.X
+                    || left.Y < right.Y
+                    || left.Z < right.Z
+                    || left.W < right.W;
         }
 
         public static Vector4 operator +(Vector4 x, Vector4 y)
         {
-            return new Vector4(x._x + y._x, x._y + y._y, x._z + y._z, x._w + y._w);
+            return new Vector4(x.X + y.X, x.Y + y.Y, x.Z + y.Z, x.W + y.W);
         }
 
         public static Vector4 operator -(Vector4 x, Vector4 y)
         {
-            return new Vector4(x._x - y.X, x._y - y.Y, x._z - y.Z, x._w - y.W);
+            return new Vector4(x.X - y.X, x.Y - y.Y, x.Z - y.Z, x.W - y.W);
         }
 
         public static Vector4 operator *(Vector4 x, Vector4 y)
         {
-            return new Vector4(x._x * y._x, x._y * y._y, x._z * y._z, x._w * y._w);
+            return new Vector4(x.X * y.X, x.Y * y.Y, x.Z * y.Z, x.W * y.W);
         }
 
         public static Vector4 MultiplyAdd(Vector4 a, Vector4 b, Vector4 c)
@@ -115,15 +162,51 @@ namespace ToxicRagers.Helpers
 
         public static Vector4 Parse(string v)
         {
-            v = v.Replace(" ", "");
-            string[] s = v.Split(",".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+            string[] s = v.Replace(" ", "").Split(",".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
 
             return new Vector4(s[0].ToSingle(), s[1].ToSingle(), s[2].ToSingle(), s[3].ToSingle());
         }
 
         public override string ToString()
         {
-            return string.Format("{{X: {0,15:F9} Y: {1,15:F9} Z: {2,15:F9} W: {3,15:F9} }}", _x, _y, _z, _w);
+            return string.Format("{{X: {0,15:F9} Y: {1,15:F9} Z: {2,15:F9} W: {3,15:F9} }}", X, Y, Z, W);
+        }
+
+        public bool Equals(Vector4 other)
+        {
+            return (X == other.X && Y == other.Y && Z == other.Z && W == other.W);
+        }
+
+        public override int GetHashCode()
+        {
+            return X.GetHashCode() ^ Y.GetHashCode() ^ Z.GetHashCode() ^ W.GetHashCode();
+        }
+
+        public static explicit operator Vector4(Vector3 v)
+        {
+            return new Vector4(v.X, v.Y, v.Z, 0);
+        }
+    }
+
+    public class Vector4Converter : ExpandableObjectConverter
+    {
+        public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType)
+        {
+            if (destinationType == typeof(Vector3)) { return true; }
+
+            return base.CanConvertTo(context, destinationType);
+        }
+
+        public override object ConvertTo(ITypeDescriptorContext context, System.Globalization.CultureInfo culture, object value, Type destinationType)
+        {
+            if (destinationType == typeof(string) && value is Vector4)
+            {
+                Vector4 v = value as Vector4;
+
+                return v.ToString();
+            }
+
+            return base.ConvertTo(context, culture, value, destinationType);
         }
     }
 }

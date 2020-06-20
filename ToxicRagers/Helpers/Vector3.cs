@@ -6,13 +6,11 @@ namespace ToxicRagers.Helpers
     [TypeConverter(typeof(Vector3Converter))]
     public class Vector3 : IEquatable<Vector3>
     {
-        private float _x;
-        private float _y;
-        private float _z;
+        public float X { get; set; }
 
-        public float X { get => _x; set => _x = value; }
-        public float Y { get => _y; set => _y = value; }
-        public float Z { get => _z; set => _z = value; }
+        public float Y { get; set; }
+
+        public float Z { get; set; }
 
         public float this[int index]
         {
@@ -21,13 +19,13 @@ namespace ToxicRagers.Helpers
                 switch (index)
                 {
                     case 0:
-                        return _x;
+                        return X;
 
                     case 1:
-                        return _y;
+                        return Y;
 
                     case 2:
-                        return _z;
+                        return Z;
 
                     default:
                         throw new InvalidOperationException();
@@ -39,15 +37,15 @@ namespace ToxicRagers.Helpers
                 switch (index)
                 {
                     case 0:
-                        _x = value;
+                        X = value;
                         break;
 
                     case 1:
-                        _y = value;
+                        Y = value;
                         break;
 
                     case 2:
-                        _z = value;
+                        Z = value;
                         break;
 
                     default:
@@ -58,20 +56,22 @@ namespace ToxicRagers.Helpers
 
         public Vector3(float x, float y, float z)
         {
-            _x = x;
-            _y = y;
-            _z = z;
+            X = x;
+            Y = y;
+            Z = z;
         }
 
         public Vector3(Vector3 v)
         {
-            _x = v.X;
-            _y = v.Y;
-            _z = v.Z;
+            X = v.X;
+            Y = v.Y;
+            Z = v.Z;
         }
 
         public static Vector3 Up => new Vector3(0, 1, 0);
+
         public static Vector3 Zero => new Vector3(0, 0, 0);
+
         public Vector3 Normalised
         {
             get
@@ -84,12 +84,12 @@ namespace ToxicRagers.Helpers
 
         public override string ToString()
         {
-            return string.Format("{{X: {0,15:F9} Y: {1,15:F9} Z: {2,15:F9} }}", _x, _y, _z);
+            return string.Format("{{X: {0,15:F9} Y: {1,15:F9} Z: {2,15:F9} }}", X, Y, Z);
         }
 
         public float Sum()
         {
-            return _x + _y + _z;
+            return X + Y + Z;
         }
 
         public static Vector3 TransformVector(Vector3 v, Matrix3D m)
@@ -126,46 +126,46 @@ namespace ToxicRagers.Helpers
 
         public float Length => (float)Math.Sqrt(LengthSquared);
 
-        public float LengthSquared => _x * _x + _y * _y + _z * _z;
+        public float LengthSquared => X * X + Y * Y + Z * Z;
 
         public void Normalise()
         {
             float l = Length;
-            _x /= l;
-            _y /= l;
-            _z /= l;
+            X /= l;
+            Y /= l;
+            Z /= l;
         }
 
         public static Vector3 operator *(float y, Vector3 x) { return x * y; }
 
         public static Vector3 operator *(Vector3 x, float y)
         {
-            return new Vector3(x._x * y, x._y * y, x._z * y);
+            return new Vector3(x.X * y, x.Y * y, x.Z * y);
         }
 
         public static Vector3 operator *(Vector3 x, Vector3 y)
         {
-            return new Vector3(x._x * y.X, x._y * y.Y, x._z * y.Z);
+            return new Vector3(x.X * y.X, x.Y * y.Y, x.Z * y.Z);
         }
 
         public static Vector3 operator -(Vector3 x, Vector3 y)
         {
-            return new Vector3(x._x - y.X, x._y - y.Y, x._z - y.Z);
+            return new Vector3(x.X - y.X, x.Y - y.Y, x.Z - y.Z);
         }
 
         public static Vector3 operator -(Vector3 x)
         {
-            return new Vector3(-x._x, -x._y, -x._z);
+            return new Vector3(-x.X, -x.Y, -x.Z);
         }
 
         public static Vector3 operator +(Vector3 x, Vector3 y)
         {
-            return new Vector3(x._x + y.X, x._y + y.Y, x._z + y.Z);
+            return new Vector3(x.X + y.X, x.Y + y.Y, x.Z + y.Z);
         }
 
         public static Vector3 operator /(Vector3 x, float y)
         {
-            return new Vector3(x._x / y, x._y / y, x._z / y);
+            return new Vector3(x.X / y, x.Y / y, x.Z / y);
         }
 
         public static Vector3 operator *(Vector3 x, Matrix3D y)
@@ -212,6 +212,11 @@ namespace ToxicRagers.Helpers
         {
             return new Vector3(v.X, v.Y, 0);
         }
+
+        public static explicit operator Vector3(Vector4 v)
+        {
+            return new Vector3(v.X, v.Y, v.Z);
+        }
     }
 
     public class Vector3Converter : ExpandableObjectConverter
@@ -219,6 +224,7 @@ namespace ToxicRagers.Helpers
         public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType)
         {
             if (destinationType == typeof(Vector3)) { return true; }
+
             return base.CanConvertTo(context, destinationType);
         }
 

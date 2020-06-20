@@ -9,9 +9,7 @@ namespace ToxicRagers.Wreckfest.Formats
     // Assumes the file has been decompressed
     public class SCNE
     {
-        List<SCNEBone> bones = new List<SCNEBone>();
-
-        public List<SCNEBone> Bones => bones;
+        public List<SCNEBone> Bones { get; } = new List<SCNEBone>();
 
         public static SCNE Load(string path)
         {
@@ -173,8 +171,8 @@ namespace ToxicRagers.Wreckfest.Formats
                                                     {
                                                         SCNEVertex v = new SCNEVertex()
                                                         {
-                                                            Position = Unpack(br.ReadUInt64()).ToVector3(),
-                                                            Normal = UnpackNormal(br.ReadUInt32()).ToVector3(),
+                                                            Position = (Vector3)Unpack(br.ReadUInt64()),
+                                                            Normal = (Vector3)UnpackNormal(br.ReadUInt32()),
                                                             UV = Unpack(br.ReadUInt32())
                                                         };
                                                         part.Verts.Add(v);
@@ -335,7 +333,7 @@ namespace ToxicRagers.Wreckfest.Formats
                                     }
                                 } while (bLoop);
 
-                                scne.bones.Add(bone);
+                                scne.Bones.Add(bone);
                             }
                             break;
 
