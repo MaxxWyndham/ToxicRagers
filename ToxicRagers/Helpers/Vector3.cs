@@ -82,6 +82,13 @@ namespace ToxicRagers.Helpers
             }
         }
 
+        public static void SetVector3(float x, float y, float z, Vector3 v)
+        {
+            v = Vector3.Zero;
+            v.X = x;
+            v.Y = y;
+            v.Z = z;
+        }
         public override string ToString()
         {
             return string.Format("{{X: {0,15:F9} Y: {1,15:F9} Z: {2,15:F9} }}", X, Y, Z);

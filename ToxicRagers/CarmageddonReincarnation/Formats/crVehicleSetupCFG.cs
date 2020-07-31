@@ -168,14 +168,14 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                     sw.WriteLine();
                 }
 
-                if (DriverSuffix != null)
+                if (!string.IsNullOrEmpty(DriverSuffix))
                 {
                     sw.WriteLine("[driver_suffix]");
                     sw.WriteLine(DriverSuffix);
                     sw.WriteLine();
                 }
 
-                if (!SmallDriver)
+                if (SmallDriver)
                 {
                     sw.WriteLine("[small_driver]");
                     sw.WriteLine();
@@ -206,7 +206,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
                 if (SuspensionFactors != null) { sw.WriteLine(SuspensionFactors.Write()); }
 
-                if (AIScript != null)
+                if (!string.IsNullOrEmpty(AIScript))
                 {
                     sw.WriteLine("[ai_script]");
                     sw.WriteLine(AIScript);
@@ -568,7 +568,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
         {
             StringBuilder sb = new StringBuilder();
             sb.AppendLine($"vfx {VFX}");
-            if (UnderwaterVFX != null) { sb.AppendLine($"underwater_vfx {UnderwaterVFX}"); }
+            if (!string.IsNullOrEmpty(UnderwaterVFX)) { sb.AppendLine($"underwater_vfx {UnderwaterVFX}"); }
             sb.AppendLine($"anchor {Anchor}");
             if (Multiplier != default) { sb.AppendLine($"multiplier {Multiplier}"); }
             if (NeutralMultiplier != default) { sb.AppendLine($"neutral_multiplier {NeutralMultiplier}"); }
@@ -665,7 +665,10 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                 StringBuilder output = new StringBuilder();
                 foreach (KeyValuePair<string, string> kvp in wheels)
                 {
-                    output.AppendLine($"{kvp.Key}_wheel_folder_name {kvp.Value}");
+                    if (!string.IsNullOrEmpty(kvp.Value))
+                    {
+                        output.AppendLine($"{kvp.Key}_wheel_folder_name {kvp.Value}");
+                    }
                 }
                 return output.ToString();
             }
@@ -785,6 +788,11 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
         public Dictionary<string, string> Substitutions { get; set; } = new Dictionary<string, string>();
 
         public int MaterialMapProductID { get; set; }
+
+        public VehicleMaterialMap()
+        {
+            Shrapnel = Vector3.Zero;
+        }
 
         public VehicleMaterialMap(DocumentParser doc)
         {
@@ -935,7 +943,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             sb.AppendLine(Name);
             sb.AppendLine($"localise {Localisation}");
             sb.Append(Wheels.ToString());
-            if (Wheels.GarageSet != null) { sb.AppendLine($"garage_set {Wheels.GarageSet}"); }
+            if (!string.IsNullOrEmpty(Wheels.GarageSet)) { sb.AppendLine($"garage_set {Wheels.GarageSet}"); }
             return sb.ToString();
         }
     }
@@ -949,6 +957,8 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
         public int MaxSteeringLock { get; set; }
 
         public float MaxExtension { get; set; }
+
+        public VehicleSuspensionFactors() { }
 
         public VehicleSuspensionFactors(DocumentParser doc)
         {
@@ -1011,11 +1021,11 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             StringBuilder sb = new StringBuilder();
 
             sb.AppendLine("[stats]");
-            sb.AppendLine($"{TopSpeed}// top speed; they must be in this order and not have spaces before the comments");
-            sb.AppendLine($"{Time}// time 0 -60");
-            sb.AppendLine($"{Weight}// weight");
-            sb.AppendLine($"{Toughness}// toughness");
-            if (UnlockLevel != -1) { sb.AppendLine($"{UnlockLevel}// unlock level"); }
+            sb.AppendLine($"{TopSpeed}  // top speed; they must be in this order and not have spaces before the comments");
+            sb.AppendLine($"{Time}  // time 0 -60");
+            sb.AppendLine($"{Weight}    // weight");
+            sb.AppendLine($"{Toughness} // toughness");
+            if (UnlockLevel != -1) { sb.AppendLine($"{UnlockLevel}  // unlock level"); }
 
             return sb.ToString();
         }
