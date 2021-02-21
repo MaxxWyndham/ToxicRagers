@@ -5,58 +5,12 @@ using System.Xml;
 using System.Xml.Linq;
 
 using ToxicRagers.CarmageddonReincarnation.Helpers;
-using ToxicRagers.Helpers;
 
 namespace ToxicRagers.CarmageddonReincarnation.Formats
 {
-    public enum SystemsDamageSystemUnitType
-    {
-        bodywork,
-        engine,
-        fl_wheel,
-        fr_wheel,
-        generator,
-        rl_wheel,
-        rr_wheel,
-        steering,
-        transmission,
-
-        rl_wheel_001,
-        rr_wheel_001,
-        fl_wheel_001,
-        fr_wheel_001,
-        rl_wheel_002,
-        rr_wheel_002,
-        fl_wheel_002,
-        fr_wheel_002,
-        rl_wheel_003,
-        rr_wheel_003,
-        rl_wheel_004,
-        rr_wheel_004,
-        left_front_track,
-        right_front_track,
-        left_rear_track,
-        right_rear_track,
-        left_track,
-        right_track,
-
-        Joint
-    }
-
     public class SystemsDamage
     {
-        List<SystemsDamageSystemUnit> systemUnits;
-
-        public List<SystemsDamageSystemUnit> Units
-        {
-            get => systemUnits;
-            set => systemUnits = value;
-        }
-
-        public SystemsDamage()
-        {
-            systemUnits = new List<SystemsDamageSystemUnit>();
-        }
+        public List<SystemsDamageSystemUnit> Units { get; set; } = new List<SystemsDamageSystemUnit>();
 
         public static SystemsDamage Load(string path)
         {
@@ -68,7 +22,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
                 foreach (XmlNode system in systems.ChildNodes)
                 {
-                    systemsDamage.systemUnits.Add(new SystemsDamageSystemUnit(system));
+                    systemsDamage.Units.Add(new SystemsDamageSystemUnit(system));
                 }
             }
 
@@ -80,7 +34,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             XDocument xml = new XDocument();
 
             XElement systems = new XElement("SYSTEMS");
-            foreach (SystemsDamageSystemUnit unit in systemUnits)
+            foreach (SystemsDamageSystemUnit unit in Units)
             {
                 systems.Add(unit.Write());
             }
@@ -93,20 +47,9 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
     public class SystemsDamageSystemUnit
     {
-        SystemsDamageSystemUnitType unitType;
-        SystemsDamageUnitCode unitSettings;
+        public string UnitType { get; set; }
 
-        public SystemsDamageSystemUnitType UnitType
-        {
-            get => unitType;
-            set => unitType = value;
-        }
-
-        public SystemsDamageUnitCode Settings
-        {
-            get => unitSettings;
-            set => unitSettings = value;
-        }
+        public SystemsDamageUnitCode UnitSettings { get; set; }
 
         public SystemsDamageSystemUnit() { }
 
@@ -117,7 +60,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                 switch (attribute.Name)
                 {
                     case "name":
-                        unitType = attribute.Value.ToEnum<SystemsDamageSystemUnitType>();
+                        UnitType = attribute.Value;
                         break;
 
                     default:
@@ -130,7 +73,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                 switch (data.NodeType)
                 {
                     case XmlNodeType.CDATA:
-                        unitSettings = SystemsDamageUnitCode.Parse(data.InnerText);
+                        UnitSettings = SystemsDamageUnitCode.Parse(data.InnerText);
                         break;
 
                     case XmlNodeType.Element:
@@ -146,9 +89,9 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
         public XElement Write()
         {
             XElement xe = new XElement("UNIT");
-            xe.Add(new XAttribute("name", unitType));
+            xe.Add(new XAttribute("name", UnitType));
 
-            string unitCDATA = unitSettings.ToString();
+            string unitCDATA = UnitSettings.ToString();
             if (unitCDATA.Trim() != "") { xe.Add(new XCData(unitCDATA)); }
 
             return xe;
