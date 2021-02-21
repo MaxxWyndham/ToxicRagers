@@ -49,7 +49,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
     {
         public string UnitType { get; set; }
 
-        public SystemsDamageUnitCode UnitSettings { get; set; }
+        public SystemsDamageUnitCode Settings { get; set; }
 
         public SystemsDamageSystemUnit() { }
 
@@ -73,7 +73,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
                 switch (data.NodeType)
                 {
                     case XmlNodeType.CDATA:
-                        UnitSettings = SystemsDamageUnitCode.Parse(data.InnerText);
+                        Settings = SystemsDamageUnitCode.Parse(data.InnerText);
                         break;
 
                     case XmlNodeType.Element:
@@ -91,7 +91,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
             XElement xe = new XElement("UNIT");
             xe.Add(new XAttribute("name", UnitType));
 
-            string unitCDATA = UnitSettings.ToString();
+            string unitCDATA = Settings.ToString();
             if (unitCDATA.Trim() != "") { xe.Add(new XCData(unitCDATA)); }
 
             return xe;
