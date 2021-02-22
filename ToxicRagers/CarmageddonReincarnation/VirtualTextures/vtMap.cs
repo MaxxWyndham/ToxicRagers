@@ -104,7 +104,7 @@ namespace ToxicRagers.CarmageddonReincarnation.VirtualTextures
 
                 if (!IsDeadBeef(br))
                 {
-                    Logger.LogToFile(Logger.LogLevel.Error, "Unexpected data at {0:x2}", br.BaseStream.Position);
+                    //Logger.LogToFile(Logger.LogLevel.Error, "Unexpected data at {0:x2}", br.BaseStream.Position);
                     return;
                 }
 
@@ -116,7 +116,7 @@ namespace ToxicRagers.CarmageddonReincarnation.VirtualTextures
 
                 if (!IsDeadBeef(br))
                 {
-                    Logger.LogToFile(Logger.LogLevel.Error, "Unexpected data at {0:x2}", br.BaseStream.Position);
+                    //Logger.LogToFile(Logger.LogLevel.Error, "Unexpected data at {0:x2}", br.BaseStream.Position);
                     return;
                 }
 
@@ -130,7 +130,8 @@ namespace ToxicRagers.CarmageddonReincarnation.VirtualTextures
                         Column = br.ReadInt32(),
                         Width = br.ReadInt32(),
                         Height = br.ReadInt32(),
-                        FileName = br.ReadNullTerminatedString()
+                        FileName = br.ReadNullTerminatedString(),
+                        Map = this
                     };
 
                     br.ReadByte();
@@ -140,7 +141,7 @@ namespace ToxicRagers.CarmageddonReincarnation.VirtualTextures
 
                 if (!IsDeadBeef(br))
                 {
-                    Logger.LogToFile(Logger.LogLevel.Error, "Unexpected data at {0:x2}", br.BaseStream.Position);
+                    //Logger.LogToFile(Logger.LogLevel.Error, "Unexpected data at {0:x2}", br.BaseStream.Position);
                     return;
                 }
 
@@ -160,9 +161,9 @@ namespace ToxicRagers.CarmageddonReincarnation.VirtualTextures
                     tile.TileName = string.Format("{0:x8}", tile.Hash);
                     tile.ZadTileName = string.Format("{0}/{1}_{2}.tdx", tile.TileName.Substring(0, 2), tile.TileName, type.ToString().Substring(0, 1));
 
-                    if (!TilesByName.ContainsKey(tile.TileName)) { TilesByName.Add(tile.TileName, new VTMapTileTDX { TileName = tile.TileName }); }
+                    if (!TilesByName.ContainsKey(tile.TileName.ToUpper())) { TilesByName.Add(tile.TileName.ToUpper(), new VTMapTileTDX { TileName = tile.TileName }); }
 
-                    TilesByName[tile.TileName].Coords.Add(tile);
+                    TilesByName[tile.TileName.ToUpper()].Coords.Add(tile);
 
                     if (tile.Page >= TilesPages.Count)
                     {
@@ -177,7 +178,7 @@ namespace ToxicRagers.CarmageddonReincarnation.VirtualTextures
 
                 if (!IsDeadBeef(br))
                 {
-                    Logger.LogToFile(Logger.LogLevel.Error, "Unexpected data at {0:x2}", br.BaseStream.Position);
+                    //Logger.LogToFile(Logger.LogLevel.Error, "Unexpected data at {0:x2}", br.BaseStream.Position);
                     return;
                 }
 
@@ -213,10 +214,10 @@ namespace ToxicRagers.CarmageddonReincarnation.VirtualTextures
 
         public bool IsDeadBeef(BinaryReader br)
         {
-            return (br.ReadByte() == 0xde &&
-                    br.ReadByte() == 0xad &&
+            return (br.ReadByte() == 0xef &&
                     br.ReadByte() == 0xbe &&
-                    br.ReadByte() == 0xef);
+                    br.ReadByte() == 0xad &&
+                    br.ReadByte() == 0xde);
         }
 
         public int GetWidth(int page)
@@ -231,11 +232,12 @@ namespace ToxicRagers.CarmageddonReincarnation.VirtualTextures
 
         public void LogToConsole()
         {
+            return;
             StringBuilder sb = new StringBuilder();
             int i = 0;
             int j = 0;
 
-            Logger.LogToFile(Logger.LogLevel.Debug, "Logging a VT Map:\n\tType: {0}\n\tPageCount: {1}\n\tTileSize: {2}\n\tTilePadding: {3}\n\tNumber Of Tiles: {4}\n\tWidth: {5}\n\tHeight: {6}\n\tTextureCount: {7}\n\tEntries.Count: {8}", type, pageCount, TileSize, tilePadding, numberOfTiles, width, height, textureCount, entries.Count);
+            //Logger.LogToFile(Logger.LogLevel.Debug, "Logging a VT Map:\n\tType: {0}\n\tPageCount: {1}\n\tTileSize: {2}\n\tTilePadding: {3}\n\tNumber Of Tiles: {4}\n\tWidth: {5}\n\tHeight: {6}\n\tTextureCount: {7}\n\tEntries.Count: {8}", type, pageCount, TileSize, tilePadding, numberOfTiles, width, height, textureCount, entries.Count);
 
             foreach (VTMapEntry entry in entries)
             {
@@ -243,7 +245,7 @@ namespace ToxicRagers.CarmageddonReincarnation.VirtualTextures
                 i++;
             }
 
-            Logger.LogToFile(Logger.LogLevel.Debug, sb.ToString());
+            //Logger.LogToFile(Logger.LogLevel.Debug, sb.ToString());
             sb.Clear();
 
             foreach (KeyValuePair<string, VTMapTileTDX> keyval in TilesByName)
@@ -256,7 +258,7 @@ namespace ToxicRagers.CarmageddonReincarnation.VirtualTextures
                 }
             }
 
-            Logger.LogToFile(Logger.LogLevel.Debug, sb.ToString());
+            //Logger.LogToFile(Logger.LogLevel.Debug, sb.ToString());
         }
     }
 }

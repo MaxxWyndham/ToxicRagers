@@ -15,6 +15,7 @@ namespace ToxicRagers.CarmageddonReincarnation.VirtualTextures
         int unknown2;
         Dictionary<string, VTMapTile> tiles = new Dictionary<string, VTMapTile>();
 
+        public VTMap Map { get; set; }
         public Dictionary<string, VTMapTile> Tiles
         {
             get => tiles;

@@ -88,6 +88,7 @@
     <Compile Include="CarmageddonReincarnation\Formats\Materials\simple_anim_foliage.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\Materials\simple_norm_detail_spec_base.cs" />
     <Compile Include="CarmageddonReincarnation\Helpers\LUAScript.cs" />
+    <Compile Include="CarmageddonReincarnation\VirtualTextures\vtUtils.cs" />
     <Compile Include="CarmageddonReincarnation\VirtualTextures\vtMap.cs" />
     <Compile Include="CarmageddonReincarnation\VirtualTextures\vtMapEntry.cs" />
     <Compile Include="CarmageddonReincarnation\VirtualTextures\vtMapPage.cs" />
