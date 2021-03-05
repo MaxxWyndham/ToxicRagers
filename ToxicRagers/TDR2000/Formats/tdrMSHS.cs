@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 using ToxicRagers.Helpers;
 
@@ -20,210 +22,285 @@ namespace ToxicRagers.TDR2000.Formats
             {
                 while (br.BaseStream.Position < br.BaseStream.Length)
                 {
-                    int faces = br.ReadInt16();
-                    int mode = br.ReadInt16();
-                    int vertCount;
-                    Vector3 centre;
-                    float radius;
-
-                    TDRMesh mshMesh = new TDRMesh();
-
-                    switch (mode)
+                    TDRMesh msh = new TDRMesh
                     {
-                        case 0:   // PathFollower
-                            vertCount = br.ReadInt32();
+                        FaceCount = br.ReadUInt16(),
+                        Mode = (TDRMesh.MSHMode)br.ReadUInt16()
+                    };
 
-                            centre = new Vector3(br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
-                            radius = br.ReadSingle();
+                    if (msh.Mode == TDRMesh.MSHMode.Tri) { br.ReadBytes(16); }
 
-                            for (int i = 0; i < faces; i++)
-                            {
-                                int iVertCount = br.ReadInt32();
+                    msh.VertexCount = br.ReadInt32();
 
-                                //mshMesh.BeginFace(tdrMesh.FaceMode.VertexList);
-                                //mshMesh.SetFaceNormal(new Vector3(br.ReadSingle(), br.ReadSingle(), br.ReadSingle()));
-                                br.ReadBytes(12);
-
-                                for (int j = 0; j < iVertCount; j++)
-                                {
-                                    TDRVertex v = new TDRVertex(br.ReadSingle(), br.ReadSingle(), br.ReadSingle())
-                                    {
-                                        Normal = new Vector3(br.ReadSingle(), br.ReadSingle(), br.ReadSingle())
-                                    };
-                                    //Console.WriteLine(br.ReadSingle() & ", " & br.ReadSingle() & ", " & br.ReadSingle())
-                                    br.ReadBytes(12); //Vector3 - 3x float - No idea
-                                    if (br.ReadSingle() != 1) { Logger.LogToFile(Logger.LogLevel.Error, "Strange value isn't 1"); }
-
-                                    v.UV = new Vector2(br.ReadSingle(), br.ReadSingle());
-
-                                    mshMesh.Vertexes.Add(v);
-
-                                    if (j >= 2)
-                                    {
-                                        int flip = j % 2;
-
-                                        mshMesh.Faces.Add(
-                                            new TDRFace(
-                                                mshMesh.Vertexes.Count - (3 + flip),
-                                                mshMesh.Vertexes.Count - 2,
-                                                mshMesh.Vertexes.Count - 1));
-                                    }
-                                }
-                            }
-                            break;
-
-                        case 256:   // Car
-                            vertCount = br.ReadInt32();
-
-                            centre = new Vector3(br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
-                            radius = br.ReadSingle();
-
-                            List<Vector3> verts = new List<Vector3>();
-
-                            for (int i = 0; i < vertCount; i++)
-                            {
-                                verts.Add(new Vector3(br.ReadSingle(), br.ReadSingle(), br.ReadSingle()));
-                            }
-
-                            for (int i = 0; i < faces; i++)
-                            {
-                                Vector3 faceNormal = new Vector3(br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
-                                Vector3 vp0 = verts[br.ReadInt32()];
-                                Vector3 vp1 = verts[br.ReadInt32()];
-                                Vector3 vp2 = verts[br.ReadInt32()];
-                                Vector4 v1colour = new Vector4(br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
-                                Vector4 v2colour = new Vector4(br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
-                                Vector4 v3colour = new Vector4(br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
-                                Vector2 vt0 = new Vector2(br.ReadSingle(), br.ReadSingle());
-                                Vector2 vt1 = new Vector2(br.ReadSingle(), br.ReadSingle());
-                                Vector2 vt2 = new Vector2(br.ReadSingle(), br.ReadSingle());
-                                Vector3 vn0 = new Vector3(br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
-                                Vector3 vn1 = new Vector3(br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
-                                Vector3 vn2 = new Vector3(br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
-
-                                mshMesh.Vertexes.Add(new TDRVertex(vp0.X, vp0.Y, vp0.Z, vn0.X, vn0.Y, vn0.Z, 0, vt0.X, vt0.Y));
-                                mshMesh.Vertexes.Add(new TDRVertex(vp1.X, vp1.Y, vp1.Z, vn1.X, vn1.Y, vn1.Z, 0, vt1.X, vt1.Y));
-                                mshMesh.Vertexes.Add(new TDRVertex(vp2.X, vp2.Y, vp2.Z, vn2.X, vn2.Y, vn2.Z, 0, vt2.X, vt2.Y));
-
-                                mshMesh.Faces.Add(new TDRFace(mshMesh.Vertexes.Count - 3, mshMesh.Vertexes.Count - 2, mshMesh.Vertexes.Count - 1));
-                            }
-
-                            if (singleMesh)
-                            {
-                                for (int i = 0; i < vertCount; i++)
-                                {
-                                    int pointCount = br.ReadUInt16();
-
-                                    for (int j = 0; j < pointCount; j++)
-                                    {
-                                        br.ReadUInt16();
-                                    }
-                                }
-                            }
-                            break;
-
-                        case 512:   // Map
-                            br.ReadBytes(16);
-                            vertCount = br.ReadInt32();
-
-                            for (int i = 0; i < vertCount; i++)
-                            {
-                                mshMesh.Vertexes.Add(
-                                    new TDRVertex(
-                                        br.ReadSingle(), br.ReadSingle(), br.ReadSingle(),
-                                        br.ReadSingle(), br.ReadSingle(), br.ReadSingle(),
-                                        br.ReadSingle(),
-                                        br.ReadSingle(), br.ReadSingle()
-                                    )
-                                );
-                            }
-
-                            for (int i = 0; i < faces; i++)
-                            {
-                                mshMesh.Faces.Add(
-                                    new TDRFace(
-                                        br.ReadInt32(), br.ReadInt32(), br.ReadInt32()
-                                    )
-                                );
-                            }
-                            break;
-
-                        default:
-                            Logger.LogToFile(Logger.LogLevel.Error, "Unknown mode: {0}", mode);
-                            return null;
+                    if (msh.Mode != TDRMesh.MSHMode.Tri)
+                    {
+                        msh.Centre = new Vector3(br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
+                        msh.Radius = br.ReadSingle();
                     }
 
-                    mshs.Meshes.Add(mshMesh);
+                    switch (msh.Mode)
+                    {
+                        case TDRMesh.MSHMode.NGon:
+                            for (int i = 0; i < msh.FaceCount; i++)
+                            {
+                                TDRFace face = new TDRFace
+                                {
+                                    VertexCount = br.ReadInt32(),
+                                    Normal = new Vector3(br.ReadSingle(), br.ReadSingle(), br.ReadSingle())
+                                };
+
+                                for (int j = 0; j < face.VertexCount; j++)
+                                {
+                                    face.Vertices.Add(new TDRVertex
+                                    {
+                                        Position = new Vector3(br.ReadSingle(), br.ReadSingle(), br.ReadSingle()),
+                                        Normal = new Vector3(br.ReadSingle(), br.ReadSingle(), br.ReadSingle()),
+                                        Colour = new Vector4(br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle()),
+                                        UV = new Vector2(br.ReadSingle(), br.ReadSingle())
+                                    });
+                                }
+
+                                msh.Faces.Add(face);
+                            }
+                            break;
+
+                        case TDRMesh.MSHMode.TriIndexedPosition:
+                            for (int i = 0; i < msh.VertexCount; i++)
+                            {
+                                msh.Positions.Add(new Vector3(br.ReadSingle(), br.ReadSingle(), br.ReadSingle()));
+                            }
+
+                            for (int i = 0; i < msh.FaceCount; i++)
+                            {
+                                TDRFace face = new TDRFace
+                                {
+                                    Normal = new Vector3(br.ReadSingle(), br.ReadSingle(), br.ReadSingle())
+                                };
+
+                                TDRVertex v1 = new TDRVertex { PositionIndex = br.ReadInt32() };
+                                TDRVertex v2 = new TDRVertex { PositionIndex = br.ReadInt32() };
+                                TDRVertex v3 = new TDRVertex { PositionIndex = br.ReadInt32() };
+
+                                v1.Colour = new Vector4(br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
+                                v2.Colour = new Vector4(br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
+                                v3.Colour = new Vector4(br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
+
+                                v1.UV = new Vector2(br.ReadSingle(), br.ReadSingle());
+                                v2.UV = new Vector2(br.ReadSingle(), br.ReadSingle());
+                                v3.UV = new Vector2(br.ReadSingle(), br.ReadSingle());
+
+                                v1.Normal = new Vector3(br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
+                                v2.Normal = new Vector3(br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
+                                v3.Normal = new Vector3(br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
+
+                                face.Vertices.Add(v1);
+                                face.Vertices.Add(v2);
+                                face.Vertices.Add(v3);
+
+                                msh.Faces.Add(face);
+                            }
+
+                            //        if (singleMesh)
+                            //        {
+                            //            for (int i = 0; i < vertCount; i++)
+                            //            {
+                            //                int pointCount = br.ReadUInt16();
+
+                            //                for (int j = 0; j < pointCount; j++)
+                            //                {
+                            //                    br.ReadUInt16();
+                            //                }
+                            //            }
+                            //        }
+                            break;
+
+                        case TDRMesh.MSHMode.Tri:
+                            for (int i = 0; i < msh.VertexCount; i++)
+                            {
+                                msh.Vertices.Add(new TDRVertex
+                                {
+                                    Position = new Vector3(br.ReadSingle(), br.ReadSingle(), br.ReadSingle()),
+                                    Colour = new Vector4(br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle()),
+                                    UV = new Vector2(br.ReadSingle(), br.ReadSingle())
+                                });
+                            }
+
+                            for (int i = 0; i < msh.FaceCount; i++)
+                            {
+                                msh.Faces.Add(new TDRFace
+                                {
+                                    V1 = br.ReadInt32(),
+                                    V2 = br.ReadInt32(),
+                                    V3 = br.ReadInt32()
+                                });
+                            }
+
+                            foreach (TDRFace face in msh.Faces)
+                            {
+                                Vector3 v0 = msh.Vertices[face.V1].Position;
+                                Vector3 v1 = msh.Vertices[face.V2].Position;
+                                Vector3 v2 = msh.Vertices[face.V3].Position;
+
+                                Vector3 u = v0 - v1;
+                                Vector3 v = v0 - v2;
+
+                                face.Normal = Vector3.Cross(u, v).Normalised;
+
+                                msh.Vertices[face.V1].Normal += face.Normal;
+                                msh.Vertices[face.V2].Normal += face.Normal;
+                                msh.Vertices[face.V3].Normal += face.Normal;
+                            }
+                            break;
+                    }
+
+                    mshs.Meshes.Add(msh);
                 }
             }
 
             return mshs;
         }
+
+        public void Save(string path)
+        {
+            using (BinaryWriter bw = new BinaryWriter(new FileStream($"{path}{(Meshes.Count > 1 && !Path.GetExtension(path).EndsWith("s") ? "s" : "")}", FileMode.Create)))
+            {
+                foreach (TDRMesh mesh in Meshes)
+                {
+                    bw.Write((short)mesh.Faces.Count);
+                    bw.Write((short)mesh.Mode);
+
+                    if (mesh.Mode == TDRMesh.MSHMode.Tri) { bw.Write(Vector4.Zero); }
+
+                    switch (mesh.Mode)
+                    {
+                        case TDRMesh.MSHMode.NGon:
+                            bw.Write(mesh.Faces.Sum(f => f.Vertices.Count));
+                            bw.Write(mesh.Centre);
+                            bw.Write(mesh.Radius);
+
+                            foreach (TDRFace face in mesh.Faces)
+                            {
+                                bw.Write(face.Vertices.Count);
+                                bw.Write(face.Normal);
+
+                                foreach (TDRVertex vert in face.Vertices)
+                                {
+                                    bw.Write(vert.Position);
+                                    bw.Write(vert.Normal);
+                                    bw.Write(vert.Colour);
+                                    bw.Write(vert.UV);
+                                }
+                            }
+                            break;
+
+                        case TDRMesh.MSHMode.TriIndexedPosition:
+                            bw.Write(mesh.Positions.Count);
+                            bw.Write(mesh.Centre);
+                            bw.Write(mesh.Radius);
+
+                            foreach (Vector3 p in mesh.Positions) { bw.Write(p); }
+
+                            foreach (TDRFace face in mesh.Faces)
+                            {
+                                bw.Write(face.Normal);
+
+                                bw.Write(face.Vertices[0].PositionIndex);
+                                bw.Write(face.Vertices[1].PositionIndex);
+                                bw.Write(face.Vertices[2].PositionIndex);
+
+                                bw.Write(face.Vertices[0].Colour);
+                                bw.Write(face.Vertices[1].Colour);
+                                bw.Write(face.Vertices[2].Colour);
+
+                                bw.Write(face.Vertices[0].UV);
+                                bw.Write(face.Vertices[1].UV);
+                                bw.Write(face.Vertices[2].UV);
+
+                                bw.Write(face.Vertices[0].Normal);
+                                bw.Write(face.Vertices[1].Normal);
+                                bw.Write(face.Vertices[2].Normal);
+                            }
+                            break;
+
+                        case TDRMesh.MSHMode.Tri:
+                            bw.Write(mesh.Vertices.Count);
+
+                            foreach (TDRVertex vert in mesh.Vertices)
+                            {
+                                bw.Write(vert.Position);
+                                bw.Write(vert.Colour);
+                                bw.Write(vert.UV);
+                            }
+
+                            foreach (TDRFace face in mesh.Faces)
+                            {
+                                bw.Write(face.V1);
+                                bw.Write(face.V2);
+                                bw.Write(face.V3);
+                            }
+                            break;
+                    }
+                }
+            }
+        }
     }
 
     public class TDRMesh
     {
-        List<TDRVertex> verts;
-        List<TDRFace> faces;
-
-        public List<TDRVertex> Vertexes
+        public enum MSHMode
         {
-            get => verts;
-            set => verts = value;
+            NGon = 0,
+            TriIndexedPosition = 256,
+            Tri = 512
         }
 
-        public List<TDRFace> Faces
-        {
-            get => faces;
-            set => faces = value;
-        }
+        public MSHMode Mode { get; set; }
 
-        public TDRMesh()
-        {
-            verts = new List<TDRVertex>();
-            faces = new List<TDRFace>();
-        }
+        public int FaceCount { get; set; }
+
+        public int VertexCount { get; set; }
+
+        public Vector3 Centre { get; set; }
+
+        public float Radius { get; set; }
+
+        public List<Vector3> Positions { get; set; } = new List<Vector3>();
+
+        public List<TDRVertex> Vertices { get; set; } = new List<TDRVertex>();
+
+        public List<TDRFace> Faces { get; set; } = new List<TDRFace>();
     }
 
     public class TDRVertex
     {
+        public int PositionIndex { get; set; } = -1;
+
         public Vector3 Position { get; set; }
-        public Vector3 Normal { get; set; }
+
+        public Vector3 Normal { get; set; } = Vector3.Zero;
+
+        public Vector4 Colour { get; set; }
+
         public Vector2 UV { get; set; }
-        public float Unknown { get; set; }
-
-        public TDRVertex(float X, float Y, float Z, float NX, float NY, float NZ, float Unknown, float U, float V)
-        {
-            Position = new Vector3(X, Y, Z);
-            Normal = new Vector3(NX, NY, NZ);
-            UV = new Vector2(U, V);
-            this.Unknown = Unknown;
-        }
-
-        public TDRVertex(float X, float Y, float Z) : this(X, Y, Z, 0, 0, 0, 0, 0, 0) { }
 
         public override string ToString()
         {
-            return $"{{ Position: {{X:{Position.X} Y:{Position.Y} Z:{Position.Z}}} Normal: {{X:{Normal.X} Y:{Normal.Y} Z:{Normal.Z}}} UV: {{U:{UV.X} V:{UV.Y}}} Unknown: {{ {Unknown} }} }}";
+            return $"{{ Position: {(PositionIndex > -1 ? $"{PositionIndex}" : $"{{X:{Position.X} Y:{Position.Y} Z:{Position.Z}}}")} Normal: {{X:{Normal.X} Y:{Normal.Y} Z:{Normal.Z}}} UV: {{U:{UV.X} V:{UV.Y}}} Colour: {{R:{Colour.X} G:{Colour.Y} B:{Colour.Z} A:{Colour.W}}} }}";
         }
     }
 
     public class TDRFace
     {
+        public int VertexCount { get; set; }
+
+        public Vector3 Normal { get; set; } = Vector3.Zero;
+
+        public List<TDRVertex> Vertices { get; set; } = new List<TDRVertex>();
+
         public int V1 { get; set; }
+
         public int V2 { get; set; }
+
         public int V3 { get; set; }
-
-        public TDRFace(int A, int B, int C)
-        {
-            V1 = A;
-            V2 = B;
-            V3 = C;
-        }
-
-        public override string ToString()
-        {
-            return $"{{ Face: {{A:{V1} B:{V2} C:{V3}}} }}";
-        }
     }
 }
