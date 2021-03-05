@@ -135,7 +135,12 @@ namespace ToxicRagers.Carmageddon.Formats
 
         public List<int> FirePoints { get; set; } = new List<int>();
 
-        public static Car Load(string path, bool suppressFolderCheck = false)
+        public static Car Load(string path)
+        {
+            return Load(path, false);
+        }
+
+        public static Car Load(string path, bool suppressFolderCheck)
         {
             DocumentParser file = new DocumentParser(path);
             Car car = new Car { Name = file.ReadLine() };
