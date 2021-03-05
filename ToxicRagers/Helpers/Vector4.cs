@@ -79,6 +79,8 @@ namespace ToxicRagers.Helpers
             W = w;
         }
 
+        public static Vector4 Zero => new Vector4(0, 0, 0, 0);
+
         public static Vector4 Min(Vector4 v1, Vector4 v2)
         {
             return new Vector4(
@@ -129,10 +131,26 @@ namespace ToxicRagers.Helpers
 
         public static bool CompareAnyLessThan(Vector4 left, Vector4 right)
         {
-            return left.X < right.X
-                    || left.Y < right.Y
-                    || left.Z < right.Z
-                    || left.W < right.W;
+            return left.X < right.X ||
+                   left.Y < right.Y ||
+                   left.Z < right.Z ||
+                   left.W < right.W;
+        }
+
+        public static Vector4 Transform(Vector4 v, Matrix4D m)
+        {
+            Transform(ref v, ref m, out Vector4 result);
+
+            return result;
+        }
+
+        public static void Transform(ref Vector4 v, ref Matrix4D m, out Vector4 result)
+        {
+            result = new Vector4(
+                (v.X * m.M11) + (v.Y * m.M21) + (v.Z * m.M31) + (v.W * m.M41),
+                (v.X * m.M12) + (v.Y * m.M22) + (v.Z * m.M32) + (v.W * m.M42),
+                (v.X * m.M13) + (v.Y * m.M23) + (v.Z * m.M33) + (v.W * m.M43),
+                (v.X * m.M14) + (v.Y * m.M24) + (v.Z * m.M34) + (v.W * m.M44));
         }
 
         public static Vector4 operator +(Vector4 x, Vector4 y)

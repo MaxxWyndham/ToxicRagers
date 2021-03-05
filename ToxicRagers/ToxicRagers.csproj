@@ -150,6 +150,7 @@
     <Compile Include="Helpers\BinaryFileStream.cs" />
     <Compile Include="Helpers\BinaryMemoryStream.cs" />
     <Compile Include="Helpers\BoundingBox.cs" />
+    <Compile Include="Helpers\Colour.cs" />
     <Compile Include="Helpers\ColourHelper.cs" />
     <Compile Include="Helpers\CRC32.cs" />
     <Compile Include="Helpers\Euler.cs" />
@@ -166,11 +167,15 @@
     <Compile Include="Helpers\Logger.cs" />
     <Compile Include="Compression\LZ4\LZ4Compress.cs" />
     <Compile Include="Compression\LZ4\LZ4Decompress.cs" />
+    <Compile Include="Helpers\Maths.cs" />
     <Compile Include="Helpers\Matrix2D.cs" />
     <Compile Include="Helpers\Matrix3D.cs" />
     <Compile Include="Helpers\Matrix4D.cs" />
     <Compile Include="Helpers\Octree.cs" />
     <Compile Include="Helpers\Plane.cs" />
+    <Compile Include="Helpers\Quaternion.cs" />
+    <Compile Include="Helpers\Stripper\Adjacency.cs" />
+    <Compile Include="Helpers\Stripper\Stripper.cs" />
     <Compile Include="Helpers\Structs.cs" />
     <Compile Include="Helpers\TypeConverters.cs" />
     <Compile Include="Helpers\Vector2.cs" />

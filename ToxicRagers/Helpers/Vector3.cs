@@ -68,9 +68,17 @@ namespace ToxicRagers.Helpers
             Z = v.Z;
         }
 
+        public static Vector3 UnitX => new Vector3(1, 0, 0);
+
+        public static Vector3 UnitY => new Vector3(0, 1, 0);
+
+        public static Vector3 UnitZ => new Vector3(0, 0, 1);
+
         public static Vector3 Up => new Vector3(0, 1, 0);
 
         public static Vector3 Zero => new Vector3(0, 0, 0);
+
+        public static Vector3 One => new Vector3(1, 1, 1);
 
         public Vector3 Normalised
         {
@@ -92,9 +100,30 @@ namespace ToxicRagers.Helpers
             return X + Y + Z;
         }
 
-        public static Vector3 TransformVector(Vector3 v, Matrix3D m)
+        public static Vector3 TransformVector(Vector3 v, Matrix4D m)
         {
-            return v * m;
+            return new Vector3(
+                (v.X * m.M11) + (v.Y * m.M21) + (v.Z * m.M31),
+                (v.X * m.M12) + (v.Y * m.M22) + (v.Z * m.M32),
+                (v.X * m.M13) + (v.Y * m.M23) + (v.Z * m.M33));
+        }
+
+        public static Vector3 TransformPosition(Vector3 v, Matrix4D m)
+        {
+            return new Vector3(
+                (v.X * m.M11) + (v.Y * m.M21) + (v.Z * m.M31) + m.M41,
+                (v.X * m.M12) + (v.Y * m.M22) + (v.Z * m.M32) + m.M42,
+                (v.X * m.M13) + (v.Y * m.M23) + (v.Z * m.M33) + m.M43);
+        }
+
+        public static Vector3 TransformNormal(Vector3 v, Matrix4D m)
+        {
+            m.Invert();
+
+            return new Vector3(
+                (v.X * m.M11) + (v.Y * m.M12) + (v.Z * m.M13),
+                (v.X * m.M21) + (v.Y * m.M22) + (v.Z * m.M23),
+                (v.X * m.M31) + (v.Y * m.M32) + (v.Z * m.M33));
         }
 
         public static Vector3 Parse(string v)
@@ -166,20 +195,6 @@ namespace ToxicRagers.Helpers
         public static Vector3 operator /(Vector3 x, float y)
         {
             return new Vector3(x.X / y, x.Y / y, x.Z / y);
-        }
-
-        public static Vector3 operator *(Vector3 x, Matrix3D y)
-        {
-            Vector3 r = new Vector3(0, 0, 0)
-            {
-                X = (x.X * y.M11) + (x.Y * y.M21) + (x.Z * y.M31),
-                Y = (x.X * y.M12) + (x.Y * y.M22) + (x.Z * y.M32),
-                Z = (x.X * y.M13) + (x.Y * y.M23) + (x.Z * y.M33)
-            };
-
-            r += y.Position;
-
-            return r;
         }
 
         public static bool operator ==(Vector3 x, Vector3 y)
