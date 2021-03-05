@@ -752,54 +752,28 @@ namespace ToxicRagers.Stainless.Formats
 
     public class MDLVertex
     {
-        Vector3 position;
-        Vector3 normal;
-        Vector2 uv;
-        Vector2 uv2;
-        Color colour;
+        public Vector3 Position { get; set; }
 
-        public Vector3 Position
-        {
-            get => position;
-            set => position = value;
-        }
+        public Vector3 Normal { get; set; }
 
-        public Vector3 Normal
-        {
-            get => normal;
-            set => normal = value;
-        }
+        public Vector2 UV { get; set; }
 
-        public Vector2 UV
-        {
-            get => uv;
-            set => uv = value;
-        }
+        public Vector2 UV2 { get; set; }
 
-        public Vector2 UV2
-        {
-            get => uv2;
-            set => uv2 = value;
-        }
-
-        public Color Colour
-        {
-            get => colour;
-            set => colour = value;
-        }
+        public Colour Colour { get; set; }
 
         public MDLVertex(float X, float Y, float Z, float NX, float NY, float NZ, float U, float V, float U2, float V2, byte R, byte G, byte B, byte Alpha)
         {
-            position = new Vector3(X, Y, Z);
-            normal = new Vector3(NX, NY, NZ);
-            uv = new Vector2(U, V);
-            uv2 = new Vector2(U2, V2);
-            colour = Color.FromArgb(Alpha, R, G, B);
+            Position = new Vector3(X, Y, Z);
+            Normal = new Vector3(NX, NY, NZ);
+            UV = new Vector2(U, V);
+            UV2 = new Vector2(U2, V2);
+            Colour = Colour.FromArgb(Alpha, R, G, B);
         }
 
         public override string ToString()
         {
-            return "{ Position: {X:" + Position.X + " Y:" + Position.Y + " Z:" + Position.Z + "} Normal: {X:" + Normal.X + " Y:" + Normal.Y + " Z:" + Normal.Z + "} UV: {U:" + UV.X + " V:" + UV.Y + "} UV2: {A:" + uv2.X + " B:" + uv2.Y + "} { UV Length:" + UV.Length + " } }";
+            return "{ Position: {X:" + Position.X + " Y:" + Position.Y + " Z:" + Position.Z + "} Normal: {X:" + Normal.X + " Y:" + Normal.Y + " Z:" + Normal.Z + "} UV: {U:" + UV.X + " V:" + UV.Y + "} UV2: {A:" + UV2.X + " B:" + UV2.Y + "} { UV Length:" + UV.Length + " } }";
         }
     }
 
