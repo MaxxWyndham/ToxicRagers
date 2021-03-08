@@ -53,55 +53,19 @@ namespace ToxicRagers.Core.Formats
 
     public class DDSPixelFormat
     {
-        PixelFormatFlags flags;
-        PixelFormatFourCC fourCC;
-        int rgbBitCount;
-        uint rBitMask;
-        uint gBitMask;
-        uint bBitMask;
-        uint aBitMask;
+        public PixelFormatFlags Flags { get; set; }
 
-        public PixelFormatFlags Flags
-        {
-            get => flags;
-            set => flags = value;
-        }
+        public PixelFormatFourCC FourCC { get; set; }
 
-        public PixelFormatFourCC FourCC
-        {
-            get => fourCC;
-            set => fourCC = value;
-        }
+        public int RGBBitCount { get; set; }
 
-        public int RGBBitCount
-        {
-            get => rgbBitCount;
-            set => rgbBitCount = value;
-        }
+        public uint RBitMask { get; set; }
 
-        public uint RBitMask
-        {
-            get => rBitMask;
-            set => rBitMask = value;
-        }
+        public uint GBitMask { get; set; }
 
-        public uint GBitMask
-        {
-            get => gBitMask;
-            set => gBitMask = value;
-        }
+        public uint BBitMask { get; set; }
 
-        public uint BBitMask
-        {
-            get => bBitMask;
-            set => bBitMask = value;
-        }
-
-        public uint ABitMask
-        {
-            get => aBitMask;
-            set => aBitMask = value;
-        }
+        public uint ABitMask { get; set; }
     }
 
     public class DDS : Texture
@@ -120,29 +84,16 @@ namespace ToxicRagers.Core.Formats
         }
 
         Flags flags;
-        int height;
-        int width;
+        
+        public int Height { get; set; }
+
+        public int Width { get; set; }
+
         int pitch;
-        int depth = 0;
+        public int Depth { get; set; } = 0;
         DDSPixelFormat pixelFormat;
         DDSCaps caps;
         DDSCaps2 caps2;
-
-        D3DFormat format;
-
-        public int Height
-        {
-            get => height;
-            set => height = value;
-        }
-
-        public int Width
-        {
-            get => width;
-            set => width = value;
-        }
-
-        public int Depth => depth;
 
         public DDS() { }
 
@@ -171,13 +122,13 @@ namespace ToxicRagers.Core.Formats
             }
 
             format = Format;
-            width = bitmap.Width;
-            height = bitmap.Height;
+            Width = bitmap.Width;
+            Height = bitmap.Height;
 
             MipMap mip = new MipMap()
             {
-                Width = width,
-                Height = height
+                Width = Width,
+                Height = Height
             };
 
             byte[] data = new byte[mip.Width * mip.Height * 4];
@@ -225,10 +176,10 @@ namespace ToxicRagers.Core.Formats
 
                 br.ReadUInt32();    // header length
                 dds.flags = (Flags)br.ReadUInt32();
-                dds.height = (int)br.ReadUInt32();
-                dds.width = (int)br.ReadUInt32();
+                dds.Height = (int)br.ReadUInt32();
+                dds.Width = (int)br.ReadUInt32();
                 dds.pitch = (int)br.ReadUInt32();
-                dds.depth = (int)br.ReadUInt32();
+                dds.Depth = (int)br.ReadUInt32();
                 int mipCount = (int)br.ReadUInt32();
                 for (int i = 0; i < 11; i++) { br.ReadUInt32(); }
                 br.ReadUInt32();    // pixel format length
@@ -258,8 +209,8 @@ namespace ToxicRagers.Core.Formats
                 {
                     MipMap mip = new MipMap
                     {
-                        Width = dds.width >> i,
-                        Height = dds.height >> i
+                        Width = dds.Width >> i,
+                        Height = dds.Height >> i
                     };
 
                     switch (dds.format)
@@ -297,7 +248,7 @@ namespace ToxicRagers.Core.Formats
 
         public void Save(string path)
         {
-            using (BinaryWriter bw = new BinaryWriter(new FileStream(path + ".dds", FileMode.Create)))
+            using (BinaryWriter bw = new BinaryWriter(new FileStream(path, FileMode.Create)))
             {
                 Save(bw, this);
             }
@@ -313,7 +264,7 @@ namespace ToxicRagers.Core.Formats
             bw.Write((int)flags);
             bw.Write(dds.Height);
             bw.Write(dds.Width);
-            bw.Write((flags.HasFlag(Flags.Pitch) ? dds.width * 4 : dds.MipMaps[0].Data.Length));
+            bw.Write(flags.HasFlag(Flags.Pitch) ? dds.Width * 4 : dds.MipMaps[0].Data.Length);
             bw.Write(dds.Depth);
             bw.Write(dds.MipMaps.Count);
 

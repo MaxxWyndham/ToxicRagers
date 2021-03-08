@@ -8,7 +8,7 @@ namespace ToxicRagers.Generics
     {
         string name;
         protected string extension;
-        D3DFormat format;
+        protected D3DFormat format;
         protected List<MipMap> mipMaps = new List<MipMap>();
 
         public string Name
