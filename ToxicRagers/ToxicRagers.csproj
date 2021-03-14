@@ -131,6 +131,7 @@
     <Compile Include="CarmageddonReincarnation\Helpers\XMLParser.cs" />
     <Compile Include="CarmageddonReincarnation\Helpers\XMLWriter.cs" />
     <Compile Include="Carmageddon\Formats\c1PIX.cs" />
+    <Compile Include="Carmageddon\Helpers\c1PaletteGame.cs" />
     <Compile Include="Carmageddon\Helpers\DocumentParser.cs" />
     <Compile Include="Carmageddon\Helpers\DocumentWriter.cs" />
     <Compile Include="Carmageddon\Helpers\Funk.cs" />
@@ -172,6 +173,7 @@
     <Compile Include="Helpers\Matrix3D.cs" />
     <Compile Include="Helpers\Matrix4D.cs" />
     <Compile Include="Helpers\Octree.cs" />
+    <Compile Include="Helpers\Palette.cs" />
     <Compile Include="Helpers\Plane.cs" />
     <Compile Include="Helpers\Quaternion.cs" />
     <Compile Include="Helpers\Stripper\Adjacency.cs" />
