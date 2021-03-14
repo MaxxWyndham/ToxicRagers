@@ -162,12 +162,12 @@ namespace ToxicRagers.Carmageddon2.Formats
             car.EngineNoises = file.ReadInts();
             car.Stealworthy = file.ReadLine().ToLower() == "stealworthy";
 
-            car.ImpactTop = new ImpactSpec("top", file);
-            car.ImpactBottom = new ImpactSpec("bottom", file);
-            car.ImpactLeft = new ImpactSpec("left", file);
-            car.ImpactRight = new ImpactSpec("right", file);
-            car.ImpactFront = new ImpactSpec("front", file);
-            car.ImpactBack = new ImpactSpec("rear", file);
+            car.ImpactTop = ImpactSpec.Load("top", file);
+            car.ImpactBottom = ImpactSpec.Load("bottom", file);
+            car.ImpactLeft = ImpactSpec.Load("left", file);
+            car.ImpactRight = ImpactSpec.Load("right", file);
+            car.ImpactFront = ImpactSpec.Load("front", file);
+            car.ImpactBack = ImpactSpec.Load("rear", file);
 
             car.GridImages = file.ReadStrings();
 

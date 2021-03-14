@@ -11,31 +11,31 @@ namespace ToxicRagers.Carmageddon.Formats
     {
         public string Name { get; set; }
 
-        public Vector3 DriversHeadOffset { get; set; }
+        public Vector3 DriversHeadOffset { get; set; } = new Vector3(-0.05f, 0.16f, 0f);
 
-        public Vector2 DriversHeadTurnAngles { get; set; }
+        public Vector2 DriversHeadTurnAngles { get; set; } = new Vector2(80, -70);
 
-        public Vector4 MirrorCamera { get; set; }
+        public Vector4 MirrorCamera { get; set; } = new Vector4(0, 0.175f, 0, 30);
 
-        public string[] PratcamBorders { get; set; }
+        public string[] PratcamBorders { get; set; } = new string[] { "none", "none", "PRATBDRT.PIX", "PRATBDHZ.PIX" };
 
-        public int[] EngineNoises { get; set; }
+        public int[] EngineNoises { get; set; } = new int[] { 5300, 5301, 5302 };
 
         public bool Stealworthy { get; set; }
 
-        public ImpactSpec ImpactTop { get; set; }
+        public ImpactSpec ImpactTop { get; set; } = new ImpactSpec { Description = "top" };
 
-        public ImpactSpec ImpactBottom { get; set; }
+        public ImpactSpec ImpactBottom { get; set; } = new ImpactSpec { Description = "bottom" };
 
-        public ImpactSpec ImpactLeft { get; set; }
+        public ImpactSpec ImpactLeft { get; set; } = new ImpactSpec { Description = "left" };
 
-        public ImpactSpec ImpactRight { get; set; }
+        public ImpactSpec ImpactRight { get; set; } = new ImpactSpec { Description = "right" };
 
-        public ImpactSpec ImpactFront { get; set; }
+        public ImpactSpec ImpactFront { get; set; } = new ImpactSpec { Description = "front" };
 
-        public ImpactSpec ImpactBack { get; set; }
+        public ImpactSpec ImpactBack { get; set; } = new ImpactSpec { Description = "rear" };
 
-        public string[] GridImages { get; set; }
+        public string[] GridImages { get; set; } = new string[] { "GCAR.PIX", "GCARF.PIX", "GCAR.PIX" };
 
         public List<string> PixelmapsLoMem { get; set; } = new List<string>();
 
@@ -61,17 +61,17 @@ namespace ToxicRagers.Carmageddon.Formats
 
         public List<int> SteerableWheels { get; set; } = new List<int>();
 
-        public int[] LeftFrontSuspension { get; set; }
+        public int[] LeftFrontSuspension { get; set; } = new int[] { -1, -1, -1, -1 };
 
-        public int[] RightFrontSuspension { get; set; }
+        public int[] RightFrontSuspension { get; set; } = new int[] { -1, -1, -1, -1 };
 
-        public int[] LeftRearSuspension { get; set; }
+        public int[] LeftRearSuspension { get; set; } = new int[] { -1, -1 };
 
-        public int[] RightRearSuspension { get; set; }
+        public int[] RightRearSuspension { get; set; } = new int[] { -1, -1 };
 
-        public int[] DrivenWheels { get; set; }
+        public int[] DrivenWheels { get; set; } = new int[] { -1, -1, -1, -1 };
 
-        public int[] NonDrivenWheels { get; set; }
+        public int[] NonDrivenWheels { get; set; } = new int[] { -1, -1, -1, -1 };
 
         public float DrivenWheelDiameter { get; set; }
 
@@ -83,15 +83,15 @@ namespace ToxicRagers.Carmageddon.Formats
 
         public List<Crush> Crushes { get; set; } = new List<Crush>();
 
-        public Vector3 LRWheelPos { get; set; }
+        public Vector3 LRWheelPos { get; set; } = Vector3.Zero;
 
-        public Vector3 RRWheelPos { get; set; }
+        public Vector3 RRWheelPos { get; set; } = Vector3.Zero;
 
-        public Vector3 LFWheelPos { get; set; }
+        public Vector3 LFWheelPos { get; set; } = Vector3.Zero;
 
-        public Vector3 RFWheelPos { get; set; }
+        public Vector3 RFWheelPos { get; set; } = Vector3.Zero;
 
-        public Vector3 CentreOfMass { get; set; }
+        public Vector3 CentreOfMass { get; set; } = Vector3.Zero;
 
         public int MechanicsVersion { get; set; } = 4;
 
@@ -101,7 +101,7 @@ namespace ToxicRagers.Carmageddon.Formats
 
         public float MinimumTurningCircle { get; set; }
 
-        public Vector2 SuspensionGive { get; set; }
+        public Vector2 SuspensionGive { get; set; } = new Vector2(0.015f, 0.015f);
 
         public float RideHeight { get; set; }
 
@@ -111,9 +111,9 @@ namespace ToxicRagers.Carmageddon.Formats
 
         public float SlipFrictionReductionFraction { get; set; }
 
-        public Vector3 FrictionAngle { get; set; }
+        public Vector3 FrictionAngle { get; set; } = new Vector3(80, 79.5f, 80.5f);
 
-        public Vector3 AngularMomentumProportions { get; set; }
+        public Vector3 AngularMomentumProportions { get; set; } = new Vector3(0.3f, 0.15f, 0.9f);
 
         public float TractionFractionalMultiplier { get; set; }
 
@@ -123,7 +123,7 @@ namespace ToxicRagers.Carmageddon.Formats
 
         public float BrakingStrengthMultiplier { get; set; }
 
-        public Vector2 RollingResistance { get; set; }
+        public Vector2 RollingResistance { get; set; } = new Vector2(0.05f, 0.05f);
 
         public int NumberOfGears { get; set; }
 
@@ -174,12 +174,12 @@ namespace ToxicRagers.Carmageddon.Formats
             car.EngineNoises = file.ReadInts();
             car.Stealworthy = file.ReadLine().ToLower() == "stealworthy";
 
-            car.ImpactTop = new ImpactSpec("top", file);
-            car.ImpactBottom = new ImpactSpec("bottom", file);
-            car.ImpactLeft = new ImpactSpec("left", file);
-            car.ImpactRight = new ImpactSpec("right", file);
-            car.ImpactFront = new ImpactSpec("front", file);
-            car.ImpactBack = new ImpactSpec("rear", file);
+            car.ImpactTop = ImpactSpec.Load("top", file);
+            car.ImpactBottom = ImpactSpec.Load("bottom", file);
+            car.ImpactLeft = ImpactSpec.Load("left", file);
+            car.ImpactRight = ImpactSpec.Load("right", file);
+            car.ImpactFront = ImpactSpec.Load("front", file);
+            car.ImpactBack = ImpactSpec.Load("rear", file);
 
             car.GridImages = file.ReadStrings();
 
@@ -267,7 +267,7 @@ namespace ToxicRagers.Carmageddon.Formats
 
             for (int i = 0; i < car.Actors.Count; i++)
             {
-                car.Crushes.Add(new Crush(file));
+                car.Crushes.Add(Crush.Load(file));
             }
 
             car.MechanicsVersion = file.ReadLine().Replace("START OF MECHANICS STUFF version ", "", StringComparison.InvariantCultureIgnoreCase).ToInt();
@@ -315,7 +315,7 @@ namespace ToxicRagers.Carmageddon.Formats
             {
                 car.FrictionAngle = (Vector3)file.ReadVector2();
             }
-            
+
             car.AngularMomentumProportions = file.ReadVector3();
             car.TractionFractionalMultiplier = file.ReadSingle();
             car.DownforceToWeightBalanceSpeed = file.ReadSingle();
@@ -360,6 +360,8 @@ namespace ToxicRagers.Carmageddon.Formats
             {
                 dw.WriteLine($"{Name}", "Name of car");
 
+                dw.WriteLine();
+
                 dw.WriteLine("START OF DRIVABLE STUFF");
                 dw.WriteLine($"{DriversHeadOffset.X},{DriversHeadOffset.Y},{DriversHeadOffset.Z}", "Offset of driver's head in 3D space");
                 dw.WriteLine($"{DriversHeadTurnAngles.X},{DriversHeadTurnAngles.Y}", "Angles to turn to make head go left and right");
@@ -367,9 +369,12 @@ namespace ToxicRagers.Carmageddon.Formats
                 dw.WriteLine($"{string.Join(",", PratcamBorders)}", "Pratcam border names (left, top, right, bottom)");
                 dw.WriteLine("END OF DRIVABLE STUFF");
 
-                dw.WriteLine($"{string.Join(",", EngineNoises)}", "Engine noise (normal, enclosed space, underwater)");
+                dw.WriteLine();
 
+                dw.WriteLine($"{string.Join(",", EngineNoises)}", "Engine noise (normal, enclosed space, underwater)");
                 dw.WriteLine($"{(Stealworthy ? "stealworthy" : "")}", "Can be stolen");
+
+                dw.WriteLine();
 
                 foreach (ImpactSpec impactSpec in new List<ImpactSpec> { ImpactTop, ImpactBottom, ImpactLeft, ImpactRight, ImpactFront, ImpactBack })
                 {
@@ -388,7 +393,11 @@ namespace ToxicRagers.Carmageddon.Formats
                     }
                 }
 
+                dw.WriteLine();
+
                 dw.WriteLine($"{string.Join(",", GridImages)}", "Grid image (opponent, frank, annie)");
+
+                dw.WriteLine();
 
                 dw.WriteLine($"{PixelmapsLoMem.Count}", "Number of pixelmap files for this car");
                 foreach (string pixelmap in PixelmapsLoMem) { dw.WriteLine($"{pixelmap}"); }
@@ -416,7 +425,11 @@ namespace ToxicRagers.Carmageddon.Formats
                     dw.WriteLine($"{ActorLODs[i]},{Actors[i]}", "Minimum distance away, actor name");
                 }
 
+                dw.WriteLine();
+
                 dw.WriteLine($"{ReflectiveScreenMaterial}", "Name of reflective screen material (or none if non-reflective)");
+
+                dw.WriteLine();
 
                 dw.WriteLine($"{SteerableWheels.Count}", "Number of steerable wheels");
                 foreach (int steerableWheel in SteerableWheels)
@@ -424,16 +437,24 @@ namespace ToxicRagers.Carmageddon.Formats
                     dw.WriteLine($"{steerableWheel}", "GroovyFunkRef of nth steerable wheel");
                 }
 
+                dw.WriteLine();
+
                 dw.WriteLine($"{string.Join(",", LeftFrontSuspension)}", "Left-front suspension parts GroovyFunkRef");
                 dw.WriteLine($"{string.Join(",", RightFrontSuspension)}", "Right-front suspension parts GroovyFunkRef");
                 dw.WriteLine($"{string.Join(",", LeftRearSuspension)}", "Left-rear suspension parts GroovyFunkRef");
                 dw.WriteLine($"{string.Join(",", RightRearSuspension)}", "Right-rear suspension parts GroovyFunkRef");
 
+                dw.WriteLine();
+
                 dw.WriteLine($"{string.Join(",", DrivenWheels)}", "Driven wheels GroovyFunkRefs (for spinning) - MUST BE 4 ITEMS");
                 dw.WriteLine($"{string.Join(",", NonDrivenWheels)}", "Non-driven wheels GroovyFunkRefs (for spinning) - MUST BE 4 ITEMS");
 
+                dw.WriteLine();
+
                 dw.WriteLine($"{DrivenWheelDiameter}", "Driven wheels diameter");
                 dw.WriteLine($"{NonDrivenWheelDiameter}", "Non-driven wheels diameter");
+
+                dw.WriteLine();
 
                 dw.WriteLine("START OF FUNK");
 
@@ -498,6 +519,8 @@ namespace ToxicRagers.Carmageddon.Formats
 
                 dw.WriteLine("END OF FUNK");
 
+                dw.WriteLine();
+
                 dw.WriteLine("START OF GROOVE");
 
                 for (int i = 0; i < Grooves.Count; i++)
@@ -552,7 +575,11 @@ namespace ToxicRagers.Carmageddon.Formats
 
                 dw.WriteLine("END OF GROOVE");
 
+                dw.WriteLine();
+
                 for (int i = 0; i < Actors.Count; i++) { Crushes[i].Write(dw); }
+
+                dw.WriteLine();
 
                 dw.WriteLine($"START OF MECHANICS STUFF version {MechanicsVersion}");
 
@@ -562,6 +589,8 @@ namespace ToxicRagers.Carmageddon.Formats
                 dw.WriteLine($"{RFWheelPos.X:F3}, {RFWheelPos.Y:F3}, {RFWheelPos.Z:F3}", "right front");
 
                 dw.WriteLine($"{CentreOfMass.X}, {CentreOfMass.Y}, {CentreOfMass.Z}", "centre of mass position");
+
+                dw.WriteLine();
 
                 switch (MechanicsVersion)
                 {
@@ -578,6 +607,8 @@ namespace ToxicRagers.Carmageddon.Formats
                         foreach (Vector3 point in AdditionalPoints) { dw.WriteLine($"{point.X},{point.Y},{point.Z}"); }
                         break;
                 }
+
+                dw.WriteLine();
 
                 dw.WriteLine($"{MinimumTurningCircle}", "min turning circle radius");
                 dw.WriteLine($"{SuspensionGive.X:F3}, {SuspensionGive.Y:F3}", "suspension give (forward, back)");
@@ -598,9 +629,13 @@ namespace ToxicRagers.Carmageddon.Formats
 
                 dw.WriteLine("END OF MECHANICS STUFF");
 
+                dw.WriteLine();
+
                 dw.WriteLine("// Materials for shrapnel");
                 dw.WriteLine($"{Shrapnel.Count}", "number of materials");
                 foreach (string shrapnel in Shrapnel) { dw.WriteLine($"{shrapnel}"); }
+
+                dw.WriteLine();
 
                 if (FirePoints.Count > 0)
                 {
@@ -613,13 +648,13 @@ namespace ToxicRagers.Carmageddon.Formats
 
     public class Crush
     {
-        public float SoftnessFactor { get; set; }
+        public float SoftnessFactor { get; set; } = 0.7f;
 
-        public Vector2 FoldFactor { get; set; }
+        public Vector2 FoldFactor { get; set; } = new Vector2(0.15f, 0.4f);
 
-        public float WibbleFactor { get; set; }
+        public float WibbleFactor { get; set; } = 0.05f;
 
-        public float LimitDeviant { get; set; }
+        public float LimitDeviant { get; set; } = 0.05f;
 
         public float SplitChance { get; set; }
 
@@ -627,20 +662,25 @@ namespace ToxicRagers.Carmageddon.Formats
 
         public List<CrushPoint> Points { get; set; } = new List<CrushPoint>();
 
-        public Crush(DocumentParser file)
+        public static Crush Load(DocumentParser file)
         {
-            SoftnessFactor = file.ReadSingle();
-            FoldFactor = file.ReadVector2();
-            WibbleFactor = file.ReadSingle();
-            LimitDeviant = file.ReadSingle();
-            SplitChance = file.ReadSingle();
-            MinYFoldDown = file.ReadSingle();
+            Crush crush = new Crush
+            {
+                SoftnessFactor = file.ReadSingle(),
+                FoldFactor = file.ReadVector2(),
+                WibbleFactor = file.ReadSingle(),
+                LimitDeviant = file.ReadSingle(),
+                SplitChance = file.ReadSingle(),
+                MinYFoldDown = file.ReadSingle()
+            };
 
             int pointCount = file.ReadInt();
             for (int i = 0; i < pointCount; i++)
             {
-                Points.Add(new CrushPoint(file));
+                crush.Points.Add(CrushPoint.Load(file));
             }
+
+            return crush;
         }
 
         public void Write(DocumentWriter dw)
@@ -674,19 +714,24 @@ namespace ToxicRagers.Carmageddon.Formats
 
         public List<CrushPointNeighbour> Neighbours { get; set; } = new List<CrushPointNeighbour>();
 
-        public CrushPoint(DocumentParser file)
+        public static CrushPoint Load(DocumentParser file)
         {
-            VertexIndex = file.ReadInt();
-            LimitMin = file.ReadVector3();
-            LimitMax = file.ReadVector3();
-            SoftnessNeg = file.ReadVector3();
-            SoftnessPos = file.ReadVector3();
+            CrushPoint cp = new CrushPoint
+            {
+                VertexIndex = file.ReadInt(),
+                LimitMin = file.ReadVector3(),
+                LimitMax = file.ReadVector3(),
+                SoftnessNeg = file.ReadVector3(),
+                SoftnessPos = file.ReadVector3()
+            };
 
             int neighbourCount = file.ReadInt();
             for (int i = 0; i < neighbourCount; i++)
             {
-                Neighbours.Add(new CrushPointNeighbour(file));
+                cp.Neighbours.Add(CrushPointNeighbour.Load(file));
             }
+
+            return cp;
         }
 
         public void Write(DocumentWriter dw)
@@ -711,10 +756,13 @@ namespace ToxicRagers.Carmageddon.Formats
 
         public int Factor { get; set; }
 
-        public CrushPointNeighbour(DocumentParser file)
+        public static CrushPointNeighbour Load(DocumentParser file)
         {
-            VertexIndex = file.ReadInt();
-            Factor = file.ReadInt();
+            return new CrushPointNeighbour
+            {
+                VertexIndex = file.ReadInt(),
+                Factor = file.ReadInt()
+            };
         }
 
         public void Write(DocumentWriter dw)

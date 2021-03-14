@@ -26,16 +26,18 @@ namespace ToxicRagers.Carmageddon.Helpers
 
         public List<ImpactSpecClause> Clauses { get; set; } = new List<ImpactSpecClause>();
 
-        public ImpactSpec(string description, DocumentParser file)
+        public static ImpactSpec Load(string description, DocumentParser file)
         {
-            Description = description;
+            ImpactSpec spec = new ImpactSpec { Description = description };
 
             int clauseCount = file.ReadInt();
 
             for (int i = 0; i < clauseCount; i++)
             {
-                Clauses.Add(new ImpactSpecClause(file));
+                spec.Clauses.Add(new ImpactSpecClause(file));
             }
+
+            return spec;
         }
     }
 
