@@ -10,7 +10,7 @@ namespace ToxicRagers.Core.Formats
 {
     public class FBX
     {
-        private static bool bDebug = false;
+        private static readonly bool bDebug = false;
 
         int version;
         bool b64bit = false;

@@ -160,7 +160,7 @@ namespace ToxicRagers.Core.Formats
 
         public static DDS Load(string path)
         {
-            return DDS.Load(File.ReadAllBytes(path));
+            return Load(File.ReadAllBytes(path));
         }
 
         public static DDS Load(byte[] data)

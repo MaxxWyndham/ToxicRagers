@@ -152,6 +152,11 @@ namespace ToxicRagers.Helpers
             );
         }
 
+        public static explicit operator Matrix3D(Matrix4D m)
+        {
+            return new Matrix3D(m.M11, m.M12, m.M13, m.M21, m.M22, m.M23, m.M31, m.M32, m.M33, m.M41, m.M42, m.M43);
+        }
+
         public override string ToString()
         {
             return "{ {M11:" + M11 + " M12:" + M12 + " M13:" + M13 + "} {M21:" + M21 + " M22:" + M22 + " M23:" + M23 + "} {M31:" + M31 + " M32:" + M32 + " M33:" + M33 + "} {M41:" + M41 + " M42:" + M42 + " M43:" + M43 + "} }";

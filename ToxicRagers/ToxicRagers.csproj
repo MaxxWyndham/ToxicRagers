@@ -154,7 +154,6 @@
     <Compile Include="Helpers\Colour.cs" />
     <Compile Include="Helpers\ColourHelper.cs" />
     <Compile Include="Helpers\CRC32.cs" />
-    <Compile Include="Helpers\Euler.cs" />
     <Compile Include="Helpers\Generics\Material.cs" />
     <Compile Include="Carmageddon\Formats\c1CarTXT.cs" />
     <Compile Include="Helpers\BEBinaryReader.cs" />
