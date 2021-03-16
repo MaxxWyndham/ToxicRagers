@@ -34,7 +34,7 @@ namespace ToxicRagers.Carmageddon.Helpers
 
             for (int i = 0; i < clauseCount; i++)
             {
-                spec.Clauses.Add(new ImpactSpecClause(file));
+                spec.Clauses.Add(ImpactSpecClause.Load(file));
             }
 
             return spec;
@@ -44,30 +44,40 @@ namespace ToxicRagers.Carmageddon.Helpers
     public class ImpactSpecClause
     {
         public string Clause { get; set; }
+
         public List<ImpactSpecClauseSystem> Systems { get; set; } = new List<ImpactSpecClauseSystem>();
 
-        public ImpactSpecClause(DocumentParser file)
+        public static ImpactSpecClause Load(DocumentParser file)
         {
-            Clause = file.ReadLine();
+            ImpactSpecClause clause = new ImpactSpecClause
+            {
+                Clause = file.ReadLine()
+            };
 
             int systemCount = file.ReadInt();
 
             for (int i = 0; i < systemCount; i++)
             {
-                Systems.Add(new ImpactSpecClauseSystem(file.ReadStrings()));
+                clause.Systems.Add(ImpactSpecClauseSystem.Load(file.ReadStrings()));
             }
+
+            return clause;
         }
     }
 
     public class ImpactSpecClauseSystem
     {
         public ImpactSpecClauseSystemPart Part { get; set; }
+
         public float Damage { get; set; }
 
-        public ImpactSpecClauseSystem(string[] parts)
+        public static ImpactSpecClauseSystem Load(string[] parts)
         {
-            Part = parts[0].ToEnum<ImpactSpecClauseSystemPart>();
-            Damage = parts[1].ToSingle();
+            return new ImpactSpecClauseSystem
+            {
+                Part = parts[0].ToEnum<ImpactSpecClauseSystemPart>(),
+                Damage = parts[1].ToSingle()
+            };
         }
     }
 }

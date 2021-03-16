@@ -207,7 +207,7 @@ namespace ToxicRagers.Carmageddon2.Formats
 
             while (file.PeekLine() != "END OF FUNK")
             {
-                car.Funks.Add(new Funk(file));
+                car.Funks.Add(Funk.Load(file));
                 if (file.PeekLine() == "NEXT FUNK") { file.ReadLine(); }
             }
             file.ReadLine();
@@ -220,7 +220,7 @@ namespace ToxicRagers.Carmageddon2.Formats
 
             while (file.PeekLine() != "END OF GROOVE")
             {
-                car.Grooves.Add(new Groove(file));
+                car.Grooves.Add(Groove.Load(file));
                 if (file.PeekLine() == "NEXT GROOVE") { file.ReadLine(); }
             }
             file.ReadLine();

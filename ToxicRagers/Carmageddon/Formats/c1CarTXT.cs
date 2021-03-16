@@ -57,7 +57,7 @@ namespace ToxicRagers.Carmageddon.Formats
 
         public List<int> ActorLODs { get; set; } = new List<int>();
 
-        public string ReflectiveScreenMaterial { get; set; }
+        public string ReflectiveScreenMaterial { get; set; } = "NONE";
 
         public List<int> SteerableWheels { get; set; } = new List<int>();
 
@@ -99,37 +99,37 @@ namespace ToxicRagers.Carmageddon.Formats
 
         public List<Vector3> AdditionalPoints { get; set; } = new List<Vector3>();
 
-        public float MinimumTurningCircle { get; set; }
+        public float MinimumTurningCircle { get; set; } = 0.5f;
 
-        public Vector2 SuspensionGive { get; set; } = new Vector2(0.015f, 0.015f);
+        public Vector2 SuspensionGive { get; set; } = new Vector2(0.01f, 0.01f);
 
-        public float RideHeight { get; set; }
+        public float RideHeight { get; set; } = 0.065f;
 
-        public float DampingFactor { get; set; }
+        public float DampingFactor { get; set; } = 1;
 
-        public float Mass { get; set; }
+        public float Mass { get; set; } = 1;
 
-        public float SlipFrictionReductionFraction { get; set; }
+        public float SlipFrictionReductionFraction { get; set; } = 1;
 
         public Vector3 FrictionAngle { get; set; } = new Vector3(80, 79.5f, 80.5f);
 
         public Vector3 AngularMomentumProportions { get; set; } = new Vector3(0.3f, 0.15f, 0.9f);
 
-        public float TractionFractionalMultiplier { get; set; }
+        public float TractionFractionalMultiplier { get; set; } = 2;
 
-        public float DownforceToWeightBalanceSpeed { get; set; }
+        public float DownforceToWeightBalanceSpeed { get; set; } = 50;
 
-        public float BrakeMultiplier { get; set; }
+        public float BrakeMultiplier { get; set; } = 1;
 
-        public float BrakingStrengthMultiplier { get; set; }
+        public float BrakingStrengthMultiplier { get; set; } = 1;
 
         public Vector2 RollingResistance { get; set; } = new Vector2(0.05f, 0.05f);
 
-        public int NumberOfGears { get; set; }
+        public int NumberOfGears { get; set; } = 6;
 
-        public int TopGearRedlineSpeed { get; set; }
+        public int TopGearRedlineSpeed { get; set; } = 200;
 
-        public float TopGearAcceleration { get; set; }
+        public float TopGearAcceleration { get; set; } = 4;
 
         public List<string> Shrapnel { get; set; } = new List<string>();
 
@@ -247,7 +247,7 @@ namespace ToxicRagers.Carmageddon.Formats
 
             while (file.PeekLine() != "END OF FUNK")
             {
-                car.Funks.Add(new Funk(file));
+                car.Funks.Add(Funk.Load(file));
                 if (file.PeekLine() == "NEXT FUNK") { file.ReadLine(); }
             }
             file.ReadLine();
@@ -260,7 +260,7 @@ namespace ToxicRagers.Carmageddon.Formats
 
             while (file.PeekLine() != "END OF GROOVE")
             {
-                car.Grooves.Add(new Groove(file));
+                car.Grooves.Add(Groove.Load(file));
                 if (file.PeekLine() == "NEXT GROOVE") { file.ReadLine(); }
             }
             file.ReadLine();
@@ -635,10 +635,9 @@ namespace ToxicRagers.Carmageddon.Formats
                 dw.WriteLine($"{Shrapnel.Count}", "number of materials");
                 foreach (string shrapnel in Shrapnel) { dw.WriteLine($"{shrapnel}"); }
 
-                dw.WriteLine();
-
                 if (FirePoints.Count > 0)
                 {
+                    dw.WriteLine();
                     dw.WriteLine("// damage vertices fire point");
                     foreach (int firepoint in FirePoints) { dw.WriteLine($"{firepoint}"); }
                 }
