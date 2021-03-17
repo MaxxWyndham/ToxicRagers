@@ -134,6 +134,7 @@
     <Compile Include="CarmageddonReincarnation\Helpers\XMLParser.cs" />
     <Compile Include="CarmageddonReincarnation\Helpers\XMLWriter.cs" />
     <Compile Include="Carmageddon\Formats\c1PIX.cs" />
+    <Compile Include="Carmageddon\Formats\c1OpponentsTXT.cs" />
     <Compile Include="Carmageddon\Helpers\DocumentParser.cs" />
     <Compile Include="Carmageddon\Helpers\DocumentWriter.cs" />
     <Compile Include="Carmageddon\Helpers\Funk.cs" />
