@@ -5,65 +5,25 @@ namespace ToxicRagers.CarmageddonReincarnation.VirtualTextures
 {
     public class VTMapEntry
     {
-        int column;
-        int row;
-        int width;
-        int height;
-        string fileName;
+        public Dictionary<string, VTMapTile> Tiles { get; set; } = new Dictionary<string, VTMapTile>();
 
-        int timeStamp;
-        int unknown2;
-        Dictionary<string, VTMapTile> tiles = new Dictionary<string, VTMapTile>();
+        public VTMap Map { get; set; }
 
-        public Dictionary<string, VTMapTile> Tiles
-        {
-            get => tiles;
-            set => tiles = value;
-        }
+        public int TimeStamp { get; set; }
 
-        public int TimeStamp
-        {
-            get => timeStamp;
-            set => timeStamp = value;
-        }
+        public int Unknown2 { get; set; }
 
-        public int Unknown2
-        {
-            get => unknown2;
-            set => unknown2 = value;
-        }
+        public int Width { get; set; }
 
-        public int Width
-        {
-            get => width;
-            set => width = value;
-        }
+        public int Height { get; set; }
 
-        public int Height
-        {
-            get => height;
-            set => height = value;
-        }
+        public int Column { get; set; }
 
-        public int Column
-        {
-            get => column;
-            set => column = value;
-        }
+        public int Row { get; set; }
 
-        public int Row
-        {
-            get => row;
-            set => row = value;
-        }
+        public string FileName { get; set; }
 
-        public string FileName
-        {
-            get => fileName;
-            set => fileName = value;
-        }
-
-        public int NumTiles => (width / 120) * (height / 120);
+        public int NumTiles => Width / 120 * (Height / 120);
 
         public int GetWidth(int page)
         {

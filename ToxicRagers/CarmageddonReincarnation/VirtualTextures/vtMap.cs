@@ -130,7 +130,8 @@ namespace ToxicRagers.CarmageddonReincarnation.VirtualTextures
                         Column = br.ReadInt32(),
                         Width = br.ReadInt32(),
                         Height = br.ReadInt32(),
-                        FileName = br.ReadNullTerminatedString()
+                        FileName = br.ReadNullTerminatedString(),
+                        Map = this
                     };
 
                     br.ReadByte();
@@ -160,9 +161,9 @@ namespace ToxicRagers.CarmageddonReincarnation.VirtualTextures
                     tile.TileName = string.Format("{0:x8}", tile.Hash);
                     tile.ZadTileName = string.Format("{0}/{1}_{2}.tdx", tile.TileName.Substring(0, 2), tile.TileName, type.ToString().Substring(0, 1));
 
-                    if (!TilesByName.ContainsKey(tile.TileName)) { TilesByName.Add(tile.TileName, new VTMapTileTDX { TileName = tile.TileName }); }
+                    if (!TilesByName.ContainsKey(tile.TileName.ToUpper())) { TilesByName.Add(tile.TileName.ToUpper(), new VTMapTileTDX { TileName = tile.TileName }); }
 
-                    TilesByName[tile.TileName].Coords.Add(tile);
+                    TilesByName[tile.TileName.ToUpper()].Coords.Add(tile);
 
                     if (tile.Page >= TilesPages.Count)
                     {

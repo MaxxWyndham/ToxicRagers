@@ -62,6 +62,7 @@
     <Compile Include="Carmageddon2\Formats\c2Dat.cs" />
     <Compile Include="Carmageddon2\Formats\c2MapTXT.cs" />
     <Compile Include="Carmageddon2\Formats\c2Mat.cs" />
+    <Compile Include="Carmageddon2\Formats\c2OpponentTXT.cs" />
     <Compile Include="Carmageddon2\Formats\c2WAM.cs" />
     <Compile Include="Carmageddon2\Helpers\c2Face.cs" />
     <Compile Include="Carmageddon2\Helpers\c2Mesh.cs" />
@@ -130,6 +131,8 @@
     <Compile Include="CarmageddonReincarnation\Helpers\LUACodeBlock.cs" />
     <Compile Include="CarmageddonReincarnation\Helpers\XMLParser.cs" />
     <Compile Include="CarmageddonReincarnation\Helpers\XMLWriter.cs" />
+    <Compile Include="CarmageddonReincarnation\VirtualTextures\vtUtils.cs" />
+    <Compile Include="Carmageddon\Formats\c1OpponentTXT.cs" />
     <Compile Include="Carmageddon\Formats\c1PIX.cs" />
     <Compile Include="Carmageddon\Helpers\c1PaletteGame.cs" />
     <Compile Include="Carmageddon\Helpers\DocumentParser.cs" />
