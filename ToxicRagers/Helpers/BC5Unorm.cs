@@ -32,9 +32,9 @@ namespace ToxicRagers.Helpers
                     for (int j = 0; j < 16; j++)
                     {
                         minRedColour = Math.Min(minRedColour, redPixels[j]);
-                        minGreenColour = Math.Min(minRedColour, greenPixels[j]);
+                        minGreenColour = Math.Min(minGreenColour, greenPixels[j]);
                         maxRedColour = Math.Max(maxRedColour, redPixels[j]);
-                        maxGreenColour = Math.Max(maxRedColour, greenPixels[j]);
+                        maxGreenColour = Math.Max(maxGreenColour, greenPixels[j]);
                     }
                     redPixels = FlipBlockRows(redPixels);
                     greenPixels = FlipBlockRows(greenPixels);
