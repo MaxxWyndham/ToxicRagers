@@ -754,6 +754,9 @@ namespace ToxicRagers.Stainless.Formats
     {
         public Vector3 Position { get; set; }
 
+        // Alias for 3dsmax interop.
+        public Vector3 Pos => Position;
+
         public Vector3 Normal { get; set; }
 
         public Vector2 UV { get; set; }
