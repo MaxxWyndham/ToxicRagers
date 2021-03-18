@@ -213,10 +213,10 @@ namespace ToxicRagers.CarmageddonReincarnation.VirtualTextures
 
         public bool IsDeadBeef(BinaryReader br)
         {
-            return (br.ReadByte() == 0xde &&
-                    br.ReadByte() == 0xad &&
+            return (br.ReadByte() == 0xef &&
                     br.ReadByte() == 0xbe &&
-                    br.ReadByte() == 0xef);
+                    br.ReadByte() == 0xad &&
+                    br.ReadByte() == 0xde);
         }
 
         public int GetWidth(int page)
