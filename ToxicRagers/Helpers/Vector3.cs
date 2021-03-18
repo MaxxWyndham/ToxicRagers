@@ -165,6 +165,14 @@ namespace ToxicRagers.Helpers
             Z /= l;
         }
 
+        public static void SetVector3(float x, float y, float z, Vector3 v)
+        {
+            v = Zero;
+            v.X = x;
+            v.Y = y;
+            v.Z = z;
+        }
+
         public static Vector3 operator *(float y, Vector3 x) { return x * y; }
 
         public static Vector3 operator *(Vector3 x, float y)
