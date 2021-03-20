@@ -16,7 +16,7 @@ namespace ToxicRagers.Novadrome.Formats
         public XT2()
             : base()
         {
-            extension = "XT2";
+            Extension = "XT2";
         }
 
         public static XT2 Load(string Path)

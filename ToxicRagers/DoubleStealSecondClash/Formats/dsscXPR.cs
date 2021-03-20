@@ -121,30 +121,30 @@ namespace ToxicRagers.DoubleStealSecondClash.Formats
             }
         }
 
-        public void ExtractTexture(FileStream fs, string path, int Flags)
+        public void ExtractTexture(FileStream fs, string path, int flags)
         {
             DDS dds = new DDS();
             int[] dimensionLookup = new int[] { 1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096 };
 
             int size = 0;
-            int u = (Flags & 0x00F00000) >> 20;
-            int v = (Flags & 0x0F000000) >> 24;
-            int f = (Flags & 0x0000FF00) >> 8;
+            int u = (flags & 0x00F00000) >> 20;
+            int v = (flags & 0x0F000000) >> 24;
+            int f = (flags & 0x0000FF00) >> 8;
 
             switch (f)
             {
                 case 12: // DXT1
                     size = (dimensionLookup[u] * dimensionLookup[v]) / 2;
-                    dds.Format = D3DFormat.DXT1;
+                    dds.SetFormat(D3DFormat.DXT1);
                     break;
 
                 case 15: // DXT5
                     size = dimensionLookup[u] * dimensionLookup[v];
-                    dds.Format = D3DFormat.DXT5;
+                    dds.SetFormat(D3DFormat.DXT5);
                     break;
 
                 default:
-                    throw new NotImplementedException(string.Format("Unknown texture format: {0}", f));
+                    throw new NotImplementedException($"Unknown texture format: {f}");
             }
 
             dds.Width = dimensionLookup[u];

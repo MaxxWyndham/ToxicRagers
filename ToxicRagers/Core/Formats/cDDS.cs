@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -71,38 +70,42 @@ namespace ToxicRagers.Core.Formats
     public class DDS : Texture
     {
         [Flags]
-        public enum Flags
+        public enum HeaderFlags
         {
-            Caps = 1,
-            Height = 2,
-            Width = 4,
-            Pitch = 8,
-            PixelFormat = 4096,
-            MipMapCount = 131072,
-            LinearSize = 524288,
-            DepthTexture = 8388608
+            Caps = 0x1,
+            Height = 0x2,
+            Width = 0x4,
+            Pitch = 0x8,
+            PixelFormat = 0x1000,
+            MipMapCount = 0x20000,
+            LinearSize = 0x80000,
+            Depth = 0x800000
         }
 
-        Flags flags;
-        
+        public HeaderFlags Flags { get; set; }
+
         public int Height { get; set; }
 
         public int Width { get; set; }
 
-        int pitch;
+        public int Pitch { get; set; }
+
         public int Depth { get; set; } = 0;
-        DDSPixelFormat pixelFormat;
-        DDSCaps caps;
-        DDSCaps2 caps2;
+
+        public DDSPixelFormat PixelFormat { get; set; }
+
+        public DDSCaps Caps { get; set; }
+
+        public DDSCaps2 Caps2 { get; set; }
 
         public DDS() { }
 
-        public DDS(D3DFormat Format, Bitmap bitmap)
+        public DDS(D3DFormat format, Bitmap bitmap)
         {
             SquishFlags flags = SquishFlags.kDxt1;
-            bool bCompressed = true;
+            bool compressed = true;
 
-            switch (Format)
+            switch (format)
             {
                 case D3DFormat.DXT1:
                     flags = SquishFlags.kDxt1;
@@ -117,15 +120,15 @@ namespace ToxicRagers.Core.Formats
                     break;
 
                 default:
-                    bCompressed = false;
+                    compressed = false;
                     break;
             }
 
-            format = Format;
+            Format = format;
             Width = bitmap.Width;
             Height = bitmap.Height;
 
-            MipMap mip = new MipMap()
+            MipMap mip = new MipMap
             {
                 Width = Width,
                 Height = Height
@@ -133,11 +136,11 @@ namespace ToxicRagers.Core.Formats
 
             byte[] data = new byte[mip.Width * mip.Height * 4];
 
-            BitmapData bmpdata = bitmap.LockBits(new Rectangle(0, 0, mip.Width, mip.Height), ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
+            BitmapData bmpdata = bitmap.LockBits(new Rectangle(0, 0, mip.Width, mip.Height), ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
             Marshal.Copy(bmpdata.Scan0, data, 0, bmpdata.Stride * bmpdata.Height);
             bitmap.UnlockBits(bmpdata);
 
-            if (bCompressed)
+            if (compressed)
             {
                 for (uint i = 0; i < data.Length - 4; i += 4)
                 {
@@ -155,7 +158,7 @@ namespace ToxicRagers.Core.Formats
                 mip.Data = data;
             }
 
-            mipMaps.Add(mip);
+            MipMaps.Add(mip);
         }
 
         public static DDS Load(string path)
@@ -172,37 +175,38 @@ namespace ToxicRagers.Core.Formats
             {
                 if (!IsDDS(br)) { return null; }
 
-                dds.pixelFormat = new DDSPixelFormat();
-
                 br.ReadUInt32();    // header length
-                dds.flags = (Flags)br.ReadUInt32();
+                dds.Flags = (HeaderFlags)br.ReadUInt32();
                 dds.Height = (int)br.ReadUInt32();
                 dds.Width = (int)br.ReadUInt32();
-                dds.pitch = (int)br.ReadUInt32();
+                dds.Pitch = (int)br.ReadUInt32();
                 dds.Depth = (int)br.ReadUInt32();
                 int mipCount = (int)br.ReadUInt32();
                 for (int i = 0; i < 11; i++) { br.ReadUInt32(); }
                 br.ReadUInt32();    // pixel format length
-                dds.pixelFormat.Flags = (PixelFormatFlags)br.ReadUInt32();
-                dds.pixelFormat.FourCC = (PixelFormatFourCC)br.ReadUInt32();
-                dds.pixelFormat.RGBBitCount = (int)br.ReadUInt32();
-                dds.pixelFormat.RBitMask = br.ReadUInt32();
-                dds.pixelFormat.GBitMask = br.ReadUInt32();
-                dds.pixelFormat.BBitMask = br.ReadUInt32();
-                dds.pixelFormat.ABitMask = br.ReadUInt32();
-                dds.caps = (DDSCaps)br.ReadUInt32();
-                dds.caps2 = (DDSCaps2)br.ReadUInt32();
+                dds.PixelFormat = new DDSPixelFormat
+                {
+                    Flags = (PixelFormatFlags)br.ReadUInt32(),
+                    FourCC = (PixelFormatFourCC)br.ReadUInt32(),
+                    RGBBitCount = (int)br.ReadUInt32(),
+                    RBitMask = br.ReadUInt32(),
+                    GBitMask = br.ReadUInt32(),
+                    BBitMask = br.ReadUInt32(),
+                    ABitMask = br.ReadUInt32()
+                };
+                dds.Caps = (DDSCaps)br.ReadUInt32();
+                dds.Caps2 = (DDSCaps2)br.ReadUInt32();
                 br.ReadUInt32();
                 br.ReadUInt32();
                 br.ReadUInt32();
 
-                if (dds.pixelFormat.Flags.HasFlag(PixelFormatFlags.DDPF_FOURCC))
+                if (dds.PixelFormat.Flags.HasFlag(PixelFormatFlags.DDPF_FOURCC))
                 {
-                    dds.format = (D3DFormat)dds.pixelFormat.FourCC;
+                    dds.Format = (D3DFormat)dds.PixelFormat.FourCC;
                 }
-                else if (dds.pixelFormat.Flags.HasFlag(PixelFormatFlags.DDPF_RGB) & dds.pixelFormat.Flags.HasFlag(PixelFormatFlags.DDPF_ALPHAPIXELS))
+                else if (dds.PixelFormat.Flags.HasFlag(PixelFormatFlags.DDPF_RGB) & dds.PixelFormat.Flags.HasFlag(PixelFormatFlags.DDPF_ALPHAPIXELS))
                 {
-                    dds.format = D3DFormat.A8R8G8B8;
+                    dds.Format = D3DFormat.A8R8G8B8;
                 }
 
                 for (int i = 0; i < Math.Max(1, mipCount); i++)
@@ -213,7 +217,7 @@ namespace ToxicRagers.Core.Formats
                         Height = dds.Height >> i
                     };
 
-                    switch (dds.format)
+                    switch (dds.Format)
                     {
                         case D3DFormat.A8R8G8B8:
                             mip.Data = br.ReadBytes(mip.Width * mip.Height * 4);
@@ -229,7 +233,7 @@ namespace ToxicRagers.Core.Formats
                             break;
                     }
 
-                    dds.mipMaps.Add(mip);
+                    dds.MipMaps.Add(mip);
                 }
             }
 
@@ -256,15 +260,15 @@ namespace ToxicRagers.Core.Formats
 
         public static void Save(BinaryWriter bw, DDS dds)
         {
-            Flags flags = (Flags.Caps | Flags.Height | Flags.Width | Flags.PixelFormat | Flags.MipMapCount);
-            flags |= (dds.format == D3DFormat.A8R8G8B8 ? Flags.Pitch : Flags.LinearSize);
+            HeaderFlags flags = HeaderFlags.Caps | HeaderFlags.Height | HeaderFlags.Width | HeaderFlags.PixelFormat | HeaderFlags.MipMapCount;
+            flags |= dds.Format == D3DFormat.A8R8G8B8 ? HeaderFlags.Pitch : HeaderFlags.LinearSize;
 
             bw.Write(new byte[] { 0x44, 0x44, 0x53, 0x20 });    // 'DDS '
             bw.Write(124);
             bw.Write((int)flags);
             bw.Write(dds.Height);
             bw.Write(dds.Width);
-            bw.Write(flags.HasFlag(Flags.Pitch) ? dds.Width * 4 : dds.MipMaps[0].Data.Length);
+            bw.Write(flags.HasFlag(HeaderFlags.Pitch) ? dds.Width * 4 : dds.MipMaps[0].Data.Length);
             bw.Write(dds.Depth);
             bw.Write(dds.MipMaps.Count);
 
@@ -304,21 +308,21 @@ namespace ToxicRagers.Core.Formats
             bw.Write(0);    // Caps 4
             bw.Write(0);    // Reserved
 
-            for (int i = 0; i < dds.mipMaps.Count; i++)
+            for (int i = 0; i < dds.MipMaps.Count; i++)
             {
-                bw.Write(dds.mipMaps[i].Data);
+                bw.Write(dds.MipMaps[i].Data);
             }
         }
 
-        public Bitmap Decompress(int mipLevel = 0, bool bSuppressAlpha = false)
+        public Bitmap Decompress(int mipLevel = 0, bool suppressAlpha = false)
         {
             MipMap mip = MipMaps[mipLevel];
 
-            Bitmap b = new Bitmap(mip.Width, mip.Height, PixelFormat.Format32bppArgb);
+            Bitmap b = new Bitmap(mip.Width, mip.Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
             SquishFlags flags = 0;
-            bool bNotCompressed = false;
+            bool notCompressed = false;
 
-            switch (format)
+            switch (Format)
             {
                 case D3DFormat.DXT1:
                     flags = SquishFlags.kDxt1;
@@ -329,26 +333,26 @@ namespace ToxicRagers.Core.Formats
                     break;
 
                 case D3DFormat.A8R8G8B8:
-                    bNotCompressed = true;
+                    notCompressed = true;
                     break;
 
                 default:
-                    throw new NotImplementedException(string.Format("Can't decompress: {0}", format));
+                    throw new NotImplementedException($"Can't decompress: {Format}");
             }
 
             byte[] dest = new byte[mip.Width * mip.Height * 4];
             byte[] data = mip.Data;
 
-            if (bNotCompressed)
+            if (notCompressed)
             {
                 for (uint i = 0; i < data.Length - 4; i += 4)
                 {
                     uint colour = (uint)((data[i + 3] << 24) | (data[i + 2] << 16) | (data[i + 1] << 8) | (data[i + 0] << 0));
 
-                    dest[i + 0] = (byte)((colour & pixelFormat.BBitMask) >> 0);
-                    dest[i + 1] = (byte)((colour & pixelFormat.GBitMask) >> 8);
-                    dest[i + 2] = (byte)((colour & pixelFormat.RBitMask) >> 16);
-                    dest[i + 3] = (byte)((colour & pixelFormat.ABitMask) >> 24);
+                    dest[i + 0] = (byte)((colour & PixelFormat.BBitMask) >> 0);
+                    dest[i + 1] = (byte)((colour & PixelFormat.GBitMask) >> 8);
+                    dest[i + 2] = (byte)((colour & PixelFormat.RBitMask) >> 16);
+                    dest[i + 3] = (byte)((colour & PixelFormat.ABitMask) >> 24);
                 }
             }
             else
@@ -363,7 +367,7 @@ namespace ToxicRagers.Core.Formats
                 }
             }
 
-            BitmapData bmpdata = b.LockBits(new Rectangle(0, 0, mip.Width, mip.Height), ImageLockMode.ReadWrite, (bSuppressAlpha ? PixelFormat.Format32bppRgb : b.PixelFormat));
+            BitmapData bmpdata = b.LockBits(new Rectangle(0, 0, mip.Width, mip.Height), ImageLockMode.ReadWrite, (suppressAlpha ? System.Drawing.Imaging.PixelFormat.Format32bppRgb : b.PixelFormat));
             Marshal.Copy(dest, 0, bmpdata.Scan0, dest.Length);
             b.UnlockBits(bmpdata);
 

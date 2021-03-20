@@ -66,7 +66,7 @@ namespace ToxicRagers.Stainless.Formats
         public IMG()
             : base()
         {
-            extension = "IMG";
+            Extension = "IMG";
         }
 
         public static IMG Load(string path)

@@ -60,7 +60,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
         public TDX()
             : base()
         {
-            extension = "TDX";
+            Extension = "TDX";
         }
 
         public static TDX Load(string path)
@@ -510,12 +510,13 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
         public static explicit operator DDS(TDX tdx)
         {
-            DDS dds = new DDS()
+            DDS dds = new DDS
             {
                 Width = tdx.MipMaps[0].Width,
-                Height = tdx.MipMaps[0].Height,
-                Format = tdx.Format
+                Height = tdx.MipMaps[0].Height
             };
+
+            dds.SetFormat(tdx.Format);
 
             foreach (MipMap mip in tdx.MipMaps)
             {

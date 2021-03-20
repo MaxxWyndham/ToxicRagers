@@ -6,63 +6,41 @@ namespace ToxicRagers.Generics
 {
     public abstract class Texture
     {
-        string name;
-        protected string extension;
-        protected D3DFormat format;
-        protected List<MipMap> mipMaps = new List<MipMap>();
+        public string Name { get; set; }
 
-        public string Name
-        {
-            get => name;
-            set => name = value;
-        }
+        public string Extension { get; protected set; }
 
-        public virtual D3DFormat Format
-        {
-            get => format;
-            set => format = value;
-        }
+        public List<MipMap> MipMaps { get; private set; } = new List<MipMap>();
+
+        public virtual D3DFormat Format { get; protected set; }
 
         public string ShortFormat
         {
             get
             {
-                switch (format)
+                switch (Format)
                 {
                     case D3DFormat.A8R8G8B8:
                         return "8888";
 
                     default:
-                        return format.ToString().Substring(0, 4);
+                        return Format.ToString().Substring(0, 4);
                 }
             }
         }
 
-        public List<MipMap> MipMaps => mipMaps;
+        public void SetFormat(D3DFormat format)
+        {
+            Format = format;
+        }
     }
 
     public class MipMap
     {
-        int width;
-        int height;
-        byte[] data;
+        public int Width { get; set; }
 
-        public int Width
-        {
-            get => width;
-            set => width = value;
-        }
-
-        public int Height
-        {
-            get => height;
-            set => height = value;
-        }
-
-        public byte[] Data
-        {
-            get => data;
-            set => data = value;
-        }
+        public int Height { get; set; }
+        
+        public byte[] Data { get; set; }
     }
 }
