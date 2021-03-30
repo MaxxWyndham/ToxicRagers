@@ -2,8 +2,8 @@
 using System.IO;
 using System.Text;
 
-using ToxicRagers.CarmageddonReincarnation.Formats;
 using ToxicRagers.Helpers;
+using ToxicRagers.Stainless.Formats;
 
 namespace ToxicRagers.CarmageddonReincarnation.VirtualTextures
 {
