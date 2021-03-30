@@ -7,27 +7,19 @@ namespace ToxicRagers.BurnoutParadise.Formats
 {
     public class BOM
     {
-        List<int> offsets;
-        List<BOMMesh> meshes;
-        List<BOMVertex> verts;
-        string name;
+        public List<BOMMesh> Meshes { get; set; } = new List<BOMMesh>();
 
-        public List<BOMMesh> Meshes => meshes;
-        public List<BOMVertex> Verts => verts;
-        public string Name => name;
+        public List<BOMVertex> Verts { get; set; } = new List<BOMVertex>();
 
-        public BOM()
-        {
-            offsets = new List<int>();
-            meshes = new List<BOMMesh>();
-            verts = new List<BOMVertex>();
-        }
+        public List<int> Offsets { get; set; } = new List<int>();
+
+        public string Name { get; set; }
 
         public static BOM Load(string path)
         {
             FileInfo fi = new FileInfo(path);
             Logger.LogToFile(Logger.LogLevel.Info, "{0}", path);
-            BOM bom = new BOM() { name = Path.GetFileNameWithoutExtension(path) };
+            BOM bom = new BOM { Name = Path.GetFileNameWithoutExtension(path) };
 
             using (BinaryReader br = new BinaryReader(fi.OpenRead()))
             {
@@ -35,18 +27,18 @@ namespace ToxicRagers.BurnoutParadise.Formats
                 int meshCount = br.ReadInt16();
                 br.ReadBytes(28);   // Unknown
 
-                for (int i = 0; i < meshCount; i++) { bom.offsets.Add(br.ReadInt32()); }
+                for (int i = 0; i < meshCount; i++) { bom.Offsets.Add(br.ReadInt32()); }
 
                 for (int i = 0; i < meshCount; i++)
                 {
-                    br.BaseStream.Seek(bom.offsets[i], SeekOrigin.Begin);
+                    br.BaseStream.Seek(bom.Offsets[i], SeekOrigin.Begin);
                     BOMMesh mesh = new BOMMesh();
 
                     br.ReadBytes(76);
                     mesh.VertCount = br.ReadInt32();
                     br.ReadBytes(4);
                     mesh.FaceCount = br.ReadInt32();
-                    bom.meshes.Add(mesh);
+                    bom.Meshes.Add(mesh);
 
                     br.ReadBytes(40);
                 }
@@ -60,9 +52,9 @@ namespace ToxicRagers.BurnoutParadise.Formats
 
                 for (int i = 0; i < meshCount; i++)
                 {
-                    for (int j = 0; j < bom.meshes[i].FaceCount * 3; j++)
+                    for (int j = 0; j < bom.Meshes[i].FaceCount * 3; j++)
                     {
-                        bom.meshes[i].IndexBuffer.Add(br.ReadUInt16());
+                        bom.Meshes[i].IndexBuffer.Add(br.ReadUInt16());
                     }
                 }
 
@@ -70,9 +62,9 @@ namespace ToxicRagers.BurnoutParadise.Formats
 
                 for (int i = 0; i < meshCount; i++)
                 {
-                    for (int j = 0; j < bom.meshes[i].VertCount; j++)
+                    for (int j = 0; j < bom.Meshes[i].VertCount; j++)
                     {
-                        bom.verts.Add(
+                        bom.Verts.Add(
                             new BOMVertex(
                                 br.ReadSingle(), br.ReadSingle(), br.ReadSingle(),
                                 br.ReadSingle(), br.ReadSingle(), br.ReadSingle()
@@ -93,7 +85,8 @@ namespace ToxicRagers.BurnoutParadise.Formats
 
         public void Save(string path)
         {
-            using (BinaryWriter bw = new BinaryWriter(new FileStream(path, FileMode.Create)))
+            using (FileStream fs = new FileStream(path, FileMode.Create))
+            using (BinaryWriter bw = new BinaryWriter(fs))
             {
             }
         }
@@ -101,42 +94,23 @@ namespace ToxicRagers.BurnoutParadise.Formats
 
     public class BOMMesh
     {
-        List<int> ibo;
-        int faceCount;
-        int vertCount;
+        public int FaceCount { get; set; }
 
-        public int FaceCount
-        {
-            get => faceCount;
-            set => faceCount = value;
-        }
+        public int VertCount { get; set; }
 
-        public int VertCount
-        {
-            get => vertCount;
-            set => vertCount = value;
-        }
-
-        public List<int> IndexBuffer => ibo;
-
-        public BOMMesh()
-        {
-            ibo = new List<int>();
-        }
+        public List<int> IndexBuffer { get; set; } = new List<int>();
     }
 
     public class BOMVertex
     {
-        Vector3 position;
-        Vector3 normal;
+        public Vector3 Position { get; set; }
 
-        public Vector3 Position => position;
-        public Vector3 Normal => normal;
+        public Vector3 Normal { get; set; }
 
         public BOMVertex(float pX, float pY, float pZ, float nX, float nY, float nZ)
         {
-            position = new Vector3(pX, pY, pZ);
-            normal = new Vector3(nX, nY, nZ);
+            Position = new Vector3(pX, pY, pZ);
+            Normal = new Vector3(nX, nY, nZ);
         }
     }
 }

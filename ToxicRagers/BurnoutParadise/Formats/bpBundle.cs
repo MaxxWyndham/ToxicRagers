@@ -9,56 +9,52 @@ namespace ToxicRagers.BurnoutParadise.Formats
 {
     public class BUNDLE
     {
-        string name;
-        string extension;
-        string location;
-        int version;
-        int size;
-        int flags;
+        public string Name { get; set; }
 
-        List<BUNDLEEntry> contents;
+        public string Location { get; set; }
 
-        public string Name => name;
-        public string Extension => extension;
-        public List<BUNDLEEntry> Contents => contents;
+        public string Extension { get; set; }
 
-        public BUNDLE()
-        {
-            contents = new List<BUNDLEEntry>();
-        }
+        public List<BUNDLEEntry> Contents { get; set; } = new List<BUNDLEEntry>();
+
+        public int Version { get; set; }
+
+        public int Size { get; private set; }
+
+        public int Flags { get; set; }
 
         public static BUNDLE Load(string path)
         {
             FileInfo fi = new FileInfo(path);
             Logger.LogToFile(Logger.LogLevel.Info, "{0}", path);
-            BUNDLE bundle = new BUNDLE()
+            BUNDLE bundle = new BUNDLE
             {
-                name = Path.GetFileNameWithoutExtension(path),
-                extension = Path.GetExtension(path),
-                location = Path.GetDirectoryName(path) + "\\"
+                Name = Path.GetFileNameWithoutExtension(path),
+                Extension = Path.GetExtension(path),
+                Location = Path.GetDirectoryName(path)
             };
 
             using (BinaryReader br = new BinaryReader(fi.OpenRead()))
             {
-                if (br.ReadByte() != 98 ||
-                    br.ReadByte() != 110 ||
-                    br.ReadByte() != 100 ||
-                    br.ReadByte() != 50)
+                if (br.ReadByte() != 0x62 ||
+                    br.ReadByte() != 0x6e ||
+                    br.ReadByte() != 0x64 ||
+                    br.ReadByte() != 0x32)
                 {
                     Logger.LogToFile(Logger.LogLevel.Error, "{0} isn't a valid BUNDLE file", path);
                     return null;
                 }
 
-                bundle.version = (int)br.ReadInt32();
+                bundle.Version = br.ReadInt32();
                 br.ReadInt32();
-                bundle.size = (int)br.ReadInt32();
-                int fileCount = (int)br.ReadInt32();
-                int tableOffset = (int)br.ReadInt32();
-                int headerOffset = (int)br.ReadInt32();
-                int bodyOffset = (int)br.ReadInt32();
-                int dataEnd = (int)br.ReadInt32();
+                bundle.Size = br.ReadInt32();
+                int fileCount = br.ReadInt32();
+                br.ReadInt32();         // table offset
+                int headerOffset = br.ReadInt32();
+                int bodyOffset = br.ReadInt32();
+                br.ReadInt32();         // data end
                 br.ReadInt32();
-                bundle.flags = (int)br.ReadInt32();
+                bundle.Flags = br.ReadInt32();
                 br.ReadInt32();
 
                 for (int i = 0; i < fileCount; i++)
@@ -99,7 +95,8 @@ namespace ToxicRagers.BurnoutParadise.Formats
             {
                 if (file.HeaderSize > 0)
                 {
-                    using (BinaryReader br = new BinaryReader(new FileStream(location + name + extension, FileMode.Open)))
+                    using (FileStream fs = new FileStream(Path.Combine(Location, $"{Name}{Extension}"), FileMode.Open))
+                    using (BinaryReader br = new BinaryReader(fs))
                     {
                         br.BaseStream.Seek(file.HeaderOffset + 2, SeekOrigin.Begin);
 
@@ -115,7 +112,8 @@ namespace ToxicRagers.BurnoutParadise.Formats
 
                 if (file.DataSize > 0)
                 {
-                    using (BinaryReader br = new BinaryReader(new FileStream(location + name + extension, FileMode.Open)))
+                    using (FileStream fs = new FileStream(Path.Combine(Location, $"{Name}{Extension}"), FileMode.Open))
+                    using (BinaryReader br = new BinaryReader(fs))
                     {
                         br.BaseStream.Seek(file.DataOffset + 2, SeekOrigin.Begin);
 
@@ -138,69 +136,22 @@ namespace ToxicRagers.BurnoutParadise.Formats
 
     public class BUNDLEEntry
     {
-        string name;
+        public string Name { get; set; }
 
-        int type;
-        int count;
-        int headerSize;
-        int dataSize;
-        int headerSizeCompressed;
-        int dataSizeCompressed;
-        int headerOffset;
-        int dataOffset;
+        public int HeaderSize { get; set; }
 
-        public string Name
-        {
-            get => name;
-            set => name = value;
-        }
+        public int HeaderSizeCompressed { get; set; }
 
-        public int HeaderSize
-        {
-            get => headerSize;
-            set => headerSize = value;
-        }
+        public int DataSize { get; set; }
 
-        public int HeaderSizeCompressed
-        {
-            get => headerSizeCompressed;
-            set => headerSizeCompressed = value;
-        }
+        public int DataSizeCompressed { get; set; }
 
-        public int DataSize
-        {
-            get => dataSize;
-            set => dataSize = value;
-        }
+        public int HeaderOffset { get; set; }
 
-        public int DataSizeCompressed
-        {
-            get => dataSizeCompressed;
-            set => dataSizeCompressed = value;
-        }
+        public int DataOffset { get; set; }
 
-        public int HeaderOffset
-        {
-            get => headerOffset;
-            set => headerOffset = value;
-        }
+        public int Type { get; set; }
 
-        public int DataOffset
-        {
-            get => dataOffset;
-            set => dataOffset = value;
-        }
-
-        public int Type
-        {
-            get => type;
-            set => type = value;
-        }
-
-        public int Count
-        {
-            get => count;
-            set => count = value;
-        }
+        public int Count { get; set; }
     }
 }
