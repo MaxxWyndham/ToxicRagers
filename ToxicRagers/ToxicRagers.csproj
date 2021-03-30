@@ -69,7 +69,6 @@
     <Compile Include="Carmageddon2\Helpers\c2Vertex.cs" />
     <Compile Include="Carmageddon2\Helpers\Powerups.cs" />
     <Compile Include="Carmageddon2\Helpers\SmashData.cs" />
-    <Compile Include="CarmageddoniOS\Formats\iTDX.cs" />
     <Compile Include="CarmageddonPSX\OldCodeImport.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\crCrashSoundsConfigXML.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\crLOL.cs" />
@@ -127,9 +126,9 @@
     <Compile Include="CarmageddonReincarnation\Formats\crAccessoryTXT.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\crLIGHT.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\crMT2.cs" />
-    <Compile Include="CarmageddonReincarnation\Formats\crTDX.cs" />
     <Compile Include="Carmageddon\Formats\c1NoncarTXT.cs" />
     <Compile Include="Helpers\Generics\MipMap.cs" />
+    <Compile Include="Stainless\Formats\sTDX.cs" />
     <Compile Include="CarmageddonReincarnation\Helpers\LUACodeBlock.cs" />
     <Compile Include="CarmageddonReincarnation\Helpers\XMLParser.cs" />
     <Compile Include="CarmageddonReincarnation\Helpers\XMLWriter.cs" />
@@ -179,6 +178,7 @@
     <Compile Include="Helpers\Octree.cs" />
     <Compile Include="Helpers\Palette.cs" />
     <Compile Include="Helpers\Plane.cs" />
+    <Compile Include="Helpers\PVTRC.cs" />
     <Compile Include="Helpers\Quaternion.cs" />
     <Compile Include="Helpers\Stripper\Adjacency.cs" />
     <Compile Include="Helpers\Stripper\Stripper.cs" />

@@ -11,8 +11,9 @@ namespace ToxicRagers.Helpers
 
             for (int pixY = 0, i = 0; pixY < height; pixY += 4)
             {
-                for (int pixX = 0; pixX < width; pixX++)
+                for (int pixX = 0; pixX < width; pixX += 4)
                 {
+                    int startIndex = pixY * width * 4 + pixX * 4;
                     byte[] redPixels = new byte[16];
                     byte[] greenPixels = new byte[16];
 
@@ -20,10 +21,11 @@ namespace ToxicRagers.Helpers
                     {
                         for (int x = 0; x < 4; x++)
                         {
-                            redPixels[4 * y + x] = buffer[i + 4 * x + y * width];
-                            greenPixels[4 * y + x] = buffer[i + 1 + 4 * x + y * width];
+                            redPixels[4 * y + x] = buffer[startIndex + x * 4 + y * width * 4];
+                            greenPixels[4 * y + x] = buffer[startIndex + 1 + x * 4 + y * width * 4];
                         }
                     }
+
                     byte minRedColour = 255;
                     byte maxRedColour = 0;
                     byte minGreenColour = 255;
@@ -36,14 +38,15 @@ namespace ToxicRagers.Helpers
                         maxRedColour = Math.Max(maxRedColour, redPixels[j]);
                         maxGreenColour = Math.Max(maxGreenColour, greenPixels[j]);
                     }
-                    redPixels = FlipBlockRows(redPixels);
-                    greenPixels = FlipBlockRows(greenPixels);
 
-                    byte[] redIndices = ConvertIndicesToBytes(CalculateIndices(redPixels, minRedColour, maxRedColour));
-                    byte[] greenIndices = ConvertIndicesToBytes(CalculateIndices(greenPixels, minGreenColour, maxGreenColour));
+                    redPixels = flipBlockRows(redPixels);
+                    greenPixels = flipBlockRows(greenPixels);
 
-                    compressed.Add(minRedColour);
+                    byte[] redIndices = convertIndicesToBytes(calculateIndices(redPixels, minRedColour, maxRedColour));
+                    byte[] greenIndices = convertIndicesToBytes(calculateIndices(greenPixels, minGreenColour, maxGreenColour));
+
                     compressed.Add(maxRedColour);
+                    compressed.Add(minRedColour);
                     compressed.Add(redIndices[5]);
                     compressed.Add(redIndices[4]);
                     compressed.Add(redIndices[3]);
@@ -51,8 +54,8 @@ namespace ToxicRagers.Helpers
                     compressed.Add(redIndices[1]);
                     compressed.Add(redIndices[0]);
 
-                    compressed.Add(minGreenColour);
                     compressed.Add(maxGreenColour);
+                    compressed.Add(minGreenColour);
                     compressed.Add(greenIndices[5]);
                     compressed.Add(greenIndices[4]);
                     compressed.Add(greenIndices[3]);
@@ -62,13 +65,89 @@ namespace ToxicRagers.Helpers
 
                     i += 4 * 4;
                 }
+
                 i += width * 4 * 3;
             }
 
             return compressed.ToArray();
         }
 
-        public static byte[] FlipBlockRows(byte[] pixels)
+        public static byte[] Decompress(byte[] blocks, uint width, uint height)
+        {
+            byte[] redBuffer = new byte[width * height];
+            byte[] greenBuffer = new byte[width * height];
+
+            for (int row = 0, col = 0, j = 0; j < blocks.Length; j += 16, col += 4)
+            {
+                int k = j + 8;
+
+                byte[] redColours = calcColours(blocks[j], blocks[j + 1]);
+                byte[] greenColours = calcColours(blocks[k], blocks[k + 1]);
+
+                uint[] redIndices = getIndices(blocks[j + 7], blocks[j + 6], blocks[j + 5], blocks[j + 4], blocks[j + 3], blocks[j + 2]);
+                uint[] greenIndices = getIndices(blocks[k + 7], blocks[k + 6], blocks[k + 5], blocks[k + 4], blocks[k + 3], blocks[k + 2]);
+
+                if (col >= width)
+                {
+                    col -= (int)width;
+                    row += 4;
+                }
+
+                redBuffer[(row + 2) * width + col] = redColours[redIndices[0]];
+                redBuffer[(row + 2) * width + col + 1] = redColours[redIndices[1]];
+                redBuffer[(row + 2) * width + col + 2] = redColours[redIndices[2]];
+                redBuffer[(row + 2) * width + col + 3] = redColours[redIndices[3]];
+
+                redBuffer[(row + 3) * width + col] = redColours[redIndices[4]];
+                redBuffer[(row + 3) * width + col + 1] = redColours[redIndices[5]];
+                redBuffer[(row + 3) * width + col + 2] = redColours[redIndices[6]];
+                redBuffer[(row + 3) * width + col + 3] = redColours[redIndices[7]];
+
+                redBuffer[(row + 0) * width + col] = redColours[redIndices[8]];
+                redBuffer[(row + 0) * width + col + 1] = redColours[redIndices[9]];
+                redBuffer[(row + 0) * width + col + 2] = redColours[redIndices[10]];
+                redBuffer[(row + 0) * width + col + 3] = redColours[redIndices[11]];
+
+                redBuffer[(row + 1) * width + col] = redColours[redIndices[12]];
+                redBuffer[(row + 1) * width + col + 1] = redColours[redIndices[13]];
+                redBuffer[(row + 1) * width + col + 2] = redColours[redIndices[14]];
+                redBuffer[(row + 1) * width + col + 3] = redColours[redIndices[15]];
+
+                greenBuffer[(row + 2) * width + col] = greenColours[greenIndices[0]];
+                greenBuffer[(row + 2) * width + col + 1] = greenColours[greenIndices[1]];
+                greenBuffer[(row + 2) * width + col + 2] = greenColours[greenIndices[2]];
+                greenBuffer[(row + 2) * width + col + 3] = greenColours[greenIndices[3]];
+
+                greenBuffer[(row + 3) * width + col] = greenColours[greenIndices[4]];
+                greenBuffer[(row + 3) * width + col + 1] = greenColours[greenIndices[5]];
+                greenBuffer[(row + 3) * width + col + 2] = greenColours[greenIndices[6]];
+                greenBuffer[(row + 3) * width + col + 3] = greenColours[greenIndices[7]];
+
+                greenBuffer[(row + 0) * width + col] = greenColours[greenIndices[8]];
+                greenBuffer[(row + 0) * width + col + 1] = greenColours[greenIndices[9]];
+                greenBuffer[(row + 0) * width + col + 2] = greenColours[greenIndices[10]];
+                greenBuffer[(row + 0) * width + col + 3] = greenColours[greenIndices[11]];
+
+                greenBuffer[(row + 1) * width + col] = greenColours[greenIndices[12]];
+                greenBuffer[(row + 1) * width + col + 1] = greenColours[greenIndices[13]];
+                greenBuffer[(row + 1) * width + col + 2] = greenColours[greenIndices[14]];
+                greenBuffer[(row + 1) * width + col + 3] = greenColours[greenIndices[15]];
+            }
+
+            byte[] buffer = new byte[width * height * 4];
+
+            for (uint i = 0, j = 0; i < width * height * 4; i += 4, j++)
+            {
+                buffer[i + 2] = redBuffer[j];
+                buffer[i + 1] = greenBuffer[j];
+                buffer[i + 0] = 255;
+                buffer[i + 3] = 255;
+            }
+
+            return buffer;
+        }
+
+        private static byte[] flipBlockRows(byte[] pixels)
         {
             byte[] output = new byte[16];
 
@@ -95,23 +174,26 @@ namespace ToxicRagers.Helpers
             return output;
         }
 
-        public static int[] CalculateIndices(byte[] pixels, byte minColour, byte maxColour)
+        private static int[] calculateIndices(byte[] pixels, byte minColour, byte maxColour)
         {
-            byte[] colours = CalcColours(minColour, maxColour);
+            byte[] colours = calcColours(maxColour, minColour);
             int[] indices = new int[16];
 
             for (int i = 0; i < 16; i++)
             {
                 int index = 0;
                 int closestDiff = 255;
+
                 for (int colour = 0; colour < 8; colour++)
                 {
                     int diff = 0;
+
                     if (pixels[i] == colours[colour])
                     {
                         index = colour;
                         break;
                     }
+
                     if (pixels[i] < colours[colour])
                     {
                         diff = colours[colour] - pixels[i];
@@ -120,106 +202,118 @@ namespace ToxicRagers.Helpers
                     {
                         diff = pixels[i] - colours[colour];
                     }
+
                     if (diff < closestDiff)
                     {
                         closestDiff = diff;
                         index = colour;
                     }
                 }
+
                 indices[i] = index;
             }
 
             return indices;
         }
 
-        public static byte[] ConvertIndicesToBytes(int[] indices)
+        private static byte[] convertIndicesToBytes(int[] indices)
         {
             byte[] output = new byte[6];
 
-            bool[] index7bits = GetBitsForIndex(indices[7]);
-            output[0] = (byte)((index7bits[2] ? (byte)(1 << 7) : (byte)0) +
-                        (index7bits[1] ? (byte)(1 << 6) : (byte)0) +
-                        (index7bits[0] ? (byte)(1 << 5) : (byte)0));
+            bool[] index7bits = getBitsForIndex(indices[7]);
+            output[0] = (byte)(
+                (index7bits[2] ? (1 << 7) : 0) +
+                (index7bits[1] ? (1 << 6) : 0) +
+                (index7bits[0] ? (1 << 5) : 0));
 
-            bool[] index6bits = GetBitsForIndex(indices[6]);
-            output[0] += (byte)((index6bits[2] ? (byte)(1 << 4) : (byte)0) +
-                        (index6bits[1] ? (byte)(1 << 3) : (byte)0) +
-                        (index6bits[0] ? (byte)(1 << 2) : (byte)0));
+            bool[] index6bits = getBitsForIndex(indices[6]);
+            output[0] += (byte)(
+                (index6bits[2] ? (1 << 4) : 0) +
+                (index6bits[1] ? (1 << 3) : 0) +
+                (index6bits[0] ? (1 << 2) : 0));
 
-            bool[] index5bits = GetBitsForIndex(indices[5]);
-            output[0] += (byte)((index5bits[2] ? (byte)(1 << 1) : (byte)0) +
-                        (index5bits[1] ? (byte)(1) : (byte)0));
+            bool[] index5bits = getBitsForIndex(indices[5]);
+            output[0] += (byte)(
+                (index5bits[2] ? (1 << 1) : 0) +
+                (index5bits[1] ? (1) : 0));
 
-            bool[] index4bits = GetBitsForIndex(indices[4]);
-            output[1] = (byte)((index5bits[0] ? (byte)(1 << 7) : (byte)0) +
-                        (index4bits[2] ? (byte)(1 << 6) : (byte)0) +
-                        (index4bits[1] ? (byte)(1 << 5) : (byte)0) +
-                        (index4bits[0] ? (byte)(1 << 4) : (byte)0));
+            bool[] index4bits = getBitsForIndex(indices[4]);
+            output[1] = (byte)(
+                (index5bits[0] ? (1 << 7) : 0) +
+                (index4bits[2] ? (1 << 6) : 0) +
+                (index4bits[1] ? (1 << 5) : 0) +
+                (index4bits[0] ? (1 << 4) : 0));
 
-            bool[] index3bits = GetBitsForIndex(indices[3]);
-            output[1] += (byte)((index3bits[2] ? (byte)(1 << 3) : (byte)0) +
-                        (index3bits[1] ? (byte)(1 << 2) : (byte)0) +
-                        (index3bits[0] ? (byte)(1 << 1) : (byte)0));
+            bool[] index3bits = getBitsForIndex(indices[3]);
+            output[1] += (byte)(
+                (index3bits[2] ? (1 << 3) : 0) +
+                (index3bits[1] ? (1 << 2) : 0) +
+                (index3bits[0] ? (1 << 1) : 0));
 
-            bool[] index2bits = GetBitsForIndex(indices[2]);
-            output[1] += (byte)((index2bits[2] ? (byte)(1) : (byte)0));
+            bool[] index2bits = getBitsForIndex(indices[2]);
+            output[1] += (byte)(index2bits[2] ? 1 : 0);
 
-            bool[] index1bits = GetBitsForIndex(indices[1]);
-            bool[] index0bits = GetBitsForIndex(indices[0]);
-            output[2] += (byte)((index2bits[1] ? (byte)(1 << 7) : (byte)0) +
-                (index2bits[0] ? (byte)(1 << 6) : (byte)0) +
-                (index1bits[2] ? (byte)(1 << 5) : (byte)0) +
-                (index1bits[1] ? (byte)(1 << 4) : (byte)0) +
-                (index1bits[0] ? (byte)(1 << 3) : (byte)0) +
-                (index0bits[2] ? (byte)(1 << 2) : (byte)0) +
-                (index0bits[1] ? (byte)(1 << 1) : (byte)0) +
-                (index0bits[0] ? (byte)(1) : (byte)0));
+            bool[] index1bits = getBitsForIndex(indices[1]);
+            bool[] index0bits = getBitsForIndex(indices[0]);
+            output[2] += (byte)(
+                (index2bits[1] ? (1 << 7) : 0) +
+                (index2bits[0] ? (1 << 6) : 0) +
+                (index1bits[2] ? (1 << 5) : 0) +
+                (index1bits[1] ? (1 << 4) : 0) +
+                (index1bits[0] ? (1 << 3) : 0) +
+                (index0bits[2] ? (1 << 2) : 0) +
+                (index0bits[1] ? (1 << 1) : 0) +
+                (index0bits[0] ? 1 : 0));
 
+            bool[] index15bits = getBitsForIndex(indices[15]);
+            output[3] = (byte)(
+                (index15bits[2] ? (1 << 7) : 0) +
+                (index15bits[1] ? (1 << 6) : 0) +
+                (index15bits[0] ? (1 << 5) : 0));
 
-            bool[] index15bits = GetBitsForIndex(indices[15]);
-            output[3] = (byte)((index15bits[2] ? (byte)(1 << 7) : (byte)0) +
-                        (index15bits[1] ? (byte)(1 << 6) : (byte)0) +
-                        (index15bits[0] ? (byte)(1 << 5) : (byte)0));
+            bool[] index14bits = getBitsForIndex(indices[14]);
+            output[3] += (byte)(
+                (index14bits[2] ? (1 << 4) : 0) +
+                (index14bits[1] ? (1 << 3) : 0) +
+                (index14bits[0] ? (1 << 2) : 0));
 
-            bool[] index14bits = GetBitsForIndex(indices[14]);
-            output[3] += (byte)((index14bits[2] ? (byte)(1 << 4) : (byte)0) +
-                        (index14bits[1] ? (byte)(1 << 3) : (byte)0) +
-                        (index14bits[0] ? (byte)(1 << 2) : (byte)0));
+            bool[] index13bits = getBitsForIndex(indices[13]);
+            output[3] += (byte)(
+                (index13bits[2] ? (1 << 1) : 0) +
+                (index13bits[1] ? 1 : 0));
 
-            bool[] index13bits = GetBitsForIndex(indices[13]);
-            output[3] += (byte)((index13bits[2] ? (byte)(1 << 1) : (byte)0) +
-                        (index13bits[1] ? (byte)(1) : (byte)0));
+            bool[] index12bits = getBitsForIndex(indices[12]);
+            output[4] = (byte)(
+                (index13bits[0] ? (1 << 7) : 0) +
+                (index12bits[2] ? (1 << 6) : 0) +
+                (index12bits[1] ? (1 << 5) : 0) +
+                (index12bits[0] ? (1 << 4) : 0));
 
-            bool[] index12bits = GetBitsForIndex(indices[12]);
-            output[4] = (byte)((index13bits[0] ? (byte)(1 << 7) : (byte)0) +
-                        (index12bits[2] ? (byte)(1 << 6) : (byte)0) +
-                        (index12bits[1] ? (byte)(1 << 5) : (byte)0) +
-                        (index12bits[0] ? (byte)(1 << 4) : (byte)0));
+            bool[] index11bits = getBitsForIndex(indices[11]);
+            output[4] += (byte)(
+                (index11bits[2] ? (1 << 3) : 0) +
+                (index11bits[1] ? (1 << 2) : 0) +
+                (index11bits[0] ? (1 << 1) : 0));
 
-            bool[] index11bits = GetBitsForIndex(indices[11]);
-            output[4] += (byte)((index11bits[2] ? (byte)(1 << 3) : (byte)0) +
-                        (index11bits[1] ? (byte)(1 << 2) : (byte)0) +
-                        (index11bits[0] ? (byte)(1 << 1) : (byte)0));
+            bool[] index10bits = getBitsForIndex(indices[10]);
+            output[4] += (byte)(index10bits[2] ? 1 : 0);
 
-            bool[] index10bits = GetBitsForIndex(indices[10]);
-            output[4] += (byte)((index10bits[2] ? (byte)(1) : (byte)0));
-
-            bool[] index9bits = GetBitsForIndex(indices[9]);
-            bool[] index8bits = GetBitsForIndex(indices[8]);
-
-            output[5] += (byte)((index10bits[1] ? (byte)(1 << 7) : (byte)0) +
-                (index10bits[0] ? (byte)(1 << 6) : (byte)0) +
-                (index9bits[2] ? (byte)(1 << 5) : (byte)0) +
-                (index9bits[1] ? (byte)(1 << 4) : (byte)0) +
-                (index9bits[0] ? (byte)(1 << 3) : (byte)0) +
-                (index8bits[2] ? (byte)(1 << 2) : (byte)0) +
-                (index8bits[1] ? (byte)(1 << 1) : (byte)0) +
-                (index8bits[0] ? (byte)(1) : (byte)0));
+            bool[] index9bits = getBitsForIndex(indices[9]);
+            bool[] index8bits = getBitsForIndex(indices[8]);
+            output[5] += (byte)(
+                (index10bits[1] ? (1 << 7) : 0) +
+                (index10bits[0] ? (1 << 6) : 0) +
+                (index9bits[2] ? (1 << 5) : 0) +
+                (index9bits[1] ? (1 << 4) : 0) +
+                (index9bits[0] ? (1 << 3) : 0) +
+                (index8bits[2] ? (1 << 2) : 0) +
+                (index8bits[1] ? (1 << 1) : 0) +
+                (index8bits[0] ? (1) : 0));
 
             return output;
         }
 
-        public static bool[] GetBitsForIndex(int index)
+        private static bool[] getBitsForIndex(int index)
         {
             bool[] output = new bool[3];
 
@@ -230,36 +324,43 @@ namespace ToxicRagers.Helpers
                     output[1] = false;
                     output[2] = false;
                     break;
+
                 case 1:
                     output[0] = true;
                     output[1] = false;
                     output[2] = false;
                     break;
+
                 case 2:
                     output[0] = false;
                     output[1] = true;
                     output[2] = false;
                     break;
+
                 case 3:
                     output[0] = true;
                     output[1] = true;
                     output[2] = false;
                     break;
+
                 case 4:
                     output[0] = false;
                     output[1] = false;
                     output[2] = true;
                     break;
+
                 case 5:
                     output[0] = true;
                     output[1] = false;
                     output[2] = true;
                     break;
+
                 case 6:
                     output[0] = false;
                     output[1] = true;
                     output[2] = true;
                     break;
+
                 case 7:
                     output[0] = true;
                     output[1] = true;
@@ -270,15 +371,15 @@ namespace ToxicRagers.Helpers
             return output;
         }
 
-        public static byte[] CalcColours(byte minColour, byte maxColour)
+        private static byte[] calcColours(byte minColour, byte maxColour)
         {
             byte[] output = new byte[8];
 
             output[0] = minColour;
             output[1] = maxColour;
 
-            float colour0 = minColour;// / 255;
-            float colour1 = maxColour;// / 255;
+            float colour0 = minColour;
+            float colour1 = maxColour;
 
             if (minColour > maxColour)
             {
@@ -302,91 +403,46 @@ namespace ToxicRagers.Helpers
             return output;
         }
 
-        public static uint[] GetIndices(byte b1, byte b2, byte b3, byte b4, byte b5, byte b6)
+        private static uint[] getIndices(byte b1, byte b2, byte b3, byte b4, byte b5, byte b6)
         {
-            int value1 = b3;
-            value1 = value1 << 8;
-            value1 += b2;
-            value1 = value1 << 8;
-            value1 += b1;
-            int value2 = b6;
-            value2 = value2 << 8;
-            value2 += b5;
-            value2 = value2 << 8;
-            value2 += b4;
-            value2 = value2 << 8;
-
             uint[] indices = new uint[16];
-            /*
-            indices[0] = MakeIndexFrom3Bits(GetBit(b3, 3), GetBit(b3, 2), GetBit(b3, 1)); //GetIndex(value1, 1); //(uint)(value1 & ((1 << 4) - 1));
-            indices[1] = MakeIndexFrom3Bits(GetBit(b3, 6), GetBit(b3, 5), GetBit(b3, 4)); //GetIndex(value1, 2); //(uint)((value1 >> 3) & ((1 << 4) - 1));
-            indices[2] = MakeIndexFrom3Bits(GetBit(b2, 1), GetBit(b3, 8), GetBit(b3, 7)); //GetIndex(value1, 3); //(uint)((value1 >> 6) & ((1 << 4) - 1));
-            indices[3] = MakeIndexFrom3Bits(GetBit(b2, 4), GetBit(b2, 3), GetBit(b2, 2)); //GetIndex(value1, 4); //(uint)((value1 >> 9) & ((1 << 4) - 1));
-            indices[4] = MakeIndexFrom3Bits(GetBit(b2, 7), GetBit(b2, 6), GetBit(b2, 5)); //GetIndex(value1, 5); //(uint)((value1 >> 12) & ((1 << 4) - 1));
-            indices[5] = MakeIndexFrom3Bits(GetBit(b1, 2), GetBit(b1, 1), GetBit(b2, 8)); //GetIndex(value1, 6); //(uint)((value1 >> 15) & ((1 << 4) - 1));
-            indices[6] = MakeIndexFrom3Bits(GetBit(b1, 5), GetBit(b1, 4), GetBit(b1, 3)); //GetIndex(value1, 7); //(uint)((value1 >> 18) & ((1 << 4) - 1));
-            indices[7] = MakeIndexFrom3Bits(GetBit(b1, 8), GetBit(b1, 7), GetBit(b1, 6)); //GetIndex(value1, 8); //(uint)((value1 >> 21) & ((1 << 4) - 1));
 
-            indices[8] = MakeIndexFrom3Bits(GetBit(b6, 3), GetBit(b6, 2), GetBit(b6, 1)); //GetIndex(value1, 1); // (uint)(value2 & ((1 << 4) - 1));
-            indices[9] = MakeIndexFrom3Bits(GetBit(b6, 6), GetBit(b6, 5), GetBit(b6, 4)); //GetIndex(value1, 2); // (uint)((value2 >> 3) & ((1 << 4) - 1));
-            indices[10] = MakeIndexFrom3Bits(GetBit(b5, 1), GetBit(b6, 8), GetBit(b6, 7)); //GetIndex(value1, 3); // (uint)((value2 >> 6) & ((1 << 4) - 1));
-            indices[11] = MakeIndexFrom3Bits(GetBit(b5, 4), GetBit(b5, 3), GetBit(b5, 2)); //GetIndex(value1, 4); // (uint)((value2 >> 9) & ((1 << 4) - 1));
-            indices[12] = MakeIndexFrom3Bits(GetBit(b5, 7), GetBit(b5, 6), GetBit(b5, 5)); //GetIndex(value1, 5); // (uint)((value2 >> 12) & ((1 << 4) - 1));
-            indices[13] = MakeIndexFrom3Bits(GetBit(b4, 2), GetBit(b4, 1), GetBit(b5, 8)); //GetIndex(value1, 6); // (uint)((value2 >> 15) & ((1 << 4) - 1));
-            indices[14] = MakeIndexFrom3Bits(GetBit(b4, 5), GetBit(b4, 4), GetBit(b4, 3)); //GetIndex(value1, 7); // (uint)((value2 >> 18) & ((1 << 4) - 1));
-            indices[15] = MakeIndexFrom3Bits(GetBit(b4, 8), GetBit(b4, 7), GetBit(b4, 6)); //GetIndex(value1, 8); // (uint)((value2 >> 21) & ((1 << 4) - 1));
-            */
-            indices[0] = MakeIndexFrom3Bits(GetBit(b3, 3), GetBit(b3, 2), GetBit(b3, 1)); //GetIndex(value1, 1); //(uint)(value1 & ((1 << 4) - 1));
-            indices[1] = MakeIndexFrom3Bits(GetBit(b3, 6), GetBit(b3, 5), GetBit(b3, 4)); //GetIndex(value1, 2); //(uint)((value1 >> 3) & ((1 << 4) - 1));
-            indices[2] = MakeIndexFrom3Bits(GetBit(b2, 1), GetBit(b3, 8), GetBit(b3, 7)); //GetIndex(value1, 3); //(uint)((value1 >> 6) & ((1 << 4) - 1));
-            indices[3] = MakeIndexFrom3Bits(GetBit(b2, 4), GetBit(b2, 3), GetBit(b2, 2)); //GetIndex(value1, 4); //(uint)((value1 >> 9) & ((1 << 4) - 1));
-            indices[4] = MakeIndexFrom3Bits(GetBit(b2, 7), GetBit(b2, 6), GetBit(b2, 5)); //GetIndex(value1, 5); //(uint)((value1 >> 12) & ((1 << 4) - 1));
-            indices[5] = MakeIndexFrom3Bits(GetBit(b1, 2), GetBit(b1, 1), GetBit(b2, 8)); //GetIndex(value1, 6); //(uint)((value1 >> 15) & ((1 << 4) - 1));
-            indices[6] = MakeIndexFrom3Bits(GetBit(b1, 5), GetBit(b1, 4), GetBit(b1, 3)); //GetIndex(value1, 7); //(uint)((value1 >> 18) & ((1 << 4) - 1));
-            indices[7] = MakeIndexFrom3Bits(GetBit(b1, 8), GetBit(b1, 7), GetBit(b1, 6)); //GetIndex(value1, 8); //(uint)((value1 >> 21) & ((1 << 4) - 1));
+            indices[0] = makeIndexFrom3Bits(getBit(b3, 3), getBit(b3, 2), getBit(b3, 1));
+            indices[1] = makeIndexFrom3Bits(getBit(b3, 6), getBit(b3, 5), getBit(b3, 4));
+            indices[2] = makeIndexFrom3Bits(getBit(b2, 1), getBit(b3, 8), getBit(b3, 7));
+            indices[3] = makeIndexFrom3Bits(getBit(b2, 4), getBit(b2, 3), getBit(b2, 2));
+            indices[4] = makeIndexFrom3Bits(getBit(b2, 7), getBit(b2, 6), getBit(b2, 5));
+            indices[5] = makeIndexFrom3Bits(getBit(b1, 2), getBit(b1, 1), getBit(b2, 8));
+            indices[6] = makeIndexFrom3Bits(getBit(b1, 5), getBit(b1, 4), getBit(b1, 3));
+            indices[7] = makeIndexFrom3Bits(getBit(b1, 8), getBit(b1, 7), getBit(b1, 6));
 
-            indices[8] = MakeIndexFrom3Bits(GetBit(b6, 3), GetBit(b6, 2), GetBit(b6, 1)); //GetIndex(value1, 1); // (uint)(value2 & ((1 << 4) - 1));
-            indices[9] = MakeIndexFrom3Bits(GetBit(b6, 6), GetBit(b6, 5), GetBit(b6, 4)); //GetIndex(value1, 2); // (uint)((value2 >> 3) & ((1 << 4) - 1));
-            indices[10] = MakeIndexFrom3Bits(GetBit(b5, 1), GetBit(b6, 8), GetBit(b6, 7)); //GetIndex(value1, 3); // (uint)((value2 >> 6) & ((1 << 4) - 1));
-            indices[11] = MakeIndexFrom3Bits(GetBit(b5, 4), GetBit(b5, 3), GetBit(b5, 2)); //GetIndex(value1, 4); // (uint)((value2 >> 9) & ((1 << 4) - 1));
-            indices[12] = MakeIndexFrom3Bits(GetBit(b5, 7), GetBit(b5, 6), GetBit(b5, 5)); //GetIndex(value1, 5); // (uint)((value2 >> 12) & ((1 << 4) - 1));
-            indices[13] = MakeIndexFrom3Bits(GetBit(b4, 2), GetBit(b4, 1), GetBit(b5, 8)); //GetIndex(value1, 6); // (uint)((value2 >> 15) & ((1 << 4) - 1));
-            indices[14] = MakeIndexFrom3Bits(GetBit(b4, 5), GetBit(b4, 4), GetBit(b4, 3)); //GetIndex(value1, 7); // (uint)((value2 >> 18) & ((1 << 4) - 1));
-            indices[15] = MakeIndexFrom3Bits(GetBit(b4, 8), GetBit(b4, 7), GetBit(b4, 6)); //GetIndex(value1, 8); // (uint)((value2 >> 21) & ((1 << 4) - 1));
+            indices[8] = makeIndexFrom3Bits(getBit(b6, 3), getBit(b6, 2), getBit(b6, 1));
+            indices[9] = makeIndexFrom3Bits(getBit(b6, 6), getBit(b6, 5), getBit(b6, 4));
+            indices[10] = makeIndexFrom3Bits(getBit(b5, 1), getBit(b6, 8), getBit(b6, 7));
+            indices[11] = makeIndexFrom3Bits(getBit(b5, 4), getBit(b5, 3), getBit(b5, 2));
+            indices[12] = makeIndexFrom3Bits(getBit(b5, 7), getBit(b5, 6), getBit(b5, 5));
+            indices[13] = makeIndexFrom3Bits(getBit(b4, 2), getBit(b4, 1), getBit(b5, 8));
+            indices[14] = makeIndexFrom3Bits(getBit(b4, 5), getBit(b4, 4), getBit(b4, 3));
+            indices[15] = makeIndexFrom3Bits(getBit(b4, 8), getBit(b4, 7), getBit(b4, 6));
 
             return indices;
-
         }
 
-        public static uint MakeIndexFrom3Bits(bool mostSigBit, bool midBit, bool leastSigBit)
+        private static uint makeIndexFrom3Bits(bool mostSigBit, bool midBit, bool leastSigBit)
         {
-            return MakeIndexFrom3Bits(mostSigBit, midBit, leastSigBit, false);
+            return makeIndexFrom3Bits(mostSigBit, midBit, leastSigBit, false);
         }
 
-        public static uint MakeIndexFrom3Bits(bool mostSigBit, bool midBit, bool leastSigBit, bool flip)
+        private static uint makeIndexFrom3Bits(bool mostSigBit, bool midBit, bool leastSigBit, bool flip)
         {
             if (flip) { return (uint)((leastSigBit ? 1 << 2 : 0) + (midBit ? 1 << 1 : 0) + (mostSigBit ? 1 : 0)); }
 
             return (uint)((mostSigBit ? 1 << 2 : 0) + (midBit ? 1 << 1 : 0) + (leastSigBit ? 1 : 0));
         }
 
-        public static bool GetBit(byte b, int n)
+        private static bool getBit(byte b, int n)
         {
             return (b & (1 << n - 1)) != 0;
-        }
-
-        public static uint GetIndex(int packedIndex, int IndexNum)
-        {
-            uint value = 0;
-            int index3 = IndexNum + 2;
-            int index2 = IndexNum + 1;
-            int index1 = IndexNum;
-            value = (uint)(((packedIndex & (1 << index1 - 1)) != 0 ? 1 << 2 : 0) +
-                    ((packedIndex & (1 << index2 - 1)) != 0 ? 1 << 1 : 0) +
-                    ((packedIndex & (1 << index3 - 1)) != 0 ? 1 : 0));
-
-            return value;
-
         }
     }
 }
