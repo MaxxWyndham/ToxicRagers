@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -67,7 +68,7 @@ namespace ToxicRagers.Core.Formats
         public uint ABitMask { get; set; }
     }
 
-    public class DDS : Texture
+    public class DDS : ITexture
     {
         [Flags]
         public enum HeaderFlags
@@ -97,6 +98,14 @@ namespace ToxicRagers.Core.Formats
         public DDSCaps Caps { get; set; }
 
         public DDSCaps2 Caps2 { get; set; }
+
+        public string Name { get; set; }
+
+        public string Extension { get; } = "dds";
+
+        public List<MipMap> MipMaps { get; set; } = new List<MipMap>();
+
+        public D3DFormat Format { get; set; }
 
         public DDS() { }
 

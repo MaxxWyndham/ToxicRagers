@@ -2,10 +2,12 @@
 {
     public enum D3DFormat : uint
     {
-        // Historic (occur in x360 files)
-        X360_A8R8G8B8 = 6,
-        X360_DXT1 = 18,
-        X360_DXT2 = 19,
+        PVRTC4 = 13,
+
+        R4G4B4A4 = 16,
+        R5G5B6 = 17,
+        A8B8G8R8 = 18,
+        R5G6B5 = 19,
 
         A8R8G8B8 = 21,
         A8 = 28,

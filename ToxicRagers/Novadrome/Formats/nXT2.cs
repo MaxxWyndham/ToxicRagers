@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 
 using ToxicRagers.Generics;
@@ -6,23 +7,26 @@ using ToxicRagers.Helpers;
 
 namespace ToxicRagers.Novadrome.Formats
 {
-    public class XT2 : Texture
+    public class XT2 : ITexture
     {
-        int dataSize;
-        int width;
-        int height;
-        D3DBaseTexture header;
+        public int Width { get; set; }
 
-        public XT2()
-            : base()
-        {
-            Extension = "XT2";
-        }
+        public int Height { get; set; }
 
-        public static XT2 Load(string Path)
+        public D3DBaseTexture Header { get; set; }
+
+        public string Name { get; set; }
+
+        public string Extension { get; } = "xt2";
+
+        public List<MipMap> MipMaps { get; set; } = new List<MipMap>();
+
+        public D3DFormat Format { get; }
+
+        public static XT2 Load(string path)
         {
-            FileInfo fi = new FileInfo(Path);
-            Console.WriteLine("{0}", Path);
+            FileInfo fi = new FileInfo(path);
+            Console.WriteLine("{0}", path);
             XT2 xt2 = new XT2() { Name = fi.Name.Replace(fi.Extension, "") };
 
             using (BEBinaryReader br = new BEBinaryReader(fi.OpenRead()))
@@ -31,65 +35,63 @@ namespace ToxicRagers.Novadrome.Formats
 
                 int magic = (int)br.ReadUInt32();
 
-                xt2.dataSize = (int)br.ReadUInt32();
+                br.ReadUInt32();    // datasize
                 Console.WriteLine("Always 52 : {0}", br.ReadUInt32());
                 Console.WriteLine("Always 0 : {0}", br.ReadUInt16());
-                xt2.width = br.ReadUInt16();
-                xt2.height = br.ReadUInt16();
+                xt2.Width = br.ReadUInt16();
+                xt2.Height = br.ReadUInt16();
                 Console.WriteLine("{0} {1}", br.ReadUInt16(), br.ReadUInt16());
 
-                xt2.header = new D3DBaseTexture(br);
-
-                Console.WriteLine("{0}x{1} :: {2} :: {3} :: {4} :: {5}", xt2.width, xt2.height, xt2.header.DataFormat, xt2.header.Endian, xt2.dataSize, magic);
+                xt2.Header = new D3DBaseTexture(br);
 
                 int W = 0;
                 int H = 0;
                 int TexelPitch = 0;
                 int DataSize = 0;
                 int OutSize = 0;
-                int w = xt2.width;
-                int h = xt2.height;
+                int w = xt2.Width;
+                int h = xt2.Height;
 
-                switch (xt2.header.DataFormat)
+                switch (xt2.Header.DataFormat)
                 {
-                    case D3DFormat.X360_A8R8G8B8:
-                        W = w;
-                        H = h;
-                        TexelPitch = 4;
-                        DataSize = w * h * 4;
-                        break;
+                    //case D3DFormat.X360_A8R8G8B8:
+                    //    W = w;
+                    //    H = h;
+                    //    TexelPitch = 4;
+                    //    DataSize = w * h * 4;
+                    //    break;
 
-                    case D3DFormat.X360_DXT1:
-                        W = w / 4;
-                        H = h / 4;
-                        TexelPitch = 8;
-                        DataSize = w * h / 2;
-                        break;
+                    //case D3DFormat.X360_DXT1:
+                    //    W = w / 4;
+                    //    H = h / 4;
+                    //    TexelPitch = 8;
+                    //    DataSize = w * h / 2;
+                    //    break;
 
-                    case D3DFormat.X360_DXT2:
-                        W = w / 4;
-                        H = h / 4;
-                        TexelPitch = 16;
-                        DataSize = W * H;
-                        break;
+                    //case D3DFormat.X360_DXT2:
+                    //    W = w / 4;
+                    //    H = h / 4;
+                    //    TexelPitch = 16;
+                    //    DataSize = W * H;
+                    //    break;
                 }
 
-                if (H % 128 != 0) { H = H + (128 - H % 128); }
+                if (H % 128 != 0) { H += 128 - H % 128; }
 
-                switch (xt2.header.DataFormat)
+                switch (xt2.Header.DataFormat)
                 {
-                    case D3DFormat.X360_A8R8G8B8:
-                        OutSize = W * H * TexelPitch;
-                        break;
+                    //case D3DFormat.X360_A8R8G8B8:
+                    //    OutSize = W * H * TexelPitch;
+                    //    break;
 
-                    case D3DFormat.X360_DXT1:
-                        OutSize = W * H * TexelPitch;
-                        break;
+                    //case D3DFormat.X360_DXT1:
+                    //    OutSize = W * H * TexelPitch;
+                    //    break;
 
-                    case D3DFormat.X360_DXT2:
-                        DataSize = w * H * 2;
-                        OutSize = W * H * TexelPitch;
-                        break;
+                    //case D3DFormat.X360_DXT2:
+                    //    DataSize = w * H * 2;
+                    //    OutSize = W * H * TexelPitch;
+                    //    break;
                 }
 
                 byte[] data = new byte[DataSize];
@@ -97,7 +99,7 @@ namespace ToxicRagers.Novadrome.Formats
 
                 Array.Copy(br.ReadBytes(DataSize), data, DataSize);
 
-                int step = (xt2.header.Endian == 1 ? 2 : 4);
+                int step = xt2.Header.Endian == 1 ? 2 : 4;
                 for (int i = 0; i < data.Length; i += step)
                 {
                     for (int j = 0; j < step / 2; j++)
@@ -117,10 +119,10 @@ namespace ToxicRagers.Novadrome.Formats
                     }
                 }
 
-                MipMap mip = new MipMap()
+                MipMap mip = new MipMap
                 {
-                    Width = xt2.width,
-                    Height = xt2.height,
+                    Width = xt2.Width,
+                    Height = xt2.Height,
                     Data = data
                 };
 

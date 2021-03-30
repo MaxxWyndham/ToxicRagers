@@ -135,12 +135,12 @@ namespace ToxicRagers.DoubleStealSecondClash.Formats
             {
                 case 12: // DXT1
                     size = (dimensionLookup[u] * dimensionLookup[v]) / 2;
-                    dds.SetFormat(D3DFormat.DXT1);
+                    dds.Format = D3DFormat.DXT1;
                     break;
 
                 case 15: // DXT5
                     size = dimensionLookup[u] * dimensionLookup[v];
-                    dds.SetFormat(D3DFormat.DXT5);
+                    dds.Format = D3DFormat.DXT5;
                     break;
 
                 default:

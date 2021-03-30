@@ -129,6 +129,7 @@
     <Compile Include="CarmageddonReincarnation\Formats\crMT2.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\crTDX.cs" />
     <Compile Include="Carmageddon\Formats\c1NoncarTXT.cs" />
+    <Compile Include="Helpers\Generics\MipMap.cs" />
     <Compile Include="CarmageddonReincarnation\Helpers\LUACodeBlock.cs" />
     <Compile Include="CarmageddonReincarnation\Helpers\XMLParser.cs" />
     <Compile Include="CarmageddonReincarnation\Helpers\XMLWriter.cs" />
@@ -165,7 +166,7 @@
     <Compile Include="Helpers\D3DBaseTexture.cs" />
     <Compile Include="Helpers\D3DFormat.cs" />
     <Compile Include="Helpers\ExtensionMethods.cs" />
-    <Compile Include="Helpers\Generics\Texture.cs" />
+    <Compile Include="Helpers\Generics\ITexture.cs" />
     <Compile Include="Helpers\IO.cs" />
     <Compile Include="Helpers\Line.cs" />
     <Compile Include="Helpers\Logger.cs" />

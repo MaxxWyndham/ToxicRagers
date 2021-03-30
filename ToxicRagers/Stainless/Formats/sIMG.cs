@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -21,7 +22,7 @@ namespace ToxicRagers.Stainless.Formats
         LIC = 3
     }
 
-    public class IMG : Texture
+    public class IMG : ITexture
     {
         [Flags]
         public enum BasicFlags : byte
@@ -63,11 +64,13 @@ namespace ToxicRagers.Stainless.Formats
         int height;
         ConcurrentBag<Plane> planes = new ConcurrentBag<Plane>();
 
-        public IMG()
-            : base()
-        {
-            Extension = "IMG";
-        }
+        public string Name { get; set; }
+
+        public string Extension { get; } = "img";
+
+        public List<MipMap> MipMaps { get; set; } = new List<MipMap>();
+
+        public D3DFormat Format { get; }
 
         public static IMG Load(string path)
         {
