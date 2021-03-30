@@ -147,7 +147,6 @@
     <Compile Include="Core\Formats\cDDS.cs" />
     <Compile Include="Core\Formats\cFBX.cs" />
     <Compile Include="Core\Formats\cOBB.cs" />
-    <Compile Include="Core\Formats\TgaFile.cs" />
     <Compile Include="DestructionDerbyRaw\Formats\ddrPTH.cs" />
     <Compile Include="DoubleStealSecondClash\Formats\dsscPk.cs" />
     <Compile Include="DoubleStealSecondClash\Formats\dsscXPR.cs" />
