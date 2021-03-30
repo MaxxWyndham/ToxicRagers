@@ -31,6 +31,11 @@ namespace ToxicRagers.Helpers
             this.M41 = M41; this.M42 = M42; this.M43 = M43; this.M44 = M44;
         }
 
+        public Matrix4D Clone()
+        {
+            return new Matrix4D(M11, M12, M13, M14, M21, M22, M23, M24, M31, M32, M33, M34, M41, M42, M43, M44);
+        }
+
         public static Matrix4D LookAt(Vector3 eye, Vector3 target, Vector3 up)
         {
             Vector3 z = (eye - target).Normalised;
@@ -60,7 +65,7 @@ namespace ToxicRagers.Helpers
 
         public Matrix4D Inverted()
         {
-            Matrix4D m = this;
+            Matrix4D m = Clone();
 
             if (m.Determinant != 0)
             {
@@ -93,6 +98,15 @@ namespace ToxicRagers.Helpers
             M42 /= determinant;
             M43 /= determinant;
             M44 /= determinant;
+        }
+
+        public Matrix4D Normalised()
+        {
+            Matrix4D m = Clone();
+
+            m.Normalise();
+
+            return m;
         }
 
         public void Invert()
@@ -331,7 +345,7 @@ namespace ToxicRagers.Helpers
 
         public Matrix4D ClearTranslation()
         {
-            Matrix4D m = this;
+            Matrix4D m = Clone();
 
             m.M41 = 0;
             m.M42 = 0;
@@ -342,7 +356,7 @@ namespace ToxicRagers.Helpers
 
         public Matrix4D ClearScale()
         {
-            Matrix4D m = this;
+            Matrix4D m = Clone();
             Vector3 x = new Vector3(m.M11, m.M12, m.M13).Normalised;
             Vector3 y = new Vector3(m.M21, m.M22, m.M23).Normalised;
             Vector3 z = new Vector3(m.M31, m.M32, m.M33).Normalised;
@@ -356,7 +370,7 @@ namespace ToxicRagers.Helpers
 
         public Matrix4D ClearRotation()
         {
-            Matrix4D m = this;
+            Matrix4D m = Clone();
             float x = new Vector3(m.M11, m.M12, m.M13).Length;
             float y = new Vector3(m.M21, m.M22, m.M23).Length;
             float z = new Vector3(m.M31, m.M32, m.M33).Length;

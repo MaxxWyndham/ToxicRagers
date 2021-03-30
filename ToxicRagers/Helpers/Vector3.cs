@@ -153,6 +153,15 @@ namespace ToxicRagers.Helpers
             return v1.X * v2.X + v1.Y * v2.Y + v1.Z * v2.Z;
         }
 
+        public static Vector3 Lerp(Vector3 a, Vector3 b, float blend)
+        {
+            return new Vector3(
+                (blend * (b.X - a.X)) + a.X,
+                (blend * (b.Y - a.Y)) + a.Y,
+                (blend * (b.Z - a.Z)) + a.Z
+            );
+        }
+
         public float Length => (float)Math.Sqrt(LengthSquared);
 
         public float LengthSquared => X * X + Y * Y + Z * Z;
