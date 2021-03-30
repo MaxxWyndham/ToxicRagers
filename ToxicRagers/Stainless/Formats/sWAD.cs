@@ -1,38 +1,43 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
+using System.Linq;
 
 using ToxicRagers.Helpers;
 
 namespace ToxicRagers.Stainless.Formats
 {
-    // WAD file used by some Stainless games
-
     public class WAD
     {
-        string name;
-        string location;
-        List<WADEntry> contents;
-
-        Version version;
-        int flags;
-
-        public string Name => name;
-        public List<WADEntry> Contents => contents;
-
-        public WAD()
+        [Flags]
+        public enum WADFlags
         {
-            contents = new List<WADEntry>();
+            HasCompressedFiles = 1 << 1,
+            Unknown = 1 << 7,
+            HasDataTimes = 1 << 9
         }
+
+        public string Name { get; set; }
+
+        public string Location { get; set; }
+
+        public Version Version { get; set; }
+
+        public WADFlags Flags { get; set; }
+
+        public List<WADEntry> Contents { get; set; } = new List<WADEntry>();
+
+        public IEnumerable<WADEntry> Files => Contents.Where(c => !c.IsDirectory);
 
         public static WAD Load(string path)
         {
             FileInfo fi = new FileInfo(path);
             Logger.LogToFile(Logger.LogLevel.Info, "{0}", path);
-            WAD wad = new WAD()
+            WAD wad = new WAD
             {
-                name = Path.GetFileNameWithoutExtension(path),
-                location = Path.GetDirectoryName(path) + "\\"
+                Name = Path.GetFileNameWithoutExtension(path),
+                Location = Path.GetDirectoryName(path)
             };
 
             using (BinaryReader br = new BinaryReader(fi.OpenRead()))
@@ -47,8 +52,8 @@ namespace ToxicRagers.Stainless.Formats
                 byte minor = br.ReadByte();
                 byte major = br.ReadByte();
 
-                wad.version = new Version(major, minor);
-                wad.flags = (int)br.ReadUInt32();
+                wad.Version = new Version(major, minor);
+                wad.Flags = (WADFlags)br.ReadUInt32();
 
                 int xmlLength = (int)br.ReadUInt32();
                 if (xmlLength > 0)
@@ -58,57 +63,130 @@ namespace ToxicRagers.Stainless.Formats
                 }
 
                 int namesLength = (int)br.ReadUInt32();
-                int endOfNamesBlock = (int)br.BaseStream.Position + namesLength;
+                int nameBlockStart = (int)br.BaseStream.Position;
+                int nameBlockEnd = (int)br.BaseStream.Position + namesLength;
+                Dictionary<int, string> names = new Dictionary<int, string>();
 
-                while (br.BaseStream.Position + 4 < endOfNamesBlock)
+                while (br.BaseStream.Position < nameBlockEnd && br.PeekChar() != 0)
                 {
-                    WADEntry entry = new WADEntry() { Name = br.ReadNullTerminatedString() };
-                    wad.contents.Add(entry);
+                    names.Add((int)(br.BaseStream.Position - nameBlockStart), br.ReadNullTerminatedString());
                 }
+
+                br.BaseStream.Seek(nameBlockEnd, SeekOrigin.Begin);
+
+                if (wad.Flags.HasFlag(WADFlags.HasDataTimes))
+                {
+                    int count = br.ReadInt32();
+
+                    for (int i = 0; i < count; i++)
+                    {
+                        br.ReadInt32();     // index (with bit 0x1 set)
+                        br.ReadInt32();     // dos date time?  time added to archive?
+                    }
+                }
+
+                int fileCount = br.ReadInt32();
+                int folderCount = br.ReadInt32();
+
+                int offsetCount = br.ReadInt32();
+                List<int> offsets = new List<int>();
+                for (int i = 0; i < offsetCount; i++)
+                {
+                    offsets.Add(br.ReadInt32());
+                }
+
+                void processFileEntry(WADEntry parent)
+                {
+                    WADEntry entry = new WADEntry
+                    {
+                        Name = names[br.ReadInt32()],
+                        Size = br.ReadInt32(),
+                        ParentEntry = parent,
+                        Offset = offsets[(int)(br.ReadUInt32() & 0x00FFFFFF)]
+                    };
+
+                    br.ReadInt32(); // Unknown
+
+                    wad.Contents.Add(entry);
+                }
+
+                void processDirectoryEntry(WADEntry parent = null)
+                {
+                    WADEntry entry = new WADEntry
+                    {
+                        Name = names[br.ReadInt32()],
+                        IsDirectory = true,
+                        ParentEntry = parent
+                    };
+
+                    wad.Contents.Add(entry);
+
+                    int fileEntries = br.ReadInt32();
+                    int folderEntries = br.ReadInt32();
+                    br.ReadInt32(); // unknown
+
+                    for (int i = 0; i < folderEntries; i++)
+                    {
+                        processDirectoryEntry(entry);
+                    }
+
+                    for (int i = 0; i < fileEntries; i++)
+                    {
+                        processFileEntry(entry);
+                    }
+                }
+
+                processDirectoryEntry();
             }
 
             return wad;
         }
 
-        public void Extract(WADEntry file, string destination)
+        public void Extract(WADEntry file, string destination, bool createFullPath = true)
         {
+            if (createFullPath) { destination = Path.Combine(destination, Path.GetDirectoryName(file.FullPath)); }
             if (!Directory.Exists(destination)) { Directory.CreateDirectory(destination); }
 
-            using (BinaryWriter bw = new BinaryWriter(new FileStream(destination + "\\" + file.Name, FileMode.Create)))
-            using (FileStream fs = new FileStream(location + name + ".wad", FileMode.Open))
+            using (BinaryWriter bw = new BinaryWriter(new FileStream(Path.Combine(destination, file.Name), FileMode.Create)))
+            using (FileStream fs = new FileStream(Path.Combine(Location, $"{Name}.wad"), FileMode.Open))
+            using (BinaryReader br = new BinaryReader(fs))
             {
-                fs.Seek(file.Offset, SeekOrigin.Begin);
+                br.BaseStream.Seek(file.Offset, SeekOrigin.Begin);
 
-                byte[] buff = new byte[file.Size];
-                fs.Read(buff, 0, file.Size);
-                bw.Write(buff);
-                buff = null;
+                int length = br.ReadInt32();
+
+                if (length == -1)
+                {
+                    bw.Write(br.ReadBytes(file.Size - 4));
+                }
+                else
+                {
+                    br.BaseStream.Seek(2, SeekOrigin.Current);
+
+                    using (MemoryStream ms = new MemoryStream(br.ReadBytes(file.Size - 2)))
+                    using (DeflateStream ds = new DeflateStream(ms, CompressionMode.Decompress))
+                    {
+                        byte[] data = new byte[length];
+                        ds.Read(data, 0, length);
+                        bw.Write(data, 0, data.Length);
+                    }
+                }
             }
         }
     }
 
     public class WADEntry
     {
-        string name;
-        int offset;
-        int size;
+        public WADEntry ParentEntry { get; set; }
 
-        public int Offset
-        {
-            get => offset;
-            set => offset = value;
-        }
+        public bool IsDirectory { get; set; }
 
-        public int Size
-        {
-            get => size;
-            set => size = value;
-        }
+        public int Offset { get; set; }
 
-        public string Name
-        {
-            get => name;
-            set => name = value;
-        }
+        public int Size { get; set; }
+
+        public string Name { get; set; }
+
+        public string FullPath => Path.Combine(ParentEntry?.FullPath ?? "", Name);
     }
 }
