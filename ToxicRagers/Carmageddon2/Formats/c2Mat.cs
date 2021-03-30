@@ -218,20 +218,20 @@ namespace ToxicRagers.Carmageddon2.Formats
         public bool HasTexture => (Texture != null && Texture.Length > 0);
 
         public MATMaterial()
-            : this("", "", (Settings.Lit | Settings.CorrectPerspective))
+            : this("", "", Settings.Lit | Settings.CorrectPerspective)
         {
         }
 
-        public MATMaterial(string Name, string Texture)
-            : this(Name, Texture, (Settings.Lit | Settings.CorrectPerspective))
+        public MATMaterial(string name, string texture)
+            : this(name, texture, Settings.Lit | Settings.CorrectPerspective)
         {
         }
 
-        public MATMaterial(string Name, string Texture, Settings Flags)
+        public MATMaterial(string name, string texture, Settings flags)
         {
-            this.Name = Name;
-            this.Texture = Texture;
-            this.Flags = (int)Flags;
+            Name = name;
+            Texture = texture;
+            Flags = (int)flags;
         }
     }
 }

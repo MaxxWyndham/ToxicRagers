@@ -114,121 +114,121 @@ namespace ToxicRagers.Carmageddon2.Formats
             return dat;
         }
 
-        public void Save(string Path)
+        public void Save(string path)
         {
-            BEBinaryWriter bw = new BEBinaryWriter(new FileStream(Path, FileMode.Create));
-            int iMatListLength;
-            string name;
-
-            //output header
-            bw.WriteInt32(18);
-            bw.WriteInt32(8);
-            bw.WriteInt32(64206);
-            bw.WriteInt32(2);
-
-            for (int i = 0; i < DatMeshes.Count; i++)
+            using (FileStream fs = new FileStream(path, FileMode.Create))
+            using (BEBinaryWriter bw = new BEBinaryWriter(fs))
             {
-                DatMesh dm = DatMeshes[i];
-                iMatListLength = 0;
+                int matListLength;
+                string name;
 
-                for (int j = 0; j < dm.Mesh.Materials.Count; j++)
+                //output header
+                bw.WriteInt32(0x12);
+                bw.WriteInt32(0x8);
+                bw.WriteInt32(0xface);
+                bw.WriteInt32(0x2);
+
+                for (int i = 0; i < DatMeshes.Count; i++)
                 {
-                    iMatListLength += dm.Mesh.Materials[j].Length + 1;
-                }
+                    DatMesh dm = DatMeshes[i];
+                    matListLength = 0;
 
-                name = dm.Name;
-                //Console.WriteLine(name + " : " + dm.Mesh.Verts.Count);
+                    for (int j = 0; j < dm.Mesh.Materials.Count; j++)
+                    {
+                        matListLength += dm.Mesh.Materials[j].Length + 1;
+                    }
 
-                //begin name section
-                bw.WriteInt32(54);
-                bw.WriteInt32(name.Length + 3);
-                bw.WriteByte(0);
-                bw.WriteByte(0);
-                bw.Write(name.ToCharArray());
-                bw.WriteByte(0);
-                //end name section
+                    name = dm.Name;
+                    //Console.WriteLine(name + " : " + dm.Mesh.Verts.Count);
 
-                //begin vertex data
-                bw.WriteInt32(23);
-                bw.WriteInt32((dm.Mesh.Verts.Count * 12) + 4);
-                bw.WriteInt32(dm.Mesh.Verts.Count);
-
-                for (int j = 0; j < dm.Mesh.Verts.Count; j++)
-                {
-                    bw.WriteSingle(dm.Mesh.Verts[j].X);
-                    bw.WriteSingle(dm.Mesh.Verts[j].Y);
-                    bw.WriteSingle(dm.Mesh.Verts[j].Z);
-                }
-                //end vertex data
-
-                //begin uv data (00 00 00 18)
-                bw.WriteInt32(24);
-                bw.WriteInt32((dm.Mesh.UVs.Count * 8) + 4);
-                bw.WriteInt32(dm.Mesh.UVs.Count);
-
-                for (int j = 0; j < dm.Mesh.UVs.Count; j++)
-                {
-                    bw.WriteSingle(dm.Mesh.UVs[j].X);
-                    bw.WriteSingle(dm.Mesh.UVs[j].Y);
-                }
-                //end uv data
-
-                //begin face data (00 00 00 35)
-                bw.WriteInt32(53);
-                bw.WriteInt32((dm.Mesh.Faces.Count * 9) + 4);
-                bw.WriteInt32(dm.Mesh.Faces.Count);
-
-                for (int j = 0; j < dm.Mesh.Faces.Count; j++)
-                {
-                    bw.WriteInt16(dm.Mesh.Faces[j].V1);
-                    bw.WriteInt16(dm.Mesh.Faces[j].V2);
-                    bw.WriteInt16(dm.Mesh.Faces[j].V3);
-                    bw.WriteByte(0); // smoothing groups 9 - 16
-                    bw.WriteByte(1);   // smoothing groups 1 - 8
-                    bw.WriteByte(0);   // number of edges, 0 and 3 = tri.  4 = quad.
-                }
-                //end face data
-
-                //begin material list
-                bw.WriteInt32(22);
-                bw.WriteInt32(iMatListLength + 4);
-                bw.WriteInt32(dm.Mesh.Materials.Count);
-
-                for (int j = 0; j < dm.Mesh.Materials.Count; j++)
-                {
-                    bw.Write(dm.Mesh.Materials[j].ToCharArray());
+                    //begin name section
+                    bw.WriteInt32(54);
+                    bw.WriteInt32(name.Length + 3);
                     bw.WriteByte(0);
+                    bw.WriteByte(0);
+                    bw.Write(name.ToCharArray());
+                    bw.WriteByte(0);
+                    //end name section
+
+                    //begin vertex data
+                    bw.WriteInt32(23);
+                    bw.WriteInt32((dm.Mesh.Verts.Count * 12) + 4);
+                    bw.WriteInt32(dm.Mesh.Verts.Count);
+
+                    for (int j = 0; j < dm.Mesh.Verts.Count; j++)
+                    {
+                        bw.WriteSingle(dm.Mesh.Verts[j].X);
+                        bw.WriteSingle(dm.Mesh.Verts[j].Y);
+                        bw.WriteSingle(dm.Mesh.Verts[j].Z);
+                    }
+                    //end vertex data
+
+                    //begin uv data (00 00 00 18)
+                    bw.WriteInt32(24);
+                    bw.WriteInt32((dm.Mesh.UVs.Count * 8) + 4);
+                    bw.WriteInt32(dm.Mesh.UVs.Count);
+
+                    for (int j = 0; j < dm.Mesh.UVs.Count; j++)
+                    {
+                        bw.WriteSingle(dm.Mesh.UVs[j].X);
+                        bw.WriteSingle(dm.Mesh.UVs[j].Y);
+                    }
+                    //end uv data
+
+                    //begin face data (00 00 00 35)
+                    bw.WriteInt32(53);
+                    bw.WriteInt32((dm.Mesh.Faces.Count * 9) + 4);
+                    bw.WriteInt32(dm.Mesh.Faces.Count);
+
+                    for (int j = 0; j < dm.Mesh.Faces.Count; j++)
+                    {
+                        bw.WriteInt16(dm.Mesh.Faces[j].V1);
+                        bw.WriteInt16(dm.Mesh.Faces[j].V2);
+                        bw.WriteInt16(dm.Mesh.Faces[j].V3);
+                        bw.WriteByte(0); // smoothing groups 9 - 16
+                        bw.WriteByte(1);   // smoothing groups 1 - 8
+                        bw.WriteByte(0);   // number of edges, 0 and 3 = tri.  4 = quad.
+                    }
+                    //end face data
+
+                    //begin material list
+                    bw.WriteInt32(22);
+                    bw.WriteInt32(matListLength + 4);
+                    bw.WriteInt32(dm.Mesh.Materials.Count);
+
+                    for (int j = 0; j < dm.Mesh.Materials.Count; j++)
+                    {
+                        bw.Write(dm.Mesh.Materials[j].ToCharArray());
+                        bw.WriteByte(0);
+                    }
+                    //end material list
+
+                    //begin face textures
+                    bw.WriteInt32(26);
+                    bw.WriteInt32((dm.Mesh.Faces.Count * 2) + 4);
+                    bw.WriteInt32(dm.Mesh.Faces.Count);
+                    bw.WriteInt32(2);
+
+                    for (int j = 0; j < dm.Mesh.Faces.Count; j++)
+                    {
+                        bw.WriteInt16(dm.Mesh.Faces[j].MaterialID + 1);
+                    }
+                    //end face textures
+
+                    bw.WriteInt32(0);
+                    bw.WriteInt32(0);
                 }
-                //end material list
-
-                //begin face textures
-                bw.WriteInt32(26);
-                bw.WriteInt32((dm.Mesh.Faces.Count * 2) + 4);
-                bw.WriteInt32(dm.Mesh.Faces.Count);
-                bw.WriteInt32(2);
-
-                for (int j = 0; j < dm.Mesh.Faces.Count; j++)
-                {
-                    bw.WriteInt16(dm.Mesh.Faces[j].MaterialID + 1);
-                }
-                //end face textures
-
-                bw.WriteInt32(0);
-                bw.WriteInt32(0);
             }
-
-            bw.Close();
         }
 
-        public void AddMesh(string Name, byte Flag, C2Mesh Mesh)
+        public void AddMesh(string name, byte flag, C2Mesh mesh)
         {
-            DatMesh d = new DatMesh()
+            DatMeshes.Add(new DatMesh
             {
-                Name = Name,
-                UnknownAttribute = Flag,
-                Mesh = Mesh
-            };
-            DatMeshes.Add(d);
+                Name = name,
+                UnknownAttribute = flag,
+                Mesh = mesh
+            });
         }
 
         public MeshExtents Extents
@@ -284,10 +284,10 @@ namespace ToxicRagers.Carmageddon2.Formats
 
         public DatMesh() { }
 
-        public DatMesh(string Name, C2Mesh m)
+        public DatMesh(string name, C2Mesh mesh)
         {
-            this.Name = Name;
-            Mesh = m;
+            Name = name;
+            Mesh = mesh;
         }
     }
 }

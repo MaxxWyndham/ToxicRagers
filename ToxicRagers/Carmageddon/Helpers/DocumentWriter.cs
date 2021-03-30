@@ -6,11 +6,15 @@ namespace ToxicRagers.Carmageddon.Helpers
     public class DocumentWriter : IDisposable
     {
         public int CommentIndent { get; set; } = 8;
+
         public char CommentIndentCharacter { get; set; } = '\t';
+
         public char IndentCharacter { get; set; } = '\t';
+
         public int TabWidth { get; set; } = 8;
 
         private StreamWriter BaseStream { get; set; }
+
         private int CurrentIndent { get; set; } = 0;
 
         public DocumentWriter(string path)

@@ -847,17 +847,17 @@ namespace ToxicRagers.CarmageddonPSX
 
             dChassis.DatMeshes[0].Mesh.GenerateKDOP(18);
             SaveBoundingBox(dChassis.DatMeshes[0].Mesh.intersectionPoints, outPath + DisplayName + "PSX_BB.txt");
-            ACT kdop = new ACT();
-            kdop.AddRootNode("pointcloud");
-            for (int i = 0; i < dChassis.DatMeshes[0].Mesh.intersectionPoints.Count; i++)
-            {
-                Matrix3D m = Matrix3D.Identity;
-                m.Scale = 0.05f;
-                m.Position = dChassis.DatMeshes[0].Mesh.intersectionPoints[i];
+            //ACT kdop = new ACT();
+            //kdop.AddRootNode("pointcloud");
+            //for (int i = 0; i < dChassis.DatMeshes[0].Mesh.intersectionPoints.Count; i++)
+            //{
+            //    Matrix3D m = Matrix3D.Identity;
+            //    m.Scale = 0.05f;
+            //    m.Position = dChassis.DatMeshes[0].Mesh.intersectionPoints[i];
 
-                kdop.AddActor("p" + i, "Sphere_48", m, false);
-            }
-            kdop.Save("D:\\kdop.act");
+            //    kdop.AddActor("p" + i, "Sphere_48", m, false);
+            //}
+            //kdop.Save("D:\\kdop.act");
 
             dChassis.DatMeshes[0].Mesh.ProcessMesh();
             Console.WriteLine(dChassis.DatMeshes[0].Mesh.Extents);

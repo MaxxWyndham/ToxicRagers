@@ -22,12 +22,7 @@ namespace ToxicRagers.Carmageddon2.Formats
 
     public class ACT
     {
-        public List<ACTNode> Sections { get; }
-
-        public ACT()
-        {
-            Sections = new List<ACTNode>();
-        }
+        public List<ACTNode> Sections { get; private set; } = new List<ACTNode>();
 
         public static ACT Load(string path)
         {
@@ -104,16 +99,17 @@ namespace ToxicRagers.Carmageddon2.Formats
             return act;
         }
 
-        public void Save(string Path)
+        public void Save(string path)
         {
-            using (BEBinaryWriter bw = new BEBinaryWriter(new FileStream(Path, FileMode.Create), Encoding.Default))
+            using (FileStream fs = new FileStream(path, FileMode.Create))
+            using (BEBinaryWriter bw = new BEBinaryWriter(fs, Encoding.Default))
             {
-                int iLength;
+                int length;
 
-                bw.Write(new byte[] { 0x0, 0x0, 0x0, 0x12 });   // Magic Number
-                bw.Write(new byte[] { 0x0, 0x0, 0x0, 0x8 });    // 
-                bw.Write(new byte[] { 0x0, 0x0, 0x0, 0x1 });    // 
-                bw.Write(new byte[] { 0x0, 0x0, 0x0, 0x2 });    // 
+                bw.WriteInt32(0x12);   // Magic Number
+                bw.WriteInt32(0x8);    // 
+                bw.WriteInt32(0x1);    // 
+                bw.WriteInt32(0x2);    // 
 
                 foreach (ACTNode A in Sections)
                 {
@@ -122,8 +118,9 @@ namespace ToxicRagers.Carmageddon2.Formats
                     switch (A.Section)
                     {
                         case Section.Name:
-                            iLength = A.Identifier.Length + 3;
-                            bw.WriteInt32(iLength);
+                            length = A.Identifier.Length + 3;
+
+                            bw.WriteInt32(length);
                             bw.WriteByte((byte)A.ActorType);
                             bw.WriteByte((byte)A.RenderStyle);
                             bw.Write(A.Identifier.ToCharArray());
@@ -165,32 +162,32 @@ namespace ToxicRagers.Carmageddon2.Formats
             }
         }
 
-        public void AddRootNode(string Name = "")
+        public void AddRootNode(string name = "")
         {
-            Sections.Add(new ACTNode(Section.Name, Name));
+            Sections.Add(new ACTNode(Section.Name, name));
             Sections.Add(new ACTNode(Section.Matrix));
             Sections.Add(new ACTNode(Section.Section37));
         }
 
-        public void AddActor(string ActorName, string Model, Matrix3D Transform, bool Parent)
+        public void AddActor(string actorname, string model, Matrix3D transform, bool parent)
         {
-            Sections.Add(new ACTNode(Section.Name, ActorName) { ActorType = (Model != null ? ActorType.BR_ACTOR_MODEL : ActorType.BR_ACTOR_NONE) });
-            Sections.Add(new ACTNode(Transform));
+            Sections.Add(new ACTNode(Section.Name, actorname) { ActorType = model != null ? ActorType.BR_ACTOR_MODEL : ActorType.BR_ACTOR_NONE });
+            Sections.Add(new ACTNode(transform));
             Sections.Add(new ACTNode(Section.Section37));
-            if (Model != null) { Sections.Add(new ACTNode(Section.Model, Model)); }
-            if (!Parent) { Sections.Add(new ACTNode(Section.SubLevelEnd)); }
+            if (model != null) { Sections.Add(new ACTNode(Section.Model, model)); }
+            if (!parent) { Sections.Add(new ACTNode(Section.SubLevelEnd)); }
         }
 
-        public void AddPivot(string PivotName, string ActorName, string ActorModel, Matrix3D Transform)
+        public void AddPivot(string pivotname, string actorname, string actormodel, Matrix3D transform)
         {
-            Sections.Add(new ACTNode(Section.Name, PivotName)); //, false, 0, 0
-            Sections.Add(new ACTNode(Transform));
+            Sections.Add(new ACTNode(Section.Name, pivotname)); //, false, 0, 0
+            Sections.Add(new ACTNode(transform));
             Sections.Add(new ACTNode(Section.Section37));
 
-            Sections.Add(new ACTNode(Section.Name, ActorName)); //, false, 1, 4
+            Sections.Add(new ACTNode(Section.Name, actorname)); //, false, 1, 4
             Sections.Add(new ACTNode(Matrix3D.Identity));
             Sections.Add(new ACTNode(Section.Section37));
-            Sections.Add(new ACTNode(Section.Model, ActorModel));
+            Sections.Add(new ACTNode(Section.Model, actormodel));
             Sections.Add(new ACTNode(Section.SubLevelEnd));
 
             Sections.Add(new ACTNode(Section.SubLevelEnd));

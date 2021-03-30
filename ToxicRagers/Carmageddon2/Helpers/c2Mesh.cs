@@ -7,59 +7,56 @@ namespace ToxicRagers.Carmageddon2.Helpers
 {
     public class C2Mesh
     {
-        public List<string> Materials;
-        public List<Vector3> Verts;
-        public Dictionary<int, Vector3> Normals;
-        public List<Vector2> UVs;
-        public List<C2Face> Faces;
+        public List<string> Materials { get; set; } = new List<string>();
+
+        public List<Vector3> Verts { get; set; } = new List<Vector3>();
+
+        public Dictionary<int, Vector3> Normals { get; set; } = new Dictionary<int, Vector3>();
+
+        public List<Vector2> UVs { get; set; } = new List<Vector2>();
+
+        public List<C2Face> Faces { get; set; } = new List<C2Face>();
+
         public MeshExtents Extents;
 
-        public bool HasUVs => (UVs.Count > 0);
-
-        public C2Mesh()
-        {
-            Verts = new List<Vector3>();
-            UVs = new List<Vector2>();
-            Faces = new List<C2Face>();
-            Materials = new List<string>();
-        }
+        public bool HasUVs => UVs.Count > 0;
 
         // ============= Build by List =============
-        public void AddListVertex(Vector3 V)
+        public void AddListVertex(Vector3 v)
         {
-            Verts.Add(V);
+            Verts.Add(v);
         }
 
-        public void AddListVertex(float X, float Y, float Z)
+        public void AddListVertex(float x, float y, float z)
         {
-            Verts.Add(new Vector3(X, Y, Z));
+            Verts.Add(new Vector3(x, y, z));
         }
 
-        public void AddListUV(Vector2 UV)
+        public void AddListUV(Vector2 uv)
         {
-            UVs.Add(UV);
+            UVs.Add(uv);
         }
 
-        public void AddListUV(float U, float V)
+        public void AddListUV(float u, float v)
         {
-            UVs.Add(new Vector2(U, V));
+            UVs.Add(new Vector2(u, v));
         }
 
-        public void AddListMaterial(string Name)
+        public void AddListMaterial(string name)
         {
-            Materials.Add(Name);
+            Materials.Add(name);
         }
 
-        public int AddFace(int v1, int v2, int v3, int MaterialID = -1)
+        public int AddFace(int v1, int v2, int v3, int materialID = -1)
         {
-            Faces.Add(new C2Face(v1, v2, v3, MaterialID));
+            Faces.Add(new C2Face(v1, v2, v3, materialID));
 
             return Faces.Count - 1;
         }
 
-        public void AddFace(int v1, int v2, int v3, int uv1, int uv2, int uv3, int MaterialID)
+        public void AddFace(int v1, int v2, int v3, int uv1, int uv2, int uv3, int materialID)
         {
-            Faces.Add(new C2Face(v1, v2, v3, uv1, uv2, uv3, MaterialID));
+            Faces.Add(new C2Face(v1, v2, v3, uv1, uv2, uv3, materialID));
         }
         // =========================================
 
@@ -134,6 +131,7 @@ namespace ToxicRagers.Carmageddon2.Helpers
         public int AddUV(Vector2 uv)
         {
             if (!UVs.Contains(uv)) { UVs.Add(uv); }
+
             return UVs.IndexOf(uv);
         }
 
