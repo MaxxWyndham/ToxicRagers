@@ -13,12 +13,6 @@ namespace ToxicRagers.Helpers
 
         public float A { get; }
 
-        public float H { get; }
-
-        public float S { get; }
-
-        public float L { get; }
-
         public static Colour Black => new Colour(0, 0, 0, 1);
 
         public static Colour White => new Colour(1, 1, 1, 1);
@@ -34,41 +28,6 @@ namespace ToxicRagers.Helpers
             G = g;
             B = b;
             A = a;
-
-            //float min = Math.Min(r, Math.Min(g, b));
-            //float max = Math.Max(r, Math.Max(g, b));
-            //string maxChannel = max == r ? "R" : max == g ? "G" : "B";
-
-            //L = (min + max) / 2f;
-
-            //if (min != max)
-            //{
-            //    if (L <= 0.5f)
-            //    {
-            //        S = (max - min) / (max + min);
-            //    }
-            //    else
-            //    {
-            //        S = (max - min) / (2f - max - min);
-            //    }
-
-            //    switch (maxChannel)
-            //    {
-            //        case "R":
-            //            H = (g - b) / (max - min) + (g < b ? 6 : 0);
-            //            break;
-
-            //        case "G":
-            //            H = (b - r) / (max - min) + 2;
-            //            break;
-
-            //        case "B":
-            //            H = (r - g) / (max - min) + 4;
-            //            break;
-            //    }
-
-            //    //H *= 60;
-            //}
         }
 
         public static Colour FromArgb(float a, float r, float g, float b)
@@ -97,6 +56,11 @@ namespace ToxicRagers.Helpers
             Color c = Color.FromKnownColor(knownColourNames[ToxicRagers.Random.Next(knownColourNames.Length)]);
 
             return Colour.FromArgb(c.A, c.R, c.G, c.B);
+        }
+
+        public Color ToColor()
+        {
+            return Color.FromArgb((int)(A * 255), (int)(R * 255), (int)(G * 255), (int)(B * 255));
         }
     }
 }

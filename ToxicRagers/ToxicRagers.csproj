@@ -157,7 +157,7 @@
     <Compile Include="Helpers\BinaryMemoryStream.cs" />
     <Compile Include="Helpers\BoundingBox.cs" />
     <Compile Include="Helpers\Colour.cs" />
-    <Compile Include="Helpers\ColourHelper.cs" />
+    <Compile Include="Helpers\ColorHelper.cs" />
     <Compile Include="Helpers\CRC32.cs" />
     <Compile Include="Helpers\Generics\Material.cs" />
     <Compile Include="Carmageddon\Formats\c1CarTXT.cs" />
