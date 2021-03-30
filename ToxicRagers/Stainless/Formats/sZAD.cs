@@ -475,16 +475,18 @@ namespace ToxicRagers.Stainless.Formats
 
             file.Name = file.Name.Replace("/", "\\");
 
+            string fullDestination = Path.Combine(destination, file.Name);
+
             if (file.SizeUncompressed == 0)
             {
-                if (!Directory.Exists(destination + file.Name)) { Directory.CreateDirectory(destination + file.Name); }
+                if (!Directory.Exists(fullDestination)) { Directory.CreateDirectory(fullDestination); }
             }
             else
             {
-                string folder = Path.GetDirectoryName(destination + file.Name);
+                string folder = Path.GetDirectoryName(fullDestination);
                 if (!Directory.Exists(folder)) { Directory.CreateDirectory(folder); }
 
-                using (BinaryWriter bw = new BinaryWriter(new FileStream(destination + file.Name, FileMode.Create)))
+                using (BinaryWriter bw = new BinaryWriter(new FileStream(fullDestination, FileMode.Create)))
                 {
                     bw.Write(ExtractToBuffer(file));
                 }
