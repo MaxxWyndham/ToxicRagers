@@ -174,6 +174,29 @@ namespace ToxicRagers.Helpers
             Z /= l;
         }
 
+        public static Vector3 Unproject(Vector3 position, int width, int height, Matrix4D projection, Matrix4D view)
+        {
+            Vector4 vec = Vector4.Zero;
+
+            vec.X = 2.0f * position.X / width - 1;
+            vec.Y = 2.0f * position.Y / height - 1;
+            vec.Z = position.Z * 2.0f - 1.0f;
+            vec.W = 1.0f;
+
+            Matrix4D invprojview = Matrix4D.Invert(projection) * Matrix4D.Invert(view);
+
+            Vector4.Transform(ref vec, ref invprojview, out vec);
+
+            if (vec.W >= float.Epsilon || vec.W <= -float.Epsilon)
+            {
+                vec.X /= vec.W;
+                vec.Y /= vec.W;
+                vec.Z /= vec.W;
+            }
+
+            return (Vector3)vec;
+        }
+
         public static void SetVector3(float x, float y, float z, Vector3 v)
         {
             v = Zero;
