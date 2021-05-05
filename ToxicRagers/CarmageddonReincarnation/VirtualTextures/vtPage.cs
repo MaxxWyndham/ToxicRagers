@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 
 using ToxicRagers.Helpers;
 using ToxicRagers.Stainless.Formats;
@@ -290,29 +291,30 @@ namespace ToxicRagers.CarmageddonReincarnation.VirtualTextures
                     writer.Write((short)bitmapheight);
                     writer.Write((byte)32);
                     writer.Write((byte)0);
+
+                    byte[] raw = new byte[stitched.Width * stitched.Height * 4];
+
                     BitmapData data = stitched.LockBits(new Rectangle(0, 0, stitched.Width, stitched.Height), ImageLockMode.ReadOnly, stitched.PixelFormat);
-                    unsafe
+                    Marshal.Copy(data.Scan0, raw, 0, data.Stride * data.Height);
+                    stitched.UnlockBits(data);
+
+                    // important to use the BitmapData object's Width and Height
+                    // properties instead of the Bitmap's.
+                    for (int x = data.Height - 1; x >= 0; x--)
                     {
-                        // important to use the BitmapData object's Width and Height
-                        // properties instead of the Bitmap's.
-                        for (int x = data.Height - 1; x >= 0; x--)
+                        for (int y = 0; y < data.Width; y++)
                         {
-                            byte* row = (byte*)data.Scan0 + (x * data.Stride);
-                            for (int y = 0; y < data.Width; y++)
-                            {
-                                int columnOffset = y * 4;
-                                byte B = row[columnOffset];
-                                byte G = row[columnOffset + 1];
-                                byte R = row[columnOffset + 2];
-                                byte alpha = row[columnOffset + 3];
-                                writer.Write(B);
-                                writer.Write(G);
-                                writer.Write(R);
-                                writer.Write(alpha);
-                            }
+                            int columnOffset = x + y * 4;
+                            byte B = raw[columnOffset + 0];
+                            byte G = raw[columnOffset + 1];
+                            byte R = raw[columnOffset + 2];
+                            byte A = raw[columnOffset + 3];
+                            writer.Write(B);
+                            writer.Write(G);
+                            writer.Write(R);
+                            writer.Write(A);
                         }
                     }
-                    stitched.UnlockBits(data);
                 }
             }
 
@@ -394,7 +396,7 @@ namespace ToxicRagers.CarmageddonReincarnation.VirtualTextures
                                 else
                                 {
                                     if (Tiles[row][col].Texture == null) { Tiles[row][col].GetTextureFromZAD(); }
-                                    
+
                                     // TODO: fix this
                                     //rowTiles.Add(Tiles[row][col].Texture.Decompress(Tiles[row][col].Texture.MipMaps[0]));
                                 }

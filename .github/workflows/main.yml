@@ -1,0 +1,33 @@
+name: Build Class Library
+ 
+on: [push]
+ 
+jobs:
+  build:
+ 
+    runs-on: windows-latest
+ 
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v1
+
+    - name: Setup MSBuild Path
+      uses: microsoft/setup-msbuild@v1.0.2
+      env:
+        working-directory: [ProjectFolder]
+       
+    - name: Setup NuGet
+      uses: NuGet/setup-nuget@v1.0.5
+     
+    - name: Restore NuGet Packages
+      run: msbuild -t:restore
+      working-directory: [ProjectFolder]
+ 
+    - name: Build
+      run: msbuild ToxicRagers.sln /p:Configuration=Release
+      working-directory: [ProjectFolder]
+
+    - run: nuget setapikey ${{secrets.NUGET_API_KEY}}
+
+    - name: Publish
+      run: nuget push bin\Debug\*.nupkg -SkipDuplicate
