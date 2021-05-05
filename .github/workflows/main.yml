@@ -13,21 +13,21 @@ jobs:
 
     - name: Setup MSBuild Path
       uses: microsoft/setup-msbuild@v1.0.2
-      env:
-        working-directory: [ProjectFolder]
        
     - name: Setup NuGet
       uses: NuGet/setup-nuget@v1.0.5
      
     - name: Restore NuGet Packages
       run: msbuild -t:restore
-      working-directory: [ProjectFolder]
  
     - name: Build
-      run: msbuild ToxicRagers.sln /p:Configuration=Release
-      working-directory: [ProjectFolder]
+      run: msbuild -t:build -p:Configuration=Release
+      
+    - name: Pack
+      run: msbuild -t:pack -p:Configuration=Release
 
-    - run: nuget setapikey ${{secrets.NUGET_API_KEY}}
+    - name: Configure nuget
+      run: nuget setapikey ${{secrets.NUGET_API_KEY}}
 
     - name: Publish
-      run: nuget push bin\Debug\*.nupkg -SkipDuplicate
+      run: nuget push ToxicRagers\bin\Release\*.nupkg -SkipDuplicate -source https://api.nuget.org/v3/index.json
