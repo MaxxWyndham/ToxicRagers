@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Maxx 'Errol' Wyndham")]
 [assembly: AssemblyProduct("ToxicRagers")]
-[assembly: AssemblyCopyright("Copyright © Maxx Wyndham 2011-2015")]
+[assembly: AssemblyCopyright("Copyright © Maxx Wyndham 2011-2021")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
