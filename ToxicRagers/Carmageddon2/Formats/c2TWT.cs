@@ -106,9 +106,9 @@ namespace ToxicRagers.Carmageddon2.Formats
                     }
                     else
                     {
-                        offset += entry.Length;
+                        offset += Contents[i].Length;
 
-                        if (entry.Length % 4 > 0) { offset += 4 - (entry.Length % 4); }
+                        if (Contents[i].Length % 4 > 0) { offset += 4 - (Contents[i].Length % 4); }
                     }
                 }
 

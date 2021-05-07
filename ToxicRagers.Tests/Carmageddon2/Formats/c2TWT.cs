@@ -22,7 +22,7 @@ namespace ToxicRagers.Tests.Carmageddon2.Formats
 
             byte[] data = twt.Extract(entry);
 
-            Assert.True(entry.Name == "Monkey.txt" && data.Length == 0x35);
+            Assert.True(entry.Name == "Monkey.txt" && data.Length == 0x35 && data[9] == 0x6c);
         }
     }
 }
