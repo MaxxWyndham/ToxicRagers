@@ -21,4 +21,14 @@
     <ProjectReference Include="..\ToxicRagers\ToxicRagers.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Files\Carmageddon2\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Files\Carmageddon2\test.twt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
