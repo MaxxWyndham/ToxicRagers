@@ -74,6 +74,7 @@
     <Compile Include="Carmageddon2\Formats\c2MapTXT.cs" />
     <Compile Include="Carmageddon2\Formats\c2Mat.cs" />
     <Compile Include="Carmageddon2\Formats\c2OpponentTXT.cs" />
+    <Compile Include="Carmageddon2\Formats\c2RacesTXT.cs" />
     <Compile Include="Carmageddon2\Formats\c2WAM.cs" />
     <Compile Include="Carmageddon2\Helpers\c2Face.cs" />
     <Compile Include="Carmageddon2\Helpers\c2Mesh.cs" />

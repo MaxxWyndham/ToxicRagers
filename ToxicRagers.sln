@@ -1,9 +1,14 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.23107.0
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31129.286
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ToxicRagers", "ToxicRagers\ToxicRagers.csproj", "{9B9C928D-9E64-400E-961E-F134E659146B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ToxicRagers.Tests", "ToxicRagers.Tests\ToxicRagers.Tests.csproj", "{08D33C45-A070-4076-8F34-631E825B75B1}"
+	ProjectSection(ProjectDependencies) = postProject
+		{9B9C928D-9E64-400E-961E-F134E659146B} = {9B9C928D-9E64-400E-961E-F134E659146B}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,8 +20,15 @@ Global
 		{9B9C928D-9E64-400E-961E-F134E659146B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9B9C928D-9E64-400E-961E-F134E659146B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9B9C928D-9E64-400E-961E-F134E659146B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{08D33C45-A070-4076-8F34-631E825B75B1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{08D33C45-A070-4076-8F34-631E825B75B1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{08D33C45-A070-4076-8F34-631E825B75B1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{08D33C45-A070-4076-8F34-631E825B75B1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {5C5C4AF1-334B-4456-9ED8-79D00DB2F54F}
 	EndGlobalSection
 EndGlobal

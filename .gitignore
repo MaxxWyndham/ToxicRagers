@@ -3,3 +3,4 @@
 [Rr]elease*/
 obj/
 *.suo
+.vs/*
