@@ -46,6 +46,8 @@ namespace ToxicRagers.Carmageddon.Helpers
             Fiddled = Decode();
 
             position = 0;
+
+            br.Close();
         }
 
         private byte[] readLine(int buffSize)
