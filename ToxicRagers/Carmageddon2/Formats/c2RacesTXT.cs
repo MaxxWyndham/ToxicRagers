@@ -41,78 +41,7 @@ namespace ToxicRagers.Carmageddon2.Formats
             races.FirstRace.OpponentNastinessInfluencer = file.ReadSingle();
             races.LastRace.OpponentNastinessInfluencer = file.ReadSingle();
 
-            for (int i = 0; i < 40; i++)
-            {
-                RaceDetails race = new RaceDetails
-                {
-                    Name = file.ReadLine(),
-                    RaceFilename = file.ReadLine(),
-                    NameOfInterfaceElement = file.ReadLine(),
-                    NumberOfOpponents = file.ReadInt(),
-                    NumberOfExplicitOpponents = file.ReadInt()
-                };
-
-                for (int j = 0; j < race.NumberOfExplicitOpponents; j++)
-                {
-                    race.ExplicitOpponents.Add(file.ReadInt());
-                }
-
-                race.OpponentNastinessLevel = file.ReadInt();
-                race.PowerupExclusions = file.ReadInts();
-                race.DisableTimeAwards = file.ReadInt() == 1;
-                race.BoundaryRace = file.ReadInt() == 1;
-                race.RaceType = file.ReadEnum<RaceType>();
-                race.InitialTimer = file.ReadVector3();
-
-                switch (race.RaceType)
-                {
-                    case RaceType.Carma:
-                    case RaceType.Checkpoints:
-                        race.Laps = file.ReadInt();
-                        break;
-
-                    case RaceType.Cars:
-                        race.NumberOfOpponentsThatMustBeKilled = file.ReadInt();
-
-                        for (int j = 0; j < race.NumberOfOpponentsThatMustBeKilled; j++)
-                        {
-                            race.OpponentsThatMustBeKilled.Add(file.ReadInt());
-                        }
-                        break;
-
-                    case RaceType.Peds:
-                        race.NumberOfPedGroups = file.ReadInt();
-
-                        for (int j = 0; j < race.NumberOfPedGroups; j++)
-                        {
-                            race.PedGroupsThatMustBeKilled.Add(file.ReadInt());
-                        }
-                        break;
-
-                    case RaceType.Smash:
-                    case RaceType.SmashnPed:
-                        race.SmashVariableNumber = file.ReadInt();
-                        race.SmashVariableTarget = file.ReadInt();
-                        if (race.RaceType == RaceType.SmashnPed) { race.PedGroupsThatMustBeKilled.Add(file.ReadInt()); }
-                        break;
-                }
-
-                if (race.RaceType != RaceType.Carma)
-                {
-                    race.RaceCompletedBonus = file.ReadVector3();
-                }
-                else
-                {
-                    race.RaceCompletedBonusAllLaps = file.ReadVector3();
-                    race.RaceCompletedBonusAllPeds = file.ReadVector3();
-                    race.RaceCompletedBonusAllOpps = file.ReadVector3();
-                }
-
-                race.Description = file.ReadLine();
-                race.Expansion = file.ReadInt();
-
-                races.Races.Add(race);
-            }
+            for (int i = 0; i < 40; i++) { races.Races.Add(RaceDetails.Load(file)); }
 
             if (file.ReadLine() != "END") { return null; }
 
@@ -273,6 +202,79 @@ namespace ToxicRagers.Carmageddon2.Formats
         public int SmashVariableNumber { get; set; }
 
         public int SmashVariableTarget { get; set; }
+
+        public static RaceDetails Load(DocumentParser file)
+        {
+            RaceDetails race = new RaceDetails
+            {
+                Name = file.ReadLine(),
+                RaceFilename = file.ReadLine(),
+                NameOfInterfaceElement = file.ReadLine(),
+                NumberOfOpponents = file.ReadInt(),
+                NumberOfExplicitOpponents = file.ReadInt()
+            };
+
+            for (int j = 0; j < race.NumberOfExplicitOpponents; j++)
+            {
+                race.ExplicitOpponents.Add(file.ReadInt());
+            }
+
+            race.OpponentNastinessLevel = file.ReadInt();
+            race.PowerupExclusions = file.ReadInts();
+            race.DisableTimeAwards = file.ReadInt() == 1;
+            race.BoundaryRace = file.ReadInt() == 1;
+            race.RaceType = file.ReadEnum<RaceType>();
+            race.InitialTimer = file.ReadVector3();
+
+            switch (race.RaceType)
+            {
+                case RaceType.Carma:
+                case RaceType.Checkpoints:
+                    race.Laps = file.ReadInt();
+                    break;
+
+                case RaceType.Cars:
+                    race.NumberOfOpponentsThatMustBeKilled = file.ReadInt();
+
+                    for (int j = 0; j < race.NumberOfOpponentsThatMustBeKilled; j++)
+                    {
+                        race.OpponentsThatMustBeKilled.Add(file.ReadInt());
+                    }
+                    break;
+
+                case RaceType.Peds:
+                    race.NumberOfPedGroups = file.ReadInt();
+
+                    for (int j = 0; j < race.NumberOfPedGroups; j++)
+                    {
+                        race.PedGroupsThatMustBeKilled.Add(file.ReadInt());
+                    }
+                    break;
+
+                case RaceType.Smash:
+                case RaceType.SmashnPed:
+                    race.SmashVariableNumber = file.ReadInt();
+                    race.SmashVariableTarget = file.ReadInt();
+                    if (race.RaceType == RaceType.SmashnPed) { race.PedGroupsThatMustBeKilled.Add(file.ReadInt()); }
+                    break;
+            }
+
+            if (race.RaceType != RaceType.Carma)
+            {
+                race.RaceCompletedBonus = file.ReadVector3();
+            }
+            else
+            {
+                race.RaceCompletedBonusAllLaps = file.ReadVector3();
+                race.RaceCompletedBonusAllPeds = file.ReadVector3();
+                race.RaceCompletedBonusAllOpps = file.ReadVector3();
+            }
+
+            race.Description = file.ReadLine();
+            race.Expansion = file.ReadInt();
+
+            return race;
+        }
     }
 
     public class DefaultRaceParameters
