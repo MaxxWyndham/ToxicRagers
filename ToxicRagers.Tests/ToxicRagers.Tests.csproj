@@ -27,6 +27,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="Files\Carmageddon2\RACES.TXT">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Files\Carmageddon2\test.twt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

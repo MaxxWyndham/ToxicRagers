@@ -100,9 +100,9 @@ namespace ToxicRagers.Carmageddon2.Formats
                     foreach (int opponent in race.ExplicitOpponents) { dw.WriteLine($"{opponent}"); }
                     dw.WriteLine($"{race.OpponentNastinessLevel}", "Opponent nastiness level (-1 = use default)");
                     dw.WriteLine($"{string.Join(",", race.PowerupExclusions)}", "Powerup exclusions");
-                    dw.WriteLine($"{race.DisableTimeAwards}", "Disable time awards");
-                    dw.WriteLine($"{race.BoundaryRace}", "Boundary race (mission)");
-                    dw.WriteLine($"{race.RaceType}", "Race type (0 = Carma1, 1 = Cars, 2 = Peds, 3 = Checkpoints, 4 = Smash, 5 = smash'n'ped)");
+                    dw.WriteLine($"{(race.DisableTimeAwards ? 1 : 0)}", "Disable time awards");
+                    dw.WriteLine($"{(race.BoundaryRace ? 1 : 0)}", "Boundary race (mission)");
+                    dw.WriteLine($"{(int)race.RaceType}", "Race type (0 = Carma1, 1 = Cars, 2 = Peds, 3 = Checkpoints, 4 = Smash, 5 = smash'n'ped)");
                     dw.WriteLine($"{race.InitialTimer.X},{race.InitialTimer.Y},{race.InitialTimer.Z}", "Initial timer count for each skill level");
 
                     switch (race.RaceType)
@@ -147,6 +147,10 @@ namespace ToxicRagers.Carmageddon2.Formats
 
                     dw.WriteLine();
                 }
+
+                dw.WriteLine();
+                dw.WriteLine("END");
+                dw.WriteLine();
             }
         }
     }

@@ -9,7 +9,7 @@ namespace ToxicRagers.Tests.Carmageddon2.Formats
         [Fact]
         public void RacesTXT_Load_IsNotNull()
         {
-            var races = TR.RacesTXT.Load(@"D:\Carmageddon Installations\Carmageddon 2\data\RACES.TXT");
+            var races = TR.RacesTXT.Load(@"Files\Carmageddon2\RACES.TXT");
 
             Assert.NotNull(races);
         }

@@ -1,0 +1,911 @@
+0					// Race to start new game with (development only)
+
+// DEFAULT PARAMETERS
+
+5					// Default number of opponents in first race
+11					// Default number of opponents in last race
+0.5,3				// Softness,hardest rank of opponents in first race
+3,6					// Softness,hardest rank of opponents in last race
+0.8					// Opponent nastiness influencer for first race
+5					// Opponent nastiness influencer for last race
+
+// RACE-BY-RACE DEFINITIONS
+
+// ====== GROUP 1 ======
+
+// Race 0
+
+NICE BEAVER
+NEWCITY1.TXT		// Text file name
+NotDoneYet			// Name of interface element
+-1					// Number of opponents (-1 = use default)
+0					// Number of explicit opponents
+-1					// Opponent nastiness level (-1 = use default)
+-1					// Powerup exclusions
+0					// Disable time awards
+0					// Boundary race (mission)
+0					// Race type (0 = Carma1, 1 = Cars, 2 = Peds, 3 = Checkpoints, 4 = Smash)
+120,90,60			// Initial timer count for each skill level
+4					// # laps
+20000,10000,5000	// Race completed bonus (all laps raced) for each skill level
+75000,50000,30000	// Race completed bonus (all peds killed) for each skill level
+20000,10000,5000	// Race completed bonus (all oppos wasted) for each skill level
+// Race description
+LOCATION: BEAVER CITY @R LAPS: @L  @R CHECKPOINTS: 4 @R OPPONENTS: @O @R RACE, WRECK OR WREAK HAVOC AMONGST THE POPULACE... THE CHOICE IS YOURS.
+0					// Expansion
+
+// Race 1
+
+ROCKY TOO
+QUARRY1.TXT			// Text file name
+NotDoneYet			// Name of interface element
+-1					// Number of opponents (-1 = use default)
+0					// Number of explicit opponents
+-1					// Opponent nastiness level (-1 = use default)
+-1					// Powerup exclusions
+0					// Disable time awards
+0					// Boundary race (mission)
+0					// Race type (0 = Carma1, 1 = Cars, 2 = Peds, 3 = Checkpoints, 4 = Smash)
+120,90,60			// Initial timer count for each skill level
+4					// # laps
+20000,10000,5000	// Race completed bonus (all laps raced) for each skill level
+75000,50000,30000	// Race completed bonus (all peds killed) for each skill level
+20000,10000,5000	// Race completed bonus (all oppos wasted) for each skill level
+// Race description
+LOCATION: BEAVER COUNTY QUARRY @R LAPS: @L  @R CHECKPOINTS: 3 @R OPPONENTS: @O @R RACE, WRECK OR WREAK HAVOC AMONGST THE POPULACE... THE CHOICE IS YOURS.
+0					// Expansion
+
+// Race 2
+
+CITY SLICKER
+NEWCITY2.TXT		// Text file name
+NotDoneYet			// Name of interface element
+-1					// Number of opponents (-1 = use default)
+0					// Number of explicit opponents
+-1					// Opponent nastiness level (-1 = use default)
+-1					// Powerup exclusions
+0					// Disable time awards
+0					// Boundary race (mission)
+0					// Race type (0 = Carma1, 1 = Cars, 2 = Peds, 3 = Checkpoints, 4 = Smash)
+120,90,60			// Initial timer count for each skill level
+4					// # laps
+20000,10000,5000	// Race completed bonus (all laps raced) for each skill level
+75000,50000,30000	// Race completed bonus (all peds killed) for each skill level
+20000,10000,5000	// Race completed bonus (all oppos wasted) for each skill level
+// Race description
+LOCATION: BEAVER CITY @RLAPS: @L  @R CHECKPOINTS: 4 @R OPPONENTS: @O @R RACE, WRECK OR WREAK HAVOC AMONGST THE POPULACE... THE CHOICE IS YOURS.
+0					// Expansion
+
+// ---- MISSION ----
+
+// Race 3
+
+MISSION: BOULDER DASH
+QUARRY_MISSION.TXT	// Text file name
+NotDoneYet			// Name of interface element
+0					// Number of opponents (-1 = use default)
+0					// Number of explicit opponents
+-1					// Opponent nastiness level (-1 = use default)
+// Powerup exclusions:
+2,5,8,9,12,15,21,27,34,35,36,37,39,49,51,55,56,65,91
+1					// Disable time awards
+1					// Boundary race (mission)
+3					// Race type (0 = Carma1, 1 = Cars, 2 = Peds, 3 = Checkpoints, 4 = Smash)
+400,320,280			// Initial timer count for each skill level
+5					// # laps
+150000,100000,50000	// Race completed bonus for each skill level
+// Race description
+LOCATION: BEAVER COUNTY QUARRY @R LAPS: @L  @R CHECKPOINTS: 3 @R OPPONENTS: @O @R RACE through the checkpoints against the clock
+0					// Expansion
+
+
+// ====== GROUP 2 ======
+
+// Race 4
+
+TWIN SHRIEKS
+TIMBER1.TXT			// Text file name
+NotDoneYet			// Name of interface element
+-1					// Number of opponents (-1 = use default)
+0					// Number of explicit opponents
+-1					// Opponent nastiness level (-1 = use default)
+-1					// Powerup exclusions
+0					// Disable time awards
+0					// Boundary race (mission)
+0					// Race type (0 = Carma1, 1 = Cars, 2 = Peds, 3 = Checkpoints, 4 = Smash)
+90,60,30			// Initial timer count for each skill level
+4					// # laps
+20000,10000,5000	// Race completed bonus (all laps raced) for each skill level
+75000,50000,30000	// Race completed bonus (all peds killed) for each skill level
+20000,10000,5000	// Race completed bonus (all oppos wasted) for each skill level
+// Race description
+LOCATION: BEAVER WOODS @R LAPS: @L  @R CHECKPOINTS: 2 @R OPPONENTS: @O @R @R RACE, WRECK OR WREAK HAVOC AMONGST THE POPULACE... THE CHOICE IS YOURS.
+0					// Expansion
+
+// Race 5
+
+CITY OF THE LOST GIBLETS
+NEWCITY3.TXT		// Text file name
+NotDoneYet			// Name of interface element
+-1					// Number of opponents (-1 = use default)
+0					// Number of explicit opponents
+-1					// Opponent nastiness level (-1 = use default)
+-1					// Powerup exclusions
+0					// Disable time awards
+0					// Boundary race (mission)
+0					// Race type (0 = Carma1, 1 = Cars, 2 = Peds, 3 = Checkpoints, 4 = Smash)
+90,60,30			// Initial timer count for each skill level
+4					// # laps
+20000,10000,5000	// Race completed bonus (all laps raced) for each skill level
+75000,50000,30000	// Race completed bonus (all peds killed) for each skill level
+20000,10000,5000	// Race completed bonus (all oppos wasted) for each skill level
+// Race description
+LOCATION: BEAVER CITY @R LAPS: @L  @R CHECKPOINTS: 6 @R OPPONENTS: @O @R RACE, WRECK OR WREAK HAVOC AMONGST THE POPULACE... THE CHOICE IS YOURS.
+0					// Expansion
+
+// Race 6
+
+GET YER ROCKS OFF
+QUARRY2.TXT			// Text file name
+NotDoneYet			// Name of interface element
+-1					// Number of opponents (-1 = use default)
+0					// Number of explicit opponents
+-1					// Opponent nastiness level (-1 = use default)
+-1					// Powerup exclusions
+0					// Disable time awards
+0					// Boundary race (mission)
+0					// Race type (0 = Carma1, 1 = Cars, 2 = Peds, 3 = Checkpoints, 4 = Smash)
+90,60,30			// Initial timer count for each skill level
+4					// # laps
+20000,10000,5000	// Race completed bonus (all laps raced) for each skill level
+75000,50000,30000	// Race completed bonus (all peds killed) for each skill level
+20000,10000,5000	// Race completed bonus (all oppos wasted) for each skill level
+// Race description
+LOCATION: BEAVER COUNTY QUARRY @R LAPS: @L  @R CHECKPOINTS: 5 @R OPPONENTS: @O @R RACE, WRECK OR WREAK HAVOC AMONGST THE POPULACE... THE CHOICE IS YOURS.
+0					// Expansion
+
+// ---- MISSION ----
+
+// Race 7
+
+MISSION: EYE OF THE BEAVER
+NEWCITY_MISSION.TXT	// Text file name
+NotDoneYet			// Name of interface element
+0					// Number of opponents (-1 = use default)
+0					// Number of explicit opponents
+-1					// Opponent nastiness level (-1 = use default)
+// Powerup exclusions:
+2,5,8,9,12,15,21,27,34,35,36,37,39,49,51,55,56,65,91
+1					// Disable time awards
+1					// Boundary race (mission)
+4					// Race type (0 = Carma1, 1 = Cars, 2 = Peds, 3 = Checkpoints, 4 = Smash)
+360,300,260			// Initial timer count for each skill level
+1					// Smash variable number
+11					// Smash variable target
+150000,100000,50000	// Race completed bonus for each skill level
+// Race description
+LOCATION: BEAVER CITY @R @R OPPONENTS: @O @R Destroy all the roof-top satellite antennae
+0					// Expansion
+
+// ====== GROUP 3 ======
+
+// Race 8
+
+HOME SWEET GROAN
+JUNKYARD.TXT		// Text file name
+NotDoneYet			// Name of interface element
+-1					// Number of opponents (-1 = use default)
+0					// Number of explicit opponents
+-1					// Opponent nastiness level (-1 = use default)
+-1					// Powerup exclusions
+0					// Disable time awards
+0					// Boundary race (mission)
+0					// Race type (0 = Carma1, 1 = Cars, 2 = Peds, 3 = Checkpoints, 4 = Smash)
+90,60,30			// Initial timer count for each skill level
+4					// # laps
+20000,10000,5000	// Race completed bonus (all laps raced) for each skill level
+75000,50000,30000	// Race completed bonus (all peds killed) for each skill level
+20000,10000,5000	// Race completed bonus (all oppos wasted) for each skill level
+// Race description
+LOCATION: MAX'S JUNKYARD @R LAPS: @L  @R CHECKPOINTS: 8 @R OPPONENTS: @O @R RACE, WRECK OR WREAK HAVOC AMONGST THE POPULACE... THE CHOICE IS YOURS.
+0					// Expansion
+
+// Race 9
+
+TIMBER!
+TIMBER2.TXT			// Text file name
+NotDoneYet			// Name of interface element
+-1					// Number of opponents (-1 = use default)
+0					// Number of explicit opponents
+-1					// Opponent nastiness level (-1 = use default)
+-1					// Powerup exclusions
+0					// Disable time awards
+0					// Boundary race (mission)
+0					// Race type (0 = Carma1, 1 = Cars, 2 = Peds, 3 = Checkpoints, 4 = Smash)
+90,60,30			// Initial timer count for each skill level
+6					// # laps
+20000,10000,5000	// Race completed bonus (all laps raced) for each skill level
+75000,50000,30000	// Race completed bonus (all peds killed) for each skill level
+20000,10000,5000	// Race completed bonus (all oppos wasted) for each skill level
+// Race description
+LOCATION: BEAVER WOODS @R LAPS: @L  @R CHECKPOINTS: 8 @R OPPONENTS: @O @R RACE, WRECK OR WREAK HAVOC AMONGST THE POPULACE... THE CHOICE IS YOURS.
+0					// Expansion
+
+// Race 10
+
+STONED AGAIN
+QUARRY3.TXT			// Text file name
+NotDoneYet			// Name of interface element
+-1					// Number of opponents (-1 = use default)
+0					// Number of explicit opponents
+-1					// Opponent nastiness level (-1 = use default)
+-1					// Powerup exclusions
+0					// Disable time awards
+0					// Boundary race (mission)
+0					// Race type (0 = Carma1, 1 = Cars, 2 = Peds, 3 = Checkpoints, 4 = Smash)
+90,60,30			// Initial timer count for each skill level
+6					// # laps
+20000,10000,5000	// Race completed bonus (all laps raced) for each skill level
+75000,50000,30000	// Race completed bonus (all peds killed) for each skill level
+20000,10000,5000	// Race completed bonus (all oppos wasted) for each skill level
+// Race description
+LOCATION: BEAVER COUNTY QUARRY @R LAPS: @L  @R CHECKPOINTS: 5 @R OPPONENTS: @O @R RACE, WRECK OR WREAK HAVOC AMONGST THE POPULACE... THE CHOICE IS YOURS.
+0					// Expansion
+
+// ---- MISSION ----
+
+// Race 11
+
+MISSION: OUTBREAK!
+TIMBER_MISSION.TXT	// Text file name
+NotDoneYet			// Name of interface element
+0					// Number of opponents (-1 = use default)
+0					// Number of explicit opponents
+-1					// Opponent nastiness level (-1 = use default)
+// Powerup exclusions:
+2,5,8,9,12,15,21,25,27,34,35,36,37,39,49,51,55,56,65,91
+1					// Disable time awards
+1					// Boundary race (mission)
+2					// Race type (0 = Carma1, 1 = Cars, 2 = Peds, 3 = Checkpoints, 4 = Smash)
+360,300,240				// Initial timer count for each skill level
+1					// Number of ped groups (-1 means all)
+42					// Group number
+150000,100000,50000	// Race completed bonus for each skill level
+// Race description
+LOCATION: BEAVER WOODS @R OPPONENTS: @O @R Kill the escaped hospital patients - they're a menace to society!
+0					// Expansion
+
+
+// ====== GROUP 4 ======
+
+// Race 12
+
+PISTE OFF
+SKITRACK1.TXT		// Text file name
+NotDoneYet			// Name of interface element
+-1					// Number of opponents (-1 = use default)
+0					// Number of explicit opponents
+-1					// Opponent nastiness level (-1 = use default)
+-1					// Powerup exclusions
+0					// Disable time awards
+0					// Boundary race (mission)
+0					// Race type (0 = Carma1, 1 = Cars, 2 = Peds, 3 = Checkpoints, 4 = Smash)
+90,60,30			// Initial timer count for each skill level
+6					// # laps
+20000,10000,5000	// Race completed bonus (all laps raced) for each skill level
+75000,50000,30000	// Race completed bonus (all peds killed) for each skill level
+20000,10000,5000	// Race completed bonus (all oppos wasted) for each skill level
+// Race description
+LOCATION: BEAVER MOUNTAINS @R LAPS: @L  @R CHECKPOINTS: 3 @R OPPONENTS: @O @R RACE, WRECK OR WREAK HAVOC AMONGST THE POPULACE... THE CHOICE IS YOURS.
+0					// Expansion
+
+// Race 13
+
+SHOVE THY NEIGHBOUR
+JUNKYARD2.TXT		// Text file name
+NotDoneYet			// Name of interface element
+-1					// Number of opponents (-1 = use default)
+0					// Number of explicit opponents
+-1					// Opponent nastiness level (-1 = use default)
+-1					// Powerup exclusions
+0					// Disable time awards
+0					// Boundary race (mission)
+0					// Race type (0 = Carma1, 1 = Cars, 2 = Peds, 3 = Checkpoints, 4 = Smash)
+90,60,30			// Initial timer count for each skill level
+6					// # laps
+20000,10000,5000	// Race completed bonus (all laps raced) for each skill level
+75000,50000,30000	// Race completed bonus (all peds killed) for each skill level
+20000,10000,5000	// Race completed bonus (all oppos wasted) for each skill level
+// Race description
+LOCATION: MAX'S END OF TOWN @R LAPS: @L  @R CHECKPOINTS: 4 @R OPPONENTS: @O @R RACE, WRECK OR WREAK HAVOC AMONGST THE POPULACE... THE CHOICE IS YOURS.
+0					// Expansion
+
+// Race 14
+
+WOODY WOODWRECKER
+TIMBER3.TXT			// Text file name
+NotDoneYet			// Name of interface element
+-1					// Number of opponents (-1 = use default)
+0					// Number of explicit opponents
+-1					// Opponent nastiness level (-1 = use default)
+-1					// Powerup exclusions
+0					// Disable time awards
+0					// Boundary race (mission)
+0					// Race type (0 = Carma1, 1 = Cars, 2 = Peds, 3 = Checkpoints, 4 = Smash)
+90,60,30			// Initial timer count for each skill level
+6					// # laps
+20000,10000,5000	// Race completed bonus (all laps raced) for each skill level
+75000,50000,30000	// Race completed bonus (all peds killed) for each skill level
+20000,10000,5000	// Race completed bonus (all oppos wasted) for each skill level
+// Race description
+LOCATION: BEAVER WOODS @R LAPS: @L  @R CHECKPOINTS: 6 @R OPPONENTS: @O @R RACE, WRECK OR WREAK HAVOC AMONGST THE POPULACE... THE CHOICE IS YOURS.
+0					// Expansion
+
+// ---- MISSION ----
+
+// Race 15
+
+MISSION: TRUCKING HELL
+JUNKYARD_MISSION.TXT// Text file name
+NotDoneYet			// Name of interface element
+1					// Number of opponents (-1 = use default)
+1					// Number of explicit opponents
+38
+10					// Opponent nastiness level (-1 = use default)
+-1 // Powerup exclusions:
+1					// Disable time awards
+1					// Boundary race (mission)
+1					// Race type (0 = Carma1, 1 = Cars, 2 = Peds, 3 = Checkpoints, 4 = Smash)
+660,600,300			// Initial timer count for each skill level
+1					// Number of opponents that must be killed (-1 means all)
+38
+150000,100000,50000	// Race completed bonus for each skill level
+// Race description
+LOCATION: MAX'S JUNKYARD @R OPPONENTS: @O @R A truck has escaped from the quarry and followed you home. You must destroy it!
+1					// Expansion
+
+
+// ====== GROUP 5 ======
+
+// Race 16
+
+UNFAIR FUNFAIR
+FUNFAIR1.TXT		// Text file name
+NotDoneYet			// Name of interface element
+-1					// Number of opponents (-1 = use default)
+0					// Number of explicit opponents
+-1					// Opponent nastiness level (-1 = use default)
+-1					// Powerup exclusions
+0					// Disable time awards
+0					// Boundary race (mission)
+0					// Race type (0 = Carma1, 1 = Cars, 2 = Peds, 3 = Checkpoints, 4 = Smash)
+90,60,30			// Initial timer count for each skill level
+6					// # laps
+20000,10000,5000	// Race completed bonus (all laps raced) for each skill level
+75000,50000,30000	// Race completed bonus (all peds killed) for each skill level
+20000,10000,5000	// Race completed bonus (all oppos wasted) for each skill level
+// Race description
+LOCATION: MR. JOLLY FAIRGROUND @R LAPS: @L  @R CHECKPOINTS: 4 @R OPPONENTS: @O @R RACE, WRECK OR WREAK HAVOC AMONGST THE POPULACE... THE CHOICE IS YOURS.
+0					// Expansion
+
+// Race 17
+
+SNOW WAY OUT
+SKITRACK3.TXT		// Text file name
+NotDoneYet			// Name of interface element
+-1					// Number of opponents (-1 = use default)
+0					// Number of explicit opponents
+-1					// Opponent nastiness level (-1 = use default)
+-1					// Powerup exclusions
+0					// Disable time awards
+0					// Boundary race (mission)
+0					// Race type (0 = Carma1, 1 = Cars, 2 = Peds, 3 = Checkpoints, 4 = Smash)
+90,60,30			// Initial timer count for each skill level
+6					// # laps
+20000,10000,5000	// Race completed bonus (all laps raced) for each skill level
+75000,50000,30000	// Race completed bonus (all peds killed) for each skill level
+20000,10000,5000	// Race completed bonus (all oppos wasted) for each skill level
+// Race description
+LOCATION: BEAVER MOUNTAINS @R LAPS: @L  @R CHECKPOINTS: 7 @R OPPONENTS: @O @R RACE, WRECK OR WREAK HAVOC AMONGST THE POPULACE... THE CHOICE IS YOURS.
+0					// Expansion
+
+// Race 18
+
+WEST SIDE GORY
+JUNKYARD3.TXT		// Text file name
+NotDoneYet			// Name of interface element
+-1					// Number of opponents (-1 = use default)
+0					// Number of explicit opponents
+-1					// Opponent nastiness level (-1 = use default)
+-1					// Powerup exclusions
+0					// Disable time awards
+0					// Boundary race (mission)
+0					// Race type (0 = Carma1, 1 = Cars, 2 = Peds, 3 = Checkpoints, 4 = Smash)
+90,60,30			// Initial timer count for each skill level
+6					// # laps
+20000,10000,5000	// Race completed bonus (all laps raced) for each skill level
+75000,50000,30000	// Race completed bonus (all peds killed) for each skill level
+20000,10000,5000	// Race completed bonus (all oppos wasted) for each skill level
+// Race description
+LOCATION: MAX'S JUNKYARD @R LAPS: @L  @R CHECKPOINTS: 4 @R OPPONENTS: @O @R RACE, WRECK OR WREAK HAVOC AMONGST THE POPULACE... THE CHOICE IS YOURS.
+0					// Expansion
+
+// ---- MISSION ----
+
+// Race 19
+
+MISSION: IN COLD BLOOD
+SKITRACK3.TXT// Text file name
+NotDoneYet			// Name of interface element
+0					// Number of opponents (-1 = use default)
+0					// Number of explicit opponents
+-1					// Opponent nastiness level (-1 = use default)
+// Powerup exclusions:
+2,5,8,9,12,15,27,34,35,36,37,39,49,51,55,56,65,91
+1					// Disable time awards
+1					// Boundary race (mission)
+3					// Race type (0 = Carma1, 1 = Cars, 2 = Peds, 3 = Checkpoints, 4 = Smash)
+645,585,540			// Initial timer count for each skill level
+3					// # laps
+150000,100000,50000	// Race completed bonus for each skill level
+// Race description
+LOCATION: BEAVER MOUNTAINS @R LAPS: @L  @R CHECKPOINTS: 7 @R OPPONENTS: @O @R RACE through the checkpoints against the clock
+0					// Expansion
+
+
+// ====== GROUP 6 ======
+
+// Race 20
+
+RUNWAY RUNAWAY
+AIRPORT1.TXT			// Text file name
+NotDoneYet			// Name of interface element
+-1					// Number of opponents (-1 = use default)
+0					// Number of explicit opponents
+-1					// Opponent nastiness level (-1 = use default)
+-1					// Powerup exclusions
+0					// Disable time awards
+0					// Boundary race (mission)
+0					// Race type (0 = Carma1, 1 = Cars, 2 = Peds, 3 = Checkpoints, 4 = Smash)
+90,60,30			// Initial timer count for each skill level
+6					// # laps
+20000,10000,5000	// Race completed bonus (all laps raced) for each skill level
+75000,50000,30000	// Race completed bonus (all peds killed) for each skill level
+20000,10000,5000	// Race completed bonus (all oppos wasted) for each skill level
+// Race description
+LOCATION: BEAVER COUNTY AIRPORT @R LAPS: @L  @R CHECKPOINTS: 6 @R OPPONENTS: @O @R RACE, WRECK OR WREAK HAVOC AMONGST THE POPULACE... THE CHOICE IS YOURS.
+0					// Expansion
+
+// Race 21
+
+SCARE DEVIL
+FUNFAIR2.TXT		// Text file name
+NotDoneYet			// Name of interface element
+-1					// Number of opponents (-1 = use default)
+0					// Number of explicit opponents
+-1					// Opponent nastiness level (-1 = use default)
+-1					// Powerup exclusions
+0					// Disable time awards
+0					// Boundary race (mission)
+0					// Race type (0 = Carma1, 1 = Cars, 2 = Peds, 3 = Checkpoints, 4 = Smash)
+90,60,30			// Initial timer count for each skill level
+6					// # laps
+20000,10000,5000	// Race completed bonus (all laps raced) for each skill level
+75000,50000,30000	// Race completed bonus (all peds killed) for each skill level
+20000,10000,5000	// Race completed bonus (all oppos wasted) for each skill level
+// Race description
+LOCATION: MR.JOLLY FAIRGROUND @R LAPS: @L  @R CHECKPOINTS: 7 @R OPPONENTS: @O @R RACE, WRECK OR WREAK HAVOC AMONGST THE POPULACE... THE CHOICE IS YOURS.
+0					// Expansion
+
+// Race 22
+
+BOB SLAY
+SKITRACK2.TXT		// Text file name
+NotDoneYet			// Name of interface element
+-1					// Number of opponents (-1 = use default)
+0					// Number of explicit opponents
+-1					// Opponent nastiness level (-1 = use default)
+-1					// Powerup exclusions
+0					// Disable time awards
+0					// Boundary race (mission)
+0					// Race type (0 = Carma1, 1 = Cars, 2 = Peds, 3 = Checkpoints, 4 = Smash)
+90,60,30			// Initial timer count for each skill level
+6					// # laps
+20000,10000,5000	// Race completed bonus (all laps raced) for each skill level
+75000,50000,30000	// Race completed bonus (all peds killed) for each skill level
+20000,10000,5000	// Race completed bonus (all oppos wasted) for each skill level
+// Race description
+LOCATION: BEAVER MOUNTAINS @R LAPS: @L  @R CHECKPOINTS: 7 @R OPPONENTS: @O @R RACE, WRECK OR WREAK HAVOC AMONGST THE POPULACE... THE CHOICE IS YOURS.
+0					// Expansion
+
+// ---- MISSION ----
+
+// Race 23
+
+MISSION: FAIR GRIND
+FUNFAIR_MISSION.TXT	// Text file name
+NotDoneYet			// Name of interface element
+0					// Number of opponents (-1 = use default)
+0					// Number of explicit opponents
+-1					// Opponent nastiness level (-1 = use default)
+// Powerup exclusions:
+2,5,8,9,12,15,21,27,34,35,36,37,39,49,51,55,56,65,91
+1					// Disable time awards
+1					// Boundary race (mission)
+2					// Race type (0 = Carma1, 1 = Cars, 2 = Peds, 3 = Checkpoints, 4 = Smash)
+420,360,270			// Initial timer count for each skill level
+1					// Number of opponents that must be killed (-1 means all)
+60					// Group number
+150000,100000,50000	// Race completed bonus for each skill level
+// Race description
+LOCATION: MR.JOLLY FUNFAIR @R THE CLOWNS ARE EVIL DEVIANTS IN DISGUISE. THEY MUST BE DESTROYED.
+0					// Expansion
+
+
+// ====== GROUP 7 ======
+
+// Race 24
+
+SEAMAN SPLATTER
+CARRIER1.TXT		// Text file name
+NotDoneYet			// Name of interface element
+-1					// Number of opponents (-1 = use default)
+0					// Number of explicit opponents
+-1					// Opponent nastiness level (-1 = use default)
+-1					// Powerup exclusions
+0					// Disable time awards
+0					// Boundary race (mission)
+0					// Race type (0 = Carma1, 1 = Cars, 2 = Peds, 3 = Checkpoints, 4 = Smash)
+90,60,30			// Initial timer count for each skill level
+12					// # laps
+20000,10000,5000	// Race completed bonus (all laps raced) for each skill level
+75000,50000,30000	// Race completed bonus (all peds killed) for each skill level
+20000,10000,5000	// Race completed bonus (all oppos wasted) for each skill level
+// Race description
+LOCATION: USS LEWINSKY @R LAPS: @L  @R CHECKPOINTS: 4 @R OPPONENTS: @O @R RACE, WRECK OR WREAK HAVOC AMONGST THE POPULACE... THE CHOICE IS YOURS.
+0					// Expansion
+
+// Race 25
+
+CON ROD AIR
+AIRPORT2.TXT			// Text file name
+NotDoneYet			// Name of interface element
+-1					// Number of opponents (-1 = use default)
+0					// Number of explicit opponents
+-1					// Opponent nastiness level (-1 = use default)
+-1					// Powerup exclusions
+0					// Disable time awards
+0					// Boundary race (mission)
+0					// Race type (0 = Carma1, 1 = Cars, 2 = Peds, 3 = Checkpoints, 4 = Smash)
+90,60,30			// Initial timer count for each skill level
+8					// # laps
+20000,10000,5000	// Race completed bonus (all laps raced) for each skill level
+75000,50000,30000	// Race completed bonus (all peds killed) for each skill level
+20000,10000,5000	// Race completed bonus (all oppos wasted) for each skill level
+// Race description
+LOCATION: BEAVER AIRPORT @R LAPS: @L  @R CHECKPOINTS: 8 @R OPPONENTS: @O @R RACE, WRECK OR WREAK HAVOC AMONGST THE POPULACE... THE CHOICE IS YOURS.
+0					// Expansion
+
+// Race 26
+
+ROLL UP, ROLL OVER...
+FUNFAIR3.TXT		// Text file name
+NotDoneYet			// Name of interface element
+-1					// Number of opponents (-1 = use default)
+0					// Number of explicit opponents
+-1					// Opponent nastiness level (-1 = use default)
+-1					// Powerup exclusions
+0					// Disable time awards
+0					// Boundary race (mission)
+0					// Race type (0 = Carma1, 1 = Cars, 2 = Peds, 3 = Checkpoints, 4 = Smash)
+90,60,30			// Initial timer count for each skill level
+8					// # laps
+20000,10000,5000	// Race completed bonus (all laps raced) for each skill level
+75000,50000,30000	// Race completed bonus (all peds killed) for each skill level
+20000,10000,5000	// Race completed bonus (all oppos wasted) for each skill level
+// Race description
+LOCATION: MR.JOLLY FAIRGROUND @R LAPS: @L  @R CHECKPOINTS: 8 @R OPPONENTS: @O @R RACE, WRECK OR WREAK HAVOC AMONGST THE POPULACE... THE CHOICE IS YOURS.
+0					// Expansion
+
+// ---- MISSION ----
+
+// Race 27
+
+MISSION: CONTROL FREAK
+AIRPORT_MISSION.TXT	// Text file name
+NotDoneYet			// Name of interface element
+0					// Number of opponents (-1 = use default)
+0					// Number of explicit opponents
+-1					// Opponent nastiness level (-1 = use default)
+// Powerup exclusions:
+2,5,8,9,12,15,21,27,34,35,36,37,39,49,51,55,56,65,91
+1					// Disable time awards
+1					// Boundary race (mission)
+2					// Race type (0 = Carma1, 1 = Cars, 2 = Peds, 3 = Checkpoints, 4 = Smash)
+360,240,120			// Initial timer count for each skill level
+1
+30					// Ped group
+150000,100000,50000	// Race completed bonus for each skill level
+// Race description
+LOCATION: BEAVER AIRPORT @R @R OPPONENTS: @O @R Kill the airport controllers, for they are plotting a commercial airline based attack against you!
+0					// Expansion
+
+
+// ====== GROUP 8 ======
+
+// Race 28
+
+SHEIK, RATTLE & ROLL
+DESERT1.TXT			// Text file name
+NotDoneYet			// Name of interface element
+-1					// Number of opponents (-1 = use default)
+0					// Number of explicit opponents
+-1					// Opponent nastiness level (-1 = use default)
+-1					// Powerup exclusions
+0					// Disable time awards
+0					// Boundary race (mission)
+0					// Race type (0 = Carma1, 1 = Cars, 2 = Peds, 3 = Checkpoints, 4 = Smash)
+90,60,30			// Initial timer count for each skill level
+8					// # laps
+20000,10000,5000	// Race completed bonus (all laps raced) for each skill level
+75000,50000,30000	// Race completed bonus (all peds killed) for each skill level
+20000,10000,5000	// Race completed bonus (all oppos wasted) for each skill level
+// Race description
+LOCATION: EL MORTE DESERT @R LAPS: @L  @R CHECKPOINTS: 4 @R OPPONENTS: @O @R RACE, WRECK OR WREAK HAVOC AMONGST THE POPULACE... THE CHOICE IS YOURS.
+0					// Expansion
+
+// Race 29
+
+GOING DOWN
+CARRIER2.TXT		// Text file name
+NotDoneYet			// Name of interface element
+-1					// Number of opponents (-1 = use default)
+0					// Number of explicit opponents
+-1					// Opponent nastiness level (-1 = use default)
+-1					// Powerup exclusions
+0					// Disable time awards
+0					// Boundary race (mission)
+0					// Race type (0 = Carma1, 1 = Cars, 2 = Peds, 3 = Checkpoints, 4 = Smash)
+90,60,30			// Initial timer count for each skill level
+8					// # laps
+20000,10000,5000	// Race completed bonus (all laps raced) for each skill level
+75000,50000,30000	// Race completed bonus (all peds killed) for each skill level
+20000,10000,5000	// Race completed bonus (all oppos wasted) for each skill level
+// Race description
+LOCATION: USS LEWINSKY @R LAPS: @L  @R CHECKPOINTS: 2 @R OPPONENTS: @O @R RACE, WRECK OR WREAK HAVOC AMONGST THE POPULACE... THE CHOICE IS YOURS.
+0					// Expansion
+
+// Race 30
+
+AIRPAIN 3
+AIRPORT3.TXT			// Text file name
+NotDoneYet			// Name of interface element
+-1					// Number of opponents (-1 = use default)
+0					// Number of explicit opponents
+-1					// Opponent nastiness level (-1 = use default)
+-1					// Powerup exclusions
+0					// Disable time awards
+0					// Boundary race (mission)
+0					// Race type (0 = Carma1, 1 = Cars, 2 = Peds, 3 = Checkpoints, 4 = Smash)
+90,60,30			// Initial timer count for each skill level
+8					// # laps
+20000,10000,5000	// Race completed bonus (all laps raced) for each skill level
+75000,50000,30000	// Race completed bonus (all peds killed) for each skill level
+20000,10000,5000	// Race completed bonus (all oppos wasted) for each skill level
+// Race description
+LOCATION: BEAVER AIRPORT @R LAPS: @L  @R CHECKPOINTS: 9 @R OPPONENTS: @O @R RACE, WRECK OR WREAK HAVOC AMONGST THE POPULACE... THE CHOICE IS YOURS.
+0					// Expansion
+
+// ---- MISSION ----
+
+// Race 31
+
+MISSION: HARD CORE
+CARRIER_MISSION.TXT	// Text file name
+NotDoneYet			// Name of interface element
+0					// Number of opponents (-1 = use default)
+0					// Number of explicit opponents
+-1					// Opponent nastiness level (-1 = use default)
+2,5,8,9,12,15,21,27,34,35,36,37,49,65,91 // Powerup exclusions
+1					// Disable time awards
+1					// Boundary race (mission)
+5					// Race type (0 = Carma1, 1 = Cars, 2 = Peds, 3 = Checkpoints, 4 = Smash, 5 = smash'n'ped)
+450,390,345			// Initial timer count for each skill level
+1					// Smash variable number
+19					// Smash variable target
+56					// Ped group index for required extra kills
+150000,100000,50000	// Race completed bonus for each skill level
+// Race description
+LOCATION: USS LEWINSKY @R DESTROY THE WEAPONS SYSTEMS, RACE TO THE ENGINE ROOM & DESTROY THE CORE, THEN BACK TO THE DECK & INTO THE CONTROL TOWER FOR THE EVIL ADMIRAL.
+0					// Expansion
+
+
+// ====== GROUP 9 ======
+
+// Race 32
+
+2 MINUTE WARNING
+SILO1.TXT			// Text file name
+NotDoneYet			// Name of interface element
+-1					// Number of opponents (-1 = use default)
+0					// Number of explicit opponents
+-1					// Opponent nastiness level (-1 = use default)
+-1					// Powerup exclusions
+0					// Disable time awards
+0					// Boundary race (mission)
+0					// Race type (0 = Carma1, 1 = Cars, 2 = Peds, 3 = Checkpoints, 4 = Smash)
+90,60,30			// Initial timer count for each skill level
+8					// # laps
+20000,10000,5000	// Race completed bonus (all laps raced) for each skill level
+75000,50000,30000	// Race completed bonus (all peds killed) for each skill level
+20000,10000,5000	// Race completed bonus (all oppos wasted) for each skill level
+// Race description
+LOCATION: LOCAL NUCLEAR SILO @R LAPS: @L  @R CHECKPOINTS: 5 @R OPPONENTS: @O @R RACE, WRECK OR WREAK HAVOC AMONGST THE POPULACE... THE CHOICE IS YOURS.
+0					// Expansion
+
+// Race 33
+
+DUNE BUGGERED
+DESERT2.TXT			// Text file name
+NotDoneYet			// Name of interface element
+-1					// Number of opponents (-1 = use default)
+0					// Number of explicit opponents
+-1					// Opponent nastiness level (-1 = use default)
+-1					// Powerup exclusions
+0					// Disable time awards
+0					// Boundary race (mission)
+0					// Race type (0 = Carma1, 1 = Cars, 2 = Peds, 3 = Checkpoints, 4 = Smash)
+90,60,30			// Initial timer count for each skill level
+8					// # laps
+20000,10000,5000	// Race completed bonus (all laps raced) for each skill level
+75000,50000,30000	// Race completed bonus (all peds killed) for each skill level
+20000,10000,5000	// Race completed bonus (all oppos wasted) for each skill level
+// Race description
+LOCATION: EL MORTE DESERT @R LAPS: @L  @R CHECKPOINTS: 5 @R OPPONENTS: @O @R RACE, WRECK OR WREAK HAVOC AMONGST THE POPULACE... THE CHOICE IS YOURS.
+0					// Expansion
+
+// Race 34
+
+DEFCON FUSED
+SILO2.TXT			// Text file name
+NotDoneYet			// Name of interface element
+-1					// Number of opponents (-1 = use default)
+0					// Number of explicit opponents
+-1					// Opponent nastiness level (-1 = use default)
+-1					// Powerup exclusions
+0					// Disable time awards
+0					// Boundary race (mission)
+0					// Race type (0 = Carma1, 1 = Cars, 2 = Peds, 3 = Checkpoints, 4 = Smash)
+90,60,30			// Initial timer count for each skill level
+8					// # laps
+20000,10000,5000	// Race completed bonus (all laps raced) for each skill level
+75000,50000,30000	// Race completed bonus (all peds killed) for each skill level
+20000,10000,5000	// Race completed bonus (all oppos wasted) for each skill level
+// Race description
+LOCATION: LOCAL NUCLEAR SILO @R LAPS: @L  @R CHECKPOINTS: 6 @R OPPONENTS: @O @R RACE, WRECK OR WREAK HAVOC AMONGST THE POPULACE... THE CHOICE IS YOURS.
+0					// Expansion
+
+// ---- MISSION ----
+
+// Race 35
+
+MISSION: OIL BE BLOWED
+DESERT_MISSION.TXT	// Text file name
+NotDoneYet			// Name of interface element
+-1					// Number of opponents (-1 = use default)
+0					// Number of explicit opponents
+-1					// Opponent nastiness level (-1 = use default)
+// Powerup exclusions:
+2,5,8,9,12,15,21,27,34,35,36,37,39,49,51,55,56,65,91
+1					// Disable time awards
+1					// Boundary race (mission)
+4					// Race type (0 = Carma1, 1 = Cars, 2 = Peds, 3 = Checkpoints, 4 = Smash)
+330,260,220			// Initial timer count for each skill level
+1					// Smash variable number
+7					// Smash variable target
+150000,100000,50000	// Race completed bonus for each skill level
+// Race description
+LOCATION: EL MORTE DESERT @R OPPONENTS: @O @R All the oil wells have been set with charges. Detonate them all in any order.
+0					// Expansion
+
+
+// ====== GROUP 10 ======
+
+// Race 36
+
+NUCLEAR ARMS RACE
+SILO3.TXT			// Text file name
+NotDoneYet			// Name of interface element
+-1					// Number of opponents (-1 = use default)
+0					// Number of explicit opponents
+-1					// Opponent nastiness level (-1 = use default)
+-1					// Powerup exclusions
+0					// Disable time awards
+0					// Boundary race (mission)
+0					// Race type (0 = Carma1, 1 = Cars, 2 = Peds, 3 = Checkpoints, 4 = Smash)
+90,60,30			// Initial timer count for each skill level
+10					// # laps
+20000,10000,5000	// Race completed bonus (all laps raced) for each skill level
+75000,50000,30000	// Race completed bonus (all peds killed) for each skill level
+20000,10000,5000	// Race completed bonus (all oppos wasted) for each skill level
+// Race description
+LOCATION: LOCAL NUCLEAR SILO @R LAPS: @L  @R CHECKPOINTS: 6 @R OPPONENTS: @O @R RACE, WRECK OR WREAK HAVOC AMONGST THE POPULACE... THE CHOICE IS YOURS.
+0					// Expansion
+
+// Race 37
+
+THE BRUISE BROTHERS
+NEWCITY4.TXT		// Text file name
+NotDoneYet			// Name of interface element
+12					// Number of opponents (-1 = use default)
+12					// Number of explicit opponents
+51
+51
+51
+51
+51
+51
+51
+51
+51
+51
+51
+51
+10					// Opponent nastiness level (-1 = use default)
+-1 // Powerup exclusions:
+1					// Disable time awards
+0					// Boundary race (mission)
+1					// Race type (0 = Carma1, 1 = Cars, 2 = Peds, 3 = Checkpoints, 4 = Smash)
+420,360,300			// Initial timer count for each skill level
+-1					// Number of opponents that must be killed (-1 means all)
+20000,10000,5000	// Race completed bonus for each skill level
+// Race description
+LOCATION: BEAVER CITY @R OPPONENTS: @O @R TRASHING THAT DONUT SHOP WAS A BIG MISTAKE...
+0					// Expansion
+
+
+// Race 38
+
+I WANT TO BEREAVE
+DESERT3.TXT			// Text file name
+NotDoneYet			// Name of interface element
+-1					// Number of opponents (-1 = use default)
+0					// Number of explicit opponents
+-1					// Opponent nastiness level (-1 = use default)
+-1					// Powerup exclusions
+0					// Disable time awards
+0					// Boundary race (mission)
+0					// Race type (0 = Carma1, 1 = Cars, 2 = Peds, 3 = Checkpoints, 4 = Smash)
+90,60,30			// Initial timer count for each skill level
+10					// # laps
+20000,10000,5000	// Race completed bonus (all laps raced) for each skill level
+75000,50000,30000	// Race completed bonus (all peds killed) for each skill level
+20000,10000,5000	// Race completed bonus (all oppos wasted) for each skill level
+// Race description
+LOCATION: EL MORTE DESERT @R LAPS: @L @R CHECKPOINTS: 5 @R OPPONENTS: @O @R AN OPPORTUNITY TO PLAY INTERGALACTIC AMBASSADOR - HOW COULD YOU RESIST?
+0					// Expansion
+
+// ---- MISSION ----
+
+// Race 39
+
+MISSION: CARPOCALYPSE NOW
+SILO_MISSION.TXT	// Text file name
+NotDoneYet			// Name of interface element
+0					// Number of opponents (-1 = use default)
+0					// Number of explicit opponents
+-1					// Opponent nastiness level (-1 = use default)
+2,5,8,9,12,15,21,27,34,35,36,37,49,65,91 // Powerup exclusions:
+1					// Disable time awards
+1					// Boundary race (mission)
+4					// Race type (0 = Carma1, 1 = Cars, 2 = Peds, 3 = Checkpoints, 4 = Smash)
+360,300,280			// Initial timer count for each skill level
+1					// Smash variable number
+15					// Smash variable target
+150000,100000,50000	// Race completed bonus for each skill level
+// Race description
+LOCATION: LOCAL NUCLEAR SILO @R WRECK THE BLAST-DOOR POWER SUPPLIES & RACE THROUGH TO THE COMPLEX TO THE LAUNCH ROOM. ACTIVATE THE NUKE & GET THE HELL OUT!
+0					// Expansion
+
+
+END

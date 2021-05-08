@@ -185,7 +185,7 @@ namespace ToxicRagers.Carmageddon.Helpers
         {
             string r = "";
 
-            while (r.Length == 0)
+            while (r.Length == 0 && !EOF)
             {
                 int commentPosition = -1;
                 int read = 0;
