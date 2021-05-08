@@ -23,10 +23,14 @@
 
   <ItemGroup>
     <Folder Include="Files\Carmageddon2\" />
+    <Folder Include="Files\Carmageddon\" />
   </ItemGroup>
 
   <ItemGroup>
     <None Update="Files\Carmageddon2\test.twt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Files\Carmageddon\TestWithCommentsEncoded.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
