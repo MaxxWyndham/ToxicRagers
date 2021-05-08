@@ -92,58 +92,7 @@ namespace ToxicRagers.Carmageddon2.Formats
                     dw.WriteLine($"// Race {i}");
                     dw.WriteLine();
 
-                    dw.WriteLine(race.Name);
-                    dw.WriteLine(race.RaceFilename, "Text file name");
-                    dw.WriteLine(race.NameOfInterfaceElement, "Name of interface element");
-                    dw.WriteLine($"{race.NumberOfOpponents}", "Number of opponents (-1 = use default)");
-                    dw.WriteLine($"{race.NumberOfExplicitOpponents}", "Number of explicit opponents");
-                    foreach (int opponent in race.ExplicitOpponents) { dw.WriteLine($"{opponent}"); }
-                    dw.WriteLine($"{race.OpponentNastinessLevel}", "Opponent nastiness level (-1 = use default)");
-                    dw.WriteLine($"{string.Join(",", race.PowerupExclusions)}", "Powerup exclusions");
-                    dw.WriteLine($"{(race.DisableTimeAwards ? 1 : 0)}", "Disable time awards");
-                    dw.WriteLine($"{(race.BoundaryRace ? 1 : 0)}", "Boundary race (mission)");
-                    dw.WriteLine($"{(int)race.RaceType}", "Race type (0 = Carma1, 1 = Cars, 2 = Peds, 3 = Checkpoints, 4 = Smash, 5 = smash'n'ped)");
-                    dw.WriteLine($"{race.InitialTimer.X},{race.InitialTimer.Y},{race.InitialTimer.Z}", "Initial timer count for each skill level");
-
-                    switch (race.RaceType)
-                    {
-                        case RaceType.Carma:
-                        case RaceType.Checkpoints:
-                            dw.WriteLine($"{race.Laps}", "# laps");
-                            break;
-
-                        case RaceType.Cars:
-                            dw.WriteLine($"{race.NumberOfOpponentsThatMustBeKilled}", "Number of opponents that must be killed (-1 means all)");
-                            foreach (int opponent in race.OpponentsThatMustBeKilled) { dw.WriteLine($"{opponent}"); }
-                            break;
-
-                        case RaceType.Peds:
-                            dw.WriteLine($"{race.NumberOfPedGroups}", "Number of ped groups (-1 means all)");
-                            foreach (int pedGroup in race.PedGroupsThatMustBeKilled) { dw.WriteLine($"{pedGroup}"); }
-                            break;
-
-                        case RaceType.Smash:
-                        case RaceType.SmashnPed:
-                            dw.WriteLine($"{race.SmashVariableNumber}", "Smash variable number");
-                            dw.WriteLine($"{race.SmashVariableTarget}", "Smash variable target");
-                            if (race.RaceType == RaceType.SmashnPed) { dw.WriteLine($"{race.PedGroupsThatMustBeKilled[0]}", "Ped group index for required extra kills"); }
-                            break;
-                    }
-
-                    if (race.RaceType == RaceType.Carma)
-                    {
-                        dw.WriteLine($"{race.RaceCompletedBonusAllLaps.X},{race.RaceCompletedBonusAllLaps.Y},{race.RaceCompletedBonusAllLaps.Z}", "Race completed bonus (all laps raced) for each skill level");
-                        dw.WriteLine($"{race.RaceCompletedBonusAllPeds.X},{race.RaceCompletedBonusAllPeds.Y},{race.RaceCompletedBonusAllPeds.Z}", "Race completed bonus (all peds killed) for each skill level");
-                        dw.WriteLine($"{race.RaceCompletedBonusAllOpps.X},{race.RaceCompletedBonusAllOpps.Y},{race.RaceCompletedBonusAllOpps.Z}", "Race completed bonus (all oppos wasted) for each skill level");
-                    }
-                    else
-                    {
-                        dw.WriteLine($"{race.RaceCompletedBonus.X},{race.RaceCompletedBonus.Y},{race.RaceCompletedBonus.Z}", "Race completed bonus for each skill level");
-                    }
-
-                    dw.WriteLine($"// Race description");
-                    dw.WriteLine(race.Description);
-                    dw.WriteLine($"{race.Expansion}", "Expansion");
+                    race.Write(dw);
 
                     dw.WriteLine();
                 }
@@ -278,6 +227,62 @@ namespace ToxicRagers.Carmageddon2.Formats
             race.Expansion = file.ReadInt();
 
             return race;
+        }
+
+        public void Write(DocumentWriter dw)
+        {
+            dw.WriteLine(Name);
+            dw.WriteLine(RaceFilename, "Text file name");
+            dw.WriteLine(NameOfInterfaceElement, "Name of interface element");
+            dw.WriteLine($"{NumberOfOpponents}", "Number of opponents (-1 = use default)");
+            dw.WriteLine($"{NumberOfExplicitOpponents}", "Number of explicit opponents");
+            foreach (int opponent in ExplicitOpponents) { dw.WriteLine($"{opponent}"); }
+            dw.WriteLine($"{OpponentNastinessLevel}", "Opponent nastiness level (-1 = use default)");
+            dw.WriteLine($"{string.Join(",", PowerupExclusions)}", "Powerup exclusions");
+            dw.WriteLine($"{(DisableTimeAwards ? 1 : 0)}", "Disable time awards");
+            dw.WriteLine($"{(BoundaryRace ? 1 : 0)}", "Boundary race (mission)");
+            dw.WriteLine($"{(int)RaceType}", "Race type (0 = Carma1, 1 = Cars, 2 = Peds, 3 = Checkpoints, 4 = Smash, 5 = smash'n'ped)");
+            dw.WriteLine($"{InitialTimer.X},{InitialTimer.Y},{InitialTimer.Z}", "Initial timer count for each skill level");
+
+            switch (RaceType)
+            {
+                case RaceType.Carma:
+                case RaceType.Checkpoints:
+                    dw.WriteLine($"{Laps}", "# laps");
+                    break;
+
+                case RaceType.Cars:
+                    dw.WriteLine($"{NumberOfOpponentsThatMustBeKilled}", "Number of opponents that must be killed (-1 means all)");
+                    foreach (int opponent in OpponentsThatMustBeKilled) { dw.WriteLine($"{opponent}"); }
+                    break;
+
+                case RaceType.Peds:
+                    dw.WriteLine($"{NumberOfPedGroups}", "Number of ped groups (-1 means all)");
+                    foreach (int pedGroup in PedGroupsThatMustBeKilled) { dw.WriteLine($"{pedGroup}"); }
+                    break;
+
+                case RaceType.Smash:
+                case RaceType.SmashnPed:
+                    dw.WriteLine($"{SmashVariableNumber}", "Smash variable number");
+                    dw.WriteLine($"{SmashVariableTarget}", "Smash variable target");
+                    if (RaceType == RaceType.SmashnPed) { dw.WriteLine($"{PedGroupsThatMustBeKilled[0]}", "Ped group index for required extra kills"); }
+                    break;
+            }
+
+            if (RaceType == RaceType.Carma)
+            {
+                dw.WriteLine($"{RaceCompletedBonusAllLaps.X},{RaceCompletedBonusAllLaps.Y},{RaceCompletedBonusAllLaps.Z}", "Race completed bonus (all laps raced) for each skill level");
+                dw.WriteLine($"{RaceCompletedBonusAllPeds.X},{RaceCompletedBonusAllPeds.Y},{RaceCompletedBonusAllPeds.Z}", "Race completed bonus (all peds killed) for each skill level");
+                dw.WriteLine($"{RaceCompletedBonusAllOpps.X},{RaceCompletedBonusAllOpps.Y},{RaceCompletedBonusAllOpps.Z}", "Race completed bonus (all oppos wasted) for each skill level");
+            }
+            else
+            {
+                dw.WriteLine($"{RaceCompletedBonus.X},{RaceCompletedBonus.Y},{RaceCompletedBonus.Z}", "Race completed bonus for each skill level");
+            }
+
+            dw.WriteLine($"// Race description");
+            dw.WriteLine(Description);
+            dw.WriteLine($"{Expansion}", "Expansion");
         }
     }
 
