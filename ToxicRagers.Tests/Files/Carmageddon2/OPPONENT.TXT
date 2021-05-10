@@ -1,0 +1,747 @@
+53
+
+// Opponent 0
+Max Damage
+Max
+Eagle 3		
+-1				// Strength rating (1-5)
+50000			// Cost to buy it
+eagle				// Network availability ('eagle', or 'all')
+EAGLE3.TXT		// vehicle filename
+//vehicle description
+TOP SPEED: 200MPH
+KERB WEIGHT: 1.5 TONS
+0-60MPH: 3.4 SECONDS
+The Eagle is back, and it's badder and better than ever. 
+
+// Opponent 1
+Auto Scum
+Scum
+Bugga		
+1				// Strength rating (1-5)
+72000			// Cost to buy it
+all				// Network availability ('eagle', or 'all')
+BUGGY.TXT		// vehicle filename
+//vehicle description
+TOP SPEED: 140MPH
+KERB WEIGHT: 1.15 TONS
+0-60MPH: 5.4 SECONDS
+THIS NIPPY LITTLE ALL-TERRAIN BUGGY SUITS THE OFF-ROAD RACES, BUT AVOID TAKING ON THOSE TRUCKS... 
+
+// Opponent 2
+Lady B
+LadyB
+LadyBug2		
+2				// Strength rating (1-5)
+165000			// Cost to buy it
+all				// Network availability ('eagle', or 'all')
+BUGTOO5.TXT		// vehicle filename
+//vehicle description
+TOP SPEED: 180MPH
+KERB WEIGHT: 1.00 TONS
+0-60MPH: 6.4 SECONDS
+A LIVELY RACER WITH PEDIGREE, SLIGHTLY FRAGILE AND HARD TO HANDLE. THE CAR'S THE SAME. 
+
+// Opponent 3
+BATMAD
+BATMAD
+PURPLE PILEDRIVER		
+3				// Strength rating (1-5)
+375000			// Cost to buy it
+all				// Network availability ('eagle', or 'all')
+CERBY.TXT		// vehicle filename
+//vehicle description
+TOP SPEED: 220MPH
+KERB WEIGHT: 1.1 TONS
+0-60MPH: 3.7 SECONDS
+THEY DON'T COME MUCH QUICKER THAN THIS... JUST TRY NOT TO CRASH IT. 
+
+// Opponent 4
+BUZZ LIGHTWEIGHT
+BUZZ
+THE BUZZMOBILE		
+1				// Strength rating (1-5)
+69000			// Cost to buy it
+all				// Network availability ('eagle', or 'all')
+BUZZ.TXT		// vehicle filename
+//vehicle description
+TOP SPEED: 160MPH
+KERB WEIGHT: 0.5 TONS
+0-60MPH: 3.9 SECONDS
+SMALL, LIGHT, FAST, AND SOFT AS SHITE. IF YOU'RE A RACER, THIS IS FOR YOU. 
+
+// Opponent 5
+KUTTER
+KUTTER
+LAMB O'GENIE		
+3				// Strength rating (1-5)
+315000			// Cost to buy it
+all				// Network availability ('eagle', or 'all')
+DIABLO.TXT		// vehicle filename
+//vehicle description
+TOP SPEED: 200MPH
+KERB WEIGHT: 1.5 TONS
+0-60MPH: 4.2 SECONDS
+CARVE UP THE FIELD WITH THE GENIE, BUT DON'T HIT ANYONE TOO HARD, IT'LL HURT YOU MORE. 
+
+// Opponent 6
+HEINZ FAUST
+HEINZ
+THE SUPASTUKA		
+4				// Strength rating (1-5)
+395000			// Cost to buy it
+all				// Network availability ('eagle', or 'all')
+JUNKER1.TXT		// vehicle filename
+//vehicle description
+TOP SPEED: 400MPH
+KERB WEIGHT: 4.0 TONS
+0-60MPH: 4.2 SECONDS
+NOW, HERE'S SOMETHING YOU DON'T SEE EVERY DAY. A WW2 FIGHTER-BOMBER FOR THE ROAD. COOL! 
+
+// Opponent 7
+WIDE BOY
+WIDEBOY
+STREET MACHINE		
+2				// Strength rating (1-5)
+210000			// Cost to buy it
+all				// Network availability ('eagle', or 'all')
+WIDEBOY.TXT		// vehicle filename
+//vehicle description
+TOP SPEED: 140MPH
+KERB WEIGHT: 1.37 TONS
+0-60MPH: 5.9 SECONDS
+COMMIT SONIC MURDER WITH THE SPEAKERS IN THE BACK OF THIS BABY & BLOW YER OPPOSITION'S BOWELS OPEN!
+
+// Opponent 8
+AUTO SCUM
+RAZOR
+RAZORBACK		
+1				// Strength rating (1-5)
+110000			// Cost to buy it
+all				// Network availability ('eagle', or 'all')
+RAZORBACK2.TXT		// vehicle filename
+//vehicle description
+TOP SPEED: 130MPH
+KERB WEIGHT: 0.83 TONS
+0-60MPH: 6.2 SECONDS
+WELL-ARMOURED OFF-ROADER, WITH GOOD OFFENSIVE CAPABILITIES, IF A LITTLE LIGHT.
+
+// Opponent 9
+AUTO SCUM
+PIRANHA
+PIRANHA		
+2				// Strength rating (1-5)
+187000			// Cost to buy it
+all				// Network availability ('eagle', or 'all')
+PIRANH4.TXT		// vehicle filename
+//vehicle description
+TOP SPEED: 130MPH
+KERB WEIGHT: 1.66 TONS
+0-60MPH: 6.2 SECONDS
+THIS NIPPY LITTLE ALL-TERRAIN BUGGY SUITS THE OFF-ROAD RACES, BUT AVOID TAKING ON THOSE TRUCKS... 
+
+// Opponent 10
+BANJO STRUMMY
+BANJO
+HICK PICKUP		
+4				// Strength rating (1-5)
+842000			// Cost to buy it
+all				// Network availability ('eagle', or 'all')
+FORDPICK.TXT		// vehicle filename
+//vehicle description
+TOP SPEED: 120MPH
+KERB WEIGHT: 3.0 TONS
+0-60MPH: 8.2 SECONDS
+NOT THE MOST SOPHISTICATED DRIVE, BUT 2 TONS OF IRON AND A V8 CAN COME IN HANDY IN A FIGHT.
+
+// Opponent 11
+DON DUMPSTER
+DON	
+THE PLOW MK.2		
+5				// Strength rating (1-5)
+1000000			// Cost to buy it
+all				// Network availability ('eagle', or 'all')
+DONDUMP.TXT		// vehicle filename
+//vehicle description
+TOP SPEED: 120MPH
+KERB WEIGHT: 10.0 TONS
+0-60MPH: 7.2 SECONDS
+BUILT TO SHIFT DON ALONG AT SPEED, THE PLOW WILL GO STRAIGHT THROUGH MOST SOLID OBJECTS. HANDY.
+
+// Opponent 12
+OTIS P JIVEFUNK
+OTIS	
+SLAM SEDAN		
+3				// Strength rating (1-5)
+460000			// Cost to buy it
+all				// Network availability ('eagle', or 'all')
+FAIR.TXT		// vehicle filename
+//vehicle description
+TOP SPEED: 120MPH
+KERB WEIGHT: 1.7 TONS
+0-60MPH: 7.2 SECONDS
+SERIOUS METAL. SMOOTH, COMFORTABLE, EASY DRIVE. AN AUTO SMASH HAS NEVER BEEN SO RELAXING.
+
+// Opponent 13
+SLIM CHANCE
+SLIM	
+COW POKER		
+3				// Strength rating (1-5)
+480000			// Cost to buy it
+all				// Network availability ('eagle', or 'all')
+FATLANE.TXT		// vehicle filename
+//vehicle description
+TOP SPEED: 120MPH
+KERB WEIGHT: 2.0 TONS
+0-60MPH: 7.2 SECONDS
+IF YOU CAN AFFORD THIS BABY, YOU'VE EARNED YOUR SPURS. GO GET 'EM, COWBOY.
+
+// Opponent 14
+MAURICE STALWART
+MAURICE	
+MAD MORRIS		
+4				// Strength rating (1-5)
+389000			// Cost to buy it
+all				// Network availability ('eagle', or 'all')
+MMINOR.TXT		// vehicle filename
+//vehicle description
+TOP SPEED: 120MPH
+KERB WEIGHT: 1.6 TONS
+0-60MPH: 9.2 SECONDS
+AN UNLIKELY COMBINATION OF HIGH SPEED AND EARLY BRITISH DESIGN MAKES FOR A ROBUST BUT UNSTABLE VEHICLE.
+
+// Opponent 15
+HERB 'E'
+HERB	
+MONSTER BEATLE		
+4				// Strength rating (1-5)
+542000			// Cost to buy it
+all				// Network availability ('eagle', or 'all')
+monsterbug.TXT		// vehicle filename
+//vehicle description
+TOP SPEED: 150MPH
+KERB WEIGHT: 3.45 TONS
+0-60MPH: 5.2 SECONDS
+HARD TO HIT ANYTHING WHEN YOU'RE MOUNTED ON ALL THAT RUBBER... BUT IT'S FUN TO TRY
+
+// Opponent 16
+ADA NUFF
+ADA	
+FORKING ADA		
+3				// Strength rating (1-5)
+212000			// Cost to buy it
+all				// Network availability ('eagle', or 'all')
+FORKLIFT.TXT		// vehicle filename
+//vehicle description
+TOP SPEED: 110MPH
+KERB WEIGHT: 2.06 TONS
+0-60MPH: 12.2 SECONDS
+NOT THE MOST EFFECTIVE RACE CAR ON THE TRACK, BUT IT'S A REAL CROWD PLEASER AND USEFUL IN A SCRAP.
+
+// Opponent 17
+SHAWNEE SMITT
+SHAWNEE	
+DC CODBRA		
+3				// Strength rating (1-5)
+789000			// Cost to buy it
+all				// Network availability ('eagle', or 'all')
+COBRA.TXT		// vehicle filename
+//vehicle description
+TOP SPEED: 180MPH
+KERB WEIGHT: 1.1 TONS
+0-60MPH: 5.2 SECONDS
+SUPERFAST 2-SEATER WITH TRI-BLADE 'KNOCK-OFF' WHEELS. YOU'LL KNOCK OFF SOME OPPOSITION IN THIS.
+
+// Opponent 18
+GRACE FULL
+GRACE	
+COUPE DE GRACE		
+2				// Strength rating (1-5)
+273000			// Cost to buy it
+all				// Network availability ('eagle', or 'all')
+COUPE.TXT		// vehicle filename
+//vehicle description
+TOP SPEED: 170MPH
+KERB WEIGHT: 1.6 TONS
+0-60MPH: 6.2 SECONDS
+SUPER-STREAMLINED HOT ROD WITH SUPER-POINTY FRONT END FOR DEFLECTING FOE AND SKEWERING VICTIM.
+
+// Opponent 19
+MIKE HUNT
+MIKE	
+DEATHCRUISER		
+5				// Strength rating (1-5)
+1500000			// Cost to buy it
+all				// Network availability ('eagle', or 'all')
+DEATHCRUISER.TXT		// vehicle filename
+//vehicle description
+TOP SPEED: 190MPH
+KERB WEIGHT: 8.0 TONS
+0-60MPH: 3.8 SECONDS
+POWERED BY A HUGE GAS-TURBINE ENGINE, THIS OLD TOURBUS IS VERY HARD AND VERY, VERY FAST.
+
+// Opponent 20
+JENNY TAYLIA
+JENNY	
+JETCAR		
+1				// Strength rating (1-5)
+115000			// Cost to buy it
+all				// Network availability ('eagle', or 'all')
+JETCAR.TXT		// vehicle filename
+//vehicle description
+TOP SPEED: 190MPH
+KERB WEIGHT: 2.0 TONS
+0-60MPH: 3.8 SECONDS
+A CAR. A JET ENGINE. A JETCAR. TOO FAST FOR IT'S OWN GOOD, REALLY. AND NOT TOO GOOD AT CORNERING.
+
+// Opponent 21
+SU BORG
+SU
+MACH 13		
+2				// Strength rating (1-5)
+263000			// Cost to buy it
+all				// Network availability ('eagle', or 'all')
+MACH13.TXT		// vehicle filename
+//vehicle description
+TOP SPEED: 190MPH
+KERB WEIGHT: 1.5 TONS
+0-60MPH: 3.8 SECONDS
+50'S VIEW OF THE FUTURE OF AUTOMOTION. FAST, LIGHT, AND SUPER-MANOUVERABLE. BUT SO SOFT.
+
+// Opponent 22
+DIE ANNA
+ANNA	
+HAWK 3		
+3				// Strength rating (1-5)
+495000			// Cost to buy it
+never				// Network availability ('eagle', or 'all')
+newhawk.TXT		// vehicle filename
+//vehicle description
+TOP SPEED: 240MPH
+KERB WEIGHT: 1.3 TONS
+0-60MPH: 3.2 SECONDS
+DIE'S BACK, WITH A SUPERSLICK RIVAL TO THE ALL-ROUND GREAT EAGLE. A SIMILAR VEHICLE, BUT FASTER.
+
+// Opponent 23
+HERR KOOLED
+HERRKOOLED	
+PORKER 2		
+3				// Strength rating (1-5)
+540000			// Cost to buy it
+all				// Network availability ('eagle', or 'all')
+PORKER2.TXT		// vehicle filename
+//vehicle description
+TOP SPEED: 170MPH
+KERB WEIGHT: 2.0 TONS
+0-60MPH: 3.9 SECONDS
+UPDATED AND IMPROVED, IN TOP RACE SPEC, THE PORKER 2 IS DEAD FAST BUT DEADLY ON THE LIMIT.
+
+// Opponent 24
+DAN DEAD
+DANDEAD
+BLOOD RIVIERA		
+3				// Strength rating (1-5)
+383200			// Cost to buy it
+all				// Network availability ('eagle', or 'all')
+RIVIERA.TXT		// vehicle filename
+//vehicle description
+TOP SPEED: 160MPH
+KERB WEIGHT: 1.16 TONS
+0-60MPH: 4.9 SECONDS
+A CLASSIC FAST MUSCLECAR WITH ENHANCED FOE-GRATING FRONT GRILL. SLICE 'N' DICE TIME.
+
+// Opponent 25
+MOTHER TRUCKER
+MOTHER	
+SEMI MK.2		
+5				// Strength rating (1-5)
+1450000			// Cost to buy it
+all				// Network availability ('eagle', or 'all')
+SEMI2.TXT		// vehicle filename
+//vehicle description
+TOP SPEED: 140MPH
+KERB WEIGHT: 8.0 TONS
+0-60MPH: 6.9 SECONDS
+THE ENORMOUS SEMI IS REBORN, AND THERE'S NOT MUCH ON THE ROAD THAT CAN TAKE IT ON.
+
+// Opponent 26
+ED 101
+ED101	
+TASHITA2		
+2				// Strength rating (1-5)
+170000			// Cost to buy it
+all				// Network availability ('eagle', or 'all')
+SKYLINE.TXT		// vehicle filename
+//vehicle description
+TOP SPEED: 190MPH
+KERB WEIGHT: 1.5 TONS
+0-60MPH: 3.9 SECONDS
+A FIERCELY FAST AND TECHNOLOGICALLY ADVANCED RACING MACHINE FROM THE FAR EAST.
+
+// Opponent 27
+ASHTEROID
+ASH	
+THE RED VET		
+4				// Strength rating (1-5)
+732000			// Cost to buy it
+all				// Network availability ('eagle', or 'all')
+corvette.TXT		// vehicle filename
+//vehicle description
+TOP SPEED: 140MPH
+KERB WEIGHT: 2.0 TONS
+0-60MPH: 5.9 SECONDS
+THE METAL MANGLING MOTHER OF ALL CLASSIC AMERICANS, WITH A HIGHLY TUNED V8. PUNCH IT!
+
+// Opponent 28
+VLAD
+VLAD	
+VLAD3		
+1				// Strength rating (1-5)
+82000			// Cost to buy it
+all				// Network availability ('eagle', or 'all')
+VLAD3.TXT		// vehicle filename
+//vehicle description
+TOP SPEED: 240MPH
+KERB WEIGHT: 1.0 TONS
+0-60MPH: 1.9 SECONDS
+FINE IN A STRAIGHT LINE, WITH THE HIGHEST TOP SPEED, JUST DON'T TRY TO CORNER IT.
+
+// Opponent 29
+MAGNUM MAGNUMSSON
+MAGNUM 	
+ABBA CAB		
+5				// Strength rating (1-5)
+1750000			// Cost to buy it
+all				// Network availability ('eagle', or 'all')
+VOLVO.TXT		// vehicle filename
+//vehicle description
+TOP SPEED: 120MPH
+KERB WEIGHT: 6.0 TONS
+0-60MPH: 9.9 SECONDS
+PULLS LIKE A TRAIN, AND QUICK, ONCE IT GETS GOING. AND ONCE IT'S GOING, IT'S NOT GONNA STOP.
+
+// Opponent 30
+MOON CHILD
+MOON 	
+FLOWER PLOWER		
+-1				// Strength rating (1-5)
+12000000			// Cost to buy it
+all				// Network availability ('eagle', or 'all')
+VWCAMPA.TXT		// vehicle filename
+//vehicle description
+TOP SPEED: 150MPH
+KERB WEIGHT: 2.5 TONS
+0-60MPH: 9.9 SECONDS
+TANK TRACKS, TANK ENGINE, TANK ARMOUR, AND A VERY NICE FLORAL PAINTJOB...
+
+// Opponent 31
+SINTHEA
+SINTHEA 	
+THUNDERBUCKET		
+2				// Strength rating (1-5)
+175000			// Cost to buy it
+all				// Network availability ('eagle', or 'all')
+TBUCKET.TXT		// vehicle filename
+//vehicle description
+TOP SPEED: 180MPH
+KERB WEIGHT: 3.0 TONS
+0-60MPH: 5.9 SECONDS
+MAXIMUM WEIGHT, MINIMUM SUSPENSION DAMPING GIVES THAT "IS IT A CAR, IS IT A BOAT?" FEELING.
+
+// Opponent 32
+halfwit harry
+HARRY 	
+LOGGERHEAD		
+5				// Strength rating (1-5)
+2500000			// Cost to buy it
+all				// Network availability ('eagle', or 'all')
+LOGMACHINE.TXT		// vehicle filename
+//vehicle description
+TOP SPEED: 140MPH
+KERB WEIGHT: 20.0 TONS
+0-60MPH: 7.9 SECONDS
+CATCH SOMEONE WITH THIS, AND THEY'LL WISH THEY NEVER GOT UP THIS MORNING. JOUST THE JOB.
+
+// Opponent 33
+KURT BLASTHOFF
+KURT 	
+THE BIMMER		
+2				// Strength rating (1-5)
+120000			// Cost to buy it
+all				// Network availability ('eagle', or 'all')
+ZEE.TXT		// vehicle filename
+//vehicle description
+TOP SPEED: 240MPH
+KERB WEIGHT: 1.13 TONS
+0-60MPH: 2.9 SECONDS
+TRY TO HANG ON TO YOUR HAT, AND YOUR LUNCH, IN THIS EXPERIMENTAL HIGH-OCTANE THRILLER.
+
+// Opponent 34
+SILVESTER STALLION
+SILVESTER 	
+PROP SHAFTER		
+2				// Strength rating (1-5)
+210000			// Cost to buy it
+all				// Network availability ('eagle', or 'all')
+MUSTANG.TXT		// vehicle filename
+//vehicle description
+TOP SPEED: 190MPH
+KERB WEIGHT: 1.18 TONS
+0-60MPH: 2.9 SECONDS
+A USEFUL MIXTURE OF CAR AND FIGHTER PLANE, IDEAL FOR OFFERING A FREE TRIM TO YOUR OPPONENT.
+
+// Opponent 35
+FARMER FRIGHT
+FARMER 	
+THE HARVESTER		
+5				// Strength rating (1-5)
+1720000			// Cost to buy it
+all				// Network availability ('eagle', or 'all')
+COMBINE.TXT		// vehicle filename
+//vehicle description
+TOP SPEED: 190MPH
+KERB WEIGHT: 5.0 TONS
+0-60MPH: 2.9 SECONDS
+FASTER THAN A SPEEDING BULLOCK (JUST). WATCH THEM BALE OUT WHEN YOU HIT THE ROAD IN THIS.
+
+// Opponent 36
+RUSS T
+RUSS	
+DEGORY'UN 2		
+3				// Strength rating (1-5)
+631000			// Cost to buy it
+all				// Network availability ('eagle', or 'all')
+DELOREAN.TXT		// vehicle filename
+//vehicle description
+TOP SPEED: 140MPH
+KERB WEIGHT: 1.6 TONS
+0-60MPH: 6.9 SECONDS
+NOT TOO HOT ON THE PERFORMANCE FRONT, BUT USEFULLY ADORNED UP FRONT.
+
+// Opponent 37
+SCREWIE LEWIE
+SCREWIE	
+SCREWIE 2		
+4				// Strength rating (1-5)
+892000			// Cost to buy it
+all				// Network availability ('eagle', or 'all')
+SCREW28.TXT		// vehicle filename
+//vehicle description
+TOP SPEED: 200MPH
+KERB WEIGHT: 3.0 TONS
+0-60MPH: 3.9 SECONDS
+THE 'SUPERCAR/MONSTER TRUCK/LIGHT AIRCRAFT/MOLE MACHINE' VEHICLE FOR THE DISCERNING NUTTER.
+
+// Opponent 38
+PITBULL
+PITBULL	
+BIG DUMP		
+80				// Strength rating (1-5)
+8800000			// Cost to buy it
+all				// Network availability ('eagle', or 'all')
+BIGDUMP.TXT		// vehicle filename
+//vehicle description
+TOP SPEED: 150MPH
+KERB WEIGHT: 35.0 TONS
+0-60MPH: 9.4 SECONDS
+WHEN YOU CAN AFFORD THIS BABY, YOUR TROUBLES ARE OVER. UNLESS YOU NEED TO GET THROUGH A CHECKPOINT...
+
+// Opponent 39
+RON DUMPSTER
+RON	
+DIGGA		
+-1				// Strength rating (1-5)
+19500000			// Cost to buy it
+never				// Network availability ('eagle', or 'all')
+DIGGA.TXT		// vehicle filename
+//vehicle description
+TOP SPEED: 130MPH
+KERB WEIGHT: 5.3 TONS
+0-60MPH: 10.4 SECONDS
+5 TONS OF COLD STEEL. NOT EXACTLY FAST, HANDLES LIKE A PIG, BUT VIRTUALLY UNSTOPPABLE. DIG IT!
+
+// Opponent 40
+Max Damage
+Max
+Eagle 3	(Black)
+-1				// Strength rating (1-5)
+500000			// Cost to buy it
+eagle			// Network availability ('eagle', or 'all')
+EAGLEBLACK.TXT	// vehicle filename
+//vehicle description
+TOP SPEED: 200MPH
+KERB WEIGHT: 1.5 TONS
+0-60MPH: 3.4 SECONDS
+The Eagle is back, and it's badder and better than ever. 
+
+// Opponent 41
+Max Damage
+Max
+Eagle 3	(Blue)
+-1				// Strength rating (1-5)
+500000			// Cost to buy it
+eagle			// Network availability ('eagle', or 'all')
+EAGLEBLUE.TXT	// vehicle filename
+//vehicle description
+TOP SPEED: 200MPH
+KERB WEIGHT: 1.5 TONS
+0-60MPH: 3.4 SECONDS
+The Eagle is back, and it's badder and better than ever. 
+
+// Opponent 42
+Max Damage
+Max
+Eagle 3	(Blue2)
+-1				// Strength rating (1-5)
+500000			// Cost to buy it
+eagle			// Network availability ('eagle', or 'all')
+EAGLEBLUE2.TXT	// vehicle filename
+//vehicle description
+TOP SPEED: 200MPH
+KERB WEIGHT: 1.5 TONS
+0-60MPH: 3.4 SECONDS
+The Eagle is back, and it's badder and better than ever. 
+
+// Opponent 43
+Max Damage
+Max
+Eagle 3	(Cyan)
+-1				// Strength rating (1-5)
+500000			// Cost to buy it
+eagle			// Network availability ('eagle', or 'all')
+EAGLECYAN.TXT	// vehicle filename
+//vehicle description
+TOP SPEED: 200MPH
+KERB WEIGHT: 1.5 TONS
+0-60MPH: 3.4 SECONDS
+The Eagle is back, and it's badder and better than ever. 
+
+// Opponent 44
+Max Damage
+Max
+Eagle 3	(Gold)
+-1				// Strength rating (1-5)
+500000			// Cost to buy it
+eagle			// Network availability ('eagle', or 'all')
+EAGLEGOLD.TXT	// vehicle filename
+//vehicle description
+TOP SPEED: 200MPH
+KERB WEIGHT: 1.5 TONS
+0-60MPH: 3.4 SECONDS
+The Eagle is back, and it's badder and better than ever. 
+
+// Opponent 45
+Max Damage
+Max
+Eagle 3	(Green)
+-1				// Strength rating (1-5)
+500000			// Cost to buy it
+eagle			// Network availability ('eagle', or 'all')
+EAGLEGREEN.TXT	// vehicle filename
+//vehicle description
+TOP SPEED: 200MPH
+KERB WEIGHT: 1.5 TONS
+0-60MPH: 3.4 SECONDS
+The Eagle is back, and it's badder and better than ever. 
+
+// Opponent 46
+Max Damage
+Max
+Eagle 3	(Lime)
+-1				// Strength rating (1-5)
+500000			// Cost to buy it
+eagle			// Network availability ('eagle', or 'all')
+EAGLELIME.TXT	// vehicle filename
+//vehicle description
+TOP SPEED: 200MPH
+KERB WEIGHT: 1.5 TONS
+0-60MPH: 3.4 SECONDS
+The Eagle is back, and it's badder and better than ever. 
+
+// Opponent 47
+Max Damage
+Max
+Eagle 3	(Pink)
+-1				// Strength rating (1-5)
+500000			// Cost to buy it
+eagle			// Network availability ('eagle', or 'all')
+EAGLEPINK.TXT	// vehicle filename
+//vehicle description
+TOP SPEED: 200MPH
+KERB WEIGHT: 1.5 TONS
+0-60MPH: 3.4 SECONDS
+The Eagle is back, and it's badder and better than ever. 
+
+// Opponent 48
+Max Damage
+Max
+Eagle 3	(Purple)
+-1				// Strength rating (1-5)
+500000			// Cost to buy it
+eagle			// Network availability ('eagle', or 'all')
+EAGLEPURP.TXT	// vehicle filename
+//vehicle description
+TOP SPEED: 200MPH
+KERB WEIGHT: 1.5 TONS
+0-60MPH: 3.4 SECONDS
+The Eagle is back, and it's badder and better than ever. 
+
+// Opponent 49
+Max Damage
+Max
+Eagle 3	(White)
+-1				// Strength rating (1-5)
+500000			// Cost to buy it
+eagle			// Network availability ('eagle', or 'all')
+EAGLEWHITE.TXT	// vehicle filename
+//vehicle description
+TOP SPEED: 200MPH
+KERB WEIGHT: 1.5 TONS
+0-60MPH: 3.4 SECONDS
+The Eagle is back, and it's badder and better than ever. 
+
+// Opponent 50
+Max Damage
+Max
+Eagle 3	(Yellow)
+-1				// Strength rating (1-5)
+500000			// Cost to buy it
+eagle			// Network availability ('eagle', or 'all')
+EAGLEYELLOW.TXT	// vehicle filename
+//vehicle description
+TOP SPEED: 200MPH
+KERB WEIGHT: 1.5 TONS
+0-60MPH: 3.4 SECONDS
+The Eagle is back, and it's badder and better than ever. 
+
+// Opponent 51
+The Cop
+Cop
+CopCar		
+5				// Strength rating (1-5)
+540000			// Cost to buy it
+all				// Network availability ('eagle', or 'all')
+copcar.TXT		// vehicle filename
+//vehicle description
+TOP SPEED: 140MPH
+KERB WEIGHT: 1.6 TONS
+0-60MPH: 5.4 SECONDS
+IT'S GOT A COP MOTOR, A 440 CUBIC INCH PLANT. IT'S GOT COP TYRES. COP SUSPENSION. COP SHOCKS... 
+
+// Opponent 52
+Rod Hell
+Rod
+HellRod		
+4				// Strength rating (1-5)
+340000			// Cost to buy it
+all				// Network availability ('eagle', or 'all')
+37ford.TXT		// vehicle filename
+//vehicle description
+TOP SPEED: 180MPH
+KERB WEIGHT: 2.5 TONS
+0-60MPH: 4.0 SECONDS
+QUITE A CAR... DEAD FAST, DEAD HARD, DEAD SET ON CAUSING MAXIMUM DAMAGE WITH MINIMUM EFFORT.
+
+END
+
+

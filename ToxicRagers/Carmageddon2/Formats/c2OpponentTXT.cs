@@ -7,7 +7,8 @@ namespace ToxicRagers.Carmageddon2.Formats
     public enum NetworkAvailability
     {
         eagle,
-        all
+        all,
+        never
     }
 
     public class OpponentTXT
@@ -23,23 +24,31 @@ namespace ToxicRagers.Carmageddon2.Formats
 
             for (int i = 0; i < numOpponents; ++i)
             {
-                opponents.Opponents.Add(new OpponentDetails
-                {
-                    DriverName = file.ReadLine(),
-                    DriverShortName = file.ReadLine(),
-                    CarName = file.ReadLine(),
-                    StrengthRating = file.ReadInt(),
-                    CostToBuy = file.ReadInt(),
-                    NetworkAvailability = file.ReadEnum<NetworkAvailability>(),
-                    CarFilename = file.ReadLine(),
-                    TopSpeed = file.ReadLine(),
-                    KerbWeight = file.ReadLine(),
-                    To60 = file.ReadLine(),
-                    Bio = file.ReadLine()
-                });
+                opponents.Opponents.Add(OpponentDetails.Load(file));
             }
 
+            if (file.ReadLine() != "END") { return null; }
+
             return opponents;
+        }
+
+        public void Save(string path)
+        {
+            using (DocumentWriter dw = new DocumentWriter(path))
+            {
+                dw.WriteLine($"{Opponents.Count}");
+                dw.WriteLine();
+
+                for (int i = 0; i < Opponents.Count; i++)
+                {
+                    dw.WriteLine($"// Opponent {i}");
+                    Opponents[i].Write(dw);
+                    dw.WriteLine();
+                }
+
+                dw.WriteLine("END");
+                dw.WriteLine();
+            }
         }
     }
 
@@ -66,5 +75,39 @@ namespace ToxicRagers.Carmageddon2.Formats
         public string To60 { get; set; }
 
         public string Bio { get; set; }
+
+        public static OpponentDetails Load(DocumentParser file)
+        {
+            return new OpponentDetails
+            {
+                DriverName = file.ReadLine(),
+                DriverShortName = file.ReadLine(),
+                CarName = file.ReadLine(),
+                StrengthRating = file.ReadInt(),
+                CostToBuy = file.ReadInt(),
+                NetworkAvailability = file.ReadEnum<NetworkAvailability>(),
+                CarFilename = file.ReadLine(),
+                TopSpeed = file.ReadLine(),
+                KerbWeight = file.ReadLine(),
+                To60 = file.ReadLine(),
+                Bio = file.ReadLine()
+            };
+        }
+
+        public void Write(DocumentWriter dw)
+        {
+            dw.WriteLine(DriverName);
+            dw.WriteLine(DriverShortName);
+            dw.WriteLine(CarName);
+            dw.WriteLine($"{StrengthRating}", "Strength rating (1-5)");
+            dw.WriteLine($"{CostToBuy}", "Cost to buy it");
+            dw.WriteLine($"{NetworkAvailability}", "Network availability ('eagle', or 'all')");
+            dw.WriteLine(CarFilename, "Vehicle filename");
+            dw.WriteLine("//vehicle description");
+            dw.WriteLine(TopSpeed);
+            dw.WriteLine(KerbWeight);
+            dw.WriteLine(To60);
+            dw.WriteLine(Bio);
+        }
     }
 }
