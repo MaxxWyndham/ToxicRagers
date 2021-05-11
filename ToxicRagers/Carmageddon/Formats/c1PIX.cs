@@ -19,17 +19,28 @@ namespace ToxicRagers.Carmageddon.Formats
         public static PIX Load(string path)
         {
             Logger.LogToFile(Logger.LogLevel.Info, "{0}", path);
-            FileInfo fi = new FileInfo(path);
             PIX pix = new PIX();
 
-            using (BEBinaryReader br = new BEBinaryReader(fi.OpenRead(), Encoding.Default))
+            using (MemoryStream ms = new MemoryStream(File.ReadAllBytes(path)))
+            {
+                pix = Load(ms);
+            }
+
+            return pix;
+        }
+
+        public static PIX Load(Stream stream)
+        {
+            PIX pix = new PIX();
+
+            using (BEBinaryReader br = new BEBinaryReader(stream, Encoding.Default))
             {
                 if (br.ReadUInt32() != 0x12 ||
                     br.ReadUInt32() != 0x08 ||
                     br.ReadUInt32() != 0x02 ||
                     br.ReadUInt32() != 0x02)
                 {
-                    Logger.LogToFile(Logger.LogLevel.Error, "{0} isn't a valid PIX file", path);
+                    Logger.LogToFile(Logger.LogLevel.Error, "This isn't a valid PIX file");
                     return null;
                 }
 
@@ -39,7 +50,7 @@ namespace ToxicRagers.Carmageddon.Formats
                 {
                     if (br.BaseStream.Position + 8 > br.BaseStream.Length)
                     {
-                        Logger.LogToFile(Logger.LogLevel.Error, $"{path} is malformed.  The last {br.BaseStream.Length - br.BaseStream.Position} bytes are redundant and should be removed");
+                        Logger.LogToFile(Logger.LogLevel.Error, $"This PIX is malformed.  The last {br.BaseStream.Length - br.BaseStream.Position} bytes are redundant and should be removed");
                         break;
                     }
 
