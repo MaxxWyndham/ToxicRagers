@@ -15,8 +15,6 @@ namespace ToxicRagers.Carmageddon2.Formats
 
         public List<TWTEntry> Contents { get; set; } = new List<TWTEntry>();
 
-        int dataStart;
-
         public static TWT Create(string path)
         {
             TWT twt = new TWT
@@ -32,14 +30,24 @@ namespace ToxicRagers.Carmageddon2.Formats
 
         public static TWT Load(string path)
         {
-            TWT twt = new TWT
-            {
-                Name = Path.GetFileNameWithoutExtension(path),
-                Location = Path.GetDirectoryName(path)
-            };
+            TWT twt;
 
-            using (FileStream fs = new FileStream(path, FileMode.Open))
-            using (BinaryReader br = new BinaryReader(fs, Encoding.Default))
+            using (MemoryStream ms = new MemoryStream(File.ReadAllBytes(path)))
+            {
+                twt = Load(ms);
+            }
+
+            twt.Name = Path.GetFileNameWithoutExtension(path);
+            twt.Location = Path.GetDirectoryName(path);
+
+            return twt;
+        }
+
+        public static TWT Load(Stream stream)
+        {
+            TWT twt = new TWT();
+
+            using (BinaryReader br = new BinaryReader(stream, Encoding.Default))
             {
                 br.ReadInt32();     // length
 
@@ -54,7 +62,12 @@ namespace ToxicRagers.Carmageddon2.Formats
                     });
                 }
 
-                twt.dataStart = (int)br.BaseStream.Position;
+                for (int i = 0; i < fileCount; i++)
+                {
+                    twt.Contents[i].Data = br.ReadBytes(twt.Contents[i].Length);
+
+                    if (twt.Contents[i].Length % 4 > 0) { br.ReadBytes(4 - (twt.Contents[i].Length % 4)); }
+                }
             }
 
             return twt;
@@ -62,7 +75,12 @@ namespace ToxicRagers.Carmageddon2.Formats
 
         public void Save()
         {
-            using (FileStream fs = new FileStream(Path.Combine(Location, $"{Name}.twt"), FileMode.Create))
+            Save(Path.Combine(Location, $"{Name}.twt"));
+        }
+
+        public void Save(string path)
+        {
+            using (FileStream fs = new FileStream(path, FileMode.Create))
             using (BinaryWriter bw = new BinaryWriter(fs))
             {
                 bw.Write(0);
@@ -78,7 +96,7 @@ namespace ToxicRagers.Carmageddon2.Formats
 
                 foreach (TWTEntry entry in Contents)
                 {
-                    bw.Write(File.ReadAllBytes(entry.SourceFile));
+                    bw.Write(entry.Data);
 
                     if (entry.Length % 4 != 0)
                     {
@@ -93,36 +111,14 @@ namespace ToxicRagers.Carmageddon2.Formats
 
         public byte[] Extract(TWTEntry entry)
         {
-            using (FileStream fs = new FileStream(Path.Combine(Location, $"{Name}.twt"), FileMode.Open))
-            using (BinaryReader br = new BinaryReader(fs))
-            {
-                int offset = dataStart;
-
-                for (int i = 0; i < Contents.Count; i++)
-                {
-                    if (Contents[i] == entry)
-                    {
-                        break;
-                    }
-                    else
-                    {
-                        offset += Contents[i].Length;
-
-                        if (Contents[i].Length % 4 > 0) { offset += 4 - (Contents[i].Length % 4); }
-                    }
-                }
-
-                br.BaseStream.Seek(offset, SeekOrigin.Begin);
-
-                return br.ReadBytes(entry.Length);
-            }
+            return entry.Data;
         }
 
         public void Extract(TWTEntry entry, string destination)
         {
             using (BinaryWriter bw = new BinaryWriter(new FileStream(Path.Combine(destination, entry.Name), FileMode.Create)))
             {
-                bw.Write(Extract(entry));
+                bw.Write(entry.Data);
             }
         }
 
@@ -140,7 +136,7 @@ namespace ToxicRagers.Carmageddon2.Formats
 
         public string Name { get; set; }
 
-        public string SourceFile { get; set; }
+        public byte[] Data { get; set; }
 
         public static TWTEntry FromFile(string path)
         {
@@ -148,7 +144,7 @@ namespace ToxicRagers.Carmageddon2.Formats
             {
                 Name = Path.GetFileName(path),
                 Length = (int)new FileInfo(path).Length,
-                SourceFile = path
+                Data = File.ReadAllBytes(path)
             };
         }
     }
