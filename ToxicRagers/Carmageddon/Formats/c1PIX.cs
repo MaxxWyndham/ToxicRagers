@@ -40,8 +40,9 @@ namespace ToxicRagers.Carmageddon.Formats
                     br.ReadUInt32() != 0x02 ||
                     br.ReadUInt32() != 0x02)
                 {
-                    Logger.LogToFile(Logger.LogLevel.Error, "This isn't a valid PIX file");
-                    return null;
+                    Logger.LogToFile(Logger.LogLevel.Warning, "This PIX file is missing the standard header");
+
+                    br.BaseStream.Seek(0, SeekOrigin.Begin);
                 }
 
                 Stack<PIXIE> pixies = new Stack<PIXIE>();

@@ -197,7 +197,7 @@ namespace ToxicRagers.Carmageddon.Helpers
                     read++;
 
                     if (commentPosition == -1 && read > 1 && data[position - 1] == '/' && data[position - 2] == '/') { commentPosition = read - 2; }
-                    if (c == '\r') { continue; }
+                    if (c == '\r') { if (position < data.Length && data[position] == '\n') { continue; } else { break; } }
                     if (c == '\n') { break; }
                 }
 
@@ -221,13 +221,25 @@ namespace ToxicRagers.Carmageddon.Helpers
             return s;
         }
 
+        static readonly string[] inttokens = new string[] { " ", ".", "," };
+
         public int ReadInt()
         {
+            int r;
             string s = ReadLine();
 
-            if (s.IndexOf(" ") > -1) { s = s.Substring(0, s.IndexOf(" ")); }
+            foreach (string token in inttokens) { if (s.IndexOf(token) > -1) { s = s.Substring(0, s.IndexOf(token)); } }
 
-            return Convert.ToInt32(s, s.StartsWith("0x") ? 16 : 10);
+            try
+            {
+                r = Convert.ToInt32(s, s.StartsWith("0x") ? 16 : 10);
+            }
+            catch (OverflowException)
+            {
+                r = s.StartsWith("-") ? int.MinValue : int.MaxValue;
+            }
+
+            return r;
         }
 
         public float ReadSingle()
