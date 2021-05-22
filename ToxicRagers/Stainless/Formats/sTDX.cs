@@ -228,7 +228,7 @@ namespace ToxicRagers.Stainless.Formats
                     }
                     else
                     {
-                        Squish.Squish.CompressImage(data, mb.Width, mb.Height, ref dest, flags | SquishFlags.kColourClusterFit);
+                        Squish.Squish.CompressImage(data, mb.Width, mb.Height, dest, flags | SquishFlags.kColourClusterFit);
                     }
 
                     mip.Data = dest;
@@ -396,7 +396,7 @@ namespace ToxicRagers.Stainless.Formats
                     data = mip.Data;
                     dest = new byte[mip.Width * mip.Height * 4];
 
-                    Squish.Squish.DecompressImage(dest, mip.Width, mip.Height, ref data, SquishFlags.kDxt1);
+                    Squish.Squish.DecompressImage(dest, mip.Width, mip.Height, data, SquishFlags.kDxt1);
 
                     for (y = 0; y < mip.Height; y++)
                     {
@@ -414,7 +414,7 @@ namespace ToxicRagers.Stainless.Formats
                     data = mip.Data;
                     dest = new byte[mip.Width * mip.Height * 4];
 
-                    Squish.Squish.DecompressImage(dest, mip.Width, mip.Height, ref data, SquishFlags.kDxt5);
+                    Squish.Squish.DecompressImage(dest, mip.Width, mip.Height, data, SquishFlags.kDxt5);
 
                     for (y = 0; y < mip.Height; y++)
                     {

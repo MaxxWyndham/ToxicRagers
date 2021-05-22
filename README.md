@@ -1,4 +1,8 @@
-##Toxic Ragers
+##Toxic Ragers##
+
+[![Nuget](https://img.shields.io/nuget/v/ToxicRagers)](https://www.nuget.org/packages/ToxicRagers/)
+
+A library for the manipulation of various game files.
 
 Game file formats supported...
 
@@ -6,18 +10,24 @@ Game file formats supported...
   * **.bundle** - Read, Extract
   * **.bom** - Partial read
 * Carmageddon
-  * **\<carname\>.txt** - Read (car details, funks, grooves, crush and bounding box data)
-  * **.pix** - Read, Extract
+  * **.pix** - Read, Write, Extract
+  * **\<carname\>.txt** - Read, Write
+  * **\<noncar\>.txt** - Read, Write
+  * **opponent.txt** - Read
 * Carmageddon 2
   * **.act** - Read, Write
   * **.dat** - Read, Write
   * **.mat** - Read, Write
-  * **\<mapname\>.txt** - Partial read
-* Carmageddon Mobile
-  * **.tdx** - Partial read
+  * **.wam** - Read, Write
+  * **.twt** - Read, Write, Extract
+  * **\<carname\>.txt** - Read, Write
+  * **\<mapname\>.txt** - Read, Write
+  * **opponent.txt** - Read, Write
+  * **races.txt** - Read, Write
 * Carmageddon PSX
   * code needs tidying
 * Carmageddon: Reincarnation
+  * **accessory.txt** - Read
   * **accessory.txt** - Read
   * **.light** - Read, Write
   * **.lol** - Read
@@ -28,7 +38,6 @@ Game file formats supported...
   * **\<carname\>\setup.lol** - Read, Write
   * **structure.xml** - Read, Write
   * **systemsdamage.xml** - Read, Write
-  * **.tdx** - Read, Write
   * **vehiclesetup.cfg** - Read, Write
 * Destruction Derby RAW
   * code needs tidying
@@ -44,8 +53,9 @@ Game file formats supported...
   * **.img** - Read (raw, RLE and huffman), Write (raw, RLE and huffman)
   * **.mdl** - Read, Write
   * **.mtl** - Partial read
+  * **.tdx** - Read, Write
   * **.wad** - Read, Extract
-  * **.zad** - Read, Extract, Write
+  * **.zad** - Read, Write, Extract
 * TDR 2000
   * **.h** - Read
   * **.hie** - Read
@@ -56,7 +66,7 @@ Game file formats supported...
   * **xobfbin** - Partial read
   * **.exp** - Read, Extract
 * Wreckfest
-  * **.bmap** - Read
+  * **.bmap** - Read, Write
   * **.scne** - Partial read
 
 Also contains code for...
@@ -67,4 +77,4 @@ Also contains code for...
 * CRC32 generation
 * Reading and writing binary FBX files
 * Reading and extracting from Android OBB files
-* Writing DDS files
+* Reading and writing DDS files

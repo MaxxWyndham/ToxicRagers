@@ -159,7 +159,7 @@ namespace ToxicRagers.Core.Formats
                 }
 
                 byte[] dest = new byte[Squish.Squish.GetStorageRequirements(mip.Width, mip.Height, flags | SquishFlags.kColourIterativeClusterFit)];
-                Squish.Squish.CompressImage(data, mip.Width, mip.Height, ref dest, flags | SquishFlags.kColourIterativeClusterFit);
+                Squish.Squish.CompressImage(data, mip.Width, mip.Height, dest, flags | SquishFlags.kColourIterativeClusterFit);
                 mip.Data = dest;
             }
             else
@@ -366,7 +366,7 @@ namespace ToxicRagers.Core.Formats
             }
             else
             {
-                Squish.Squish.DecompressImage(dest, mip.Width, mip.Height, ref data, flags);
+                Squish.Squish.DecompressImage(dest, mip.Width, mip.Height, data, flags);
 
                 for (uint i = 0; i < dest.Length - 4; i += 4)
                 {
