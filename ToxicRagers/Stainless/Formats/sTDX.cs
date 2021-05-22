@@ -228,7 +228,7 @@ namespace ToxicRagers.Stainless.Formats
                     }
                     else
                     {
-                        Squish.Squish.CompressImage(data, mb.Width, mb.Height, dest, flags | SquishFlags.kColourClusterFit);
+                        Squish.Squish.CompressImage(data, mb.Width, mb.Height, dest, flags | SquishFlags.kColourClusterFit, true);
                     }
 
                     mip.Data = dest;

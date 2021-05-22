@@ -4,6 +4,11 @@
     <Authors>MaxxWyndham</Authors>
     <Title>Toxic Ragers</Title>
     <Description>A collection of file handlers for various games</Description>
+    <PackageProjectUrl>https://github.com/MaxxWyndham/ToxicRagers</PackageProjectUrl>
+    <PackageReleaseNotes>
+      v1.8.0
+      - Updated LibSquishNet to v2.0.0
+    </PackageReleaseNotes>
   </PropertyGroup>
   <PropertyGroup>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>

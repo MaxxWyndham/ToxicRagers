@@ -1,6 +1,8 @@
 name: Build Class Library
  
-on: [push]
+on: 
+  release:
+    types: [published]
  
 jobs:
   build:

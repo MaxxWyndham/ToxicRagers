@@ -159,7 +159,7 @@ namespace ToxicRagers.Core.Formats
                 }
 
                 byte[] dest = new byte[Squish.Squish.GetStorageRequirements(mip.Width, mip.Height, flags | SquishFlags.kColourIterativeClusterFit)];
-                Squish.Squish.CompressImage(data, mip.Width, mip.Height, dest, flags | SquishFlags.kColourIterativeClusterFit);
+                Squish.Squish.CompressImage(data, mip.Width, mip.Height, dest, flags | SquishFlags.kColourIterativeClusterFit, true);
                 mip.Data = dest;
             }
             else

@@ -1,4 +1,4 @@
-##Toxic Ragers##
+**Toxic Ragers**
 
 [![Nuget](https://img.shields.io/nuget/v/ToxicRagers)](https://www.nuget.org/packages/ToxicRagers/)
 
