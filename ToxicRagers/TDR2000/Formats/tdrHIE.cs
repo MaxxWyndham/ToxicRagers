@@ -77,7 +77,7 @@ namespace ToxicRagers.TDR2000.Formats
             HIE hie = new HIE();
             H h = new H();
 
-            FileInfo[] f = fi.Directory.GetFiles($"{Path.GetFileNameWithoutExtension(path)}.h");
+            FileInfo[] f = fi.Directory.GetFiles($"*.h");
             if (f.Length == 0) { f = fi.Directory.Parent.GetFiles($"{Path.GetFileNameWithoutExtension(path)}.h"); }
             if (f.Length > 0) { h = H.Load(f[0].FullName); }
 

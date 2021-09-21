@@ -144,6 +144,7 @@
     <Compile Include="CarmageddonReincarnation\Formats\crAccessoryTXT.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\crLIGHT.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\crMT2.cs" />
+    <Compile Include="Carmageddon\Formats\c1LevelText.cs" />
     <Compile Include="Carmageddon\Formats\c1NoncarTXT.cs" />
     <Compile Include="Helpers\Generics\MipMap.cs" />
     <Compile Include="Stainless\Formats\sTDX.cs" />
@@ -216,6 +217,8 @@
     <Compile Include="Stainless\Formats\sMTL.cs" />
     <Compile Include="Stainless\Formats\sWAD.cs" />
     <Compile Include="Stainless\Formats\sZAD.cs" />
+    <Compile Include="TDR2000\Formats\tdrCarDescriptor.cs" />
+    <Compile Include="TDR2000\Formats\tdrCarText.cs" />
     <Compile Include="TDR2000\Formats\tdrDCOL.cs" />
     <Compile Include="TDR2000\Formats\tdrFUNC.cs" />
     <Compile Include="TDR2000\Formats\tdrH.cs" />

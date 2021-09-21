@@ -18,6 +18,8 @@ namespace ToxicRagers.TDR2000.Formats
 
         public string Name => name;
         public override string FileName => texture;
+        public int Flags => flags;
+        public bool IsTransparent => (flags & 1) == 1;
 
         public static TX Load(string path)
         {
