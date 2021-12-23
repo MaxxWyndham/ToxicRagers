@@ -15,9 +15,17 @@ namespace ToxicRagers.TDR2000.Formats
         int flags;
         int width;
         int height;
+        int unknown1;
+        int unknown2;
+        string filename_32;
+        int unknown3;
+        string filename_8;
+
 
         public string Name => name;
-        public override string FileName => texture;
+        public override string FileName => filename_32;
+        public string FileName8 => filename_8;
+        public string FileName32 => filename_32;
         public int Flags => flags;
         public bool IsTransparent => (flags & 1) == 1;
 
@@ -49,8 +57,23 @@ namespace ToxicRagers.TDR2000.Formats
                 tx.texture = br.ReadString(br.ReadByte() - 1);
                 tx.width = br.ReadInt16();
                 tx.height = br.ReadInt16();
+                tx.unknown1 = br.ReadInt32();
+                tx.unknown2 = br.ReadInt32();
+                string filename1 = br.ReadString();
+                tx.unknown3 = br.ReadInt32();
+                string filename2 = br.ReadString();
 
-                tx.texture += string.Format("_{0}x{1}_32", tx.width, tx.height);
+                if (filename1.EndsWith("_32"))
+                {
+                    tx.filename_32 = filename1;
+                    tx.filename_8 = filename2;
+                }
+                else
+                {
+                    tx.filename_32 = filename2;
+                    tx.filename_8 = filename1;
+                }
+                //tx.texture += string.Format("_{0}x{1}_32", tx.width, tx.height);
 
                 Logger.LogToFile(Logger.LogLevel.Debug, "TX v{0}", tx.version);
             }

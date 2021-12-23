@@ -96,7 +96,7 @@ namespace ToxicRagers.TDR2000.Formats
             using (FileStream fs = new FileStream(location + name + ".pak", FileMode.Open))
             {
                 fs.Seek(file.Offset, SeekOrigin.Begin);
-
+                Console.WriteLine($"\tExtracting {file.Name}");
                 if (file.Size >= 8)
                 {
                     if ((fs.ReadByte() ^ fs.ReadByte()) == 122 && (fs.ReadByte() ^ fs.ReadByte()) == 14)
@@ -106,15 +106,19 @@ namespace ToxicRagers.TDR2000.Formats
                         b = fs.ReadByte();
                         c = fs.ReadByte();
                         d = fs.ReadByte();
+                        Console.WriteLine($"\t\t{a} - {b} - {c} - {d}");
 
                         a = 1 * (a ^ d);
                         b = 256 * (b ^ d);
                         c = 65536 * (c ^ d);
                         d = 16777216 * (d ^ d);
                         file.Size = (a + b + c + d);
+                        Console.WriteLine($"\t\t{a} - {b} - {c} - {d}");
+                        Console.WriteLine($"\t\t{file.Size}");
 
                         // Compressed!
-                        fs.Seek(2, SeekOrigin.Current);
+                        //fs.Seek(2, SeekOrigin.Current);
+                        Console.WriteLine($"\t\t{fs.ReadByte()} - {fs.ReadByte()}");
                         byte[] buff = new byte[file.Size];
 
                         using (DeflateStream ds = new DeflateStream(fs, CompressionMode.Decompress))

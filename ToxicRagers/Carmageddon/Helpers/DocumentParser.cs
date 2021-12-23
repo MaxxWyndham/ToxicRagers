@@ -42,8 +42,10 @@ namespace ToxicRagers.Carmageddon.Helpers
         public DocumentParser(BinaryReader br)
         {
             data = br.ReadBytes((int)br.BaseStream.Length);
-
-            Fiddled = Decode();
+            if (data.Length > 0)
+            {
+                Fiddled = Decode();
+            }
 
             position = 0;
 
@@ -181,6 +183,11 @@ namespace ToxicRagers.Carmageddon.Helpers
             return true;
         }
 
+        public void Seek(int pos)
+        {
+            position = pos;
+        }
+        public int Tell() => position;
         public string ReadLine()
         {
             string r = "";

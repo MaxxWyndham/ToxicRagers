@@ -19,7 +19,7 @@ namespace ToxicRagers.Helpers
 
         public static void ResetLog()
         {
-            using (StreamWriter w = File.CreateText(Environment.CurrentDirectory + "\\Flummery.log"))
+            //using (StreamWriter w = File.CreateText(Environment.CurrentDirectory + "\\Flummery.log"))
             {
             }
         }
@@ -28,9 +28,9 @@ namespace ToxicRagers.Helpers
         {
             if (level == LogLevel.All || Level.HasFlag(level))
             {
-                using (StreamWriter w = File.AppendText(Environment.CurrentDirectory + "\\Flummery.log"))
+              //  using (StreamWriter w = File.AppendText(Environment.CurrentDirectory + "\\Flummery.log"))
                 {
-                    w.WriteLine(string.Format(format, args));
+                //    w.WriteLine(string.Format(format, args));
                 }
             }
         }
@@ -39,9 +39,9 @@ namespace ToxicRagers.Helpers
         {
             if (level == LogLevel.All || Level.HasFlag(level))
             {
-                using (StreamWriter w = File.AppendText(Environment.CurrentDirectory + "\\Flummery.log"))
+               // using (StreamWriter w = File.AppendText(Environment.CurrentDirectory + "\\Flummery.log"))
                 {
-                    w.WriteLine(line);
+                //    w.WriteLine(line);
                 }
             }
         }

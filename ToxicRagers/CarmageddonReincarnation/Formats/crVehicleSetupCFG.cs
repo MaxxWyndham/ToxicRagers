@@ -582,73 +582,73 @@ namespace ToxicRagers.CarmageddonReincarnation.Formats
 
         public string FLWheel
         {
-            get => wheels["fl"];
+            get => wheels.ContainsKey("fl") ?  wheels["fl"] : null;
             set => wheels["fl"] = value;
         }
 
         public string FRWheel
         {
-            get => wheels["fr"];
+            get => wheels.ContainsKey("fr") ?  wheels["fr"] : null;
             set => wheels["fr"] = value;
         }
 
         public string RLWheel
         {
-            get => wheels["rl"];
+            get => wheels.ContainsKey("rl") ?  wheels["rl"] : null;
             set => wheels["rl"] = value;
         }
 
         public string RRWheel
         {
-            get => wheels["rr"];
+            get => wheels.ContainsKey("rr") ?  wheels["rr"] : null;
             set => wheels["rr"] = value;
         }
 
         public string D4
         {
-            get => wheels["D4"];
+            get => wheels.ContainsKey("D4") ?  wheels["D4"] : null;
             set => wheels["D4"] = value;
         }
 
         public string D5
         {
-            get => wheels["D5"];
+            get => wheels.ContainsKey("D5") ?  wheels["D5"] : null;
             set => wheels["D5"] = value;
         }
 
         public string D6
         {
-            get => wheels["D6"];
+            get => wheels.ContainsKey("D6") ?  wheels["D6"] : null;
             set => wheels["D6"] = value;
         }
 
         public string D7
         {
-            get => wheels["D7"];
+            get => wheels.ContainsKey("D7") ?  wheels["D7"] : null;
             set => wheels["D7"] = value;
         }
 
         public string D8
         {
-            get => wheels["D8"];
+            get => wheels.ContainsKey("D8") ?  wheels["D8"] : null;
             set => wheels["D8"] = value;
         }
 
         public string D9
         {
-            get => wheels["D9"];
+            get => wheels.ContainsKey("D9") ?  wheels["D9"] : null;
             set => wheels["D9"] = value;
         }
 
         public string D10
         {
-            get => wheels["D10"];
+            get => wheels.ContainsKey("D10") ?  wheels["D10"] : null;
             set => wheels["D10"] = value;
         }
 
         public string D11
         {
-            get => wheels["D11"];
+            get => wheels.ContainsKey("D11") ?  wheels["D11"] : null;
             set => wheels["D11"] = value;
         }
 

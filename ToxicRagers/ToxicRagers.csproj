@@ -218,6 +218,7 @@
     <Compile Include="Stainless\Formats\sWAD.cs" />
     <Compile Include="Stainless\Formats\sZAD.cs" />
     <Compile Include="TDR2000\Formats\tdrCarDescriptor.cs" />
+    <Compile Include="TDR2000\Formats\tdrCarComponentText.cs" />
     <Compile Include="TDR2000\Formats\tdrCarText.cs" />
     <Compile Include="TDR2000\Formats\tdrDCOL.cs" />
     <Compile Include="TDR2000\Formats\tdrFUNC.cs" />
