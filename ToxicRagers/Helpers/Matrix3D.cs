@@ -157,6 +157,19 @@ namespace ToxicRagers.Helpers
             return new Matrix3D(m.M11, m.M12, m.M13, m.M21, m.M22, m.M23, m.M31, m.M32, m.M33, m.M41, m.M42, m.M43);
         }
 
+        public override bool Equals(object obj)
+        {
+	        Matrix3D other = (Matrix3D)obj;
+
+	        if (other == null)
+		        return false;
+
+	        return M11 == other.M11 && M12 == other.M12 && M13 == other.M13 &&
+	               M21 == other.M21 && M22 == other.M22 && M23 == other.M23 &&
+	               M31 == other.M31 && M32 == other.M32 && M33 == other.M33 &&
+	               M41 == other.M41 && M42 == other.M42 && M43 == other.M43;
+        }
+
         public override string ToString()
         {
             return "{ {M11:" + M11 + " M12:" + M12 + " M13:" + M13 + "} {M21:" + M21 + " M22:" + M22 + " M23:" + M23 + "} {M31:" + M31 + " M32:" + M32 + " M33:" + M33 + "} {M41:" + M41 + " M42:" + M42 + " M43:" + M43 + "} }";

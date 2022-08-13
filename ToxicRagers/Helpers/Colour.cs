@@ -62,5 +62,14 @@ namespace ToxicRagers.Helpers
         {
             return Color.FromArgb((int)(A * 255), (int)(R * 255), (int)(G * 255), (int)(B * 255));
         }
+
+        public static Colour Parse(string c)
+        {
+
+            c = c.Replace(" ", "");
+            string[] s = c.Split(new char[] { ',', '\t' }, StringSplitOptions.RemoveEmptyEntries);
+
+            return Colour.FromArgb(s.Length > 3 ? byte.Parse(s[3]) : (byte)255,byte.Parse(s[0]), byte.Parse(s[1]), byte.Parse(s[2]));
+        }
     }
 }
