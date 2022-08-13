@@ -32,20 +32,28 @@ namespace ToxicRagers.Stainless.Formats
 
         public static WAD Load(string path)
         {
-            FileInfo fi = new FileInfo(path);
-            Logger.LogToFile(Logger.LogLevel.Info, "{0}", path);
-            WAD wad = new WAD
+	        FileInfo fi = new FileInfo(path);
+	        Logger.LogToFile(Logger.LogLevel.Info, "{0}", path);
+	        using (Stream stream = fi.OpenRead())
+	        {
+		        return Load(stream, Path.GetFileNameWithoutExtension(path), Path.GetDirectoryName(path));
+	        }
+        }
+        public static WAD Load(Stream stream, string name, string location)
+        {
+
+			WAD wad = new WAD
             {
-                Name = Path.GetFileNameWithoutExtension(path),
-                Location = Path.GetDirectoryName(path)
+                Name = name,
+                Location = location
             };
 
-            using (BinaryReader br = new BinaryReader(fi.OpenRead()))
+            using (BinaryReader br = new BinaryReader(stream))
             {
                 if (br.ReadByte() != 0x34 ||
                     br.ReadByte() != 0x12)
                 {
-                    Logger.LogToFile(Logger.LogLevel.Error, "{0} isn't a valid WAD file", path);
+                    Logger.LogToFile(Logger.LogLevel.Error, "{0} isn't a valid WAD file", name);
                     return null;
                 }
 
