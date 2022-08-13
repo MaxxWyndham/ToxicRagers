@@ -52,6 +52,24 @@ namespace ToxicRagers.Carmageddon.Helpers
             BaseStream.WriteLine();
         }
 
+        public void WriteSection(string sectionHeading, string content, string comment = null)
+        {
+            sectionHeading = $"{new string(IndentCharacter, CurrentIndent)}[{sectionHeading}]";
+            BaseStream.Write(sectionHeading);
+
+            if (comment != null)
+            {
+                int indentOffset = CommentIndent - (sectionHeading.Length / (CommentIndentCharacter == '\t' ? TabWidth : 1)) - CurrentIndent;
+
+                BaseStream.Write($"{new string(CommentIndentCharacter, indentOffset)}// {comment}");
+            }
+
+            BaseStream.WriteLine();
+            BaseStream.Write(content);
+
+            BaseStream.WriteLine();
+            BaseStream.WriteLine();
+        }
         public void Dispose()
         {
             BaseStream.Dispose();
