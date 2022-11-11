@@ -88,6 +88,8 @@
     <Compile Include="Carmageddon2\Helpers\Powerups.cs" />
     <Compile Include="Carmageddon2\Helpers\SmashData.cs" />
     <Compile Include="CarmageddonMobile\Formats\c1mLevelText.cs" />
+    <Compile Include="CarmageddonMobile\Formats\c1mTextXml.cs" />
+    <Compile Include="CarmageddonMobile\Formats\c1mCareerModeTxt.cs" />
     <Compile Include="CarmageddonPSX\OldCodeImport.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\crCrashSoundsConfigXML.cs" />
     <Compile Include="CarmageddonReincarnation\Formats\crLOL.cs" />

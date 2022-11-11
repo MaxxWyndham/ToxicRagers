@@ -13,14 +13,19 @@ namespace ToxicRagers.Carmageddon2.Formats
 
         public static MAT Load(string path)
         {
-            FileInfo fi = new FileInfo(path);
-            Logger.LogToFile(Logger.LogLevel.Info, "{0}", path);
+	        FileInfo fi = new FileInfo(path);
+	        Logger.LogToFile(Logger.LogLevel.Info, "{0}", path);
+	        return Load(fi.OpenRead());
+        }
+
+		public static MAT Load(Stream stream)
+        {
             MAT mat = new MAT();
 
             MATMaterial M = new MATMaterial();
             bool bDebug = false;
 
-            using (BEBinaryReader br = new BEBinaryReader(fi.OpenRead(), Encoding.Default))
+            using (BEBinaryReader br = new BEBinaryReader(stream, Encoding.Default))
             {
                 br.ReadBytes(16); // Header
 
