@@ -75,8 +75,14 @@ namespace ToxicRagers.Stainless.Formats
         }
 
         public static ZAD Load(string path)
+		{
+			FileInfo fi = new FileInfo(path);
+
+			return Load(fi.OpenRead(), path);
+		}
+
+        public static ZAD Load(Stream stream, string path)
         {
-            FileInfo fi = new FileInfo(path);
             //Logger.LogToFile(Logger.LogLevel.Info, "{0}", path);
             ZAD zad = new ZAD()
             {
@@ -85,7 +91,7 @@ namespace ToxicRagers.Stainless.Formats
                 location = Path.GetDirectoryName(path) + "\\"
             };
 
-            using (BinaryReader br = new BinaryReader(fi.OpenRead()))
+            using (BinaryReader br = new BinaryReader(stream))
             {
                 if (br.ReadByte() != 0x50 ||
                     br.ReadByte() != 0x4B)
@@ -546,10 +552,20 @@ namespace ToxicRagers.Stainless.Formats
                     }
                     else
                     {
-                        using (MemoryStream ms = new MemoryStream(bfs.ReadBytes((int)file.SizeCompressed)))
+	                    var compressedData = bfs.ReadBytes((int)file.SizeCompressed);
+
+						using (MemoryStream ms = new MemoryStream(compressedData))
                         using (DeflateStream ds = new DeflateStream(ms, CompressionMode.Decompress))
                         {
-                            ds.Read(buff, 0, (int)file.SizeUncompressed);
+	                        int offset = 0;
+	                        int sizeLeft = (int)file.SizeUncompressed;
+	                        
+	                        while (sizeLeft > 0)
+	                        {
+		                        int bytesRead = ds.Read(buff, offset, sizeLeft);
+		                        offset += bytesRead;
+		                        sizeLeft = (int)file.SizeUncompressed - offset;
+	                        }
                         }
                     }
                     break;

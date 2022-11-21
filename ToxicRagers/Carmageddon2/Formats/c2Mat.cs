@@ -15,10 +15,10 @@ namespace ToxicRagers.Carmageddon2.Formats
         {
 	        FileInfo fi = new FileInfo(path);
 	        Logger.LogToFile(Logger.LogLevel.Info, "{0}", path);
-	        return Load(fi.OpenRead());
+	        return Load(fi.OpenRead(), path);
         }
 
-		public static MAT Load(Stream stream)
+		public static MAT Load(Stream stream, string path)
         {
             MAT mat = new MAT();
 
