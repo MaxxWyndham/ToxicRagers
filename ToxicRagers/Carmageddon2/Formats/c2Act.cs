@@ -26,11 +26,19 @@ namespace ToxicRagers.Carmageddon2.Formats
 
         public static ACT Load(string path)
         {
-            FileInfo fi = new FileInfo(path);
+
+	        FileInfo fi = new FileInfo(path);
+	        using (Stream stream = fi.OpenRead())
+	        {
+		        return ACT.Load(stream, path);
+	        }
+        }
+        public static ACT Load(Stream stream, string path)
+        {
             Logger.LogToFile(Logger.LogLevel.Info, "{0}", path);
             ACT act = new ACT();
 
-            using (BEBinaryReader br = new BEBinaryReader(fi.OpenRead(), Encoding.Default))
+            using (BEBinaryReader br = new BEBinaryReader(stream, Encoding.Default))
             {
                 if (br.ReadUInt32() != 0x12 ||
                     br.ReadUInt32() != 0x8 ||
