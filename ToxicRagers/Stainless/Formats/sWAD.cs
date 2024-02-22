@@ -29,6 +29,7 @@ namespace ToxicRagers.Stainless.Formats
         public List<WADEntry> Contents { get; set; } = new List<WADEntry>();
 
         public IEnumerable<WADEntry> Files => Contents.Where(c => !c.IsDirectory);
+        public IEnumerable<WADEntry> Directories => Contents.Where(c => c.IsDirectory);
 
         public static WAD Load(string path)
         {
@@ -62,12 +63,14 @@ namespace ToxicRagers.Stainless.Formats
 
                 wad.Version = new Version(major, minor);
                 wad.Flags = (WADFlags)br.ReadUInt32();
-
-                int xmlLength = (int)br.ReadUInt32();
-                if (xmlLength > 0)
+                if (major >= 2 && minor > 1)
                 {
-                    Logger.LogToFile(Logger.LogLevel.Error, "Unexpected data discovered.  Aborting");
-                    return null;
+                    int xmlLength = (int)br.ReadUInt32();
+                    if (xmlLength > 0)
+                    {
+                        Logger.LogToFile(Logger.LogLevel.Error, "Unexpected data discovered.  Aborting");
+                        return null;
+                    }
                 }
 
                 int namesLength = (int)br.ReadUInt32();
@@ -305,7 +308,17 @@ namespace ToxicRagers.Stainless.Formats
                     using (DeflateStream ds = new DeflateStream(ms, CompressionMode.Decompress))
                     {
                         byte[] data = new byte[length];
-                        ds.Read(data, 0, length);
+                        int totalRead = 0;
+                        while (totalRead < data.Length)
+                        {
+                            int bytesRead = ds.Read(data, totalRead, length - totalRead);
+                            if (bytesRead == 0)
+                            {
+                                break;
+                            }
+
+                            totalRead += bytesRead;
+                        }
                         bw.Write(data, 0, data.Length);
                     }
                 }
@@ -330,7 +343,17 @@ namespace ToxicRagers.Stainless.Formats
                     using (DeflateStream ds = new DeflateStream(ms, CompressionMode.Decompress))
                     {
                         byte[] data = new byte[length];
-                        ds.Read(data, 0, length);
+                        int totalRead = 0;
+                        while (totalRead < data.Length)
+                        {
+                            int bytesRead = ds.Read(data, totalRead, length - totalRead);
+                            if (bytesRead == 0)
+                            {
+                                break;
+                            }
+
+                            totalRead += bytesRead;
+                        }
                         return data;
                     }
                 }

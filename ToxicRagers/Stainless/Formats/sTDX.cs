@@ -141,10 +141,14 @@ namespace ToxicRagers.Stainless.Formats
                             mip.Data = br.ReadBytes(mip.Width * mip.Height * 4);
                             break;
 
+                        case D3DFormat.X8R8G8B8:
                         case D3DFormat.A8R8G8B8:
                             mip.Data = br.ReadBytes(mip.Width * mip.Height * (tdx.Flags.HasFlag(TDXFlags.AlphaNbit) ? 4 : 3));
                             break;
 
+                        case D3DFormat.A4R4G4B4:
+                            mip.Data = br.ReadBytes(mip.Width * mip.Height * 2);
+                            break;
                         case D3DFormat.A8:
                             mip.Data = br.ReadBytes(mip.Width * mip.Height);
                             break;
@@ -500,6 +504,19 @@ namespace ToxicRagers.Stainless.Formats
                         }
                     }
                     break;
+                case D3DFormat.A4R4G4B4:
+                    data = mip.Data;
+
+                    for (y = 0; y < mip.Height; y++)
+                    {
+                        for (x = 0; x < mip.Width; x++)
+                        {
+                            int offset = (x + y * mip.Width) * 2;
+                            int pixel = BitConverter.ToUInt16(data, offset);
+                            bmp.SetPixel(x, y, ColorHelper.A4R4G4B4ToColor(pixel));
+                        }
+                    }
+                    break;
 
                 case D3DFormat.R5G5B6:
                     data = mip.Data;
@@ -544,6 +561,7 @@ namespace ToxicRagers.Stainless.Formats
                     break;
 
                 case D3DFormat.A8R8G8B8:
+                case D3DFormat.X8R8G8B8:
                     data = mip.Data;
 
                     int pixelSize = Flags.HasFlag(TDXFlags.AlphaNbit) ? 4 : 3;
