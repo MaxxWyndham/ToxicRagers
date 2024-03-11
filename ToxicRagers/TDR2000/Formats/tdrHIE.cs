@@ -50,7 +50,7 @@ namespace ToxicRagers.TDR2000.Formats
 
         public TDRNode Root => Nodes[0];
 
-        public static HIE Load(string path)
+        public static HIE Load(string path, string hFilePath = null)
         {
             void walkHierarchy(TDRNode parent, int index, HIE hierarchy)
             {
@@ -76,10 +76,23 @@ namespace ToxicRagers.TDR2000.Formats
             Logger.LogToFile(Logger.LogLevel.Info, "{0}", path);
             HIE hie = new HIE();
             H h = new H();
+            if (hFilePath == null)
+            {
+                FileInfo[] f = fi.Directory.GetFiles($"*.h");
+                if (f.Length == 0)
+                {
+                    f = fi.Directory.Parent.GetFiles($"{Path.GetFileNameWithoutExtension(path)}.h");
+                }
 
-            FileInfo[] f = fi.Directory.GetFiles($"{Path.GetFileNameWithoutExtension(path)}.h");
-            if (f.Length == 0) { f = fi.Directory.Parent.GetFiles($"{Path.GetFileNameWithoutExtension(path)}.h"); }
-            if (f.Length > 0) { h = H.Load(f[0].FullName); }
+                if (f.Length > 0)
+                {
+                    h = H.Load(f[0].FullName);
+                }
+            }
+            else
+            {
+                h = H.Load(hFilePath);
+            }
 
             string[] lines;
 
@@ -237,6 +250,15 @@ namespace ToxicRagers.TDR2000.Formats
             hie.Root.Transform = hie.Matrixes[hie.Root.Index].Matrix;
 
             walkHierarchy(hie.Root, 1, hie);
+
+            foreach (var matrix in hie.Matrixes)
+            {
+                var componentTextFilename = Path.Combine(fi.DirectoryName, matrix.Name);
+                if (File.Exists(componentTextFilename))
+                {
+                    matrix.ComponentText = CarComponentText.Load(componentTextFilename);
+                }
+            }
 
             return hie;
         }
@@ -427,6 +449,7 @@ namespace ToxicRagers.TDR2000.Formats
         public string Name { get; set; }
 
         public Matrix4D Matrix { get; set; } = Matrix4D.Identity;
+        public CarComponentText ComponentText;
     }
 
     public class TDRMaterial

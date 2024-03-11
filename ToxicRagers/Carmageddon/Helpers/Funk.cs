@@ -7,6 +7,7 @@ namespace ToxicRagers.Carmageddon.Helpers
 {
     public enum FunkMode
     {
+        None,
         constant,
         distance,
         lastlap,
@@ -63,6 +64,9 @@ namespace ToxicRagers.Carmageddon.Helpers
         public Vector2 SlitherSpeed { get; set; }
 
         public Vector2 SlitherAmount { get; set; }
+        public Vector2 ThrobCyclesPerSecond { get; set; }
+        public Vector2 ThrobCenter { get; set; }
+        public Vector2 ThrobExtends { get; set; }
 
         public float SpinPeriod { get; set; }
 
@@ -81,6 +85,7 @@ namespace ToxicRagers.Carmageddon.Helpers
         public float FrameSpeed { get; set; }
 
         public List<string> Frames { get; set; } = new List<string>();
+        public string FlicFilename { get; set; }
 
         public static Funk Load(DocumentParser file)
         {
@@ -111,6 +116,11 @@ namespace ToxicRagers.Carmageddon.Helpers
                     funk.SpinPeriod = file.ReadSingle();
                     break;
 
+                case FunkMatrixMode.throb:
+                    funk.ThrobCyclesPerSecond = file.ReadVector2();
+                    funk.ThrobCenter = file.ReadVector2();
+                    funk.ThrobExtends = file.ReadVector2();
+                    break;
                 default:
                     Console.WriteLine(file.ToString());
                     break;
@@ -151,9 +161,12 @@ namespace ToxicRagers.Carmageddon.Helpers
                         funk.Frames.Add(file.ReadLine());
                     }
                     break;
-
+                case FunkAnimationType.flic:
+                    funk.Framerate = file.ReadEnum<FrameRate>();
+                    funk.FlicFilename = file.ReadLine();
+                    break;
                 default:
-                    throw new NotImplementedException($"flic not supported!");
+                    throw new NotImplementedException($"funk type not supported!");
             }
 
             return funk;
