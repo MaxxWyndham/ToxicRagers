@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using System.Text;
+﻿using System.Text;
 
 using ToxicRagers.Helpers;
 
@@ -44,6 +42,7 @@ namespace ToxicRagers.Stainless.Formats
             return bsf;
         }
 
+        // With thanks to ManIkWeet (PR#4)
         public void Save(string path)
         {
             var fileInfo = new FileInfo(path);
