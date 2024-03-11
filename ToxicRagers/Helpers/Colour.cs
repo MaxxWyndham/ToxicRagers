@@ -50,6 +50,15 @@ namespace ToxicRagers.Helpers
             return new Colour(c.R / 255f, c.G / 255f, c.B / 255f, c.A / 255f);
         }
 
+        public static Colour Parse(string c)
+        {
+            c = c.Replace(" ", "");
+
+            string[] s = c.Split(new char[] { ',', '\t' }, StringSplitOptions.RemoveEmptyEntries);
+
+            return Colour.FromArgb(s.Length > 3 ? byte.Parse(s[3]) : (byte)255, byte.Parse(s[0]), byte.Parse(s[1]), byte.Parse(s[2]));
+        }
+
         public static Colour Random()
         {
             KnownColor[] knownColourNames = (KnownColor[])Enum.GetValues(typeof(KnownColor));
