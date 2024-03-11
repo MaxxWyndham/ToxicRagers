@@ -20,15 +20,21 @@ namespace ToxicRagers.Carmageddon2.Formats
         }
 
         public static DAT Load(string path)
+		{
+			FileInfo fi = new FileInfo(path);
+			Logger.LogToFile(Logger.LogLevel.Info, "{0}", path);
+
+			return Load(fi.OpenRead(), path);
+		}
+
+        public static DAT Load(Stream stream, string path)
         {
-            FileInfo fi = new FileInfo(path);
-            Logger.LogToFile(Logger.LogLevel.Info, "{0}", path);
             DAT dat = new DAT();
 
             DatMesh D = new DatMesh();
             int count;
 
-            using (BEBinaryReader br = new BEBinaryReader(fi.OpenRead(), Encoding.Default))
+            using (BEBinaryReader br = new BEBinaryReader(stream, Encoding.Default))
             {
                 if (br.ReadUInt32() != 0x12 ||
                     br.ReadUInt32() != 0x8 ||

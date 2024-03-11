@@ -417,7 +417,7 @@ namespace ToxicRagers.CarmageddonReincarnation.VirtualTextures
             }
         }
 
-        private void SaveTexture(VTMapEntry textureToExport, String FileName, VTPage vtPage)
+        public void SaveTexture(VTMapEntry textureToExport, String FileName, VTPage vtPage)
         {
             var fileType = Path.GetExtension(FileName).ToUpper();
             ImageFormat imgFormat = ImageFormat.Png;

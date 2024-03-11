@@ -128,6 +128,11 @@ namespace ToxicRagers.Helpers
         {
             bw.Write(s.ToCharArray());
         }
+        public static void WriteNullTerminatedString(this BinaryWriter bw, string s)
+        {
+            bw.Write(s.ToCharArray());
+            bw.Write((byte)0);
+        }
 
         public static int ToInt(this string s)
         {

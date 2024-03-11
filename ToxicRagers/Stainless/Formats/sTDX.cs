@@ -10,6 +10,7 @@ using ToxicRagers.Generics;
 using ToxicRagers.Helpers;
 
 using Squish;
+using ToxicRagers.Wreckfest.Formats;
 
 namespace ToxicRagers.Stainless.Formats
 {
@@ -140,10 +141,14 @@ namespace ToxicRagers.Stainless.Formats
                             mip.Data = br.ReadBytes(mip.Width * mip.Height * 4);
                             break;
 
+                        case D3DFormat.X8R8G8B8:
                         case D3DFormat.A8R8G8B8:
                             mip.Data = br.ReadBytes(mip.Width * mip.Height * (tdx.Flags.HasFlag(TDXFlags.AlphaNbit) ? 4 : 3));
                             break;
 
+                        case D3DFormat.A4R4G4B4:
+                            mip.Data = br.ReadBytes(mip.Width * mip.Height * 2);
+                            break;
                         case D3DFormat.A8:
                             mip.Data = br.ReadBytes(mip.Width * mip.Height);
                             break;
@@ -289,6 +294,174 @@ namespace ToxicRagers.Stainless.Formats
             return mips;
         }
 
+        public Color[] GetData(int mipLevel = 0)
+        {
+			MipMap mip = MipMaps[mipLevel];
+			int x, y;
+
+			//Bitmap bmp = new Bitmap(mip.Width, mip.Height, PixelFormat.Format32bppArgb);
+			byte[] data;
+			byte[] dest;
+			Color[] outputData = new Color[mip.Width * mip.Height];
+			switch (Format)
+			{
+				case D3DFormat.PVRTC4:
+					data = mip.Data;
+					dest = new byte[mip.Width * mip.Height * 4];
+
+					PVTRC.Decompress(data, false, mip.Width, mip.Height, true, dest);
+
+					for (y = 0; y < mip.Height; y++)
+					{
+						for (x = 0; x < mip.Width; x++)
+						{
+							int offset = (x + y * mip.Width) * 4;
+
+							Color c = Color.FromArgb(dest[offset + 3], dest[offset + 0], dest[offset + 1], dest[offset + 2]);
+							outputData[x + y * mip.Width] = c;
+							//bmp.SetPixel(x, y, c);
+						}
+					}
+					break;
+
+				case D3DFormat.R4G4B4A4:
+					data = mip.Data;
+
+					for (y = 0; y < mip.Height; y++)
+					{
+						for (x = 0; x < mip.Width; x++)
+						{
+							int offset = (x + y * mip.Width) * 2;
+							int pixel = BitConverter.ToUInt16(data, offset);
+                            outputData[x + y * mip.Width] = ColorHelper.R4G4B4A4ToColor(pixel);
+							//bmp.SetPixel(x, y, ColorHelper.R4G4B4A4ToColor(pixel));
+						}
+					}
+					break;
+
+				case D3DFormat.R5G5B6:
+					data = mip.Data;
+
+					for (y = 0; y < mip.Height; y++)
+					{
+						for (x = 0; x < mip.Width; x++)
+						{
+							int offset = (x + y * mip.Width) * 2;
+							int pixel = BitConverter.ToUInt16(data, offset);
+                            outputData[x + y * mip.Width] = ColorHelper.R5G5B6ToColor(pixel);
+							//bmp.SetPixel(x, y, ColorHelper.R5G5B6ToColor(pixel));
+						}
+					}
+					break;
+
+				case D3DFormat.A8B8G8R8:
+					data = mip.Data;
+
+					for (y = 0; y < mip.Height; y++)
+					{
+						for (x = 0; x < mip.Width; x++)
+						{
+							int offset = (x + y * mip.Width) * 4;
+							uint pixel = BitConverter.ToUInt32(data, offset);
+                            outputData[x + y * mip.Width] = ColorHelper.A8B8G8R8ToColor(pixel);
+							//bmp.SetPixel(x, y, ColorHelper.A8B8G8R8ToColor(pixel));
+						}
+					}
+					break;
+
+				case D3DFormat.R5G6B5:
+					data = mip.Data;
+
+					for (y = 0; y < mip.Height; y++)
+					{
+						for (x = 0; x < mip.Width; x++)
+						{
+							int offset = (x + y * mip.Width) * 2;
+							int pixel = BitConverter.ToUInt16(data, offset);
+                            outputData[x + y * mip.Width] = ColorHelper.R5G6B5ToColor(pixel);
+							//bmp.SetPixel(x, y, ColorHelper.R5G6B5ToColor(pixel));
+						}
+					}
+					break;
+
+				case D3DFormat.A8R8G8B8:
+					data = mip.Data;
+
+					int pixelSize = Flags.HasFlag(TDXFlags.AlphaNbit) ? 4 : 3;
+
+					for (y = 0; y < mip.Height; y++)
+					{
+						for (x = 0; x < mip.Width; x++)
+						{
+							int offset = (x + y * mip.Width) * pixelSize;
+							int a = pixelSize == 4 ? data[offset + 3] : 255;
+
+							Color c = Color.FromArgb(a, data[offset + 0], data[offset + 1], data[offset + 2]);
+							outputData[x + y * mip.Width] = c;
+							//bmp.SetPixel(x, y, c);
+						}
+					}
+					break;
+
+				case D3DFormat.DXT1:
+					data = mip.Data;
+					dest = new byte[mip.Width * mip.Height * 4];
+
+					Squish.Squish.DecompressImage(dest, mip.Width, mip.Height, data, SquishFlags.kDxt1);
+
+					for (y = 0; y < mip.Height; y++)
+					{
+						for (x = 0; x < mip.Width; x++)
+						{
+							int offset = (x + y * mip.Width) * 4;
+
+							Color c = Color.FromArgb(dest[offset + 3], dest[offset + 0], dest[offset + 1], dest[offset + 2]);
+                            outputData[x + y * mip.Width] = c;
+							//bmp.SetPixel(x, y, c);
+						}
+					}
+					break;
+
+				case D3DFormat.DXT5:
+					data = mip.Data;
+					dest = new byte[mip.Width * mip.Height * 4];
+
+					Squish.Squish.DecompressImage(dest, mip.Width, mip.Height, data, SquishFlags.kDxt5);
+
+					for (y = 0; y < mip.Height; y++)
+					{
+						for (x = 0; x < mip.Width; x++)
+						{
+							int offset = (x + y * mip.Width) * 4;
+
+							Color c = Color.FromArgb(dest[offset + 3], dest[offset + 0], dest[offset + 1], dest[offset + 2]);
+                            outputData[x + y * mip.Width] = c;
+							//bmp.SetPixel(x, y, c);
+						}
+					}
+					break;
+
+				case D3DFormat.ATI2:
+					data = mip.Data;
+
+					dest = BC5Unorm.Decompress(data, (uint)mip.Width, (uint)mip.Height);
+
+					for (y = 0; y < mip.Height; y++)
+					{
+						for (x = 0; x < mip.Width; x++)
+						{
+							int offset = (x + y * mip.Width) * 4;
+
+							Color c = Color.FromArgb(dest[offset + 3], dest[offset + 2], dest[offset + 1], dest[offset + 0]);
+                            outputData[x + y * mip.Width] = c;
+							//bmp.SetPixel(x, y, c);
+						}
+					}
+					break;
+			}
+
+			return outputData;
+        }
         public Bitmap GetBitmap(int mipLevel = 0)
         {
             MipMap mip = MipMaps[mipLevel];
@@ -328,6 +501,19 @@ namespace ToxicRagers.Stainless.Formats
                             int offset = (x + y * mip.Width) * 2;
                             int pixel = BitConverter.ToUInt16(data, offset);
                             bmp.SetPixel(x, y, ColorHelper.R4G4B4A4ToColor(pixel));
+                        }
+                    }
+                    break;
+                case D3DFormat.A4R4G4B4:
+                    data = mip.Data;
+
+                    for (y = 0; y < mip.Height; y++)
+                    {
+                        for (x = 0; x < mip.Width; x++)
+                        {
+                            int offset = (x + y * mip.Width) * 2;
+                            int pixel = BitConverter.ToUInt16(data, offset);
+                            bmp.SetPixel(x, y, ColorHelper.A4R4G4B4ToColor(pixel));
                         }
                     }
                     break;
@@ -375,6 +561,7 @@ namespace ToxicRagers.Stainless.Formats
                     break;
 
                 case D3DFormat.A8R8G8B8:
+                case D3DFormat.X8R8G8B8:
                     data = mip.Data;
 
                     int pixelSize = Flags.HasFlag(TDXFlags.AlphaNbit) ? 4 : 3;

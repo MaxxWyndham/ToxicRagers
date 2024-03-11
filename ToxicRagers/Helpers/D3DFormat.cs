@@ -10,6 +10,8 @@
         R5G6B5 = 19,
 
         A8R8G8B8 = 21,
+        X8R8G8B8 = 22,
+        A4R4G4B4 = 26,
         A8 = 28,
         ATI2 = 0x32495441,  // MakeFourCC('A', 'T', 'I', '2')
         DXT1 = 0x31545844,  // MakeFourCC('D', 'X', 'T', '1')

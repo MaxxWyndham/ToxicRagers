@@ -239,11 +239,24 @@ namespace ToxicRagers.Helpers
 
         public static bool operator ==(Vector3 x, Vector3 y)
         {
+	        if ((object)x == null && (object)y == null)
+		        return true;
+
+	        if (((object)x == null && (object)y != null) || ((object)x != null && (object)y == null))
+		        return false;
+
             return x.Equals(y);
         }
 
         public static bool operator !=(Vector3 x, Vector3 y)
         {
+
+	        if ((object)x == null && (object)y == null)
+		        return false;
+
+            if (((object)x == null && (object)y != null) || ((object)x != null && (object)y == null))
+		        return true;
+
             return !x.Equals(y);
         }
 

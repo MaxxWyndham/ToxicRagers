@@ -33,20 +33,20 @@ namespace ToxicRagers.Carmageddon2.Formats
 
             using (MemoryStream ms = new MemoryStream(File.ReadAllBytes(path)))
             {
-                twt = Load(ms);
+                twt = Load(ms, path);
             }
 
-            twt.Name = Path.GetFileNameWithoutExtension(path);
-            twt.Location = Path.GetDirectoryName(path);
 
             return twt;
         }
 
-        public static TWT Load(Stream stream)
+        public static TWT Load(Stream stream, string path)
         {
             TWT twt = new TWT();
 
-            using (BinaryReader br = new BinaryReader(stream, Encoding.Default))
+            twt.Name = Path.GetFileNameWithoutExtension(path);
+            twt.Location = Path.GetDirectoryName(path);
+			using (BinaryReader br = new BinaryReader(stream, Encoding.ASCII))
             {
                 br.ReadInt32();     // length
 

@@ -304,7 +304,7 @@ namespace ToxicRagers.CarmageddonReincarnation.VirtualTextures
                     {
                         for (int y = 0; y < data.Width; y++)
                         {
-                            int columnOffset = x + y * 4;
+                            int columnOffset = x * data.Stride + y * 4;
                             byte B = raw[columnOffset + 0];
                             byte G = raw[columnOffset + 1];
                             byte R = raw[columnOffset + 2];
