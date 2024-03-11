@@ -1,157 +1,135 @@
 ﻿using System.Collections.Generic;
 using System.IO;
-
+using ToxicRagers.Compression.LZSS;
 using ToxicRagers.Helpers;
+using static unluac.decompile.expression.TableLiteral;
 
 namespace ToxicRagers.DestructionDerbyRaw.Formats
 {
     public class PTH
     {
-        List<PTHEntry> contents;
+        public List<PTHEntry> Contents { get; set; } = new List<PTHEntry>();
 
-        public List<PTHEntry> Contents => contents;
+        public bool Compressed { get; internal set; }
 
-        public PTH()
-        {
-            contents = new List<PTHEntry>();
-        }
+        public int Size { get; internal set; }
+
+        public string DataPath { get; internal set; }
+
+        public byte[] Data { get; internal set; }
 
         public static PTH Load(string path)
         {
-            FileInfo fi = new FileInfo(path);
+            FileInfo fi = new(path);
             Logger.LogToFile(Logger.LogLevel.Info, "{0}", path);
-            PTH pth = new PTH();
+            PTH pth = new()
+            {
+                DataPath = Path.ChangeExtension(path, "dat")
+            };
 
-            using (BinaryReader br = new BinaryReader(new FileStream(path, FileMode.Open)))
+            using (BinaryReader br = new(fi.OpenRead()))
             {
                 while (br.BaseStream.Position < br.BaseStream.Length)
                 {
-                    pth.contents.Add(new PTHEntry { Name = br.ReadNullTerminatedString(), Size = (int)br.ReadUInt32(), Offset = (int)br.ReadUInt32() });
+                    pth.Contents.Add(new PTHEntry { Name = br.ReadNullTerminatedString(), Size = (int)br.ReadUInt32(), Offset = (int)br.ReadUInt32() });
                 }
+
+                pth.Size = pth.Contents.Sum(c => c.Size);
+                pth.Compressed = pth.Size > new FileInfo(pth.DataPath).Length;
+            }
+
+            if (pth.Compressed)
+            {
+                int pointer = 0;
+
+                using (FileStream fs = File.OpenRead(pth.DataPath))
+                using (BinaryReader br = new(fs))
+                {
+                    bool loop = true;
+                    uint length = br.ReadUInt32();
+
+                    pth.Data = new byte[length];
+
+                    do
+                    {
+                        uint flags = 0;
+                        for (int i = 0; i < 4; i++) { flags += (uint)(br.ReadByte() << (3 - i) * 8); }
+                        byte mode = (byte)(flags & 0x3);
+
+                        for (int i = 0; i < 30; i++)
+                        {
+                            if ((flags >> (30 - i + 1) & 0x1) == 1)
+                            {
+                                int offset = pointer;
+                                byte len = br.ReadByte();
+                                int dist = br.ReadByte();
+
+                                switch (mode)
+                                {
+                                    case 0:
+                                        dist += (len & 0x3f) << 8;
+                                        len = (byte)((len & 0xf8) >> 6);
+                                        break;
+
+                                    case 1:
+                                        dist += (len & 0x1f) << 8;
+                                        len = (byte)((len & 0xf8) >> 5);
+                                        break;
+
+                                    case 2:
+                                        dist += (len & 0xf) << 8;
+                                        len = (byte)((len & 0xf8) >> 4);
+                                        break;
+
+                                    case 3:
+                                        dist += (len & 0x7) << 8;
+                                        len = (byte)((len & 0xf8) >> 3);
+                                        break;
+                                }
+
+                                len += 3;
+
+                                int odist = dist;
+
+                                for (int j = 0; j < len; j++)
+                                {
+                                    pth.Data[pointer++] = pth.Data[offset - dist - 1];
+                                    if (--dist < 0) { dist = odist; }
+                                }
+                            }
+                            else
+                            {
+                                pth.Data[pointer++] = br.ReadByte();
+                            }
+
+                            if (pointer == length)
+                            {
+                                loop = false;
+                                break;
+                            }
+                        }
+                    } while (loop);
+                }
+            } 
+            else
+            {
+                pth.Data = File.ReadAllBytes(pth.DataPath);
             }
 
             return pth;
         }
-        //Private Sub parseAndExtract(ByVal sFolder As String, ByVal sFileName As String)
-        //    Dim files As New List(Of Resource)
-        //    Dim iSize As Integer
-        //    Dim bCompressed As Boolean
-        //    Dim i As Integer
-
-        //    br = New IO.BinaryReader(New IO.FileStream(sFolder & sFileName & ".DAT", IO.FileMode.Open))
-        //    bCompressed = (iSize > br.BaseStream.Length)
-
-        //    Label1.Text = sFolder & sFileName & ".DAT"
-        //    Application.DoEvents()
-
-        //    If bCompressed Then
-        //        Console.WriteLine("Decompressing " & sFolder & sFileName & ".DAT")
-
-        //        'bDebug = (sFolder & sFileName & ".DAT" = "D:\DDRaw\AVALANS\SPRITES.DAT")
-
-        //        Dim l As Integer = br.ReadInt32()
-        //        Dim x As Integer
-
-        //        Dim flags As UInt32
-        //        Dim bLoop As Boolean = True
-
-        //        Dim wBuff As New List(Of Byte)
-        //        Dim bBuff As New List(Of Byte)
-        //        Dim bMode As Byte
-
-        //        Do
-        //            flags = 0
-
-        //            For i = 0 To 3
-        //                Dim ui As UInt32 = br.ReadByte()
-        //                flags += ui << ((3 - i) * 8)
-        //            Next
-
-        //            bMode = (flags And &H3)
-
-        //            If bDebug Then Console.WriteLine(br.BaseStream.Position - 4 & vbTab & flags & vbTab & bMode)
-
-        //            For i = 0 To 29
-        //                If ExamineBit(flags, i) Then
-        //                    Dim r As Byte = br.ReadByte()
-        //                    Dim b As Byte = br.ReadByte()
-
-        //                    For Each j As Byte In ReadBuffer(bBuff, b, r, bMode)
-        //                        wBuff.Insert(0, j)
-        //                        bBuff.Insert(0, j)
-        //                        x += 1
-        //                    Next
-        //                Else
-        //                    Dim r As Byte = br.ReadByte()
-        //                    wBuff.Insert(0, r)
-        //                    bBuff.Insert(0, r)
-        //                    If bDebug Then Console.WriteLine("R" & vbTab & "0" & vbTab & "1" & vbTab & Convert.ToString(bBuff(0), 16).ToUpper().PadLeft(2, "0"))
-        //                    x += 1
-        //                End If
-
-        //                If br.BaseStream.Position = br.BaseStream.Length Then
-        //                    bLoop = False
-        //                    Exit For
-        //                End If
-        //            Next
-        //        Loop While bLoop
-
-        //        Dim bw As New IO.BinaryWriter(New IO.FileStream(sFolder & sFileName & "_unzip.DAT", IO.FileMode.Create))
-
-        //        For i = wBuff.Count - 1 To 0 Step -1
-        //            bw.Write(wBuff(i))
-        //        Next
-
-        //        Console.WriteLine(wBuff.Count & " : " & l)
-
-        //        bw.Close()
-
-        //        br.Close()
-        //        br = New IO.BinaryReader(New IO.FileStream(sFolder & sFileName & "_unzip.DAT", IO.FileMode.Open))
-        //    End If
-
-        //    '#######################
-
-        //    If IO.Directory.Exists(sFolder & sFileName) = False Then IO.Directory.CreateDirectory(sFolder & sFileName)
-
-        //    For i = 0 To files.Count - 1
-        //        createFile(sFolder & sFileName & "\" & files(i).Name, files(i).Offset, files(i).Length, br)
-        //    Next
-
-        //    For Each fi As IO.FileInfo In New IO.DirectoryInfo(sFolder & sFileName & "\").GetFiles("*.pth")
-        //        parseAndExtract(sFolder & sFileName & "\", fi.Name.Replace(fi.Extension, ""))
-        //    Next
-
-        //    br.Close()
-
-        //    '#######################
-
-        //    If bCompressed Then IO.File.Delete(sFolder & sFileName & "_unzip.DAT")
-        //End Sub
+        public byte[] Extract(PTHEntry entry)
+        {
+            return Data[entry.Offset..(entry.Offset + entry.Size)];
+        }
     }
 
     public class PTHEntry
     {
-        string name;
-        int size;
-        int offset;
+        public string Name { get; set; }
 
-        public string Name
-        {
-            get => name;
-            set => name = value;
-        }
+        public int Size { get; set; }
 
-        public int Size
-        {
-            get => size;
-            set => size = value;
-        }
-
-        public int Offset
-        {
-            get => offset;
-            set => offset = value;
-        }
+        public int Offset { get; set; }
     }
 }
