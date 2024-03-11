@@ -1,7 +1,4 @@
-﻿using System;
-using System.IO;
-
-namespace ToxicRagers.Helpers
+﻿namespace ToxicRagers.Helpers
 {
     public static class Logger
     {
@@ -17,32 +14,48 @@ namespace ToxicRagers.Helpers
 
         public static LogLevel Level = LogLevel.Info | LogLevel.Error;
 
+        public static bool AllowLog { get; set; } = true;
+
+        public static string LogName { get; set; } = "Flummery.log";
+
         public static void ResetLog()
         {
-            //using (StreamWriter w = File.CreateText(Environment.CurrentDirectory + "\\Flummery.log"))
+            if (!AllowLog) { return; }
+
+            try
             {
+                using StreamWriter w = File.CreateText(Path.Combine(Environment.CurrentDirectory, LogName));
             }
+            catch { }
         }
 
         public static void LogToFile(LogLevel level, string format, params object[] args)
         {
+            if (!AllowLog) { return; }
+
             if (level == LogLevel.All || Level.HasFlag(level))
             {
-              //  using (StreamWriter w = File.AppendText(Environment.CurrentDirectory + "\\Flummery.log"))
+                try
                 {
-                //    w.WriteLine(string.Format(format, args));
+                    using StreamWriter w = File.AppendText(Path.Combine(Environment.CurrentDirectory, LogName));
+                    w.WriteLine(string.Format(format, args));
                 }
+                catch { }
             }
         }
 
         public static void LogToFile(LogLevel level, string line)
         {
+            if (!AllowLog) { return; }
+
             if (level == LogLevel.All || Level.HasFlag(level))
             {
-               // using (StreamWriter w = File.AppendText(Environment.CurrentDirectory + "\\Flummery.log"))
+                try
                 {
-                //    w.WriteLine(line);
+                    using StreamWriter w = File.AppendText(Path.Combine(Environment.CurrentDirectory, LogName));
+                    w.WriteLine(line);
                 }
+                catch { }
             }
         }
     }
