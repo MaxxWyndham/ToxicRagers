@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
+﻿using System.Text;
 
 using ToxicRagers.Carmageddon2.Helpers;
 using ToxicRagers.Helpers;
 
-namespace ToxicRagers.Carmageddon2.Formats
+namespace ToxicRagers.Brender.Formats
 {
     public class DAT
     {
@@ -152,7 +149,7 @@ namespace ToxicRagers.Carmageddon2.Formats
 
                     //begin vertex data
                     bw.WriteInt32(23);
-                    bw.WriteInt32((dm.Mesh.Verts.Count * 12) + 4);
+                    bw.WriteInt32(dm.Mesh.Verts.Count * 12 + 4);
                     bw.WriteInt32(dm.Mesh.Verts.Count);
 
                     for (int j = 0; j < dm.Mesh.Verts.Count; j++)
@@ -165,7 +162,7 @@ namespace ToxicRagers.Carmageddon2.Formats
 
                     //begin uv data (00 00 00 18)
                     bw.WriteInt32(24);
-                    bw.WriteInt32((dm.Mesh.UVs.Count * 8) + 4);
+                    bw.WriteInt32(dm.Mesh.UVs.Count * 8 + 4);
                     bw.WriteInt32(dm.Mesh.UVs.Count);
 
                     for (int j = 0; j < dm.Mesh.UVs.Count; j++)
@@ -177,7 +174,7 @@ namespace ToxicRagers.Carmageddon2.Formats
 
                     //begin face data (00 00 00 35)
                     bw.WriteInt32(53);
-                    bw.WriteInt32((dm.Mesh.Faces.Count * 9) + 4);
+                    bw.WriteInt32(dm.Mesh.Faces.Count * 9 + 4);
                     bw.WriteInt32(dm.Mesh.Faces.Count);
 
                     for (int j = 0; j < dm.Mesh.Faces.Count; j++)
@@ -205,7 +202,7 @@ namespace ToxicRagers.Carmageddon2.Formats
 
                     //begin face textures
                     bw.WriteInt32(26);
-                    bw.WriteInt32((dm.Mesh.Faces.Count * 2) + 4);
+                    bw.WriteInt32(dm.Mesh.Faces.Count * 2 + 4);
                     bw.WriteInt32(dm.Mesh.Faces.Count);
                     bw.WriteInt32(2);
 

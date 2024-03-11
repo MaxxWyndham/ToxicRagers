@@ -4,11 +4,10 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
-
 using ToxicRagers.Carmageddon.Helpers;
 using ToxicRagers.Helpers;
 
-namespace ToxicRagers.Carmageddon.Formats
+namespace ToxicRagers.Brender.Formats
 {
     public class PIX
     {
@@ -130,7 +129,7 @@ namespace ToxicRagers.Carmageddon.Formats
                     bw.WriteByte(0);
 
                     bw.WriteInt32(0x21);
-                    bw.WriteInt32(8 + (pixie.RowSize * pixie.Height));
+                    bw.WriteInt32(8 + pixie.RowSize * pixie.Height);
                     bw.WriteInt32(pixie.PixelCount);
                     bw.WriteInt32(pixie.PixelSize);
                     bw.Write(pixie.Data);
@@ -140,15 +139,31 @@ namespace ToxicRagers.Carmageddon.Formats
                 }
             }
         }
+
+        public void RebuildPalette(PIXIE pixie)
+        {
+            if (pixie.Format != PIXIE.PixelmapFormat.Palette) { return; }
+
+            for (int i = 0; i < 256; i++)
+            {
+                GamePalette[i] = Colour.FromArgb(
+                    255,
+                    pixie.Data[i * 4 + 1],
+                    pixie.Data[i * 4 + 2],
+                    pixie.Data[i * 4 + 3]
+                );
+            }
+        }
     }
 
     public class PIXIE
     {
         public enum PixelmapFormat
         {
-            C1_8bit = 3,
+            Indexed8bit = 3,
             C2_16bit = 5,
             Palette = 7,
+            BGR555 = 11,
             C2_16bitAlpha = 18
         }
 
@@ -211,14 +226,21 @@ namespace ToxicRagers.Carmageddon.Formats
         {
             switch (Format)
             {
-                case PixelmapFormat.C1_8bit:
+                case PixelmapFormat.Indexed8bit:
                     return PIX.GamePalette[Data[x + y * ActualRowSize]].ToColor();
 
                 case PixelmapFormat.C2_16bit:
-                    return ColorHelper.R5G6B5ToColor((Data[x + (y * RowSize)] << 8) | Data[x + (y * RowSize) + 1]);
+                    return ColorHelper.R5G6B5ToColor(Data[x + y * RowSize] << 8 | Data[x + y * RowSize + 1]);
 
                 case PixelmapFormat.C2_16bitAlpha:
-                    return ColorHelper.A4R4G4B4ToColor(Data[x + (y * RowSize)] << 8 | Data[x + (y * RowSize) + 1]);
+                    return ColorHelper.A4R4G4B4ToColor(Data[x + y * RowSize] << 8 | Data[x + y * RowSize + 1]);
+
+                case PixelmapFormat.Palette:
+                    return Color.FromArgb(
+                        255,
+                        Data[y * 4 + x + 1],
+                        Data[y * 4 + x + 2],
+                        Data[y * 4 + x + 3]);
             }
 
             return Color.Pink;
@@ -253,7 +275,7 @@ namespace ToxicRagers.Carmageddon.Formats
                 {
                     Colour c = Colour.FromColor(bitmap.GetPixel(x, y));
 
-                    if (!lut.TryGetValue(c, out byte index)) 
+                    if (!lut.TryGetValue(c, out byte index))
                     {
                         index = (byte)PIX.GamePalette.GetNearestPixelIndex(c);
                         lut.Add(c, index);
@@ -271,34 +293,32 @@ namespace ToxicRagers.Carmageddon.Formats
         public Bitmap GetBitmap()
         {
             Bitmap bmp = new Bitmap(Width, Height, PixelFormat.Format32bppArgb);
+            BitmapData bmpdata = bmp.LockBits(new Rectangle(0, 0, Width, Height), ImageLockMode.ReadWrite, PixelFormat.Format32bppArgb);
+
+            using (MemoryStream nms = new MemoryStream())
             {
-                BitmapData bmpdata = bmp.LockBits(new Rectangle(0, 0, Width, Height), ImageLockMode.ReadWrite, PixelFormat.Format32bppArgb);
-
-                using (MemoryStream nms = new MemoryStream())
+                for (int y = 0; y < Height; y++)
                 {
-                    for (int y = 0; y < Height; y++)
+                    for (int x = 0; x < ActualRowSize; x++)
                     {
-                        for (int x = 0; x < ActualRowSize; x++)
-                        {
-                            Color c = GetColourAtPixel(x * PixelSize, y);
-                            nms.WriteByte(c.B);
-                            nms.WriteByte(c.G);
-                            nms.WriteByte(c.R);
-                            nms.WriteByte(c.A);
-                        }
+                        Color c = GetColourAtPixel(x * PixelSize, y);
+                        nms.WriteByte(c.B);
+                        nms.WriteByte(c.G);
+                        nms.WriteByte(c.R);
+                        nms.WriteByte(c.A);
                     }
-
-                    byte[] contentBuffer = new byte[nms.Length];
-                    nms.Position = 0;
-                    nms.Read(contentBuffer, 0, contentBuffer.Length);
-
-                    Marshal.Copy(contentBuffer, 0, bmpdata.Scan0, contentBuffer.Length);
                 }
 
-                bmp.UnlockBits(bmpdata);
+                byte[] contentBuffer = new byte[nms.Length];
+                nms.Position = 0;
+                nms.Read(contentBuffer, 0, contentBuffer.Length);
 
-                return bmp;
+                Marshal.Copy(contentBuffer, 0, bmpdata.Scan0, contentBuffer.Length);
             }
+
+            bmp.UnlockBits(bmpdata);
+
+            return bmp;
         }
     }
 }

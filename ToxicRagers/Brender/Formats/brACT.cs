@@ -5,7 +5,7 @@ using System.Text;
 
 using ToxicRagers.Helpers;
 
-namespace ToxicRagers.Carmageddon2.Formats
+namespace ToxicRagers.Brender.Formats
 {
     public enum Section
     {
