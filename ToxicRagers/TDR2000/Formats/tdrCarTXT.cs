@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ToxicRagers.Carmageddon.Helpers;
+﻿using ToxicRagers.Carmageddon.Helpers;
 
 namespace ToxicRagers.TDR2000.Formats
 {
-    public class CarText
+    public class Car
     {
         private string name;
         private string description;
@@ -126,12 +121,10 @@ namespace ToxicRagers.TDR2000.Formats
             set => armour_map = value;
         }
 
-        public static CarText Load(string path)
+        public static Car Load(string path)
         {
-
-            CarText car = new CarText();
-
             DocumentParser parser = new DocumentParser(path);
+            Car car = new();
 
             bool readingDescription = false;
             while (!parser.EOF)

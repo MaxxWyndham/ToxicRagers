@@ -9,31 +9,25 @@ namespace ToxicRagers.TDR2000.Formats
 {
     public class PAK
     {
-        string name;
-        string location;
-        List<PAKEntry> contents;
+        public string Name { get; set; }
 
-        public string Name => name;
-        public List<PAKEntry> Contents => contents;
+        public string Location { get; set; }
 
-        public PAK()
-        {
-            contents = new List<PAKEntry>();
-        }
+        public List<PAKEntry> Contents { get; set; } = new List<PAKEntry>();
 
         public static PAK Load(string path)
         {
             FileInfo fi = new FileInfo(path);
             Logger.LogToFile(Logger.LogLevel.Info, "{0}", path);
-            PAK pak = new PAK()
+            PAK pak = new PAK
             {
-                name = Path.GetFileNameWithoutExtension(path),
-                location = Path.GetDirectoryName(path) + "\\"
+                Name = Path.GetFileNameWithoutExtension(path),
+                Location = Path.GetDirectoryName(path)
             };
 
             char[] filename = new char[255];
             bool[] rollback = new bool[255];
-            byte code = 0;
+            byte code;
             int i = 0;
             string sBase = "";
 
@@ -61,7 +55,7 @@ namespace ToxicRagers.TDR2000.Formats
                         Offset = (int)brDir.ReadUInt32(),
                         Size = (int)brDir.ReadUInt32()
                     };
-                    pak.contents.Add(entry);
+                    pak.Contents.Add(entry);
 
                     switch (code)
                     {
@@ -92,8 +86,8 @@ namespace ToxicRagers.TDR2000.Formats
         {
             if (!Directory.Exists(destination)) { Directory.CreateDirectory(destination); }
 
-            using (BinaryWriter bw = new BinaryWriter(new FileStream(destination + "\\" + file.Name, FileMode.Create)))
-            using (FileStream fs = new FileStream(location + name + ".pak", FileMode.Open))
+            using (BinaryWriter bw = new BinaryWriter(new FileStream(Path.Combine(destination, file.Name), FileMode.Create)))
+            using (FileStream fs = new FileStream(Path.Combine(Location, $"{Name}.pak"), FileMode.Open))
             {
                 fs.Seek(file.Offset, SeekOrigin.Begin);
                 Console.WriteLine($"\tExtracting {file.Name}");
@@ -112,9 +106,7 @@ namespace ToxicRagers.TDR2000.Formats
                         b = 256 * (b ^ d);
                         c = 65536 * (c ^ d);
                         d = 16777216 * (d ^ d);
-                        file.Size = (a + b + c + d);
-                        Console.WriteLine($"\t\t{a} - {b} - {c} - {d}");
-                        Console.WriteLine($"\t\t{file.Size}");
+                        file.Size = a + b + c + d;
 
                         // Compressed!
                         //fs.Seek(2, SeekOrigin.Current);
@@ -135,7 +127,6 @@ namespace ToxicRagers.TDR2000.Formats
                         byte[] buff = new byte[file.Size];
                         fs.Read(buff, 0, file.Size);
                         bw.Write(buff);
-                        buff = null;
                     }
                 }
             }
@@ -144,26 +135,10 @@ namespace ToxicRagers.TDR2000.Formats
 
     public class PAKEntry
     {
-        string name;
-        int offset;
-        int size;
+        public string Name { get; set; }
 
-        public string Name
-        {
-            get => name;
-            set => name = value;
-        }
+        public int Offset { get; set; }
 
-        public int Offset
-        {
-            get => offset;
-            set => offset = value;
-        }
-
-        public int Size
-        {
-            get => size;
-            set => size = value;
-        }
+        public int Size { get; set; }
     }
 }

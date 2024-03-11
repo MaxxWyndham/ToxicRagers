@@ -1,16 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ToxicRagers.Carmageddon.Helpers;
+﻿using ToxicRagers.Carmageddon.Helpers;
 using ToxicRagers.Helpers;
 
 namespace ToxicRagers.TDR2000.Formats
 {
     public class CarDescriptor
     {
-
         private Dictionary<string, object> tokens = new Dictionary<string, object>();
         private string textureDescriptorFile;
         private string hierarchyFile;
@@ -26,7 +20,7 @@ namespace ToxicRagers.TDR2000.Formats
         private Vector2 topLeftUV;
         private Vector2 bottomRightUV;
         private float brakeLightSize;
-        
+
         // Node Definitions
         private int numBrakeLights;
         private List<string> brakeLightNodes = new List<string>();
@@ -39,7 +33,7 @@ namespace ToxicRagers.TDR2000.Formats
         private string trailerDescriptor;
         private int numEngineFireSmokeNodes;
         private List<string> engineFireSmokeNodes = new List<string>();
-        
+
         // Handling
         private int numGears;
         private List<float> gears = new List<float>();
@@ -416,49 +410,49 @@ namespace ToxicRagers.TDR2000.Formats
                     {
                         descriptor.Tokens.Add(tokenLine[0], tokenLine.Length > 1 ? tokenLine[1] : null);
                     }
-                    
+
                 }
                 parser.ReadLine();
 
 
             }
 
-            descriptor.TextureDescriptorFile = parser.ReadLine().Trim().Replace("\"","");
+            descriptor.TextureDescriptorFile = parser.ReadLine().Trim().Replace("\"", "");
             descriptor.HierarchyFile = parser.ReadLine().Trim().Replace("\"", "");
             descriptor.HeaderFile = parser.ReadLine().Trim().Replace("\"", "");
             descriptor.DynamicObjectFile = parser.ReadLine().Trim().Replace("\"", "");
             descriptor.ShadowDcolFile = parser.ReadLine().Trim().Replace("\"", "");
             descriptor.DeformationFile = parser.ReadLine().Trim().Replace("\"", "");
-            descriptor.HornSirenSfx  = parser.ReadLine().Trim().Replace("\"", "");
+            descriptor.HornSirenSfx = parser.ReadLine().Trim().Replace("\"", "");
             descriptor.EngineSfx = parser.ReadLine().Trim().Replace("\"", "");
             descriptor.BrakeLightsTextureName = parser.ReadLine().Trim().Replace("\"", "");
 
             var splitLine = parser.ReadLine().Trim().Split(new[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
             descriptor.TopLeftUV = new Vector2(float.Parse(splitLine[0]), float.Parse(splitLine[1]));
-            
+
             splitLine = parser.ReadLine().Trim().Split(new[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
             descriptor.BottomRightUV = new Vector2(float.Parse(splitLine[0]), float.Parse(splitLine[1]));
             descriptor.BrakeLightSize = parser.ReadSingle();
-            
+
             descriptor.NumBrakeLights = parser.ReadInt();
 
             for (int i = 0; i < descriptor.NumBrakeLights; i++)
             {
-                descriptor.BrakeLightNodes.Add(parser.ReadLine().Replace("\"",""));
+                descriptor.BrakeLightNodes.Add(parser.ReadLine().Replace("\"", ""));
             }
-            
+
             descriptor.NumDoors = parser.ReadInt();
 
             for (int i = 0; i < descriptor.NumDoors; i++)
             {
-                descriptor.DoorNodes.Add(parser.ReadLine().Replace("\"",""));
+                descriptor.DoorNodes.Add(parser.ReadLine().Replace("\"", ""));
             }
-            
+
             descriptor.NumBonnets = parser.ReadInt();
 
             for (int i = 0; i < descriptor.NumBonnets; i++)
             {
-                descriptor.BonnetNodes.Add(parser.ReadLine().Replace("\"",""));
+                descriptor.BonnetNodes.Add(parser.ReadLine().Replace("\"", ""));
             }
 
             descriptor.ShellNode = parser.ReadLine().Trim().Replace("\"", "");
@@ -469,7 +463,7 @@ namespace ToxicRagers.TDR2000.Formats
 
             for (int i = 0; i < descriptor.NumEngineFireSmokeNodes; i++)
             {
-                descriptor.EngineFireSmokeNodes.Add( parser.ReadLine().Trim().Replace("\"", ""));
+                descriptor.EngineFireSmokeNodes.Add(parser.ReadLine().Trim().Replace("\"", ""));
             }
 
             descriptor.NumGears = parser.ReadInt();
@@ -582,7 +576,7 @@ namespace ToxicRagers.TDR2000.Formats
                 writer.WriteLine("// Dynamic object filename");
                 writer.WriteLine($"\t\"{DynamicObjectFile}\"");
                 writer.WriteLine();
-                
+
                 writer.WriteLine("// Shadow dcol filename");
                 writer.WriteLine($"\t\"{ShadowDcolFile}\"");
                 writer.WriteLine();
@@ -827,7 +821,7 @@ namespace ToxicRagers.TDR2000.Formats
                 writer.WriteLine("// camera to steering wheel offset ");
                 writer.WriteLine($"\t{CockpitCarmeraToSteeringWheelOffset.X:F}	{CockpitCarmeraToSteeringWheelOffset.Y:F}	{CockpitCarmeraToSteeringWheelOffset.Z:F}");
                 writer.WriteLine();
-                
+
                 writer.WriteLine($"\t\"{DriverNode}\"");
             }
         }

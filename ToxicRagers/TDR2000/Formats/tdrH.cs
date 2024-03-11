@@ -9,14 +9,7 @@ namespace ToxicRagers.TDR2000.Formats
 {
     public class H
     {
-        Dictionary<int, string> definitions;
-
-        public Dictionary<int, string> Definitions => definitions;
-
-        public H()
-        {
-            definitions = new Dictionary<int, string>();
-        }
+        public Dictionary<int, string> Definitions { get; set; } = new Dictionary<int, string>();
 
         public static H Load(string path)
         {
@@ -34,11 +27,28 @@ namespace ToxicRagers.TDR2000.Formats
                 if (lines[i].StartsWith("#define"))
                 {
                     string[] parts = lines[i].Split(" ".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
-                    h.definitions[int.Parse(parts[2])] = parts[1];
+                    h.Definitions[int.Parse(parts[2])] = parts[1];
                 }
             }
 
             return h;
+        }
+
+        public void Save(string path)
+        {
+            using (StreamWriter sw = new StreamWriter(path))
+            {
+                sw.WriteLine();
+                sw.WriteLine($"// Node identifiers for {Path.GetFileNameWithoutExtension(path)} hierarchy");
+                sw.WriteLine();
+
+                foreach (KeyValuePair<int, string> kvp in Definitions)
+                {
+                    sw.WriteLine($"#define {kvp.Value}        {kvp.Key}");
+                }
+
+                sw.WriteLine();
+            }
         }
     }
 }
