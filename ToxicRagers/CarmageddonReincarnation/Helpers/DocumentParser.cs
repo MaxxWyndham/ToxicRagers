@@ -10,6 +10,18 @@ namespace ToxicRagers.CarmageddonReincarnation.Helpers
     {
         BinaryReader br;
         long position;
+        public int LineNum { get; set; }
+
+        public long Position
+        {
+            get => position;
+            set
+            {
+                br.BaseStream.Seek(value, SeekOrigin.Begin);
+                position = value;
+            }
+        }
+
         static string lastLine;
 
         public DocumentParser(string path)
@@ -79,6 +91,10 @@ namespace ToxicRagers.CarmageddonReincarnation.Helpers
                         break;
 
                     case 10:
+                        if (s.Length == 0) { LineNum++; }
+                        bRead = (s.Length == 0);
+                        break;
+
                     case 13:
                         bRead = (s.Length == 0);
                         break;
@@ -99,6 +115,7 @@ namespace ToxicRagers.CarmageddonReincarnation.Helpers
             if (s.IndexOf("/") > -1) { s = s.Substring(0, s.IndexOf("/")).Trim(); } else { s = s.Trim(); }
 
             lastLine = (s.Length > 0 ? s : null);
+            LineNum++;
 
             return lastLine;
         }
@@ -123,6 +140,11 @@ namespace ToxicRagers.CarmageddonReincarnation.Helpers
         public Vector3 ReadVector3()
         {
             return Vector3.Parse(ReadNextLine());
+        }
+
+        public Colour ReadColour()
+        {
+            return Colour.Parse(ReadNextLine());
         }
 
         public string[] ReadStringArray(int expectedLength = -1)
