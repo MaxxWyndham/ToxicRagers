@@ -45,6 +45,8 @@ namespace ToxicRagers.Helpers
 
         public float Y { get; set; }
 
+        public Vector2() { }
+
         public Vector2(float x, float y)
         {
             X = x;

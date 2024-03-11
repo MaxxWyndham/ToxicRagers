@@ -54,6 +54,8 @@ namespace ToxicRagers.Helpers
             }
         }
 
+        public Vector3() { }
+
         public Vector3(float x, float y, float z)
         {
             X = x;
@@ -239,11 +241,19 @@ namespace ToxicRagers.Helpers
 
         public static bool operator ==(Vector3 x, Vector3 y)
         {
+            if (x is null && y is null) { return true; }
+
+            if ((x is null && y is not null) || (x is not null && y is null)) { return false; }
+
             return x.Equals(y);
         }
 
         public static bool operator !=(Vector3 x, Vector3 y)
         {
+            if (x is null && y is null) { return false; }
+
+            if ((x is null && y is not null) || (x is not null && y is null)) { return true; }
+
             return !x.Equals(y);
         }
 

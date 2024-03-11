@@ -63,6 +63,8 @@ namespace ToxicRagers.Helpers
             }
         }
 
+        public Vector4() { }
+
         public Vector4(float n)
         {
             X = n;

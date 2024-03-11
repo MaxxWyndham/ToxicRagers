@@ -27,6 +27,8 @@ namespace ToxicRagers.Helpers
 
         public static readonly Quaternion Identity = new Quaternion(0, 0, 0, 1);
 
+        public Quaternion() { }
+
         public Quaternion (Vector3 xyz, float w)
         {
             X = xyz.X;
@@ -121,6 +123,14 @@ namespace ToxicRagers.Helpers
             Y *= scale;
             Z *= scale;
             W *= scale;
+        }
+
+        public static Quaternion Parse(string q)
+        {
+            q = q.Replace(" ", "");
+            string[] s = q.Split(new char[] { ',', '\t' }, StringSplitOptions.RemoveEmptyEntries);
+
+            return new Quaternion(s[0].ToSingle(), s[1].ToSingle(), s[2].ToSingle(), s[3].ToSingle());
         }
 
         public static Quaternion operator *(Quaternion x, Quaternion y)
