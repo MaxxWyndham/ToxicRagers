@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ToxicRagers.Carmageddon.Helpers;
+﻿using ToxicRagers.Carmageddon.Helpers;
 using ToxicRagers.Helpers;
 
 namespace ToxicRagers.Carmageddon.Formats
