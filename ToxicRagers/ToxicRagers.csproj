@@ -4,6 +4,17 @@
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <Title>Toxic Ragers</Title>
+    <Authors>MaxxWyndham</Authors>
+    <Company>Maxx 'Errol' Wyndham</Company>
+    <Product>Toxic Ragers</Product>
+    <Description>A collection of file handlers for various games</Description>
+    <Copyright>Copyright © Maxx Wyndham 2011-2024</Copyright>
+    <PackageProjectUrl>https://github.com/MaxxWyndham/ToxicRagers</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/MaxxWyndham/ToxicRagers</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <Version>2.0.1</Version>
+    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <ItemGroup>
