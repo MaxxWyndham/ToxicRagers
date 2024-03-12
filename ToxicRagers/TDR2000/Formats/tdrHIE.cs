@@ -46,6 +46,11 @@ namespace ToxicRagers.TDR2000.Formats
 
         public TDRNode Root => Nodes[0];
 
+        public static HIE Load(string path)
+        {
+            return Load(path, null);
+        }
+
         public static HIE Load(string path, string hFilePath = null)
         {
             void walkHierarchy(TDRNode parent, int index, HIE hierarchy)
