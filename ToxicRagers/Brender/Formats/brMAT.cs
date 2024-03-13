@@ -44,8 +44,7 @@ namespace ToxicRagers.Brender.Formats
 
                     switch (tag)
                     {
-                        case 0x4:
-                            // C1 mat file
+                        case 0x4:   // C1 mat file
                             M = new MATMaterial();
 
                             M.DiffuseColour[0] = br.ReadByte();     // R
@@ -81,13 +80,11 @@ namespace ToxicRagers.Brender.Formats
                             M.Name = br.ReadString();
                             break;
 
-                        case 0x1c:
-                            // colour_map
+                        case 0x1c:  // colour_map
                             M.Texture = br.ReadString();
                             break;
 
-                        case 0x1f:
-                            // shadetable
+                        case 0x1f:  // shadetable
                             M.ShadeTable = br.ReadString(); 
                             break;
 
@@ -184,6 +181,14 @@ namespace ToxicRagers.Brender.Formats
                         material.ShadeTable = parts[1].Replace("\"", "");
                         break;
 
+                    case "index_blend":
+                        material.BlendTable = parts[1].Replace("\"", "");
+                        break;
+
+                    case "index_fog":
+                        material.FogTable = parts[1].Replace("\"", "");
+                        break;
+
                     case "]":
                         mat.Materials.Add(material);
                         break;
@@ -257,7 +262,7 @@ namespace ToxicRagers.Brender.Formats
             Light = 1,
             PreLit = 2,
             Smooth = 4,
-            EnvMapped_inf = 8,
+            Environment = 8,
             Environment_Local = 16,
             Perspective = 32,
             Decal = 64,
@@ -297,6 +302,10 @@ namespace ToxicRagers.Brender.Formats
         public string Texture { get; set; }
 
         public string ShadeTable { get; set; }
+
+        public string BlendTable { get; set; }
+
+        public string FogTable { get; set; }
 
         public Matrix2D UVMatrix { get; set; } = new Matrix2D(1, 0, 0, 1, 0, 0);
 

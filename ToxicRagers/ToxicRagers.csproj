@@ -13,7 +13,7 @@
     <PackageProjectUrl>https://github.com/MaxxWyndham/ToxicRagers</PackageProjectUrl>
     <RepositoryUrl>https://github.com/MaxxWyndham/ToxicRagers</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-    <Version>2.0.1</Version>
+    <Version>2.0.3</Version>
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
   </PropertyGroup>
 
