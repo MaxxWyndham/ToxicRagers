@@ -93,7 +93,7 @@ namespace ToxicRagers.Brender.Formats
 
                             for (int i = 0; i < count; i++)
                             {
-                                mesh.Faces[i].MaterialId = br.ReadUInt16() - 1;
+                                mesh.Faces[i].MaterialId = br.ReadUInt16();
                             }
                             break;
 
@@ -113,106 +113,109 @@ namespace ToxicRagers.Brender.Formats
 
         public void Save(string path)
         {
-            using (FileStream fs = new(path, FileMode.Create))
-            using (BEBinaryWriter bw = new(fs))
+            using FileStream fs = new(path, FileMode.Create);
+            using BEBinaryWriter bw = new(fs);
+            int matListLength;
+            string name;
+
+            //output header
+            bw.WriteInt32(0x12);
+            bw.WriteInt32(0x8);
+            bw.WriteInt32(0xface);
+            bw.WriteInt32(0x2);
+
+            for (int i = 0; i < DatMeshes.Count; i++)
             {
-                int matListLength;
-                string name;
+                DatMesh dm = DatMeshes[i];
+                matListLength = 0;
 
-                //output header
-                bw.WriteInt32(0x12);
-                bw.WriteInt32(0x8);
-                bw.WriteInt32(0xface);
-                bw.WriteInt32(0x2);
-
-                for (int i = 0; i < DatMeshes.Count; i++)
+                for (int j = 0; j < dm.Materials.Count; j++)
                 {
-                    DatMesh dm = DatMeshes[i];
-                    matListLength = 0;
-
-                    for (int j = 0; j < dm.Materials.Count; j++)
-                    {
-                        matListLength += dm.Materials[j].Length + 1;
-                    }
-
-                    name = dm.Name;
-                    //Console.WriteLine(name + " : " + dm.Mesh.Verts.Count);
-
-                    //begin name section
-                    bw.WriteInt32((int)ChunkId.ModelOld2);
-                    bw.WriteInt32(name.Length + 3);
-                    bw.WriteInt16(dm.Flags);
-                    bw.Write(name.ToCharArray());
-                    bw.WriteByte(0);
-                    //end name section
-
-                    //begin vertex data
-                    bw.WriteInt32((int)ChunkId.Vertices);
-                    bw.WriteInt32(dm.Vertices.Count * 12 + 4);
-                    bw.WriteInt32(dm.Vertices.Count);
-
-                    for (int j = 0; j < dm.Vertices.Count; j++)
-                    {
-                        bw.WriteSingle(dm.Vertices[j].X);
-                        bw.WriteSingle(dm.Vertices[j].Y);
-                        bw.WriteSingle(dm.Vertices[j].Z);
-                    }
-                    //end vertex data
-
-                    //begin uv data (00 00 00 18)
-                    bw.WriteInt32(24);
-                    bw.WriteInt32(dm.UVs.Count * 8 + 4);
-                    bw.WriteInt32(dm.UVs.Count);
-
-                    for (int j = 0; j < dm.UVs.Count; j++)
-                    {
-                        bw.WriteSingle(dm.UVs[j].X);
-                        bw.WriteSingle(dm.UVs[j].Y);
-                    }
-                    //end uv data
-
-                    //begin face data (00 00 00 35)
-                    bw.WriteInt32(53);
-                    bw.WriteInt32(dm.Faces.Count * 9 + 4);
-                    bw.WriteInt32(dm.Faces.Count);
-
-                    for (int j = 0; j < dm.Faces.Count; j++)
-                    {
-                        bw.WriteInt16(dm.Faces[j].V1);
-                        bw.WriteInt16(dm.Faces[j].V2);
-                        bw.WriteInt16(dm.Faces[j].V3);
-                        bw.WriteInt16(dm.Faces[j].SmoothingGroup);
-                        bw.WriteByte(dm.Faces[j].Flags);
-                    }
-                    //end face data
-
-                    //begin material list
-                    bw.WriteInt32(22);
-                    bw.WriteInt32(matListLength + 4);
-                    bw.WriteInt32(dm.Materials.Count);
-
-                    for (int j = 0; j < dm.Materials.Count; j++)
-                    {
-                        bw.Write(dm.Materials[j].ToCharArray());
-                        bw.WriteByte(0);
-                    }
-                    //end material list
-
-                    //begin face textures
-                    bw.WriteInt32(26);
-                    bw.WriteInt32(dm.Faces.Count * 2 + 4);
-                    bw.WriteInt32(dm.Faces.Count);
-                    bw.WriteInt32(2);
-
-                    for (int j = 0; j < dm.Faces.Count; j++)
-                    {
-                        bw.WriteInt16(dm.Faces[j].MaterialId + 1);
-                    }
-                    //end face textures
-
-                    bw.WriteInt32(0);
-                    bw.WriteInt32(0);
+                    matListLength += dm.Materials[j].Length + 1;
                 }
+
+                name = dm.Name;
+
+                // begin name section
+                // 00 00 00 36
+                bw.WriteInt32((int)ChunkId.ModelOld2);
+                bw.WriteInt32(name.Length + 3);
+                bw.WriteInt16(dm.Flags);
+                bw.Write(name.ToCharArray());
+                bw.WriteByte(0);
+                // end name section
+
+                // begin vertex data
+                // 00 00 00 17
+                bw.WriteInt32((int)ChunkId.Vertices);
+                bw.WriteInt32(dm.Vertices.Count * 12 + 4);
+                bw.WriteInt32(dm.Vertices.Count);
+
+                for (int j = 0; j < dm.Vertices.Count; j++)
+                {
+                    bw.WriteSingle(dm.Vertices[j].X);
+                    bw.WriteSingle(dm.Vertices[j].Y);
+                    bw.WriteSingle(dm.Vertices[j].Z);
+                }
+                // end vertex data
+
+                // begin uv data
+                // 00 00 00 18
+                bw.WriteInt32((int)ChunkId.UVs);
+                bw.WriteInt32(dm.UVs.Count * 8 + 4);
+                bw.WriteInt32(dm.UVs.Count);
+
+                for (int j = 0; j < dm.UVs.Count; j++)
+                {
+                    bw.WriteSingle(dm.UVs[j].X);
+                    bw.WriteSingle(dm.UVs[j].Y);
+                }
+                // end uv data
+
+                // begin face data
+                // 00 00 00 35
+                bw.WriteInt32((int)ChunkId.Faces);
+                bw.WriteInt32(dm.Faces.Count * 9 + 4);
+                bw.WriteInt32(dm.Faces.Count);
+
+                for (int j = 0; j < dm.Faces.Count; j++)
+                {
+                    bw.WriteInt16(dm.Faces[j].V1);
+                    bw.WriteInt16(dm.Faces[j].V2);
+                    bw.WriteInt16(dm.Faces[j].V3);
+                    bw.WriteInt16(dm.Faces[j].SmoothingGroup);
+                    bw.WriteByte(dm.Faces[j].Flags);
+                }
+                // end face data
+
+                // begin material list
+                // 00 00 00 16
+                bw.WriteInt32((int)ChunkId.Materials);
+                bw.WriteInt32(matListLength + 4);
+                bw.WriteInt32(dm.Materials.Count);
+
+                for (int j = 0; j < dm.Materials.Count; j++)
+                {
+                    bw.Write(dm.Materials[j].ToCharArray());
+                    bw.WriteByte(0);
+                }
+                // end material list
+
+                // begin face textures
+                // 00 00 00 1A
+                bw.WriteInt32((int)ChunkId.FaceMaterial);
+                bw.WriteInt32(dm.Faces.Count * 2 + 4);
+                bw.WriteInt32(dm.Faces.Count);
+                bw.WriteInt32(2);
+
+                for (int j = 0; j < dm.Faces.Count; j++)
+                {
+                    bw.WriteInt16(dm.Faces[j].MaterialId);
+                }
+                // end face textures
+
+                bw.WriteInt32(0);
+                bw.WriteInt32(0);
             }
         }
     }
@@ -226,8 +229,6 @@ namespace ToxicRagers.Brender.Formats
         public List<string> Materials { get; set; } = new List<string>();
 
         public List<Vector3> Vertices { get; set; } = new List<Vector3>();
-
-        public Dictionary<int, Vector3> Normals { get; set; } = new Dictionary<int, Vector3>();
 
         public List<Vector2> UVs { get; set; } = new List<Vector2>();
 
@@ -246,6 +247,7 @@ namespace ToxicRagers.Brender.Formats
 
         public int SmoothingGroup { get; set; }
 
+        // MaterialId 0 has no material assigned
         public int MaterialId { get; set; }
 
         public byte Flags { get; set; }
